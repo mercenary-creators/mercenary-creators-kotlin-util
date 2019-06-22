@@ -37,5 +37,12 @@ class SequenceTest : KotlinTest() {
         list.size.shouldBe(10) {
             "not 10"
         }
+        val ints = sequenceOf(1..16).toList()
+        ints.forEach {
+            info { it }
+        }
+        ints.size.shouldBe(16) {
+            "not 16"
+        }
     }
 }
