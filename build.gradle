@@ -1,0 +1,225 @@
+/*
+ * Copyright (c) 2019, Mercenary Creators Company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+buildscript {
+    ext {
+        set('kotlinVersion', '1.3.40')
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath(group: 'org.ajoberstar', name: 'grgit', version: '1.7.2')
+        classpath(group: 'commons-codec', name: 'commons-codec', version: '1.12')
+        classpath(group: 'commons-logging', name: 'commons-logging', version: '1.2')
+        classpath(group: 'org.owasp', name: 'dependency-check-gradle', version: '4.0.2')
+        classpath(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8')
+        classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-noarg', version: kotlinVersion)
+        classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-allopen', version: kotlinVersion)
+        classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: kotlinVersion)
+    }
+}
+
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'kotlin'
+apply plugin: 'signing'
+apply plugin: 'kotlin-spring'
+apply plugin: 'org.owasp.dependencycheck'
+
+import org.ajoberstar.grgit.Grgit
+
+sourceCompatibility = 1.8
+
+targetCompatibility = 1.8
+
+group = 'co.mercenary-creators'
+
+version = '0.0.1-SNAPSHOT'
+
+task doJavaDocs(type: Javadoc) {
+    source = sourceSets.main.allJava
+    classpath = sourceSets.main.compileClasspath + buildscript.configurations.classpath
+    destinationDir = project.file("${buildDir}/docs/javadoc")
+    includes = ['co/mercenary/creators/**']
+    excludes = ['co/mercenary/creators/core/kotlin/**']
+    title = "${getProjectCommonName()}"
+    (options as StandardJavadocDocletOptions).with {
+        links = getJavaDocLinks()
+        stylesheetFile = project.file('config/javadoc/mercenary.css')
+        bottom = "<div><h4 class=\"footer\"><a href=\"${getBuildGITHomeURL()}\" target=\"_blank\">${getProjectCommonName()} - Copyright &copy; 2019, Mercenary Creators Company</a> - <a href=\"${getBuildGITCommitHash()}\" target=\"_blank\">${getBuildModuleVersion()}</a> - <a href=\"mailto:deansjones@gmail.com\">Author: Dean S. Jones</a></h4></div>"
+    }
+}
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjsr305=strict', '-Xjvm-default=compatibility']
+        jvmTarget = '1.8'
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjsr305=strict', '-Xjvm-default=compatibility']
+        jvmTarget = '1.8'
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: doJavaDocs) {
+    archiveClassifier.set('javadoc')
+    from "${buildDir}/docs/javadoc"
+}
+
+test {
+    minHeapSize = '2048m'
+    maxHeapSize = '2048m'
+    testLogging.showStandardStreams = true
+    useJUnitPlatform()
+}
+
+dependencyCheck {
+    failOnError = false
+    outputDirectory = "${buildDir}/reports/cve"
+    suppressionFile = project.file('config/cve/suppress.xml').toPath()
+}
+
+task checkCodeQuality { doLast { println ':checkCodeQuality-done' } }
+
+checkCodeQuality.dependsOn dependencyCheckAnalyze
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+}
+
+dependencies {
+    compile(group: 'commons-codec', name: 'commons-codec', version: '1.12')
+    compile(group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion)
+    compile(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlinVersion)
+    testCompile(group: 'junit', name: 'junit', version: '4.12')
+    testCompile(group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.24')
+    testCompile(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26')
+    testCompile(group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.26')
+    testCompile(group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.26')
+    testCompile(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3')
+    testCompile(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlinVersion)
+    testCompile(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.4.2')
+    testRuntime(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.4.2')
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+signing { sign configurations.archives }
+
+String getBuildModuleVersion() {
+    version
+}
+
+static String getProjectCommonName() {
+    'Mercenary Creators Kotlin Util'
+}
+
+String getBuildServerBuild() {
+    System.getenv('BUILD_DISPLAY_NAME') ?: "Gradle version ${gradle.gradleVersion}"
+}
+
+static String getBuildGITHomeSCM() {
+    'scm:git@github.com:mercenary-creators/' + getProjectArtifactID() + '.git'
+}
+
+static String getBuildGITHomeURL() {
+    'https://github.com/mercenary-creators/' + getProjectArtifactID()
+}
+
+static String getBuildGITCommitHash() {
+    getBuildGITHomeURL() + '/commit/' //+ Grgit.open().head().id
+}
+
+static String getProjectArtifactID() {
+    getProjectTitle().toLowerCase()
+}
+
+static String getProjectTitle() {
+    getProjectCommonName().replaceAll(' ', '-')
+}
+
+String getRepoUploadArchives() {
+    getBuildModuleVersion().endsWith('SNAPSHOT') ? 'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+}
+
+String getUserNameUploadArchives() {
+    project.findProperty('sonatype_username') ?: ''
+}
+
+String getPassWordUploadArchives() {
+    project.findProperty('sonatype_password') ?: ''
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            repository(url: getRepoUploadArchives()) {
+                authentication(userName: getUserNameUploadArchives(), password: getPassWordUploadArchives())
+            }
+            pom.project {
+                packaging 'jar'
+                description getProjectCommonName()
+                url getBuildGITHomeURL()
+                scm {
+                    url getBuildGITHomeSCM()
+                    connection getBuildGITHomeSCM()
+                    developerConnection getBuildGITHomeSCM()
+                }
+                licenses {
+                    license {
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'sprocketnyc'
+                        email 'deansjones@gmail.com'
+                        url 'https://www.themodernway.com'
+                    }
+                }
+            }
+        }
+    }
+}
+
+List<String> getJavaDocLinks() {
+    def list = []
+    def data = project.file('config/javadoc/JAVADOC_LINK_SITES.txt')
+    if (data.exists()) {
+        data.eachLine {
+            list << it
+        }
+    }
+    list
+}
