@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.core
 
-import co.mercenary.creators.kotlin.util.core.CoreCloseable
+import java.util.stream.Stream
 
-interface TimeWindowHandle : CoreCloseable
+open class CoreSequence<out T>(private val iterator: Iterator<T>) : Sequence<T> {
+    constructor() : this(listOf())
+    constructor(source: Array<T>) : this(source.iterator())
+    constructor(source: Stream<T>) : this(source.iterator())
+    constructor(source: Iterable<T>) : this(source.iterator())
+    constructor(source: Sequence<T>) : this(source.iterator())
+
+    override operator fun iterator() = iterator
+}

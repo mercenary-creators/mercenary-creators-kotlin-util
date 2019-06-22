@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.core
 
-import co.mercenary.creators.kotlin.util.core.CoreCloseable
-
-interface TimeWindowHandle : CoreCloseable
+interface CoreCloseable : AutoCloseable {
+    fun isOpen(): Boolean
+}

@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+@file:kotlin.jvm.JvmName("TestKt")
 
-import co.mercenary.creators.kotlin.util.core.CoreCloseable
+package co.mercenary.creators.kotlin.util
 
-interface TimeWindowHandle : CoreCloseable
+const val AUTHOR_NAME = "Dean S. Jones"
+
+typealias Executable = org.junit.jupiter.api.function.Executable
+
+typealias KotlinTest = co.mercenary.creators.kotlin.util.test.AbstractKotlinTest
+
+

@@ -16,16 +16,39 @@
 
 package co.mercenary.creators.kotlin.util.core.encoding
 
-import co.mercenary.creators.kotlin.util.getLowerTrim
+import co.mercenary.creators.kotlin.util.*
 import org.apache.commons.codec.binary.Hex
 
 object Encoders {
 
-    private val base16 = object : EncoderDecoder<String, ByteArray> {
+    private val byrw16 = object : EncoderDecoder<String, ByteArray> {
         override fun decode(data: String): ByteArray = Hex.decodeHex(getLowerTrim(data))
         override fun encode(data: ByteArray): String = getLowerTrim(Hex.encodeHexString(data))
     }
 
+    private val text16 = object : EncoderDecoder<String, String> {
+        override fun decode(data: String): String = String(byrw16.decode(data), Charsets.UTF_8)
+        override fun encode(data: String): String = byrw16.encode(data.toByteArray(Charsets.UTF_8))
+    }
+
+    object Bytes {
+        @JvmStatic
+        fun hex() = byrw16
+    }
+
+    object Chars {
+        @JvmStatic
+        fun hex() = text16
+    }
+
     @JvmStatic
-    fun hex() = base16
+    fun cache() {
+        chars().hex().encode(EMPTY_STRING)
+    }
+
+    @JvmStatic
+    fun bytes() = Bytes
+
+    @JvmStatic
+    fun chars() = Chars
 }

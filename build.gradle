@@ -156,7 +156,7 @@ static String getBuildGITHomeURL() {
 }
 
 static String getBuildGITCommitHash() {
-    getBuildGITHomeURL() + '/commit/' //+ Grgit.open().head().id
+    getBuildGITHomeURL() + '/commit/' + Grgit.open().head().id
 }
 
 static String getProjectArtifactID() {

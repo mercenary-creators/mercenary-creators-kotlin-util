@@ -18,10 +18,11 @@
 
 package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.core.CoreValidated
+import co.mercenary.creators.kotlin.util.core.*
 import co.mercenary.creators.kotlin.util.time.NanoTicker
 import java.util.*
 import java.util.concurrent.atomic.*
+import java.util.stream.*
 
 const val IS_NOT_FOUND = -1
 
@@ -30,6 +31,8 @@ const val EMPTY_STRING = ""
 const val CHAR_INVALID = Char.MIN_VALUE
 
 typealias TimeUnit = java.util.concurrent.TimeUnit
+
+typealias Encoders = co.mercenary.creators.kotlin.util.core.encoding.Encoders
 
 fun uuid() = UUID.randomUUID().toString()
 
@@ -220,3 +223,25 @@ operator fun AtomicLong.minusAssign(delta: Long) {
 }
 
 fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
+
+fun <T> sequenceOf(): Sequence<T> = CoreSequence()
+
+fun <T> sequenceOf(vararg args: T): Sequence<T> = CoreSequence(args.iterator())
+
+fun <T> sequenceOf(args: Stream<T>): Sequence<T> = CoreSequence(args.iterator())
+
+fun sequenceOf(args: IntStream): Sequence<Int> = CoreSequence(args.iterator())
+
+fun sequenceOf(args: LongStream): Sequence<Long> = CoreSequence(args.iterator())
+
+fun sequenceOf(args: DoubleStream): Sequence<Double> = CoreSequence(args.iterator())
+
+fun sequenceOf(args: IntProgression): Sequence<Int> = CoreSequence(args)
+
+fun sequenceOf(args: LongProgression): Sequence<Long> = CoreSequence(args)
+
+fun sequenceOf(args: CharProgression): Sequence<Char> = CoreSequence(args)
+
+fun <T : Any> sequenceOf(seed: T?, func: (T) -> T?): Sequence<T> = CoreSequence(generateSequence(seed, func))
+
+fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = CoreSequence(iterator())

@@ -14,8 +14,28 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.test.main
 
-import co.mercenary.creators.kotlin.util.core.CoreCloseable
+import co.mercenary.creators.kotlin.util.*
+import org.junit.jupiter.api.Test
 
-interface TimeWindowHandle : CoreCloseable
+class SequenceTest : KotlinTest() {
+    @Test
+    fun text() {
+        val data = sequenceOf(1) {
+            if (it < 10) it.inc() else null
+        }
+        data.forEach {
+            info { it }
+        }
+        val list = sequenceOf(1) {
+            if (it < 10) it.inc() else null
+        }.toList()
+        list.forEach {
+            info { it }
+        }
+        list.size.shouldBe(10) {
+            "not 10"
+        }
+    }
+}
