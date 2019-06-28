@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.security
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+data class Algorithm(private val name: String, private val list: List<String>) {
+    fun getName() = name
+    fun getAlgorithms() = list
 }

@@ -14,36 +14,19 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test.main
+package co.mercenary.creators.kotlin.util.test.io
 
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
-class SequenceTest : KotlinTest() {
+class ProbeTest : KotlinDataTest() {
     @Test
     fun text() {
-        val size = 10
-        val data = sequenceOf(1) {
-            if (it < size) it.inc() else null
-        }
-        data.forEach {
-            info { it }
-        }
-        val list = sequenceOf(1) {
-            if (it < size) it.inc() else null
-        }.toList()
-        list.forEach {
-            info { it }
-        }
-        list.size.shouldBe(size) {
-            "not 10"
-        }
-        val ints = sequenceOf(1..16).toList()
-        ints.forEach {
-            info { it }
-        }
-        ints.size.shouldBe(16) {
-            "not 16"
+        val look = DefaultContentTypeProbe()
+        val type = look.getContentType("test.zip")
+        info { type }
+        type.shouldBe("application/zip") {
+            type
         }
     }
 }

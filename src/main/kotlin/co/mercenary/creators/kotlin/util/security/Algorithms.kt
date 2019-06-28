@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.security
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+import java.security.Security
+
+object Algorithms {
+
+    @JvmStatic
+    fun getAlgorithmForName(service: String): Algorithm = Algorithm(service, Security.getAlgorithms(service).toList())
 }

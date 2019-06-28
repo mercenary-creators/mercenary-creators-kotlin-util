@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
-
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+body {
+    margin: 0;
+    padding: 0;
 }

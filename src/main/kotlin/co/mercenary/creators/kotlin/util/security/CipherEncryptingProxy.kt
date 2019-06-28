@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.core
+package co.mercenary.creators.kotlin.util.security
 
-interface CoreCloseable : AutoCloseable {
-    fun isOpen(): Boolean
-}
+abstract class CipherEncryptingProxy<T>(proxy: CipherEncrypting<T, T>) : CipherEncrypting<T, T> by proxy

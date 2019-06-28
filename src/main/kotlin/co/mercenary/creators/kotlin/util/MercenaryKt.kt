@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("UtilKt")
+@file:kotlin.jvm.JvmName("MercenaryKt")
 
 package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.core.*
+import co.mercenary.creators.kotlin.util.io.*
 import co.mercenary.creators.kotlin.util.time.NanoTicker
+import java.io.*
+import java.net.URL
+import java.nio.ByteBuffer
+import java.nio.channels.*
+import java.nio.file.*
 import java.util.*
 import java.util.concurrent.atomic.*
 import java.util.stream.*
@@ -30,11 +35,23 @@ const val EMPTY_STRING = ""
 
 const val CHAR_INVALID = Char.MIN_VALUE
 
+const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
+
 typealias TimeUnit = java.util.concurrent.TimeUnit
 
-typealias Encoders = co.mercenary.creators.kotlin.util.core.encoding.Encoders
+typealias Randoms = co.mercenary.creators.kotlin.util.security.Randoms
 
-fun uuid() = UUID.randomUUID().toString()
+typealias Encoders = co.mercenary.creators.kotlin.util.security.Encoders
+
+typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlgorithm
+
+typealias DefaultContentTypeProbe = MimeContentTypeProbe
+
+typealias ClassPathContentResource = co.mercenary.creators.kotlin.util.io.ClassPathContentResource
+
+typealias DefaultContentResourceLoader = co.mercenary.creators.kotlin.util.io.DefaultContentResourceLoader
+
+fun uuid(): String = UUID.randomUUID().toString()
 
 fun getProcessors(): Int = Runtime.getRuntime().availableProcessors()
 
@@ -74,7 +91,7 @@ fun getCheckedString(data: String): String {
 
 fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS): Long {
     if (duration <= 0) {
-        return 0
+        return duration
     }
     val time = getTimeStamp()
     try {
@@ -92,7 +109,7 @@ fun Date?.copyOf(): Date = when (this) {
 
 fun isValid(value: Any?): Boolean = when (value) {
     null -> false
-    is CoreValidated -> {
+    is MercenaryValidated -> {
         try {
             value.isValid()
         }
@@ -103,8 +120,8 @@ fun isValid(value: Any?): Boolean = when (value) {
     else -> true
 }
 
-fun isValid(func: () -> Any?): Boolean = try {
-    isValid(func())
+fun isValid(block: () -> Any?): Boolean = try {
+    isValid(block())
 }
 catch (_: Throwable) {
     false
@@ -224,24 +241,75 @@ operator fun AtomicLong.minusAssign(delta: Long) {
 
 fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
 
-fun <T> sequenceOf(): Sequence<T> = CoreSequence()
+fun <T> sequenceOf(): Sequence<T> = MercenarySequence()
 
-fun <T> sequenceOf(vararg args: T): Sequence<T> = CoreSequence(args.iterator())
+fun <T> sequenceOf(vararg args: T): Sequence<T> = MercenarySequence(args.iterator())
 
-fun <T> sequenceOf(args: Stream<T>): Sequence<T> = CoreSequence(args.iterator())
+fun <T> sequenceOf(args: Stream<T>): Sequence<T> = MercenarySequence(args.iterator())
 
-fun sequenceOf(args: IntStream): Sequence<Int> = CoreSequence(args.iterator())
+fun sequenceOf(args: IntStream): Sequence<Int> = MercenarySequence(args.iterator())
 
-fun sequenceOf(args: LongStream): Sequence<Long> = CoreSequence(args.iterator())
+fun sequenceOf(args: LongStream): Sequence<Long> = MercenarySequence(args.iterator())
 
-fun sequenceOf(args: DoubleStream): Sequence<Double> = CoreSequence(args.iterator())
+fun sequenceOf(args: DoubleStream): Sequence<Double> = MercenarySequence(args.iterator())
 
-fun sequenceOf(args: IntProgression): Sequence<Int> = CoreSequence(args)
+fun sequenceOf(args: IntProgression): Sequence<Int> = MercenarySequence(args)
 
-fun sequenceOf(args: LongProgression): Sequence<Long> = CoreSequence(args)
+fun sequenceOf(args: LongProgression): Sequence<Long> = MercenarySequence(args)
 
-fun sequenceOf(args: CharProgression): Sequence<Char> = CoreSequence(args)
+fun sequenceOf(args: CharProgression): Sequence<Char> = MercenarySequence(args)
 
-fun <T : Any> sequenceOf(seed: T?, func: (T) -> T?): Sequence<T> = CoreSequence(generateSequence(seed, func))
+fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = MercenarySequence(iterator())
 
-fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = CoreSequence(iterator())
+fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(generateSequence(next))
+
+fun <T : Any> sequenceOf(seed: T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
+
+fun isFileURL(data: URL): Boolean = getLowerTrim(data.toString()).startsWith(IO.PREFIX_FILES)
+
+fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): File = createTempFile(prefix, suffix, folder).apply { deleteOnExit() }
+
+fun File.isValidToRead(): Boolean = exists() && isFile && canRead()
+
+fun Path.isValidToRead(): Boolean = toFile().isValidToRead()
+
+fun URL.toInputStream(): InputStream = when (val data = IO.getInputStream(this)) {
+    null -> throw MercenaryExceptiion(toString())
+    else -> data
+}
+
+fun ByteArray.toInputStream(): ByteArrayInputStream = ByteArrayInputStream(this)
+
+fun File.toInputStream(vararg args: OpenOption): InputStream = toPath().toInputStream(*args)
+
+fun Path.toInputStream(vararg args: OpenOption): InputStream = if (isValidToRead()) Files.newInputStream(this, *args) else throw MercenaryExceptiion(toString())
+
+fun ReadableByteChannel.toInputStream(): InputStream = Channels.newInputStream(this)
+
+fun InputStreamSupplier.toInputStream(): InputStream = getInputStream()
+
+fun Reader.toInputStream(): InputStream = ReaderInputStream(this)
+
+fun URL.toOutputStream(): OutputStream = when (val data = IO.getOutputStream(this)) {
+    null -> throw MercenaryExceptiion(toString())
+    else -> data
+}
+
+fun File.toOutputStream(vararg args: OpenOption): OutputStream = toPath().toOutputStream(*args)
+
+fun Path.toOutputStream(vararg args: OpenOption): OutputStream = Files.newOutputStream(this, *args)
+
+fun URL.toByteArray(): ByteArray = readBytes()
+
+fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
+
+fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
+
+fun Path.toByteArray(): ByteArray = toInputStream().toByteArray()
+
+fun Reader.toByteArray(): ByteArray = toInputStream().toByteArray()
+
+fun InputStreamSupplier.toByteArray(): ByteArray = when (this) {
+    is ContentResource -> getContentData()
+    else -> getInputStream().toByteArray()
+}

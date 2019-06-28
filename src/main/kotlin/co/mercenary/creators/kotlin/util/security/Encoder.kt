@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.core
+package co.mercenary.creators.kotlin.util.security
 
-interface CoreBuilder<out T> {
-    fun build(): T
+interface Encoder<E, D> {
+    fun decode(data: E): D
+    fun encode(data: D): E
 }

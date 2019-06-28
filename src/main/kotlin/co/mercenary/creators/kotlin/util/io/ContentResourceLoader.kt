@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.io
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+interface ContentResourceLoader {
+    fun getClassLoader(): ClassLoader?
+    fun getContentResource(path: String): ContentResource
 }

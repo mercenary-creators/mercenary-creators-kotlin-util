@@ -14,36 +14,41 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test.main
+package co.mercenary.creators.kotlin.util.test.security
 
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
-class SequenceTest : KotlinTest() {
+class EncodersTest : KotlinSecurityTest() {
     @Test
     fun text() {
-        val size = 10
-        val data = sequenceOf(1) {
-            if (it < size) it.inc() else null
+        val name = AUTHOR_INFO
+        val code = Encoders.hexString()
+        info { name }
+        val data = timed {
+            code.encode(name)
         }
-        data.forEach {
-            info { it }
+        info { data }
+        val text = timed {
+            code.decode(data)
         }
-        val list = sequenceOf(1) {
-            if (it < size) it.inc() else null
-        }.toList()
-        list.forEach {
-            info { it }
+        info { text }
+        name.shouldBe(text) {
+            "not $name"
         }
-        list.size.shouldBe(size) {
-            "not 10"
+        val temp = timed {
+            code.encode(text)
         }
-        val ints = sequenceOf(1..16).toList()
-        ints.forEach {
-            info { it }
+        info { temp }
+        data.shouldBe(temp) {
+            "not $data"
         }
-        ints.size.shouldBe(16) {
-            "not 16"
+        val last = timed {
+            code.encode(text)
+        }
+        info { last }
+        last.shouldBe(temp) {
+            "not $temp"
         }
     }
 }

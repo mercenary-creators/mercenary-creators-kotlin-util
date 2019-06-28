@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
+    constructor() : this(listOf())
+    constructor(source: Iterable<T>) : this(source.iterator())
+    constructor(source: Sequence<T>) : this(source.iterator())
+
+    override operator fun iterator() = iterator
 }

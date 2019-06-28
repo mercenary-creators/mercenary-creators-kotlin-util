@@ -16,9 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.test
 
-import mu.KLogging
-
-abstract class AbstractLogging : KLogging() {
+abstract class AbstractLogging : mu.KLogging() {
 
     fun info(block: () -> Any?) {
         logger.info(block)

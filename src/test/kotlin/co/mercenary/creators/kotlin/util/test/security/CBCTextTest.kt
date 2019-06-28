@@ -14,40 +14,38 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test.main
+package co.mercenary.creators.kotlin.util.test.security
 
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
-class EncodersTest : KotlinTest() {
+class CBCTextTest : KotlinSecurityTest() {
     @Test
     fun text() {
-        val name = AUTHOR_NAME
+        val name = AUTHOR_INFO
+        val pass = getGeneratedPass()
+        val salt = getGeneratedSalt()
         info { name }
+        info { pass }
+        info { salt }
+        val good = isGood(pass)
+        info { good }
+        good.shouldBe(true) {
+            pass
+        }
+        val code = getTextCipher(pass, salt, CipherAlgorithm.CBC).also { self ->
+            self.decrypt(self.encrypt(name))
+        }
         val data = timed {
-            Encoders.chars().hex().encode(name)
+            code.encrypt(name)
         }
         info { data }
-        val text = timed {
-            Encoders.chars().hex().decode(data)
+        val back = timed {
+            code.decrypt(data)
         }
-        info { text }
-        name.shouldBe(text) {
-            "not $name"
-        }
-        val code = timed {
-            Encoders.chars().hex().encode(text)
-        }
-        info { code }
-        data.shouldBe(code) {
-            "not $data"
-        }
-        val last = timed {
-            Encoders.chars().hex().encode(text)
-        }
-        info { last }
-        last.shouldBe(code) {
-            "not $code"
+        info { back }
+        name.shouldBe(back) {
+            back
         }
     }
 }

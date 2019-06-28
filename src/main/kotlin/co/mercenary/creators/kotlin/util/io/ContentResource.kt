@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.io
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+interface ContentResource : InputStreamSupplier, OutputStreamSupplier {
+    fun getContentSize(): Long
+    fun getContentTime(): Long
+    fun getContentPath(): String
+    fun getContentType(): String
+    fun getDescription(): String
+    fun isContentThere(): Boolean
+    fun isContentCache(): Boolean
+    fun getContentData(): ByteArray
+    fun toContentCache(): CachedContentResource
 }

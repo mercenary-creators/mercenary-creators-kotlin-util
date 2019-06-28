@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.core.encoding
+package co.mercenary.creators.kotlin.util.security
 
-interface Decoder<E, D> {
-    fun decode(data: E): D
+interface CipherEncrypting<E, D> {
+    fun encrypt(data: D): E
+    fun decrypt(data: E): D
 }

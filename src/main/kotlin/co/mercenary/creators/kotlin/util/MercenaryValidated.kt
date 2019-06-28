@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+interface MercenaryValidated {
+    fun isValid(): Boolean
 }

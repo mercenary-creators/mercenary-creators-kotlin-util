@@ -16,6 +16,19 @@
 
 package co.mercenary.creators.kotlin.util.time
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+import java.text.SimpleDateFormat
+import java.util.*
+
+object TimeAndDate {
+
+    @JvmStatic
+    fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone("UTC")
+
+    @JvmStatic
+    fun setDefaultTimeZone(zone: TimeZone = getDefaultTimeZone()) {
+        TimeZone.setDefault(zone)
+    }
+
+    @JvmStatic
+    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS z")
 }

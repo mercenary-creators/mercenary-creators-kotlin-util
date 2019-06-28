@@ -51,26 +51,20 @@ abstract class AbstractTimeWindowMovingAverage(window: Long, private val wait: T
 
     override fun getWindowHandle(): TimeWindowHandle = DefaultTimeWindowHandle(this, getMomentInTime())
 
-    protected inner class DefaultTimeWindowHandle(private val self: TimeWindowMovingAverage, private val time: Long, private val lock: Any = Any()) : TimeWindowHandle {
+    protected open inner class DefaultTimeWindowHandle(private val self: TimeWindowMovingAverage, private val time: Long) : TimeWindowHandle {
 
         private val open = true.toAtomic()
 
         override fun close() {
-            synchronized(lock) {
-                if (open.compareAndSet(true, false)) {
-                    self.getMomentInTime().minus(time).toDouble().also { diff ->
-                        self.addAverage(diff).minus(diff).toLong().also {
-                            sleepFor(it, self.getWaitTimeUnit())
-                        }
+            if (open.compareAndSet(true, false)) {
+                self.getMomentInTime().minus(time).toDouble().also { diff ->
+                    self.addAverage(diff).minus(diff).toLong().also {
+                        sleepFor(it, self.getWaitTimeUnit())
                     }
                 }
             }
         }
 
-        override fun isOpen(): Boolean {
-            synchronized(lock) {
-                return open.get()
-            }
-        }
+        override fun isOpen(): Boolean = open.get()
     }
 }

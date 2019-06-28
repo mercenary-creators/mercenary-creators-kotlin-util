@@ -14,36 +14,38 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test.main
+package co.mercenary.creators.kotlin.util.test.security
 
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
-class SequenceTest : KotlinTest() {
+class GCMTextTest : KotlinSecurityTest() {
     @Test
     fun text() {
-        val size = 10
-        val data = sequenceOf(1) {
-            if (it < size) it.inc() else null
+        val name = AUTHOR_INFO
+        val pass = getGeneratedPass()
+        val salt = getGeneratedSalt()
+        info { name }
+        info { pass }
+        info { salt }
+        val good = isGood(pass)
+        info { good }
+        good.shouldBe(true) {
+            pass
         }
-        data.forEach {
-            info { it }
+        val code = getTextCipher(pass, salt, CipherAlgorithm.GCM).also { self ->
+            self.decrypt(self.encrypt(name))
         }
-        val list = sequenceOf(1) {
-            if (it < size) it.inc() else null
-        }.toList()
-        list.forEach {
-            info { it }
+        val data = timed {
+            code.encrypt(name)
         }
-        list.size.shouldBe(size) {
-            "not 10"
+        info { data }
+        val back = timed {
+            code.decrypt(data)
         }
-        val ints = sequenceOf(1..16).toList()
-        ints.forEach {
-            info { it }
-        }
-        ints.size.shouldBe(16) {
-            "not 16"
+        info { back }
+        name.shouldBe(back) {
+            back
         }
     }
 }

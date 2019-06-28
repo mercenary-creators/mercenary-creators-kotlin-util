@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.core.encoding
+package co.mercenary.creators.kotlin.util.io
 
-interface EncoderDecoder<E, D> : Encoder<E, D>, Decoder<E, D>
+import co.mercenary.creators.kotlin.util.*
+
+abstract class AbstractCachedContentResource(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractContentResourceBase(path, type, time), CachedContentResource {
+    internal val save = data.copyOf()
+    override fun getContentData() = save.copyOf()
+    override fun getContentSize() = save.size.toLong()
+    override fun getInputStream() = save.inputStream()
+}

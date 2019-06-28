@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.security
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+interface CheckSum {
+    fun decoder(data: String): Long
+    fun encoder(data: String): String
+    fun buffers(data: Long): ByteArray
+    fun updater(data: ByteArray): Long
 }

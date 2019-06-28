@@ -14,8 +14,18 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.io
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+import co.mercenary.creators.kotlin.util.*
+
+class ByteArrayContentResource(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractCachedContentResource(data, path, type, time) {
+
+    override fun toString() = getDescription()
+
+    override fun equals(other: Any?) = when (other) {
+        is ByteArrayContentResource -> getContentPath() == other.getContentPath() && save.contentEquals(other.save)
+        else -> false
+    }
+
+    override fun hashCode() = save.hashCode() + 31 * getContentPath().hashCode()
 }

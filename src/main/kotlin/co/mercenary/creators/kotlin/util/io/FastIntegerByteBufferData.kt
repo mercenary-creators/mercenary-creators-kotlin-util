@@ -14,8 +14,24 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.io
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+import java.io.*
+import java.nio.ByteBuffer
+
+open class FastIntegerByteBufferData(args: Int) : InputStreamSupplier {
+
+    constructor(args: Long) : this((args and 0xffffffffL).toInt())
+
+    private val buff = ByteBuffer.allocate(Int.SIZE_BYTES)
+
+    init {
+        buff.putInt(args)
+    }
+
+    fun capacity(): Int = buff.capacity()
+
+    fun toByteArray(): ByteArray = buff.array()
+
+    override fun getInputStream(): InputStream = ByteArrayInputStream(toByteArray())
 }

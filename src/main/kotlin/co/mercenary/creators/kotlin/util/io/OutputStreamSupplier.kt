@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.io
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+import java.io.OutputStream
+
+interface OutputStreamSupplier {
+    fun getOutputStream(): OutputStream
 }

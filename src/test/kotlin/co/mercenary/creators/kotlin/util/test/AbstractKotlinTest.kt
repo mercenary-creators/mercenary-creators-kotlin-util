@@ -18,14 +18,13 @@ package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.function.Executable
 import org.opentest4j.AssertionFailedError
 import java.util.*
 
 abstract class AbstractKotlinTest : AbstractLogging() {
 
     init {
-        Encoders.cache()
+        Encoders
     }
 
     private val conf: Properties by lazy {

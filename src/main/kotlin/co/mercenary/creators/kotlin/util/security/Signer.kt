@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.core
+package co.mercenary.creators.kotlin.util.security
 
-import java.util.stream.Stream
-
-open class CoreSequence<out T>(private val iterator: Iterator<T>) : Sequence<T> {
-    constructor() : this(listOf())
-    constructor(source: Array<T>) : this(source.iterator())
-    constructor(source: Stream<T>) : this(source.iterator())
-    constructor(source: Iterable<T>) : this(source.iterator())
-    constructor(source: Sequence<T>) : this(source.iterator())
-
-    override operator fun iterator() = iterator
+interface Signer<D, S> {
+    fun signed(data: D): S
+    fun verify(data: D): Boolean
 }

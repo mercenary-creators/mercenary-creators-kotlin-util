@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.security
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+import javax.crypto.SecretKey
+
+class CipherEncryptingData(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherEncryptingProxy<ByteArray>(Ciphers.data(secret, algorithm)) {
+    constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt), algorithm)
 }

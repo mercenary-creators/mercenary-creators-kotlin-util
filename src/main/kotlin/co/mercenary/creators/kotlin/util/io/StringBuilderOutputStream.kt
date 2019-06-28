@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.core.encoding
+package co.mercenary.creators.kotlin.util.io
 
-interface Encoder<E, D> {
-    fun encode(data: D): E
+
+import org.apache.commons.io.output.*
+import java.nio.charset.Charset
+
+class StringBuilderOutputStream(private val builder: StringBuilder = StringBuilder(DEFAULT_BUFFER_SIZE), charset: Charset = Charsets.UTF_8) : WriterOutputStream(StringBuilderWriter(builder), charset) {
+    fun getBuilder(): StringBuilder = builder
+    override fun toString(): String = getBuilder().toString()
 }

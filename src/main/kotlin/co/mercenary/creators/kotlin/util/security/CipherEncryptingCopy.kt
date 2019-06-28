@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.security
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
+import java.io.*
+import javax.crypto.SecretKey
+
+class CipherEncryptingCopy(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherCopyStreams {
+    constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt), algorithm)
+    private val proxy = Ciphers.copy(secret, algorithm)
+    override fun encrypt(data: InputStream, copy: OutputStream) = proxy.encrypt(data, copy)
+    override fun decrypt(data: InputStream, copy: OutputStream) = proxy.decrypt(data, copy)
 }

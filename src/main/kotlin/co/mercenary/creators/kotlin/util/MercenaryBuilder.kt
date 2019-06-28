@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.core
+package co.mercenary.creators.kotlin.util
 
-interface CoreValidated {
-    fun isValid(): Boolean
+interface MercenaryBuilder<out T> {
+    fun build(): T
 }
