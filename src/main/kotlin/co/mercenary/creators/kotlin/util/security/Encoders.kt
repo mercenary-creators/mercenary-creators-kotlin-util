@@ -21,23 +21,21 @@ import org.apache.commons.codec.binary.Hex
 
 object Encoders {
 
-    private val byrw16 = object : Encoder<String, ByteArray> {
+    private val bhex = object : Encoder<String, ByteArray> {
         override fun decode(data: String): ByteArray = Hex.decodeHex(getLowerTrim(data))
         override fun encode(data: ByteArray): String = getLowerTrim(Hex.encodeHexString(data))
     }
 
-    private val text16 = object : Encoder<String, String> {
-        override fun decode(data: String): String = String(byrw16.decode(data), Charsets.UTF_8)
-        override fun encode(data: String): String = byrw16.encode(data.toByteArray(Charsets.UTF_8))
-    }
-
     init {
-        text16.decode(text16.encode(EMPTY_STRING))
+        bhex.decode(bhex.encode(EMPTY_STRING.toByteArray(Charsets.UTF_8)))
     }
 
     @JvmStatic
-    fun hex() = byrw16
+    fun hex() = bhex
 
     @JvmStatic
-    fun hexString() = text16
+    fun text(base: Encoder<String, ByteArray>): Encoder<String, String> = object : Encoder<String, String> {
+        override fun decode(data: String): String = String(base.decode(data), Charsets.UTF_8)
+        override fun encode(data: String): String = base.encode(data.toByteArray(Charsets.UTF_8))
+    }
 }

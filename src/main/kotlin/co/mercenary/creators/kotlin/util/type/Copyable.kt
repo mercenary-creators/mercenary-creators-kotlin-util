@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util
+package co.mercenary.creators.kotlin.util.type
 
-open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
-    constructor(text: String) : this(text, null)
-    constructor(root: Throwable) : this(null, root)
-    constructor(func: () -> String): this(func(), null)
-
-    companion object {
-        private const val serialVersionUID = 2L
-    }
+interface Copyable<out T> {
+    fun copyOf(): T
 }

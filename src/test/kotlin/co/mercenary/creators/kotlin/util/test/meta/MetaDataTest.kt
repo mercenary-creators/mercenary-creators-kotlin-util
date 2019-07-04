@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util
+package co.mercenary.creators.kotlin.util.test.meta
 
-open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
-    constructor() : this(listOf())
-    constructor(source: Iterable<T>) : this(source.iterator())
-    constructor(source: Sequence<T>) : this(source.iterator())
+import co.mercenary.creators.kotlin.util.*
+import org.junit.jupiter.api.Test
 
-    override operator fun iterator() = iterator
+class MetaDataTest : KotlinTest() {
+    @Test
+    fun text() {
+        val meta = StringMetaData("name" to AUTHOR_INFO, "size" to "Large\nÆ")
+        info { meta }
+        meta.setSpaces(2)
+        info { meta }
+        info { StringMetaData() }
+    }
 }

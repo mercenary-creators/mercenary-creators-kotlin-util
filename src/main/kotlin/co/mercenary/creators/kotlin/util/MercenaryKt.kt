@@ -19,10 +19,11 @@
 package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.io.*
+import co.mercenary.creators.kotlin.util.meta.*
 import co.mercenary.creators.kotlin.util.time.NanoTicker
+import co.mercenary.creators.kotlin.util.type.*
 import java.io.*
 import java.net.URL
-import java.nio.ByteBuffer
 import java.nio.channels.*
 import java.nio.file.*
 import java.util.*
@@ -42,6 +43,8 @@ typealias TimeUnit = java.util.concurrent.TimeUnit
 typealias Randoms = co.mercenary.creators.kotlin.util.security.Randoms
 
 typealias Encoders = co.mercenary.creators.kotlin.util.security.Encoders
+
+typealias StringMetaData = co.mercenary.creators.kotlin.util.meta.StringMetaData
 
 typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
@@ -72,6 +75,7 @@ fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseco
 fun toSafeString(block: () -> Any?): String = try {
     when (val data = block()) {
         null -> "null"
+        is METAStringSerializer -> data.toMETAString()
         else -> data.toString()
     }
 }
@@ -109,7 +113,7 @@ fun Date?.copyOf(): Date = when (this) {
 
 fun isValid(value: Any?): Boolean = when (value) {
     null -> false
-    is MercenaryValidated -> {
+    is Validated -> {
         try {
             value.isValid()
         }
@@ -240,6 +244,14 @@ operator fun AtomicLong.minusAssign(delta: Long) {
 }
 
 fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
+
+open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
+    constructor() : this(listOf())
+    constructor(source: Iterable<T>) : this(source.iterator())
+    constructor(source: Sequence<T>) : this(source.iterator())
+
+    override operator fun iterator() = iterator
+}
 
 fun <T> sequenceOf(): Sequence<T> = MercenarySequence()
 

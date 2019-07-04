@@ -18,7 +18,6 @@ package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.*
-import org.opentest4j.AssertionFailedError
 import java.util.*
 
 abstract class AbstractKotlinTest : AbstractLogging() {
@@ -76,6 +75,10 @@ abstract class AbstractKotlinTest : AbstractLogging() {
         Assertions.assertArrayEquals(expected, actual, toSafeString(block))
     }
 
+    fun assertNotEquals(expected: ByteArray, actual: ByteArray, block: () -> Any?) {
+        assertFalse(expected.contentEquals(actual), block)
+    }
+
     fun assertNotEquals(expected: Any?, actual: Any?, block: () -> Any?) {
         Assertions.assertNotEquals(expected, actual, toSafeString(block))
     }
@@ -90,7 +93,7 @@ abstract class AbstractKotlinTest : AbstractLogging() {
                 else -> false
             }
             if (good.not()) {
-                throw AssertionFailedError(null, cause)
+                throw AssertionError(null, cause)
             }
             null
         }
@@ -113,6 +116,8 @@ abstract class AbstractKotlinTest : AbstractLogging() {
     fun <T : Any> (() -> T?).shouldNotBe(value: Any?, block: () -> Any?) = assertNotEquals(value, this.invoke(), block)
 
     fun <T : Any> (() -> T?).shouldNotBe(value: () -> Any?, block: () -> Any?) = assertNotEquals(value.invoke(), this.invoke(), block)
+
+    fun ByteArray.shouldNotBe(value: ByteArray, block: () -> Any?) = assertNotEquals(value, this, block)
 
     fun <T> timed(block: () -> T): T = timed({ info { it } }, block)
 }

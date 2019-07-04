@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util
+package co.mercenary.creators.kotlin.util.type
 
-interface MercenaryValidated {
+interface Validated {
     fun isValid(): Boolean
 }

@@ -16,6 +16,6 @@
 
 package co.mercenary.creators.kotlin.util.time
 
-interface TimeWindowHandle : AutoCloseable {
-    fun isOpen(): Boolean
-}
+import co.mercenary.creators.kotlin.util.io.OpenCloseable
+
+interface TimeWindowHandle : OpenCloseable

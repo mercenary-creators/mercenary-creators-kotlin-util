@@ -35,5 +35,7 @@ class LoaderTest : KotlinDataTest() {
         val data = getContentResourceByteURL(load.getContentResource("test.jpg"))
         info { data }
         info { getContentResourceDetails(load.getContentResource(data)) }
+        val temp = getTempFileNamedPath(uuid(), ".yaml")
+        info { getContentResourceDetails(load.getContentResource(temp)) }
     }
 }

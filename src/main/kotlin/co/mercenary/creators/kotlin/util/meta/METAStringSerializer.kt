@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util
+package co.mercenary.creators.kotlin.util.meta
 
-interface MercenaryBuilder<out T> {
-    fun build(): T
+interface METAStringSerializer {
+    fun toMETAString(pretty: Boolean = true): String
 }

@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-import co.mercenary.creators.kotlin.util.io.FastIntegerByteBufferData
+import java.nio.ByteBuffer
 import java.util.zip.*
 
 object CheckSums {
@@ -32,5 +32,16 @@ object CheckSums {
         override fun encoder(data: String): String = Encoders.hex().encode(buffers(decoder(data)))
         override fun buffers(data: Long): ByteArray = FastIntegerByteBufferData(data).toByteArray()
         override fun updater(data: ByteArray): Long = factory.also { it.update(data, 0, data.size) }.value
+    }
+
+    private class FastIntegerByteBufferData(args: Long) {
+
+        private val buff = ByteBuffer.allocate(Int.SIZE_BYTES)
+
+        init {
+            buff.putInt((args and 0xffffffffL).toInt())
+        }
+
+        fun toByteArray(): ByteArray = buff.array()
     }
 }
