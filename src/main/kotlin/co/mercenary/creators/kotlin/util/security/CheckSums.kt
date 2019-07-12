@@ -30,18 +30,7 @@ object CheckSums {
     private class CheckSumFactory(private val factory: Checksum) : CheckSum {
         override fun decoder(data: String): Long = updater(data.toByteArray(Charsets.UTF_8))
         override fun encoder(data: String): String = Encoders.hex().encode(buffers(decoder(data)))
-        override fun buffers(data: Long): ByteArray = FastIntegerByteBufferData(data).toByteArray()
         override fun updater(data: ByteArray): Long = factory.also { it.update(data, 0, data.size) }.value
-    }
-
-    private class FastIntegerByteBufferData(args: Long) {
-
-        private val buff = ByteBuffer.allocate(Int.SIZE_BYTES)
-
-        init {
-            buff.putInt((args and 0xffffffffL).toInt())
-        }
-
-        fun toByteArray(): ByteArray = buff.array()
+        override fun buffers(data: Long): ByteArray = ByteBuffer.allocate(Int.SIZE_BYTES).putInt((data and 0xffffffffL).toInt()).array()
     }
 }

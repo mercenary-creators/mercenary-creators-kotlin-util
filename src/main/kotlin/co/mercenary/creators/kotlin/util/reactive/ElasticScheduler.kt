@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util
+package co.mercenary.creators.kotlin.util.reactive
 
-open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
-    constructor(text: String) : this(text, null)
-    constructor(root: Throwable) : this(null, root)
-    constructor(func: () -> String): this(func(), null)
+import reactor.core.scheduler.*
+
+class ElasticScheduler private constructor(private val proxy: Scheduler) : Scheduler by proxy {
+    constructor(name: String, live: Int = DEFAULT_TIME_TO_LIVE_SECONDS, daemon: Boolean = false) : this(Schedulers.newElastic(name, live, daemon))
 
     companion object {
-        private const val serialVersionUID = 2L
+        const val DEFAULT_TIME_TO_LIVE_SECONDS = 60
     }
 }

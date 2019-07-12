@@ -16,7 +16,6 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-
 import org.apache.commons.io.output.*
 import java.nio.charset.Charset
 

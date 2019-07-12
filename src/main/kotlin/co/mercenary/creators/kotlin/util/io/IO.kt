@@ -97,6 +97,7 @@ object IO {
             conn.getInputStream().close()
         }
         catch (_: Throwable) {
+            // Empty block
         }
         return null
     }
@@ -110,6 +111,7 @@ object IO {
             }
         }
         catch (_: Throwable) {
+            // Empty block
         }
         try {
             val load = IO.javaClass.classLoader
@@ -118,6 +120,7 @@ object IO {
             }
         }
         catch (_: Throwable) {
+            // Empty block
         }
         try {
             val load = ClassLoader.getSystemClassLoader()
@@ -126,6 +129,7 @@ object IO {
             }
         }
         catch (_: Throwable) {
+            // Empty block
         }
         return null
     }
@@ -152,6 +156,7 @@ object IO {
             return getInputStream(getResouce(path, claz, load))
         }
         catch (_: Throwable) {
+            // Empty block
         }
         return null
     }
@@ -172,6 +177,7 @@ object IO {
             return data.openStream()
         }
         catch (_: Throwable) {
+            // Empty block
         }
         return null
     }
@@ -197,6 +203,7 @@ object IO {
             }
         }
         catch (_: Throwable) {
+            // Empty block
         }
         return null
     }
@@ -213,6 +220,7 @@ object IO {
             return null
         }
         catch (_: Throwable) {
+            // Empty block
         }
         return null
     }
@@ -241,6 +249,7 @@ object IO {
             }
         }
         catch (_: Throwable) {
+            // Empty block
         }
         return false
     }
@@ -328,8 +337,8 @@ object IO {
     @JvmStatic
     fun getContentType(data: InputStream, type: String): String {
         val kind = getCheckedString(type)
-        if (ContentTypeProbe.isDefault(kind)) {
-            if (data.markSupported()) {
+        when {
+            ContentTypeProbe.isDefault(kind) && data.markSupported() -> {
                 val send = toTrimOrElse(HttpURLConnection.guessContentTypeFromStream(data), EMPTY_STRING).toLowerCase()
                 if (send.isNotEmpty()) {
                     return send

@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("MercenaryKt")
+@file:kotlin.jvm.JvmName("MainKt")
 
 package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.io.*
-import co.mercenary.creators.kotlin.util.meta.*
 import co.mercenary.creators.kotlin.util.time.NanoTicker
-import co.mercenary.creators.kotlin.util.type.*
+import co.mercenary.creators.kotlin.util.type.Validated
+import org.reactivestreams.Publisher
+import reactor.core.publisher.*
 import java.io.*
 import java.net.URL
 import java.nio.channels.*
 import java.nio.file.*
 import java.util.*
+import java.util.concurrent.*
 import java.util.concurrent.atomic.*
-import java.util.stream.*
+import java.util.stream.Collectors
 
 const val IS_NOT_FOUND = -1
 
@@ -44,15 +46,31 @@ typealias Randoms = co.mercenary.creators.kotlin.util.security.Randoms
 
 typealias Encoders = co.mercenary.creators.kotlin.util.security.Encoders
 
-typealias StringMetaData = co.mercenary.creators.kotlin.util.meta.StringMetaData
+typealias Throwables = co.mercenary.creators.kotlin.util.security.Throwables
 
 typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
 typealias DefaultContentTypeProbe = MimeContentTypeProbe
 
+typealias SingleScheduler = co.mercenary.creators.kotlin.util.reactive.SingleScheduler
+
+typealias ElasticScheduler = co.mercenary.creators.kotlin.util.reactive.ElasticScheduler
+
+typealias ParallelScheduler = co.mercenary.creators.kotlin.util.reactive.ParallelScheduler
+
 typealias ClassPathContentResource = co.mercenary.creators.kotlin.util.io.ClassPathContentResource
 
 typealias DefaultContentResourceLoader = co.mercenary.creators.kotlin.util.io.DefaultContentResourceLoader
+
+open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
+    constructor(text: String) : this(text, null)
+    constructor(root: Throwable) : this(null, root)
+    constructor(func: () -> String): this(func(), null)
+
+    companion object {
+        private const val serialVersionUID = 2L
+    }
+}
 
 fun uuid(): String = UUID.randomUUID().toString()
 
@@ -75,12 +93,12 @@ fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseco
 fun toSafeString(block: () -> Any?): String = try {
     when (val data = block()) {
         null -> "null"
-        is METAStringSerializer -> data.toMETAString()
         else -> data.toString()
     }
 }
-catch (e: Throwable) {
-    "toSafeString(${e.message})"
+catch (cause: Throwable) {
+    Throwables.fatal(cause)
+    "toSafeString(${cause.message})"
 }
 
 fun getCheckedString(data: String): String {
@@ -102,6 +120,7 @@ fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS): Long {
         return duration.also { TimeUnit.MILLISECONDS.sleep(unit.convert(it, TimeUnit.MILLISECONDS)) }
     }
     catch (_: Throwable) {
+        // Empty block
     }
     return getTimeStamp() - time
 }
@@ -169,22 +188,6 @@ operator fun AtomicInteger.dec(): AtomicInteger {
     return this
 }
 
-operator fun AtomicInteger.plus(delta: Int): AtomicInteger {
-    return AtomicInteger(this.get() + delta)
-}
-
-operator fun AtomicInteger.plus(delta: AtomicInteger): AtomicInteger {
-    return AtomicInteger(this.get() + delta.get())
-}
-
-operator fun AtomicInteger.minus(delta: Int): AtomicInteger {
-    return AtomicInteger(this.get() - delta)
-}
-
-operator fun AtomicInteger.minus(delta: AtomicInteger): AtomicInteger {
-    return AtomicInteger(this.get() - delta.get())
-}
-
 operator fun AtomicInteger.plusAssign(delta: Int) {
     this.addAndGet(delta)
 }
@@ -209,22 +212,6 @@ operator fun AtomicLong.inc(): AtomicLong {
 operator fun AtomicLong.dec(): AtomicLong {
     this.decrementAndGet()
     return this
-}
-
-operator fun AtomicLong.plus(delta: Int): AtomicLong {
-    return AtomicLong(this.get() + delta.toLong())
-}
-
-operator fun AtomicLong.plus(delta: Long): AtomicLong {
-    return AtomicLong(this.get() + delta)
-}
-
-operator fun AtomicLong.minus(delta: Int): AtomicLong {
-    return AtomicLong(this.get() - delta.toLong())
-}
-
-operator fun AtomicLong.minus(delta: Long): AtomicLong {
-    return AtomicLong(this.get() - delta)
 }
 
 operator fun AtomicLong.plusAssign(delta: Int) {
@@ -256,14 +243,6 @@ open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Seque
 fun <T> sequenceOf(): Sequence<T> = MercenarySequence()
 
 fun <T> sequenceOf(vararg args: T): Sequence<T> = MercenarySequence(args.iterator())
-
-fun <T> sequenceOf(args: Stream<T>): Sequence<T> = MercenarySequence(args.iterator())
-
-fun sequenceOf(args: IntStream): Sequence<Int> = MercenarySequence(args.iterator())
-
-fun sequenceOf(args: LongStream): Sequence<Long> = MercenarySequence(args.iterator())
-
-fun sequenceOf(args: DoubleStream): Sequence<Double> = MercenarySequence(args.iterator())
 
 fun sequenceOf(args: IntProgression): Sequence<Int> = MercenarySequence(args)
 
@@ -316,6 +295,50 @@ fun URL.toByteArray(): ByteArray = readBytes()
 fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
 
 fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
+
+fun <T : Any> Flux<T>.toList(): List<T> = collect(Collectors.toList<T>()).block()!!
+
+fun <T : Any> T.toMono(): Mono<T> = Mono.just(this)
+
+fun <T> Throwable.toMono(): Mono<T> = Mono.error(this)
+
+fun <T> Publisher<T>.toMono(): Mono<T> = Mono.from(this)
+
+fun <T> (() -> T?).toMono(): Mono<T> = Mono.fromSupplier(this)
+
+fun <T> Callable<T?>.toMono(): Mono<T> = Mono.fromCallable(this::call)
+
+fun <T> CompletableFuture<out T?>.toMono(): Mono<T> = Mono.fromFuture(this)
+
+inline fun <reified T : Any> Mono<*>.cast(): Mono<T> {
+    return this.cast(T::class.java)
+}
+
+inline fun <reified T : Any> Mono<*>.ofType(): Mono<T> {
+    return ofType(T::class.java)
+}
+
+fun <T> Throwable.toFlux(): Flux<T> = Flux.error(this)
+
+fun <T> Array<out T>.toFlux(): Flux<T> = Flux.fromArray(this)
+
+fun <T : Any> Publisher<T>.toFlux(): Flux<T> = Flux.from(this)
+
+fun <T : Any> Iterable<T>.toFlux(): Flux<T> = Flux.fromIterable(this)
+
+fun <T : Any> Sequence<T>.toFlux(): Flux<T> = Flux.fromIterable(object : Iterable<T> {
+    override fun iterator(): Iterator<T> = this@toFlux.iterator()
+})
+
+inline fun <reified T : Any> Flux<*>.cast(): Flux<T> {
+    return cast(T::class.java)
+}
+
+inline fun <reified T : Any> Flux<*>.ofType(): Flux<T> {
+    return ofType(T::class.java)
+}
+
+fun <T : Any> Flux<out Iterable<T>>.split(): Flux<T> = flatMapIterable { it }
 
 fun Path.toByteArray(): ByteArray = toInputStream().toByteArray()
 

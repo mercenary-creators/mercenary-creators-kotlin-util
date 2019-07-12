@@ -29,12 +29,12 @@ interface CipherAlgorithm {
 
     companion object {
 
-        val GCM = CipherAlgorithmFactory("AES/GCM/NoPadding") {
-            GCMParameterSpec(128, it)
+        val GCM = CipherAlgorithmFactory("AES/GCM/NoPadding") { vector ->
+            GCMParameterSpec(128, vector)
         }
 
-        val CBC = CipherAlgorithmFactory("AES/CBC/PKCS5Padding") {
-            IvParameterSpec(it)
+        val CBC = CipherAlgorithmFactory("AES/CBC/PKCS5Padding") { vector ->
+            IvParameterSpec(vector)
         }
 
         open class CipherAlgorithmFactory(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {

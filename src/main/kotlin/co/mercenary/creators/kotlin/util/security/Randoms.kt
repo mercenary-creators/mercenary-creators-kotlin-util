@@ -83,7 +83,13 @@ object Randoms {
     fun getString(sized: Int, chars: CharArray): String = getCharSequence(sized, chars).toString()
 
     @JvmStatic
+    fun getString(sized: Int, chars: CharSequence): String = getCharSequence(sized, chars).toString()
+
+    @JvmStatic
     fun getCharSequence(sized: Int): CharSequence = getCharSequence(sized, VALUES)
+
+    @JvmStatic
+    fun getCharSequence(sized: Int, chars: CharSequence): CharSequence = getCharSequence(sized, chars.toString().toCharArray())
 
     @JvmStatic
     fun getCharSequence(sized: Int, chars: CharArray): CharSequence {

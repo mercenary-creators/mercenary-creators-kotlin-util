@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util.reactive
 
-interface ByteArraySupplier {
-    fun toByteArray(): ByteArray
+import reactor.core.scheduler.*
+
+class SingleScheduler private constructor(private val proxy: Scheduler) : Scheduler by proxy {
+    constructor(name: String, daemon: Boolean = false) : this(Schedulers.newSingle(name, daemon))
 }

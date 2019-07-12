@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.meta
+package co.mercenary.creators.kotlin.util.reactive
 
-interface METAStringSerializer {
-    fun toMETAString(pretty: Boolean = true): String
+import reactor.core.scheduler.*
+
+class ParallelScheduler private constructor(private val proxy: Scheduler) : Scheduler by proxy {
+    constructor(name: String, parallelism: Int = Schedulers.DEFAULT_POOL_SIZE, daemon: Boolean = false) : this(Schedulers.newParallel(name, parallelism, daemon))
 }

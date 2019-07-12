@@ -57,6 +57,7 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
             return URLContentResource(data)
         }
         catch (_: Throwable) {
+            // Empty block
         }
         return getContentResourceByPath(path)
     }

@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test.meta
+package co.mercenary.creators.kotlin.util.security
 
-import co.mercenary.creators.kotlin.util.*
-import org.junit.jupiter.api.Test
+object Throwables {
 
-class MetaDataTest : KotlinTest() {
-    @Test
-    fun text() {
-        val meta = StringMetaData("name" to AUTHOR_INFO, "size" to "Large\nÆ")
-        info { meta }
-        meta.setSpaces(2)
-        info { meta }
-        info { StringMetaData() }
+    @JvmStatic
+    fun fatal(cause: Throwable) {
+        if (cause is OutOfMemoryError) throw cause
+        if (cause is StackOverflowError) throw cause
+        if (cause is NullPointerException) throw cause
     }
 }
