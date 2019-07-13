@@ -16,15 +16,18 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.spec.*
 
 interface CipherAlgorithm {
+    fun getFactoryKeysSize(): Int
     fun getCipherKeyLength(): Int
     fun getCipherIteration(): Int
     fun getCipherSecretKey(): String
     fun getCipherAlgorithm(): String
     fun getCipherTransform(): String
+    fun getFactoryKeysRand(): SecureRandom
     fun getAlgorithmParams(vector: ByteArray): AlgorithmParameterSpec
 
     companion object {
@@ -37,12 +40,14 @@ interface CipherAlgorithm {
             IvParameterSpec(vector)
         }
 
-        open class CipherAlgorithmFactory(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {
-            override fun getCipherKeyLength(): Int = size
+        class CipherAlgorithmFactory(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {
+            override fun getFactoryKeysSize(): Int = size
+            override fun getCipherKeyLength(): Int = leng
             override fun getCipherIteration(): Int = iter
             override fun getCipherSecretKey(): String = type
             override fun getCipherAlgorithm(): String = algo
             override fun getCipherTransform(): String = tran
+            override fun getFactoryKeysRand(): SecureRandom = SecureRandom()
             override fun getAlgorithmParams(vector: ByteArray) = factory(vector)
         }
     }

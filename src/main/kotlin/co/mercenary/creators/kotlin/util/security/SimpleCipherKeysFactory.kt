@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.security
 
-import java.text.SimpleDateFormat
-import java.util.*
+import java.security.SecureRandom
 
-object TimeAndDate {
-
-    @JvmStatic
-    fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone("UTC")
-
-    @JvmStatic
-    fun setDefaultTimeZone(zone: TimeZone = getDefaultTimeZone()) {
-        TimeZone.setDefault(zone)
-    }
-
-    @JvmStatic
-    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS z")
-
-    @JvmStatic
-    fun getDefaultDateFormat(zone: TimeZone): SimpleDateFormat = getDefaultDateFormat().also { it.timeZone = zone }
+class SimpleCipherKeysFactory(private val size: Int, private val rand: SecureRandom): CipherKeysFactory {
+    constructor(cipher: CipherAlgorithm): this(cipher.getFactoryKeysSize(), cipher.getFactoryKeysRand())
+    override fun getSize(): Int = size
+    override fun getKeys(): ByteArray = Randoms.getByteArray(rand, getSize())
 }

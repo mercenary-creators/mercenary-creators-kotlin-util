@@ -33,5 +33,5 @@ abstract class AbstractContentResourceBase(private val path: String, private val
     override fun getContentType() = type
     override fun getContentTime() = time
     override fun getDescription() = desc
-    override fun getOutputStream(): OutputStream = throw MercenaryExceptiion("Can't get OutputStream() for ${getDescription()}")
+    override fun getOutputStream(): OutputStream = throw MercenaryFatalExceptiion("Can't get OutputStream() for ${getDescription()}")
 }

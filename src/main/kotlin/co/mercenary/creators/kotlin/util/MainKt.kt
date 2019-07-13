@@ -31,6 +31,7 @@ import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
 import java.util.stream.Collectors
+import kotlin.math.max
 
 const val IS_NOT_FOUND = -1
 
@@ -52,6 +53,8 @@ typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlg
 
 typealias DefaultContentTypeProbe = MimeContentTypeProbe
 
+typealias DefaultContentFileTypeMap = ContentFileTypeMap
+
 typealias SingleScheduler = co.mercenary.creators.kotlin.util.reactive.SingleScheduler
 
 typealias ElasticScheduler = co.mercenary.creators.kotlin.util.reactive.ElasticScheduler
@@ -65,7 +68,17 @@ typealias DefaultContentResourceLoader = co.mercenary.creators.kotlin.util.io.De
 open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
     constructor(text: String) : this(text, null)
     constructor(root: Throwable) : this(null, root)
-    constructor(func: () -> String): this(func(), null)
+    constructor(func: () -> String) : this(func(), null)
+
+    companion object {
+        private const val serialVersionUID = 2L
+    }
+}
+
+open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : MercenaryExceptiion(text, root) {
+    constructor(text: String) : this(text, null)
+    constructor(root: Throwable) : this(null, root)
+    constructor(func: () -> String) : this(func(), null)
 
     companion object {
         private const val serialVersionUID = 2L
@@ -93,11 +106,11 @@ fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseco
 fun toSafeString(block: () -> Any?): String = try {
     when (val data = block()) {
         null -> "null"
-        else -> data.toString()
+        else -> data.toString().toValidated()
     }
 }
 catch (cause: Throwable) {
-    Throwables.fatal(cause)
+    Throwables.assert(cause)
     "toSafeString(${cause.message})"
 }
 
@@ -105,7 +118,7 @@ fun getCheckedString(data: String): String {
     val size = data.length
     for (posn in 0 until size) {
         if (data[posn] == CHAR_INVALID) {
-            throw MercenaryExceptiion("Null byte present in file/path name. There are no known legitimate use cases for such data, but several injection attacks may use it.")
+            throw MercenaryFatalExceptiion("Null byte present in file/path name. There are no known legitimate use cases for such data, but several injection attacks may use it.")
         }
     }
     return data
@@ -119,8 +132,8 @@ fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS): Long {
     try {
         return duration.also { TimeUnit.MILLISECONDS.sleep(unit.convert(it, TimeUnit.MILLISECONDS)) }
     }
-    catch (_: Throwable) {
-        // Empty block
+    catch (cause: Throwable) {
+        Throwables.assert(cause)
     }
     return getTimeStamp() - time
 }
@@ -130,13 +143,43 @@ fun Date?.copyOf(): Date = when (this) {
     else -> Date(time)
 }
 
+fun String.toLowerTrim(): String = getLowerTrim(this)
+
+fun String.toValidated(): String = getCheckedString(this)
+
+fun String.toLowerTrimValidated(): String = toLowerTrim().toValidated()
+
+fun isDefaultContentType(type: String): Boolean = type.toLowerTrimValidated() == DEFAULT_CONTENT_TYPE
+
+fun toCommonContentTypes(name: String, type: String = DEFAULT_CONTENT_TYPE): String = when (IO.getPathExtension(name).toLowerTrimValidated()) {
+    ".json" -> "application/json"
+    ".java" -> "text/x-java-source"
+    ".yaml" -> "application/x-yaml"
+    ".yml" -> "application/x-yaml"
+    ".properties" -> "text/x-java-properties"
+    else -> type.toLowerTrimValidated()
+}
+
+fun getDefaultContentTypeProbe(): ContentTypeProbe = IO.getContentTypeProbe()
+
+fun getPathNormalizedOrElse(path: String?, other: String = EMPTY_STRING): String = toTrimOrElse(IO.getPathNormalized(path), other).toValidated()
+
+fun getPathNormalizedNoTail(path: String?, tail: Boolean): String {
+    val norm = getPathNormalizedOrElse(path)
+    if ((tail) && (norm.startsWith(IO.SINGLE_SLASH))) {
+        return norm.substring(1)
+    }
+    return norm
+}
+
 fun isValid(value: Any?): Boolean = when (value) {
     null -> false
     is Validated -> {
         try {
             value.isValid()
         }
-        catch (_: Throwable) {
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
             false
         }
     }
@@ -146,13 +189,14 @@ fun isValid(value: Any?): Boolean = when (value) {
 fun isValid(block: () -> Any?): Boolean = try {
     isValid(block())
 }
-catch (_: Throwable) {
+catch (cause: Throwable) {
+    Throwables.assert(cause)
     false
 }
 
 fun Date.toLong(): Long = this.time
 
-fun Long.toDate(): Date = Date(this)
+fun Long.toDate(): Date = Date(max(this, 0))
 
 fun Long.toAtomic(): AtomicLong = AtomicLong(this)
 
@@ -259,6 +303,14 @@ fun <T : Any> sequenceOf(seed: T?, next: (T) -> T?): Sequence<T> = MercenarySequ
 fun isFileURL(data: URL): Boolean = getLowerTrim(data.toString()).startsWith(IO.PREFIX_FILES)
 
 fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): File = createTempFile(prefix, suffix, folder).apply { deleteOnExit() }
+
+fun File.isSame(other: File): Boolean = isSame(other.toPath())
+
+fun File.isSame(other: Path): Boolean = toPath().isSame(other)
+
+fun Path.isSame(other: File): Boolean = isSame(other.toPath())
+
+fun Path.isSame(other: Path): Boolean = Files.isSameFile(this, other)
 
 fun File.isValidToRead(): Boolean = exists() && isFile && canRead()
 

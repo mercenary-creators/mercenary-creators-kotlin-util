@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.test.io
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.io.IO
 import org.junit.jupiter.api.Test
 
 class LoaderTest : KotlinDataTest() {
@@ -31,7 +30,6 @@ class LoaderTest : KotlinDataTest() {
         info { getContentResourceDetails(load.getContentResource("http://jsonplaceholder.typicode.com/posts")) }
         val path = getTempFileNamedPath(uuid(), ".json")
         info { getContentResourceDetails(load.getContentResource(path)) }
-        info { getContentResourceDetails(load.getContentResource(IO.PREFIX_FILES + path)) }
         val data = getContentResourceByteURL(load.getContentResource("test.jpg"))
         info { data }
         info { getContentResourceDetails(load.getContentResource(data)) }

@@ -20,24 +20,25 @@ import co.mercenary.creators.kotlin.util.*
 
 abstract class AbstractContentResource(path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = 0L) : AbstractContentResourceBase(path, type, time) {
 
-    private val cached: CachedContentResource by lazy {
+    private val cache: CachedContentResource by lazy {
         ByteArrayContentResource(getContentData(), getContentPath(), getContentType(), getContentTime())
     }
 
     protected fun getResolvedContentType(): String {
         val keep = super.getContentType()
-        if (ContentTypeProbe.isDefault(keep)) {
-            val look = IO.getContentTypeProbe().getContentType(getContentPath())
-            if (ContentTypeProbe.isDefault(look)) {
-                return ContentTypeProbe.toCommon(getContentPath())
+        if (isDefaultContentType(keep)) {
+            val path = getContentPath()
+            val look = getDefaultContentTypeProbe().getContentType(path)
+            if (isDefaultContentType(look)) {
+                return toCommonContentTypes(path)
             }
             return look
         }
-        return keep
+        return keep.toLowerTrimValidated()
     }
 
     override fun isContentCache() = false
-    override fun toContentCache() = cached
+    override fun toContentCache() = cache
     override fun getContentData() = getInputStream().toByteArray()
     override fun getContentSize() = getInputStream().use { it.copyTo(EmptyOutputStream()) }
 }

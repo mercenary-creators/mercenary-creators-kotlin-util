@@ -35,7 +35,7 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
         }
         if (path.startsWith(IO.PREFIX_CLASS)) {
             val name = path.removePrefix(IO.PREFIX_CLASS)
-            return ClassPathContentResource(name, IO.getContentTypeProbe().getContentType(name), null, getClassLoader())
+            return ClassPathContentResource(name, getDefaultContentTypeProbe().getContentType(name), null, getClassLoader())
         }
         if (path.startsWith(IO.PREFIX_BYTES)) {
             val list = path.removePrefix(IO.PREFIX_BYTES).split(IO.COL_SEPARATOR_CHAR)
@@ -49,15 +49,15 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
         try {
             val data = URL(path)
             if (isFileURL(data)) {
-                val file = IO.toFile(data)
+                val file = IO.toFileOrNull(data)
                 if (file != null) {
                     return FileContentResource(file)
                 }
             }
             return URLContentResource(data)
         }
-        catch (_: Throwable) {
-            // Empty block
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
         }
         return getContentResourceByPath(path)
     }
@@ -67,7 +67,18 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
     }
 
     protected open fun getContentResourceByPath(path: String): ContentResource {
-        return ClassPathContentResource(path, IO.getContentTypeProbe().getContentType(path), null, getClassLoader())
+        if (path.startsWith(IO.SINGLE_SLASH)) {
+            try {
+                val file = IO.toFileOrNull(URL(IO.PREFIX_FILES + path))
+                if (file != null) {
+                    return FileContentResource(file)
+                }
+            }
+            catch (cause: Throwable) {
+                Throwables.assert(cause)
+            }
+        }
+        return ClassPathContentResource(path, getDefaultContentTypeProbe().getContentType(path), null, getClassLoader())
     }
 
     open fun getContentProtocolResolvers(): List<ContentProtocolResolver> = resolvers.toList()

@@ -20,9 +20,9 @@ import co.mercenary.creators.kotlin.util.*
 
 class ClassPathContentResource(path: String, type: String = DEFAULT_CONTENT_TYPE, internal val claz: Class<*>?, internal val load: ClassLoader?) : AbstractContentResource(path, type) {
 
-    constructor(path: String, type: String = DEFAULT_CONTENT_TYPE) : this(getPathNormalized(path, true), type, null, IO.getDefaultClassLoader())
+    constructor(path: String, type: String = DEFAULT_CONTENT_TYPE) : this(getPathNormalizedNoTail(path, true), type, null, IO.getDefaultClassLoader())
 
-    constructor(path: String, claz: Class<*>, type: String = DEFAULT_CONTENT_TYPE) : this(getPathNormalized(path, false), type, claz, null)
+    constructor(path: String, claz: Class<*>, type: String = DEFAULT_CONTENT_TYPE) : this(getPathNormalizedNoTail(path, false), type, claz, null)
 
     constructor(path: String, claz: kotlin.reflect.KClass<*>, type: String = DEFAULT_CONTENT_TYPE) : this(path, claz.java, type)
 
@@ -74,15 +74,4 @@ class ClassPathContentResource(path: String, type: String = DEFAULT_CONTENT_TYPE
     }
 
     override fun hashCode() = getContentPath().hashCode()
-
-    companion object {
-
-        fun getPathNormalized(path: String, trim: Boolean): String {
-            val norm = IO.getPathNormalized(path).orEmpty()
-            if ((trim) && (norm.startsWith(IO.SINGLE_SLASH))) {
-                return norm.substring(1)
-            }
-            return norm
-        }
-    }
 }

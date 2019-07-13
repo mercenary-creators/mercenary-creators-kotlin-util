@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.test.main
 
-import java.text.SimpleDateFormat
-import java.util.*
+import co.mercenary.creators.kotlin.util.*
+import org.junit.jupiter.api.Test
 
-object TimeAndDate {
-
-    @JvmStatic
-    fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone("UTC")
-
-    @JvmStatic
-    fun setDefaultTimeZone(zone: TimeZone = getDefaultTimeZone()) {
-        TimeZone.setDefault(zone)
+class ThrowsTest : KotlinTest() {
+    @Test
+    fun text() {
+        Throwables.ignored(MercenaryExceptiion::class)
+        Throwables.assert(MercenaryExceptiion(EMPTY_STRING))
+        try {
+            Throwables.assert(NullPointerException("null"))
+        }
+        catch (cause: Throwable) {
+            true.shouldBe(cause is NullPointerException) {
+                cause
+            }
+        }
     }
-
-    @JvmStatic
-    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS z")
-
-    @JvmStatic
-    fun getDefaultDateFormat(zone: TimeZone): SimpleDateFormat = getDefaultDateFormat().also { it.timeZone = zone }
 }

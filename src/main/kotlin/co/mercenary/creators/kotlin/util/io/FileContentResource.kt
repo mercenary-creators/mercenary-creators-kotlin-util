@@ -18,7 +18,6 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import java.io.File
-import java.nio.file.Files
 
 class FileContentResource(internal val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type) {
     private val resolved = getResolvedContentType()
@@ -32,7 +31,7 @@ class FileContentResource(internal val data: File, type: String = DEFAULT_CONTEN
     override fun toString() = getDescription()
 
     override fun equals(other: Any?) = when (other) {
-        is FileContentResource -> Files.isSameFile(data.toPath(), other.data.toPath())
+        is FileContentResource -> data.isSame(other.data)
         else -> false
     }
 

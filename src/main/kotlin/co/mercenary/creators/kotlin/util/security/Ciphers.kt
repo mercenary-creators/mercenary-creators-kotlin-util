@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.security
 
 import java.io.*
-import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.*
 
@@ -48,7 +47,7 @@ object Ciphers {
     @JvmStatic
     @JvmOverloads
     fun data(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<ByteArray, ByteArray> {
-        return InternalEncryptingData(algorithm, getCipher(algorithm), getCipher(algorithm), secret, InternalCipherKeysFactory(16, SecureRandom()))
+        return InternalEncryptingData(algorithm, getCipher(algorithm), getCipher(algorithm), secret, SimpleCipherKeysFactory(algorithm))
     }
 
     @JvmStatic
@@ -60,26 +59,26 @@ object Ciphers {
     @JvmStatic
     @JvmOverloads
     fun copy(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherCopyStreams {
-        return InternalEncryptingCopy(algorithm, getCipher(algorithm), getCipher(algorithm), secret, InternalCipherKeysFactory(16, SecureRandom()))
+        return InternalEncryptingCopy(algorithm, getCipher(algorithm), getCipher(algorithm), secret, SimpleCipherKeysFactory(algorithm))
     }
 
     @JvmStatic
-    fun getAlgorithms() = Algorithms.getAlgorithmForName("Cipher")
+    fun getAlgorithms(): Algorithm = Algorithms.getAlgorithmForName("Cipher")
 
     internal fun getCipher(algorithm: CipherAlgorithm): Cipher = Cipher.getInstance(algorithm.getCipherTransform())
 
-    internal fun setCypher(cipher: Cipher, mode: Int, secret: SecretKey, parameter: AlgorithmParameterSpec): Cipher = cipher.also { it.init(mode, secret, parameter) }
+    internal fun setCypher(cipher: Cipher, mode: Int, secret: SecretKey, parameter: AlgorithmParameterSpec, algorithm: CipherAlgorithm): Cipher = cipher.also { it.init(mode, secret, parameter, algorithm.getFactoryKeysRand()) }
 
-    internal fun getParams(algorithm: CipherAlgorithm, vector: ByteArray) = algorithm.getAlgorithmParams(vector)
+    internal fun getParams(algorithm: CipherAlgorithm, vector: ByteArray): AlgorithmParameterSpec = algorithm.getAlgorithmParams(vector)
 
     internal class InternalEncryptingData(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherEncrypting<ByteArray, ByteArray> {
 
         override fun encrypt(data: ByteArray): ByteArray = synchronized(encrypt) {
-            factory.getKeys().let { vector -> vector + setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(data) }
+            factory.getKeys().let { vector -> vector + setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector), algorithm).doFinal(data) }
         }
 
         override fun decrypt(data: ByteArray): ByteArray = synchronized(decrypt) {
-            data.copyOfRange(0, factory.getSize()).let { vector -> setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(data.copyOfRange(vector.size, data.size)) }
+            data.copyOfRange(0, factory.getSize()).let { vector -> setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector), algorithm).doFinal(data.copyOfRange(vector.size, data.size)) }
         }
     }
 
@@ -89,7 +88,7 @@ object Ciphers {
             val output = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
             data.copyTo(output)
             val vector = factory.getKeys().also { copy.write(it) }
-            copy.write(setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(output.toByteArray()))
+            copy.write(setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector), algorithm).doFinal(output.toByteArray()))
             copy.flush()
         }
 
@@ -97,13 +96,8 @@ object Ciphers {
             val output = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
             val vector = ByteArray(factory.getSize()).also { data.read(it) }
             data.copyTo(output)
-            copy.write(setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(output.toByteArray()))
+            copy.write(setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector), algorithm).doFinal(output.toByteArray()))
             copy.flush()
         }
-    }
-
-    internal class InternalCipherKeysFactory(private val size: Int, private val random: SecureRandom) : CipherKeysFactory {
-        override fun getSize() = size
-        override fun getKeys() = Randoms.getByteArray(random, getSize())
     }
 }

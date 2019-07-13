@@ -18,7 +18,6 @@ package co.mercenary.creators.kotlin.util.test.security
 
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
-import java.io.ByteArrayOutputStream
 
 class GCMFileTest : KotlinSecurityTest() {
     @Test
@@ -33,8 +32,8 @@ class GCMFileTest : KotlinSecurityTest() {
             pass
         }
         val temp = getTempFile(uuid(), ".txt")
-        val baos = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
-        val save = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
+        val baos = baos(DEFAULT_BUFFER_SIZE)
+        val save = baos(DEFAULT_BUFFER_SIZE)
         val code = getCopyCipher(pass, salt, CipherAlgorithm.GCM)
         val data = DefaultContentResourceLoader().getContentResource("test.txt")
         repeat(7) {

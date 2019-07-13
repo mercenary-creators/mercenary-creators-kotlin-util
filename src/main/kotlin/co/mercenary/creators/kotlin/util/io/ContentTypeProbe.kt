@@ -20,7 +20,6 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 import java.net.URL
 import java.nio.file.Path
-import javax.activation.FileTypeMap
 
 interface ContentTypeProbe : FileTypeMapSupplier {
     fun getContentType(data: URL, type: String = DEFAULT_CONTENT_TYPE): String
@@ -32,22 +31,11 @@ interface ContentTypeProbe : FileTypeMapSupplier {
 
     companion object {
 
-        private val maps = ContentFileTypeMap()
-
-        @JvmStatic
-        fun isDefault(type: String): Boolean = getLowerTrim(type) == DEFAULT_CONTENT_TYPE
-
-        @JvmStatic
-        fun toCommon(name: String, type: String = DEFAULT_CONTENT_TYPE): String = when (getLowerTrim(IO.getPathExtension(name))) {
-            ".json" -> "application/json"
-            ".java" -> "text/x-java-source"
-            ".yaml" -> "application/x-yaml"
-            ".yml" -> "application/x-yaml"
-            ".properties" -> "text/x-java-properties"
-            else -> getLowerTrim(type)
+        private val maps: DefaultContentFileTypeMap by lazy {
+            DefaultContentFileTypeMap()
         }
 
         @JvmStatic
-        fun getDefaultFileTypeMap(): FileTypeMap = maps
+        fun getDefaultFileTypeMap(): DefaultContentFileTypeMap = maps
     }
 }

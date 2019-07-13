@@ -96,8 +96,8 @@ object IO {
             }
             conn.getInputStream().close()
         }
-        catch (_: Throwable) {
-            // Empty block
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
         }
         return null
     }
@@ -110,8 +110,8 @@ object IO {
                 return load
             }
         }
-        catch (_: Throwable) {
-            // Empty block
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
         }
         try {
             val load = IO.javaClass.classLoader
@@ -119,8 +119,8 @@ object IO {
                 return load
             }
         }
-        catch (_: Throwable) {
-            // Empty block
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
         }
         try {
             val load = ClassLoader.getSystemClassLoader()
@@ -128,15 +128,15 @@ object IO {
                 return load
             }
         }
-        catch (_: Throwable) {
-            // Empty block
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
         }
         return null
     }
 
     @JvmStatic
     fun getResouce(path: String, claz: Class<*>? = null, load: ClassLoader? = null): URL? = try {
-        val name = getCheckedString(path)
+        val name = path.toValidated()
         when {
             claz != null -> claz.getResource(name)
             load != null -> load.getResource(name)
@@ -146,7 +146,8 @@ object IO {
             }
         }
     }
-    catch (_: Throwable) {
+    catch (cause: Throwable) {
+        Throwables.assert(cause)
         null
     }
 
@@ -155,8 +156,8 @@ object IO {
         try {
             return getInputStream(getResouce(path, claz, load))
         }
-        catch (_: Throwable) {
-            // Empty block
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
         }
         return null
     }
@@ -168,7 +169,7 @@ object IO {
         }
         try {
             if (isFileURL(data)) {
-                val file = toFile(data)
+                val file = toFileOrNull(data)
                 if ((file != null) && (file.isValidToRead())) {
                     return file.toInputStream()
                 }
@@ -176,8 +177,8 @@ object IO {
             }
             return data.openStream()
         }
-        catch (_: Throwable) {
-            // Empty block
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
         }
         return null
     }
@@ -189,7 +190,7 @@ object IO {
         }
         try {
             if (isFileURL(data)) {
-                val file = toFile(data)
+                val file = toFileOrNull(data)
                 if (file != null) {
                     return file.toOutputStream()
                 }
@@ -202,25 +203,25 @@ object IO {
                 }
             }
         }
-        catch (_: Throwable) {
-            // Empty block
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
         }
         return null
     }
 
     @JvmStatic
-    fun toFile(data: URL): File? {
+    fun toFileOrNull(data: URL): File? {
         try {
             if (isFileURL(data)) {
-                val path = getPathNormalized(data.file).orEmpty()
+                val path = getPathNormalized(data.file).orEmpty().toValidated()
                 if (path.isNotEmpty()) {
                     return File(path)
                 }
             }
             return null
         }
-        catch (_: Throwable) {
-            // Empty block
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
         }
         return null
     }
@@ -229,7 +230,7 @@ object IO {
     fun isContentThere(data: URL): Boolean {
         try {
             if (isFileURL(data)) {
-                val file = toFile(data)
+                val file = toFileOrNull(data)
                 return ((file != null) && (file.isValidToRead()))
             }
             else {
@@ -248,8 +249,8 @@ object IO {
                 return true
             }
         }
-        catch (_: Throwable) {
-            // Empty block
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
         }
         return false
     }
@@ -257,7 +258,7 @@ object IO {
     @JvmStatic
     fun getContentSize(data: URL): Long {
         if (isFileURL(data)) {
-            val file = toFile(data)
+            val file = toFileOrNull(data)
             if ((file != null) && (file.isValidToRead())) {
                 return file.length()
             }
@@ -267,8 +268,11 @@ object IO {
             if (conn != null) {
                 val size = conn.contentLengthLong
                 conn.disconnect()
-                return size
+                if (size > 0) {
+                    return size
+                }
             }
+            return data.toInputStream().use { it.copyTo(EmptyOutputStream()) }
         }
         throw MercenaryExceptiion(data.toString())
     }
@@ -276,7 +280,7 @@ object IO {
     @JvmStatic
     fun getContentSize(data: URL, func: () -> Long): Long {
         if (isFileURL(data)) {
-            val file = toFile(data)
+            val file = toFileOrNull(data)
             if ((file != null) && (file.isValidToRead())) {
                 return file.length()
             }
@@ -287,7 +291,7 @@ object IO {
     @JvmStatic
     fun getContentTime(data: URL): Long {
         if (isFileURL(data)) {
-            val file = toFile(data)
+            val file = toFileOrNull(data)
             if ((file != null) && (file.isValidToRead())) {
                 return file.lastModified()
             }
@@ -297,6 +301,14 @@ object IO {
             if (conn != null) {
                 val time = conn.lastModified
                 conn.disconnect()
+                if (time > 0) {
+                    return time
+                }
+            }
+            val temp = getHeadConnection(data)
+            if (temp != null) {
+                val time = temp.date
+                temp.disconnect()
                 return time
             }
         }
@@ -305,12 +317,11 @@ object IO {
 
     @JvmStatic
     fun getContentType(data: URL, type: String): String {
-        val kind = getCheckedString(type)
-        if (ContentTypeProbe.isDefault(kind)) {
+        if (isDefaultContentType(type)) {
             if (isFileURL(data)) {
                 val path = getPathNormalized(data.file).orEmpty()
                 if (path.isNotEmpty()) {
-                    return getCheckedString(getContentTypeProbe().getContentType(path, kind))
+                    return getContentTypeProbe().getContentType(path, type)
                 }
             }
             else {
@@ -318,28 +329,27 @@ object IO {
                 if (conn != null) {
                     val send = toTrimOrElse(conn.contentType, DEFAULT_CONTENT_TYPE)
                     conn.disconnect()
-                    return getCheckedString(send)
+                    return send.toLowerTrimValidated()
                 }
             }
         }
-        return kind
+        return type.toLowerTrimValidated()
     }
 
     @JvmStatic
     fun getContentType(data: ByteArray, type: String): String {
-        val kind = getCheckedString(type)
-        if (ContentTypeProbe.isDefault(kind)) {
-            return getContentType(ByteArrayInputStream(data), kind)
+        if (isDefaultContentType(type)) {
+            return getContentType(ByteArrayInputStream(data), type)
         }
-        return kind
+        return type.toLowerTrimValidated()
     }
 
     @JvmStatic
     fun getContentType(data: InputStream, type: String): String {
-        val kind = getCheckedString(type)
+        val kind = type.toLowerTrimValidated()
         when {
-            ContentTypeProbe.isDefault(kind) && data.markSupported() -> {
-                val send = toTrimOrElse(HttpURLConnection.guessContentTypeFromStream(data), EMPTY_STRING).toLowerCase()
+            isDefaultContentType(kind) && data.markSupported() -> {
+                val send = toTrimOrElse(HttpURLConnection.guessContentTypeFromStream(data), EMPTY_STRING).toLowerTrimValidated()
                 if (send.isNotEmpty()) {
                     return send
                 }

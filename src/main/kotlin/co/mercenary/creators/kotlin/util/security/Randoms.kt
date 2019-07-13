@@ -16,6 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.MercenaryExceptiion
 import java.security.SecureRandom
 
 object Randoms {
@@ -94,13 +95,13 @@ object Randoms {
     @JvmStatic
     fun getCharSequence(sized: Int, chars: CharArray): CharSequence {
         if (sized < 0) {
-            throw IllegalArgumentException("Illegal sized size $sized")
+            throw MercenaryExceptiion("Illegal sized size $sized")
         }
         if (sized < 1) {
             return ""
         }
         if (chars.isEmpty()) {
-            throw IllegalArgumentException("Illegal chars size 0")
+            throw MercenaryExceptiion("Illegal chars size 0")
         }
         return StringBuilder(sized).also { maker ->
             repeat(sized) {

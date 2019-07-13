@@ -16,6 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.*
 import java.io.*
 import java.net.*
 import java.nio.file.Path
@@ -24,7 +25,7 @@ import javax.activation.FileTypeMap
 class MimeContentTypeProbe(private val maps: FileTypeMap = ContentTypeProbe.getDefaultFileTypeMap()) : ContentTypeProbe {
 
     override fun getContentType(data: ByteArray, type: String): String {
-        return getContentType(ByteArrayInputStream(data), type)
+        return IO.getContentType(data, type)
     }
 
     override fun getContentType(data: InputStream, type: String): String {
@@ -40,14 +41,15 @@ class MimeContentTypeProbe(private val maps: FileTypeMap = ContentTypeProbe.getD
     override fun getContentType(data: Path, type: String): String = getContentType(data.toFile(), type)
 
     override fun getContentType(name: String, type: String): String {
-        if (ContentTypeProbe.isDefault(type)) {
-            val look = getFileTypeMap().getContentType(name).trim()
-            if (ContentTypeProbe.isDefault(look)) {
-                return ContentTypeProbe.toCommon(name).trim()
+        if (isDefaultContentType(type)) {
+            val path = getPathNormalizedOrElse(name)
+            val look = getFileTypeMap().getContentType(path).toLowerTrimValidated()
+            if (isDefaultContentType(look)) {
+                return toCommonContentTypes(name)
             }
             return look
         }
-        return type.trim()
+        return type.toLowerTrimValidated()
     }
 
     override fun getFileTypeMap(): FileTypeMap = maps

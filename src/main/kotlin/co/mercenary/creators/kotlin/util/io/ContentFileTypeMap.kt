@@ -16,14 +16,15 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.*
 import org.apache.commons.logging.*
 import java.io.*
 import javax.activation.*
 
-open class ContentFileTypeMap : FileTypeMap() {
+class ContentFileTypeMap : FileTypeMap() {
 
     private val logs: Log by lazy {
-        LogFactory.getLog(this.javaClass)
+        LogFactory.getLog(ContentFileTypeMap::class.java)
     }
 
     private val maps = getMimetypesFileTypeMapInputStream()?.use { MimetypesFileTypeMap(it) } ?: MimetypesFileTypeMap()
@@ -44,13 +45,12 @@ open class ContentFileTypeMap : FileTypeMap() {
         return data
     }
 
-    open fun getMimetypesFileName(): String = System.getProperty("co.mercenary.creators.kotlin.mime.file", DEFAULT_FILE)
+    override fun getContentType(file: File): String = getContentType(file.name)
 
-    override fun getContentType(data: File): String = getContentType(data.name)
-
-    override fun getContentType(data: String): String = maps.getContentType(data)
+    override fun getContentType(name: String): String = maps.getContentType(name).toLowerTrim().toValidated()
 
     companion object {
         const val DEFAULT_FILE = "MIME-INF/co-mercenary-creators-kotlin-mime.types"
+        fun getMimetypesFileName(): String = System.getProperty("co.mercenary.creators.kotlin.mime.file", DEFAULT_FILE)
     }
 }
