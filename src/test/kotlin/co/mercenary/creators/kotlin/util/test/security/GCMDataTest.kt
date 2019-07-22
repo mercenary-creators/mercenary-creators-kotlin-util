@@ -34,8 +34,8 @@ class GCMDataTest : KotlinSecurityTest() {
         }
         val bits = Randoms.getByteArray(rand, 1024)
         info { Encoders.hex().encode(bits) }
-        val code = getDataCipher(pass, salt, CipherAlgorithm.GCM).also { self ->
-            self.decrypt(self.encrypt(bits))
+        val code = getDataCipher(pass, salt, CipherAlgorithm.GCM).also {
+            it.decrypt(it.encrypt(bits))
         }
         val data = timed {
             code.encrypt(bits)

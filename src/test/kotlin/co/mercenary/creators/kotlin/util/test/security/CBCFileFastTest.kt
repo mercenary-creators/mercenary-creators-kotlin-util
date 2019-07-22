@@ -19,10 +19,9 @@ package co.mercenary.creators.kotlin.util.test.security
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
-class CBCDataTest : KotlinSecurityTest() {
+class CBCFileFastTest : KotlinSecurityTest() {
     @Test
     fun text() {
-        val rand = Randoms.toRandom()
         val pass = getGeneratedPass()
         val salt = getGeneratedSalt()
         info { pass }
@@ -32,21 +31,29 @@ class CBCDataTest : KotlinSecurityTest() {
         good.shouldBe(true) {
             pass
         }
-        val bits = Randoms.getByteArray(rand, 1024)
-        info { Encoders.hex().encode(bits) }
-        val code = getDataCipher(pass, salt, CipherAlgorithm.CBC).also {
-            it.decrypt(it.encrypt(bits))
+        val temp = getTempFile(uuid(), ".doc")
+        val baos = baos(DEFAULT_BUFFER_SIZE)
+        val save = baos(DEFAULT_BUFFER_SIZE)
+        val code = getCopyCipher(pass, salt, CipherAlgorithm.CBC)
+        val data = DefaultContentResourceLoader().getContentResource("test.doc")
+        repeat(7) {
+            baos.reset()
+            save.reset()
+            code.encrypt(data, baos)
+            code.decrypt(baos.toByteArray().toInputStream(), save)
         }
-        val data = timed {
-            code.encrypt(bits)
+        timed {
+            code.encrypt(data, temp)
         }
-        info { Encoders.hex().encode(data) }
-        val back = timed {
-            code.decrypt(data)
+        data.toByteArray().shouldNotBe(temp.toByteArray()) {
+            "files should not be the same."
         }
-        info { Encoders.hex().encode(back) }
-        bits.shouldBe(back) {
-            Encoders.hex().encode(back)
+        val copy = getTempFile(uuid(), ".doc")
+        timed {
+            code.decrypt(temp, copy)
+        }
+        data.toByteArray().shouldBe(copy.toByteArray()) {
+            "files should not be different."
         }
     }
 }

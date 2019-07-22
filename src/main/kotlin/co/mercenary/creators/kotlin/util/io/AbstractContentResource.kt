@@ -40,5 +40,5 @@ abstract class AbstractContentResource(path: String, type: String = DEFAULT_CONT
     override fun isContentCache() = false
     override fun toContentCache() = cache
     override fun getContentData() = getInputStream().toByteArray()
-    override fun getContentSize() = getInputStream().use { it.copyTo(EmptyOutputStream()) }
+    override fun getContentSize() = getInputStream().use { it.copyTo(EmptyOutputStream.INSTANCE) }
 }

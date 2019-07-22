@@ -33,8 +33,8 @@ class GCMTextTest : KotlinSecurityTest() {
         good.shouldBe(true) {
             pass
         }
-        val code = getTextCipher(pass, salt, CipherAlgorithm.GCM).also { self ->
-            self.decrypt(self.encrypt(name))
+        val code = getTextCipher(pass, salt, CipherAlgorithm.GCM).also {
+            it.decrypt(it.encrypt(name))
         }
         val data = timed {
             code.encrypt(name)

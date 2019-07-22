@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-data class Algorithm(private val name: String, private val list: List<String>) {
+data class Algorithm(private val name: String, private val algorithms: List<String>) {
     fun getName() = name
-    fun getAlgorithms() = list
+    fun getAlgorithms() = algorithms
 }

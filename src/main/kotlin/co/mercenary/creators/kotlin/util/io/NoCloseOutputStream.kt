@@ -16,13 +16,25 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import java.io.OutputStream
+import co.mercenary.creators.kotlin.util.*
+import java.io.*
 
-class EmptyOutputStream : OutputStream() {
-    override fun write(b: Int) = Unit
-    override fun write(b: ByteArray) = Unit
-    override fun write(b: ByteArray, off: Int, len: Int) = Unit
-    companion object {
-        val INSTANCE = EmptyOutputStream()
+class NoCloseOutputStream(data: OutputStream, private val done: Boolean = true) : FilterOutputStream(data), OpenCloseable {
+
+    private val open = true.toAtomic()
+
+    override fun close() {
+        if (open.compareAndSet(true, false)) {
+            try {
+                if (done) {
+                    flush()
+                }
+            }
+            catch (cause: Throwable) {
+                Throwables.assert(cause)
+            }
+        }
     }
+
+    override fun isOpen(): Boolean = open.get()
 }

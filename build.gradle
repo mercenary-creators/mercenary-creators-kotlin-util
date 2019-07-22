@@ -25,7 +25,7 @@ buildscript {
         classpath(group: 'org.ajoberstar', name: 'grgit', version: '1.7.2')
         classpath(group: 'commons-codec', name: 'commons-codec', version: '1.12')
         classpath(group: 'commons-logging', name: 'commons-logging', version: '1.2')
-        classpath(group: 'org.owasp', name: 'dependency-check-gradle', version: '4.0.2')
+        classpath(group: 'org.owasp', name: 'dependency-check-gradle', version: '5.1.1')
         classpath(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8')
         classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-noarg', version: kotlinVersion)
         classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-allopen', version: kotlinVersion)
@@ -41,7 +41,10 @@ apply plugin: 'signing'
 apply plugin: 'kotlin-spring'
 apply plugin: 'org.owasp.dependencycheck'
 
+import java.text.SimpleDateFormat
 import org.ajoberstar.grgit.Grgit
+import org.apache.tools.ant.filters.FixCrLfFilter
+import org.apache.tools.ant.filters.ReplaceTokens
 
 sourceCompatibility = 1.8
 
@@ -49,7 +52,7 @@ targetCompatibility = 1.8
 
 group = 'co.mercenary-creators'
 
-version = '1.0.0-SNAPSHOT'
+version = '1.0.1-SNAPSHOT'
 
 task doJavaDocs(type: Javadoc) {
     source = sourceSets.main.allJava
@@ -63,6 +66,25 @@ task doJavaDocs(type: Javadoc) {
         stylesheetFile = project.file('config/javadoc/mercenary.css')
         bottom = "<div><h4 class=\"footer\"><a href=\"${getBuildGITHomeURL()}\" target=\"_blank\">${getProjectCommonName()} - Copyright &copy; 2019, Mercenary Creators Company</a> - <a href=\"${getBuildGITCommitHash()}\" target=\"_blank\">${getBuildModuleVersion()}</a> - <a href=\"mailto:deansjones@gmail.com\">Author: Dean S. Jones</a></h4></div>"
     }
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': getProjectTitle(), 'Implementation-Version': getBuildModuleVersion()
+    }
+}
+
+task deleteConfigs(type: Delete) {
+    project.fileTree(dir: "${buildDir}/resources/main").each {
+        it.delete()
+    }
+}
+
+task filterConfigs(dependsOn: deleteConfigs, type: Copy) {
+    from sourceSets.main.resources
+    into "${buildDir}/resources/main"
+    filter(FixCrLfFilter)
+    filter(ReplaceTokens, tokens: getFilterTokens())
 }
 
 compileKotlin {
@@ -128,8 +150,8 @@ dependencies {
     testCompile(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3')
     testCompile(group: 'io.projectreactor', name: 'reactor-test', version: '3.2.10.RELEASE')
     testCompile(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlinVersion)
-    testCompile(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.5.0')
-    testRuntime(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.5.0')
+    testCompile(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.5.1')
+    testRuntime(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.5.1')
 }
 
 artifacts {
@@ -151,6 +173,24 @@ String getBuildServerBuild() {
     System.getenv('BUILD_DISPLAY_NAME') ?: "Gradle version ${gradle.gradleVersion}"
 }
 
+static String getJavaVersion() {
+    System.getProperty('java.version') ?: 'unknown'
+}
+
+static String getBuildUser() {
+    System.getProperty('user.name') ?: 'unknown'
+}
+
+static String getBuildDate() {
+    def simple = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss,SSS z')
+    simple.timeZone = TimeZone.getTimeZone('UTC')
+    simple.format(new Date())
+}
+
+static String getBuildServerHost() {
+    InetAddress.getLocalHost().getHostName()
+}
+
 static String getBuildGITHomeSCM() {
     'scm:git@github.com:mercenary-creators/' + getProjectArtifactID() + '.git'
 }
@@ -161,6 +201,14 @@ static String getBuildGITHomeURL() {
 
 static String getBuildGITCommitHash() {
     getBuildGITHomeURL() + '/commit/' + Grgit.open().head().id
+}
+
+static String getBuildGITCommitUser() {
+    Grgit.open().head().committer.email
+}
+
+static String getBuildGITCommitMessage() {
+    Grgit.open().head().shortMessage
 }
 
 static String getProjectArtifactID() {
@@ -181,6 +229,10 @@ String getUserNameUploadArchives() {
 
 String getPassWordUploadArchives() {
     project.findProperty('sonatype_password') ?: ''
+}
+
+Map<String, String> getFilterTokens() {
+    [GRADLE_BUILD_ARTIFACT_ID: getProjectArtifactID(), GRADLE_BUILD_PROJECT_TITLE: getProjectTitle(), GRADLE_BUILD_USER: getBuildUser(), GRADLE_BUILD_DATE: getBuildDate(), GRADLE_JAVA_VERSION: getJavaVersion(), GRADLE_GIT_COMMIT_HASH: getBuildGITCommitHash(), GRADLE_GIT_COMMIT_USER: getBuildGITCommitUser(), GRADLE_GIT_COMMIT_MESSAGE: getBuildGITCommitMessage(), GRADLE_BUILD_SERVER_HOST: getBuildServerHost(), GRADLE_BUILD_SERVER_BUILD: getBuildServerBuild(), GRADLE_BUILD_MODULE_VERSION: getBuildModuleVersion()]
 }
 
 uploadArchives {

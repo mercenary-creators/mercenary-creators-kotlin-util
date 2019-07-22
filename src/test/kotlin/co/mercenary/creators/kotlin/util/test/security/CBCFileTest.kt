@@ -53,7 +53,7 @@ class CBCFileTest : KotlinSecurityTest() {
             code.decrypt(temp, copy)
         }
         copy.readLines().forEachIndexed { i, s ->
-            info { "%2d : %s".format(i, s) }
+            info { "%2d : %s".format(i + 1, s) }
         }
         data.toByteArray().shouldBe(copy.toByteArray()) {
             "files should not be different."

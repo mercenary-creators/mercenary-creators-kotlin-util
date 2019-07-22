@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.test.security
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.security.Ciphers
 import org.junit.jupiter.api.Test
 
 class EncodersTest : KotlinSecurityTest() {
@@ -50,5 +51,7 @@ class EncodersTest : KotlinSecurityTest() {
         last.shouldBe(temp) {
             "not $temp"
         }
+        info { Ciphers.getAlgorithms() }
+        info { Digests.getAlgorithms() }
     }
 }

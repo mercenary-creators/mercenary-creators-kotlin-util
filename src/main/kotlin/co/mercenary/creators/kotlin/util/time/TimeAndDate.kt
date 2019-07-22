@@ -21,8 +21,12 @@ import java.util.*
 
 object TimeAndDate {
 
+    const val DEFAULT_ZONE_STRING = "UTC"
+
+    const val DEFAULT_DATE_STRING = "yyyy-MM-dd HH:mm:ss,SSS z"
+
     @JvmStatic
-    fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone("UTC")
+    fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(DEFAULT_ZONE_STRING)
 
     @JvmStatic
     fun setDefaultTimeZone(zone: TimeZone = getDefaultTimeZone()) {
@@ -30,7 +34,7 @@ object TimeAndDate {
     }
 
     @JvmStatic
-    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS z")
+    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat(DEFAULT_DATE_STRING)
 
     @JvmStatic
     fun getDefaultDateFormat(zone: TimeZone): SimpleDateFormat = getDefaultDateFormat().also { it.timeZone = zone }

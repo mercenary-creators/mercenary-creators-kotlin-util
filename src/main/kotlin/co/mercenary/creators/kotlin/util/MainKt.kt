@@ -45,6 +45,8 @@ typealias TimeUnit = java.util.concurrent.TimeUnit
 
 typealias Randoms = co.mercenary.creators.kotlin.util.security.Randoms
 
+typealias Digests = co.mercenary.creators.kotlin.util.security.Digests
+
 typealias Encoders = co.mercenary.creators.kotlin.util.security.Encoders
 
 typealias Throwables = co.mercenary.creators.kotlin.util.security.Throwables
@@ -124,6 +126,8 @@ fun getCheckedString(data: String): String {
     return data
 }
 
+fun toJavaClass(data: Any): Class<*> = data.javaClass
+
 fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS): Long {
     if (duration <= 0) {
         return duration
@@ -192,6 +196,18 @@ fun isValid(block: () -> Any?): Boolean = try {
 catch (cause: Throwable) {
     Throwables.assert(cause)
     false
+}
+
+fun pow2Round(value: Int, down: Boolean = true): Int {
+    return when (value < 2) {
+        true -> 1
+        else -> Integer.highestOneBit(value - 1).also {
+            return when (down) {
+                true -> it
+                else -> it * 2
+            }
+        }
+    }
 }
 
 fun Date.toLong(): Long = this.time
