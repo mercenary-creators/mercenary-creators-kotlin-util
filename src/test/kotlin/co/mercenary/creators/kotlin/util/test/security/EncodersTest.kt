@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test
 class EncodersTest : KotlinSecurityTest() {
     @Test
     fun text() {
-        val name = AUTHOR_INFO
+        val name = getGeneratedText()
         val code = Encoders.text(Encoders.hex())
         info { name }
         val data = timed {

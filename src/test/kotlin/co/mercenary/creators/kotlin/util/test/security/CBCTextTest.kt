@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 class CBCTextTest : KotlinSecurityTest() {
     @Test
     fun text() {
-        val name = AUTHOR_INFO
+        val name = getGeneratedText()
         val pass = getGeneratedPass()
         val salt = getGeneratedSalt()
         info { name }

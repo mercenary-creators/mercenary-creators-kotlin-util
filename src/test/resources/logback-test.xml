@@ -21,7 +21,7 @@
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
             <layout class="ch.qos.logback.classic.PatternLayout">
-                <Pattern><![CDATA[[%d{"yyyy-MM-dd HH:mm:ss,SSS z","UTC"}] [%p] [%c] [1.0.1-SNAPSHOT TEST] - %m%n]]></Pattern>
+                <Pattern><![CDATA[[%d{"yyyy-MM-dd HH:mm:ss,SSS z","UTC"}] [%p] [%c] [2.0.0-SNAPSHOT TEST] - %m%n]]></Pattern>
             </layout>
             <charset>UTF-8</charset>
         </encoder>

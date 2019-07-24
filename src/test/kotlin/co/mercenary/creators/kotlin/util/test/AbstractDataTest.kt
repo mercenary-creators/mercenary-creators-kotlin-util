@@ -23,9 +23,7 @@ import java.io.File
 
 abstract class AbstractDataTest : AbstractKotlinTest() {
 
-    private val form = ThreadLocal.withInitial {
-        TimeAndDate.getDefaultDateFormat(TimeAndDate.getDefaultTimeZone())
-    }
+    private val form = TimeAndDate.getThreadLocalDefaultDateFormat()
 
     protected fun getTempFileNamed(name: String, suff: String): File {
         return getTempFile(name, suff)

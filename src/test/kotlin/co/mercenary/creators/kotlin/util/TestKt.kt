@@ -18,8 +18,6 @@
 
 package co.mercenary.creators.kotlin.util
 
-const val AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company"
-
 typealias Executable = org.junit.jupiter.api.function.Executable
 
 typealias KotlinTest = co.mercenary.creators.kotlin.util.test.AbstractKotlinTest

@@ -47,7 +47,7 @@ abstract class AbstractTimeWindowMovingAverage(window: Long, private val wait: T
         return getAverage()
     }
 
-    override fun toString(): String = toDecimalPlaces(getAverage(), " milliseconds.")
+    override fun toString(): String = toDecimalPlaces3(getAverage(), " milliseconds.")
 
     override fun getWindowHandle(): TimeWindowHandle = DefaultTimeWindowHandle(this, getMomentInTime())
 

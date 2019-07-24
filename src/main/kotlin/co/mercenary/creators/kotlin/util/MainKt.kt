@@ -32,6 +32,7 @@ import java.util.concurrent.*
 import java.util.concurrent.atomic.*
 import java.util.stream.Collectors
 import kotlin.math.max
+import kotlin.reflect.KClass
 
 const val IS_NOT_FOUND = -1
 
@@ -40,6 +41,12 @@ const val EMPTY_STRING = ""
 const val CHAR_INVALID = Char.MIN_VALUE
 
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
+
+const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company"
+
+const val DEFAULT_ZONE_STRING = "UTC"
+
+const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
 
 typealias TimeUnit = java.util.concurrent.TimeUnit
 
@@ -101,9 +108,9 @@ fun toTrimOrElse(data: String?, other: () -> String): String = toTrimOrNull(data
 
 fun toTrimOrElse(data: String?, other: String = EMPTY_STRING): String = toTrimOrNull(data) ?: other
 
-fun toDecimalPlaces(data: Double, tail: String = EMPTY_STRING): String = "(%.3f)%s".format(data, tail)
+fun toDecimalPlaces3(data: Double, tail: String = EMPTY_STRING): String = "(%.3f)%s".format(data, tail)
 
-fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseconds." else if (data < 1000000000L) toDecimalPlaces(1.0E-6 * data, " milliseconds.") else toDecimalPlaces(1.0E-9 * data, " seconds.")
+fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseconds." else if (data < 1000000000L) toDecimalPlaces3(1.0E-6 * data, " milliseconds.") else toDecimalPlaces3(1.0E-9 * data, " seconds.")
 
 fun toSafeString(block: () -> Any?): String = try {
     when (val data = block()) {
@@ -127,6 +134,8 @@ fun getCheckedString(data: String): String {
 }
 
 fun toJavaClass(data: Any): Class<*> = data.javaClass
+
+fun toKotlinClass(data: Any): KClass<*> = data.javaClass.kotlin
 
 fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS): Long {
     if (duration <= 0) {
@@ -336,6 +345,8 @@ fun URL.toInputStream(): InputStream = when (val data = IO.getInputStream(this))
     null -> throw MercenaryExceptiion(toString())
     else -> data
 }
+
+fun String.toURL(): URL = URL(this)
 
 fun ByteArray.toInputStream(): ByteArrayInputStream = ByteArrayInputStream(this)
 

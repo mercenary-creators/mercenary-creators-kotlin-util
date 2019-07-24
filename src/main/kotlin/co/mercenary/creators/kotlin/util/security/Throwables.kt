@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-import co.mercenary.creators.kotlin.util.MercenaryFatalExceptiion
+import co.mercenary.creators.kotlin.util.*
 import org.apache.commons.logging.*
 import kotlin.reflect.KClass
 
@@ -39,7 +39,7 @@ object Throwables {
     @JvmStatic
     fun assert(cause: Throwable?) {
         if (cause != null) {
-            val type = cause.javaClass
+            val type = toJavaClass(cause)
             if (type in ignored) {
                 logs.warn("${type.name}(${cause.message}) IGNORED.")
             }

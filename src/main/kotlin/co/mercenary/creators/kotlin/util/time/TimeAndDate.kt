@@ -16,14 +16,11 @@
 
 package co.mercenary.creators.kotlin.util.time
 
+import co.mercenary.creators.kotlin.util.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 object TimeAndDate {
-
-    const val DEFAULT_ZONE_STRING = "UTC"
-
-    const val DEFAULT_DATE_STRING = "yyyy-MM-dd HH:mm:ss,SSS z"
 
     @JvmStatic
     fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(DEFAULT_ZONE_STRING)
@@ -34,8 +31,11 @@ object TimeAndDate {
     }
 
     @JvmStatic
-    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat(DEFAULT_DATE_STRING)
+    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat(DEFAULT_DATE_FORMAT)
 
     @JvmStatic
     fun getDefaultDateFormat(zone: TimeZone): SimpleDateFormat = getDefaultDateFormat().also { it.timeZone = zone }
+
+    @JvmStatic
+    fun getThreadLocalDefaultDateFormat(zone: TimeZone = getDefaultTimeZone()): ThreadLocal<SimpleDateFormat> = ThreadLocal.withInitial { getDefaultDateFormat(zone) }
 }

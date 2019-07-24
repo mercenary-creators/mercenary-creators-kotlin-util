@@ -16,13 +16,17 @@
 
 package co.mercenary.creators.kotlin.util.test
 
+import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.security.*
+import co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
-abstract class AbstractSecurityTest : AbstractKotlinTest() {
+abstract class AbstractSecurityTest(private val text: String = CREATORS_AUTHOR_INFO) : AbstractKotlinTest() {
 
-    protected fun getGeneratedPass(): CharSequence = Passwords.pass()
+    protected open fun getGeneratedText(): String = text.toValidated()
 
-    protected fun getGeneratedSalt(): CharSequence = Passwords.salt()
+    protected open fun getGeneratedPass(): CharSequence = Passwords.pass()
+
+    protected open fun getGeneratedSalt(): CharSequence = Passwords.salt()
 
     protected fun isGood(pass: CharSequence): Boolean = Passwords.good(pass)
 
