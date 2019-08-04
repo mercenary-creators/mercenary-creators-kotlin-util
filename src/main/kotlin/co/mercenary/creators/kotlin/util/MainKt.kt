@@ -56,7 +56,7 @@ typealias Digests = co.mercenary.creators.kotlin.util.security.Digests
 
 typealias Encoders = co.mercenary.creators.kotlin.util.security.Encoders
 
-typealias Throwables = co.mercenary.creators.kotlin.util.security.Throwables
+typealias Throwables = co.mercenary.creators.kotlin.util.type.Throwables
 
 typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 

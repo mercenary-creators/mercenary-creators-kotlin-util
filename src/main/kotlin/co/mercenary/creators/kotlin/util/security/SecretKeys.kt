@@ -22,7 +22,7 @@ import javax.crypto.spec.*
 object SecretKeys {
 
     @JvmStatic
-    fun getSecret(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): SecretKey {
+    fun getSecret(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm): SecretKey {
         return SecretKeySpec(SecretKeyFactory.getInstance(algorithm.getCipherSecretKey()).generateSecret(PBEKeySpec(pass.toString().toCharArray(), Encoders.hex().decode(salt.toString()), algorithm.getCipherIteration(), algorithm.getCipherKeyLength())).encoded, algorithm.getCipherAlgorithm())
     }
 

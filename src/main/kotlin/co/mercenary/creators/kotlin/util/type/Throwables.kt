@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.security
+package co.mercenary.creators.kotlin.util.type
 
 import co.mercenary.creators.kotlin.util.*
 import org.apache.commons.logging.*
@@ -28,7 +28,7 @@ object Throwables {
 
     private val ignored = mutableSetOf<Class<*>>()
 
-    private val logs: Log by lazy {
+    private val logger: Log by lazy {
         LogFactory.getLog(Throwables::class.java)
     }
 
@@ -41,10 +41,14 @@ object Throwables {
         if (cause != null) {
             val type = toJavaClass(cause)
             if (type in ignored) {
-                logs.warn("${type.name}(${cause.message}) IGNORED.")
+                if (logger.isDebugEnabled) {
+                    logger.debug("${type.name}(${cause.message}) IGNORED.")
+                }
             }
             else if (type in failure) {
-                logs.warn("${type.name}(${cause.message}) FAILURE.")
+                if (logger.isDebugEnabled) {
+                    logger.debug("${type.name}(${cause.message}) FAILURE.")
+                }
                 throw cause
             }
         }

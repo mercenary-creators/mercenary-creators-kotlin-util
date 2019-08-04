@@ -19,7 +19,6 @@ package co.mercenary.creators.kotlin.util.test
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.*
 import java.io.ByteArrayOutputStream
-import java.lang.NullPointerException
 import java.util.*
 
 abstract class AbstractKotlinTest : AbstractLogging() {
@@ -44,8 +43,6 @@ abstract class AbstractKotlinTest : AbstractLogging() {
             }
         }
     }
-
-    protected fun oops() = NullPointerException("oops")
 
     fun baos(size: Int = DEFAULT_BUFFER_SIZE): ByteArrayOutputStream = ByteArrayOutputStream(size)
 

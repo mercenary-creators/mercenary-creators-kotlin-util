@@ -20,7 +20,7 @@ import java.io.*
 import javax.crypto.SecretKey
 
 class CipherEncryptingCopy(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherCopyStreams {
-    constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt), algorithm)
+    constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
     private val proxy = Ciphers.copy(secret, algorithm)
     override fun encrypt(data: InputStream, copy: OutputStream) = proxy.encrypt(data, copy)
     override fun decrypt(data: InputStream, copy: OutputStream) = proxy.decrypt(data, copy)

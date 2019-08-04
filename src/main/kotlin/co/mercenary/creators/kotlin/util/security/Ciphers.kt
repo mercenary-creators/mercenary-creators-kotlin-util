@@ -16,6 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.Throwables
 import java.io.*
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.*
@@ -26,7 +27,7 @@ object Ciphers {
     @JvmStatic
     @JvmOverloads
     fun text(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<String, String> {
-        return text(SecretKeys.getSecret(pass, salt), algorithm)
+        return text(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
     }
 
     @JvmStatic
@@ -42,7 +43,7 @@ object Ciphers {
     @JvmStatic
     @JvmOverloads
     fun data(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<ByteArray, ByteArray> {
-        return data(SecretKeys.getSecret(pass, salt), algorithm)
+        return data(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
     }
 
     @JvmStatic
@@ -54,7 +55,7 @@ object Ciphers {
     @JvmStatic
     @JvmOverloads
     fun copy(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherCopyStreams {
-        return copy(SecretKeys.getSecret(pass, salt), algorithm)
+        return copy(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
     }
 
     @JvmStatic
@@ -78,18 +79,18 @@ object Ciphers {
 
     internal fun getCipher(algorithm: CipherAlgorithm): Cipher = Cipher.getInstance(algorithm.getCipherTransform())
 
-    internal fun setCypher(cipher: Cipher, mode: Int, secret: SecretKey, parameter: AlgorithmParameterSpec, algorithm: CipherAlgorithm): Cipher = cipher.also { it.init(mode, secret, parameter, algorithm.getFactoryKeysRand()) }
+    internal fun setCypher(cipher: Cipher, mode: Int, secret: SecretKey, parameter: AlgorithmParameterSpec): Cipher = cipher.also { it.init(mode, secret, parameter) }
 
     internal fun getParams(algorithm: CipherAlgorithm, vector: ByteArray): AlgorithmParameterSpec = algorithm.getAlgorithmParams(vector)
 
     private class InternalEncryptingData(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherEncrypting<ByteArray, ByteArray> {
 
         override fun encrypt(data: ByteArray): ByteArray = synchronized(encrypt) {
-            factory.getKeys().let { vector -> vector + setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector), algorithm).doFinal(data) }
+            factory.getKeys().let { vector -> vector + setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(data) }
         }
 
         override fun decrypt(data: ByteArray): ByteArray = synchronized(decrypt) {
-            data.copyOfRange(0, factory.getSize()).let { vector -> setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector), algorithm).doFinal(data.copyOfRange(vector.size, data.size)) }
+            data.copyOfRange(0, factory.getSize()).let { vector -> setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(data.copyOfRange(vector.size, data.size)) }
         }
     }
 
@@ -98,7 +99,7 @@ object Ciphers {
         override fun encrypt(data: InputStream, copy: OutputStream) = synchronized(encrypt) {
             val buffer = getBufferOf(data)
             val vector = factory.getKeys().also { copy.write(it) }
-            val output = FastCipherOutputStream(copy.buffered(buffer), setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector), algorithm))
+            val output = FastCipherOutputStream(copy.buffered(buffer), setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)))
             data.copyTo(output)
             output.close()
         }
@@ -106,7 +107,7 @@ object Ciphers {
         override fun decrypt(data: InputStream, copy: OutputStream) = synchronized(decrypt) {
             val buffer = getBufferOf(data)
             val vector = ByteArray(factory.getSize()).also { data.read(it) }
-            val output = FastCipherOutputStream(copy.buffered(buffer), setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector), algorithm))
+            val output = FastCipherOutputStream(copy.buffered(buffer), setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)))
             data.copyTo(output)
             output.close()
         }

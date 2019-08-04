@@ -40,14 +40,14 @@ interface CipherAlgorithm {
             IvParameterSpec(vector)
         }
 
-        class CipherAlgorithmFactory(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {
-            override fun getFactoryKeysSize(): Int = size
-            override fun getCipherKeyLength(): Int = leng
-            override fun getCipherIteration(): Int = iter
-            override fun getCipherSecretKey(): String = type
-            override fun getCipherAlgorithm(): String = algo
-            override fun getCipherTransform(): String = tran
-            override fun getFactoryKeysRand(): SecureRandom = SecureRandom()
+        open class CipherAlgorithmFactory(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {
+            override fun getFactoryKeysSize() = size
+            override fun getCipherKeyLength() = leng
+            override fun getCipherIteration() = iter
+            override fun getCipherSecretKey() = type
+            override fun getCipherAlgorithm() = algo
+            override fun getCipherTransform() = tran
+            override fun getFactoryKeysRand() = SecureRandom()
             override fun getAlgorithmParams(vector: ByteArray) = factory(vector)
         }
     }

@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-import co.mercenary.creators.kotlin.util.MercenaryExceptiion
+import co.mercenary.creators.kotlin.util.*
 import java.security.SecureRandom
 
 object Randoms {
@@ -98,7 +98,7 @@ object Randoms {
             throw MercenaryExceptiion("Illegal sized size $sized")
         }
         if (sized < 1) {
-            return ""
+            return EMPTY_STRING
         }
         if (chars.isEmpty()) {
             throw MercenaryExceptiion("Illegal chars size 0")

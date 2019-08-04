@@ -19,5 +19,5 @@ package co.mercenary.creators.kotlin.util.security
 import javax.crypto.SecretKey
 
 class CipherEncryptingData(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherEncryptingProxy<ByteArray>(Ciphers.data(secret, algorithm)) {
-    constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt), algorithm)
+    constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
 }
