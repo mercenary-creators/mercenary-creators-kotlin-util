@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.reactive
+package co.mercenary.creators.kotlin.util.meta
 
-import reactor.core.scheduler.*
-
-class ParallelScheduler private constructor(private val proxy: Scheduler) : Scheduler by proxy, AutoCloseable {
-
-    override fun close() {
-        if (proxy.isDisposed.not()) {
-            proxy.dispose()
-        }
+class MetaDataTransformers<K, V> {
+    var keys: MetaDataTransformer<K, K> = object : MetaDataTransformer<K, K> {
+        override fun decode(data: K): K = data
+        override fun encode(data: K): K = data
     }
-
-    constructor(name: String, parallelism: Int = Schedulers.DEFAULT_POOL_SIZE, daemon: Boolean = false) : this(Schedulers.newParallel(name, parallelism, daemon))
+    var vals: MetaDataTransformer<V, V> = object : MetaDataTransformer<V, V> {
+        override fun decode(data: V): V = data
+        override fun encode(data: V): V = data
+    }
 }

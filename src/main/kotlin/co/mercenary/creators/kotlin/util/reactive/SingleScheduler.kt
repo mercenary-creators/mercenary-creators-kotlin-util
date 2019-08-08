@@ -18,6 +18,13 @@ package co.mercenary.creators.kotlin.util.reactive
 
 import reactor.core.scheduler.*
 
-class SingleScheduler private constructor(private val proxy: Scheduler) : Scheduler by proxy {
+class SingleScheduler private constructor(private val proxy: Scheduler) : Scheduler by proxy, AutoCloseable {
+
+    override fun close() {
+        if (proxy.isDisposed.not()) {
+            proxy.dispose()
+        }
+    }
+
     constructor(name: String, daemon: Boolean = false) : this(Schedulers.newSingle(name, daemon))
 }

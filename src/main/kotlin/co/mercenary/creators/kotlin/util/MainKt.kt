@@ -31,12 +31,14 @@ import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
 import java.util.stream.Collectors
-import kotlin.math.max
+import kotlin.math.*
 import kotlin.reflect.KClass
 
 const val IS_NOT_FOUND = -1
 
 const val EMPTY_STRING = ""
+
+const val SPACE_STRING = " "
 
 const val CHAR_INVALID = Char.MIN_VALUE
 
@@ -139,16 +141,15 @@ fun toKotlinClass(data: Any): KClass<*> = data.javaClass.kotlin
 
 fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS): Long {
     if (duration <= 0) {
-        return duration
+        return 0
     }
-    val time = getTimeStamp()
     try {
         return duration.also { TimeUnit.MILLISECONDS.sleep(unit.convert(it, TimeUnit.MILLISECONDS)) }
     }
     catch (cause: Throwable) {
         Throwables.assert(cause)
     }
-    return getTimeStamp() - time
+    return 0
 }
 
 fun Date?.copyOf(): Date = when (this) {
