@@ -31,11 +31,11 @@ class GCMFileFastTest : KotlinSecurityTest() {
         good.shouldBe(true) {
             pass
         }
-        val temp = getTempFile(uuid(), ".doc")
+        val temp = getTempFile(uuid(), ".txt")
         val baos = baos(DEFAULT_BUFFER_SIZE)
         val save = baos(DEFAULT_BUFFER_SIZE)
         val code = getCopyCipher(pass, salt, CipherAlgorithm.GCM)
-        val data = DefaultContentResourceLoader().getContentResource("test.doc")
+        val data = DefaultContentResourceLoader().getContentResource("test.txt").toContentCache()
         repeat(7) {
             baos.reset()
             save.reset()
@@ -48,9 +48,12 @@ class GCMFileFastTest : KotlinSecurityTest() {
         data.toByteArray().shouldNotBe(temp.toByteArray()) {
             "files should not be the same."
         }
-        val copy = getTempFile(uuid(), ".doc")
+        val copy = getTempFile(uuid(), ".txt")
         timed {
             code.decrypt(temp, copy)
+        }
+        copy.readLines().forEachIndexed { i, s ->
+            info { "%2d : %s".format(i + 1, s) }
         }
         data.toByteArray().shouldBe(copy.toByteArray()) {
             "files should not be different."

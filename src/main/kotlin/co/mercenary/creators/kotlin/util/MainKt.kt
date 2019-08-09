@@ -117,7 +117,7 @@ fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseco
 fun toSafeString(block: () -> Any?): String = try {
     when (val data = block()) {
         null -> "null"
-        else -> data.toString().toValidated()
+        else -> data.toString()
     }
 }
 catch (cause: Throwable) {
@@ -159,24 +159,20 @@ fun Date?.copyOf(): Date = when (this) {
 
 fun String.toLowerTrim(): String = getLowerTrim(this)
 
-fun String.toValidated(): String = getCheckedString(this)
+fun isDefaultContentType(type: String): Boolean = type.toLowerTrim() == DEFAULT_CONTENT_TYPE
 
-fun String.toLowerTrimValidated(): String = toLowerTrim().toValidated()
-
-fun isDefaultContentType(type: String): Boolean = type.toLowerTrimValidated() == DEFAULT_CONTENT_TYPE
-
-fun toCommonContentTypes(name: String, type: String = DEFAULT_CONTENT_TYPE): String = when (IO.getPathExtension(name).toLowerTrimValidated()) {
+fun toCommonContentTypes(name: String, type: String = DEFAULT_CONTENT_TYPE): String = when (IO.getPathExtension(name).toLowerTrim()) {
     ".json" -> "application/json"
     ".java" -> "text/x-java-source"
     ".yaml" -> "application/x-yaml"
     ".yml" -> "application/x-yaml"
     ".properties" -> "text/x-java-properties"
-    else -> type.toLowerTrimValidated()
+    else -> type.toLowerTrim()
 }
 
 fun getDefaultContentTypeProbe(): ContentTypeProbe = IO.getContentTypeProbe()
 
-fun getPathNormalizedOrElse(path: String?, other: String = EMPTY_STRING): String = toTrimOrElse(IO.getPathNormalized(path), other).toValidated()
+fun getPathNormalizedOrElse(path: String?, other: String = EMPTY_STRING): String = toTrimOrElse(IO.getPathNormalized(path), other)
 
 fun getPathNormalizedNoTail(path: String?, tail: Boolean): String {
     val norm = getPathNormalizedOrElse(path)

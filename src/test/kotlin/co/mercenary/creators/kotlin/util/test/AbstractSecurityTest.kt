@@ -22,7 +22,7 @@ import co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
 abstract class AbstractSecurityTest(private val text: String = CREATORS_AUTHOR_INFO) : AbstractKotlinTest() {
 
-    protected open fun getGeneratedText(): String = text.toValidated()
+    protected open fun getGeneratedText(): String = text
 
     protected open fun getGeneratedPass(): CharSequence = Passwords.pass()
 

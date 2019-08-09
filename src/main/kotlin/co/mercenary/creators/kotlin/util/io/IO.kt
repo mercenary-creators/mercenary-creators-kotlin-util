@@ -136,12 +136,11 @@ object IO {
 
     @JvmStatic
     fun getResouce(path: String, claz: Class<*>? = null, load: ClassLoader? = null): URL? = try {
-        val name = path.toValidated()
         when {
-            claz != null -> claz.getResource(name)
-            load != null -> load.getResource(name)
-            else -> when (val data = ClassLoader.getSystemResource(name)) {
-                null -> getDefaultClassLoader()?.getResource(name)
+            claz != null -> claz.getResource(path)
+            load != null -> load.getResource(path)
+            else -> when (val data = ClassLoader.getSystemResource(path)) {
+                null -> getDefaultClassLoader()?.getResource(path)
                 else -> data
             }
         }
@@ -213,7 +212,7 @@ object IO {
     fun toFileOrNull(data: URL): File? {
         try {
             if (isFileURL(data)) {
-                val path = getPathNormalized(data.file).orEmpty().toValidated()
+                val path = getPathNormalized(data.file).orEmpty()
                 if (path.isNotEmpty()) {
                     return File(path)
                 }
@@ -329,11 +328,11 @@ object IO {
                 if (conn != null) {
                     val send = toTrimOrElse(conn.contentType, DEFAULT_CONTENT_TYPE)
                     conn.disconnect()
-                    return send.toLowerTrimValidated()
+                    return send.toLowerTrim()
                 }
             }
         }
-        return type.toLowerTrimValidated()
+        return type.toLowerTrim()
     }
 
     @JvmStatic
@@ -341,15 +340,15 @@ object IO {
         if (isDefaultContentType(type)) {
             return getContentType(ByteArrayInputStream(data), type)
         }
-        return type.toLowerTrimValidated()
+        return type.toLowerTrim()
     }
 
     @JvmStatic
     fun getContentType(data: InputStream, type: String): String {
-        val kind = type.toLowerTrimValidated()
+        val kind = type.toLowerTrim()
         when {
             isDefaultContentType(kind) && data.markSupported() -> {
-                val send = toTrimOrElse(HttpURLConnection.guessContentTypeFromStream(data), EMPTY_STRING).toLowerTrimValidated()
+                val send = toTrimOrElse(HttpURLConnection.guessContentTypeFromStream(data), EMPTY_STRING).toLowerTrim()
                 if (send.isNotEmpty()) {
                     return send
                 }

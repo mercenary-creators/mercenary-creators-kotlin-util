@@ -34,7 +34,7 @@ abstract class AbstractContentResource(path: String, type: String = DEFAULT_CONT
             }
             return look
         }
-        return keep.toLowerTrimValidated()
+        return keep.toLowerTrim()
     }
 
     override fun isContentCache() = false

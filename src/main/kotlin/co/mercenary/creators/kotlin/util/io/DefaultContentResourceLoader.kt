@@ -24,10 +24,12 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
     private val resolvers = mutableSetOf<ContentProtocolResolver>()
 
     override fun getContentResource(path: String): ContentResource {
-        for (resolver in getContentProtocolResolvers()) {
-            val data = resolver.resolve(path, this)
-            if (data != null) {
-                return data
+        if (resolvers.isNotEmpty()) {
+            for (resolver in resolvers) {
+                val data = resolver.resolve(path, this)
+                if (data != null) {
+                    return data
+                }
             }
         }
         if (path.startsWith(IO.SINGLE_SLASH)) {
@@ -81,8 +83,6 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
         return ClassPathContentResource(path, getDefaultContentTypeProbe().getContentType(path), null, getClassLoader())
     }
 
-    open fun getContentProtocolResolvers(): List<ContentProtocolResolver> = resolvers.toList()
-
     open fun add(args: ContentProtocolResolver) {
         resolvers += args
     }
@@ -99,19 +99,7 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
         resolvers += args
     }
 
-    operator fun plusAssign(args: ContentProtocolResolver) {
-        add(args)
-    }
-
-    operator fun plusAssign(args: Array<ContentProtocolResolver>) {
-        add(args)
-    }
-
-    operator fun plusAssign(args: Iterable<ContentProtocolResolver>) {
-        add(args)
-    }
-
-    operator fun plusAssign(args: Sequence<ContentProtocolResolver>) {
+    override operator fun plusAssign(args: ContentProtocolResolver) {
         add(args)
     }
 }

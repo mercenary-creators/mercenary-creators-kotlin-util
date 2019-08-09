@@ -43,13 +43,13 @@ class MimeContentTypeProbe(private val maps: FileTypeMap = ContentTypeProbe.getD
     override fun getContentType(name: String, type: String): String {
         if (isDefaultContentType(type)) {
             val path = getPathNormalizedOrElse(name)
-            val look = getFileTypeMap().getContentType(path).toLowerTrimValidated()
+            val look = getFileTypeMap().getContentType(path).toLowerTrim()
             if (isDefaultContentType(look)) {
                 return toCommonContentTypes(name)
             }
             return look
         }
-        return type.toLowerTrimValidated()
+        return type.toLowerTrim()
     }
 
     override fun getFileTypeMap(): FileTypeMap = maps

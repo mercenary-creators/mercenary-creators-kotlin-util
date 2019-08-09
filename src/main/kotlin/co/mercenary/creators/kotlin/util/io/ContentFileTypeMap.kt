@@ -47,7 +47,7 @@ class ContentFileTypeMap : FileTypeMap() {
 
     override fun getContentType(file: File): String = getContentType(file.name)
 
-    override fun getContentType(name: String): String = maps.getContentType(name).toLowerTrim().toValidated()
+    override fun getContentType(name: String): String = maps.getContentType(name).toLowerTrim()
 
     companion object {
         const val DEFAULT_FILE = "MIME-INF/co-mercenary-creators-kotlin-mime.types"
