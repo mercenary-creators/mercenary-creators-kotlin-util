@@ -27,6 +27,8 @@ abstract class AbstractKotlinTest : AbstractLogging() {
         Encoders
     }
 
+    val loader = DefaultContentResourceLoader()
+
     private val conf: Properties by lazy {
         getConfigPropertiesBuilder().invoke()
     }

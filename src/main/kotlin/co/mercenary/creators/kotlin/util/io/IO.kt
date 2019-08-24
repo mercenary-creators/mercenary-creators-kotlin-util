@@ -54,7 +54,7 @@ object IO {
     fun getPathNormalized(path: String?): String? {
         val temp = toTrimOrNull(path)
         if (temp != null) {
-            val norm = toTrimOrNull(FilenameUtils.normalizeNoEndSeparator(getCheckedString(patch(temp)), true))
+            val norm = toTrimOrNull(FilenameUtils.normalizeNoEndSeparator(patch(temp), true))
             if ((norm != null) && (norm.indexOf(SINGLE_PREFIX_CHAR) != IS_NOT_FOUND)) {
                 if (norm.startsWith(SINGLE_TILDE)) {
                     return getPathNormalized(norm.substring(1))

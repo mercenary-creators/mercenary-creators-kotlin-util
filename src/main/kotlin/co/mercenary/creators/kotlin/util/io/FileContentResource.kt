@@ -19,7 +19,7 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.io.File
 
-class FileContentResource(internal val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type) {
+class FileContentResource(internal val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type), OutputContentResource {
     private val resolved = getResolvedContentType()
     override fun getContentType() = resolved
     override fun getContentSize() = data.length()

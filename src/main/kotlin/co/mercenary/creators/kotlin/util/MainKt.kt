@@ -31,8 +31,7 @@ import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
 import java.util.stream.Collectors
-import kotlin.math.*
-import kotlin.reflect.KClass
+import kotlin.math.max
 
 const val IS_NOT_FOUND = -1
 
@@ -44,11 +43,11 @@ const val CHAR_INVALID = Char.MIN_VALUE
 
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
-const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company"
-
 const val DEFAULT_ZONE_STRING = "UTC"
 
 const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
+
+const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company. 6.0.0-SNAPSHOT"
 
 typealias TimeUnit = java.util.concurrent.TimeUnit
 
@@ -136,8 +135,6 @@ fun getCheckedString(data: String): String {
 }
 
 fun toJavaClass(data: Any): Class<*> = data.javaClass
-
-fun toKotlinClass(data: Any): KClass<*> = data.javaClass.kotlin
 
 fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS): Long {
     if (duration <= 0) {
@@ -296,6 +293,18 @@ operator fun AtomicLong.minusAssign(delta: Long) {
     this.addAndGet(delta)
 }
 
+fun <T> safe(assert: Boolean = false, block: () -> T?): T? {
+    return try {
+        block.invoke()
+    }
+    catch (cause: Throwable) {
+        if (assert) {
+            Throwables.assert(cause)
+        }
+        null
+    }
+}
+
 fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
 
 open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
@@ -343,8 +352,6 @@ fun URL.toInputStream(): InputStream = when (val data = IO.getInputStream(this))
     else -> data
 }
 
-fun String.toURL(): URL = URL(this)
-
 fun ByteArray.toInputStream(): ByteArrayInputStream = ByteArrayInputStream(this)
 
 fun File.toInputStream(vararg args: OpenOption): InputStream = toPath().toInputStream(*args)
@@ -372,7 +379,7 @@ fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
 
 fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
 
-fun <T : Any> Flux<T>.toList(): List<T> = collect(Collectors.toList<T>()).block()!!
+fun <T : Any> Flux<T>.toList(): List<T> = collect(Collectors.toList<T>()).block().orElse { emptyList() }
 
 fun <T : Any> T.toMono(): Mono<T> = Mono.just(this)
 
@@ -424,3 +431,9 @@ fun InputStreamSupplier.toByteArray(): ByteArray = when (this) {
     is ContentResource -> getContentData()
     else -> getInputStream().toByteArray()
 }
+
+fun ContentResource.cache() = if (isContentCache()) this else toContentCache()
+
+fun <T : Any> T?.orElse(value: T): T = this ?: value
+
+fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()

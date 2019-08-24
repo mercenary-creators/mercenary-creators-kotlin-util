@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-interface ContentResource : InputStreamSupplier, OutputStreamSupplier {
+interface ContentResource : InputStreamSupplier {
     fun getContentSize(): Long
     fun getContentTime(): Long
     fun getContentPath(): String

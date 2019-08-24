@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.meta
+package co.mercenary.creators.kotlin.util.io
 
-import co.mercenary.creators.kotlin.util.security.Encoder
-
-interface MetaDataTransformer<E, D>: Encoder<E, D>
+interface OutputContentResource : ContentResource, OutputStreamSupplier

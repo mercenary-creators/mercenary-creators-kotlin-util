@@ -35,7 +35,7 @@ class CBCFileTest : KotlinSecurityTest() {
         val baos = baos(DEFAULT_BUFFER_SIZE)
         val save = baos(DEFAULT_BUFFER_SIZE)
         val code = getCopyCipher(pass, salt, CipherAlgorithm.CBC)
-        val data = DefaultContentResourceLoader().getContentResource("test.txt")
+        val data = loader["test.txt"]
         repeat(7) {
             baos.reset()
             save.reset()

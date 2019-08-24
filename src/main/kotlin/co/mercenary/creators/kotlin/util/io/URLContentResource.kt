@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 
 import java.net.URL
 
-class URLContentResource(internal val data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type) {
+class URLContentResource(internal val data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type), OutputContentResource {
     override fun getInputStream() = data.toInputStream()
     override fun isContentThere() = IO.isContentThere(data)
     override fun getContentSize() = IO.getContentSize(data)

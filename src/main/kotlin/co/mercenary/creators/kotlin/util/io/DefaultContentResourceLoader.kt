@@ -23,7 +23,7 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
 
     private val resolvers = mutableSetOf<ContentProtocolResolver>()
 
-    override fun getContentResource(path: String): ContentResource {
+    override operator fun get(path: String): ContentResource {
         if (resolvers.isNotEmpty()) {
             for (resolver in resolvers) {
                 val data = resolver.resolve(path, this)

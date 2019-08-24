@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import java.io.OutputStream
 
 abstract class AbstractContentResourceBase(private val path: String, private val type: String = DEFAULT_CONTENT_TYPE, private val time: Long = 0L) : ContentResource {
 
@@ -30,8 +29,7 @@ abstract class AbstractContentResourceBase(private val path: String, private val
     }
 
     override fun getContentPath() = path
-    override fun getContentType() = type
     override fun getContentTime() = time
     override fun getDescription() = desc
-    override fun getOutputStream(): OutputStream = EmptyOutputStream.INSTANCE
+    override fun getContentType() = type.toLowerTrim()
 }
