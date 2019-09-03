@@ -31,7 +31,7 @@ import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
 import java.util.stream.Collectors
-import kotlin.math.max
+import kotlin.math.*
 
 const val IS_NOT_FOUND = -1
 
@@ -47,7 +47,7 @@ const val DEFAULT_ZONE_STRING = "UTC"
 
 const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
 
-const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company. 6.0.0-SNAPSHOT"
+const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company."
 
 typealias TimeUnit = java.util.concurrent.TimeUnit
 
@@ -293,18 +293,6 @@ operator fun AtomicLong.minusAssign(delta: Long) {
     this.addAndGet(delta)
 }
 
-fun <T> safe(assert: Boolean = false, block: () -> T?): T? {
-    return try {
-        block.invoke()
-    }
-    catch (cause: Throwable) {
-        if (assert) {
-            Throwables.assert(cause)
-        }
-        null
-    }
-}
-
 fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
 
 open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
@@ -433,7 +421,5 @@ fun InputStreamSupplier.toByteArray(): ByteArray = when (this) {
 }
 
 fun ContentResource.cache() = if (isContentCache()) this else toContentCache()
-
-fun <T : Any> T?.orElse(value: T): T = this ?: value
 
 fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()
