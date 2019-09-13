@@ -17,17 +17,16 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.logging.Logging
 import org.junit.jupiter.api.*
 import java.io.ByteArrayOutputStream
 import java.util.*
 
-abstract class AbstractKotlinTest : AbstractLogging() {
+abstract class AbstractKotlinTest : Logging() {
 
     init {
         Encoders
     }
-
-    val loader = DefaultContentResourceLoader()
 
     private val conf: Properties by lazy {
         getConfigPropertiesBuilder().invoke()
@@ -123,6 +122,4 @@ abstract class AbstractKotlinTest : AbstractLogging() {
     fun <T : Any> (() -> T?).shouldNotBe(value: () -> Any?, block: () -> Any?) = assertNotEquals(value.invoke(), this.invoke(), block)
 
     fun ByteArray.shouldNotBe(value: ByteArray, block: () -> Any?) = assertNotEquals(value, this, block)
-
-    fun <T> timed(block: () -> T): T = timed({ info { it } }, block)
 }

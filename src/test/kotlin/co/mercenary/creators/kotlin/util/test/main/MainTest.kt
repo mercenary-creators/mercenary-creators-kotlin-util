@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("TestKt")
+package co.mercenary.creators.kotlin.util.test.main
 
-package co.mercenary.creators.kotlin.util
+import co.mercenary.creators.kotlin.util.*
+import org.junit.jupiter.api.Test
 
-import kotlin.math.abs
-
-typealias Executable = org.junit.jupiter.api.function.Executable
-
-typealias KotlinTest = co.mercenary.creators.kotlin.util.test.AbstractKotlinTest
-
-typealias KotlinDataTest = co.mercenary.creators.kotlin.util.test.AbstractDataTest
-
-typealias KotlinSecurityTest = co.mercenary.creators.kotlin.util.test.AbstractSecurityTest
-
-fun toDecimalPlaces(data: Double, scale: Int = 2, places: Int = abs(scale)): String {
-    return "%.${places}f".format(data.rounded(abs(scale)))
+class MainTest : KotlinTest() {
+    @Test
+    fun text() {
+        val data = -0.0000101
+        info { data.rounded(3) }
+        info { data.rounded(5) }
+        info { toDecimalPlaces(data, 3) }
+        info { toDecimalPlaces(data, 5) }
+    }
 }

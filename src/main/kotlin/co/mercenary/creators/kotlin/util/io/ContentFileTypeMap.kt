@@ -17,14 +17,15 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import org.apache.commons.logging.*
+import co.mercenary.creators.kotlin.util.logging.*
+import co.mercenary.creators.kotlin.util.logging.LoggingFactory
 import java.io.*
 import javax.activation.*
 
 class ContentFileTypeMap : FileTypeMap() {
 
-    private val logs: Log by lazy {
-        LogFactory.getLog(ContentFileTypeMap::class.java)
+    private val logs: ILogging by lazy {
+        LoggingFactory.logger(ContentFileTypeMap::class)
     }
 
     private val maps = getMimetypesFileTypeMapInputStream()?.use { MimetypesFileTypeMap(it) } ?: MimetypesFileTypeMap()
@@ -33,11 +34,15 @@ class ContentFileTypeMap : FileTypeMap() {
         val name = getMimetypesFileName()
         val data = IO.getInputStream(name)
         if (data == null) {
-            logs.error("can't load mime file $name")
+            logs.error {
+                "can't load mime file $name"
+            }
             if (name != DEFAULT_FILE) {
                 val file = IO.getInputStream(DEFAULT_FILE)
                 if (file == null) {
-                    logs.error("can't load mime file $DEFAULT_FILE")
+                    logs.error {
+                        "can't load mime file $DEFAULT_FILE"
+                    }
                 }
                 return file
             }

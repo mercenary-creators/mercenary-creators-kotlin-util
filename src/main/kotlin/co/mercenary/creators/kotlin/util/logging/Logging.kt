@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("TestKt")
+package co.mercenary.creators.kotlin.util.logging
 
-package co.mercenary.creators.kotlin.util
+import mu.*
 
-import kotlin.math.abs
+open class Logging(name: String? = null) : KLoggable, ILoggingBase {
 
-typealias Executable = org.junit.jupiter.api.function.Executable
+    private val logs: KLogger by lazy {
+        if (name == null) logger() else logger(name)
+    }
 
-typealias KotlinTest = co.mercenary.creators.kotlin.util.test.AbstractKotlinTest
-
-typealias KotlinDataTest = co.mercenary.creators.kotlin.util.test.AbstractDataTest
-
-typealias KotlinSecurityTest = co.mercenary.creators.kotlin.util.test.AbstractSecurityTest
-
-fun toDecimalPlaces(data: Double, scale: Int = 2, places: Int = abs(scale)): String {
-    return "%.${places}f".format(data.rounded(abs(scale)))
+    override val logger: KLogger
+        get() = logs
 }

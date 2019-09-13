@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.type
 
 import co.mercenary.creators.kotlin.util.*
-import org.apache.commons.logging.*
 import kotlin.reflect.KClass
 
 object Throwables {
@@ -28,26 +27,25 @@ object Throwables {
 
     private val ignored = mutableSetOf<Class<*>>()
 
-    private val logger: Log by lazy {
-        LogFactory.getLog(Throwables::class.java)
-    }
+    private val logger = LoggingFactory.logger(Throwables::class)
 
     init {
         reset()
     }
 
     @JvmStatic
+    @JvmName("test")
     fun assert(cause: Throwable?) {
         if (cause != null) {
             val type = toJavaClass(cause)
             if (type in ignored) {
-                if (logger.isDebugEnabled) {
-                    logger.debug("${type.name}(${cause.message}) IGNORED.")
+                logger.debug {
+                    "${type.name}(${cause.message}) IGNORED."
                 }
             }
             else if (type in failure) {
-                if (logger.isDebugEnabled) {
-                    logger.debug("${type.name}(${cause.message}) FAILURE.")
+                logger.debug {
+                    "${type.name}(${cause.message}) FAILURE."
                 }
                 throw cause
             }

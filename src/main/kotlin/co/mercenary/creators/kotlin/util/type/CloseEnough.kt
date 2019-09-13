@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("TestKt")
+package co.mercenary.creators.kotlin.util.type
 
-package co.mercenary.creators.kotlin.util
-
-import kotlin.math.abs
-
-typealias Executable = org.junit.jupiter.api.function.Executable
-
-typealias KotlinTest = co.mercenary.creators.kotlin.util.test.AbstractKotlinTest
-
-typealias KotlinDataTest = co.mercenary.creators.kotlin.util.test.AbstractDataTest
-
-typealias KotlinSecurityTest = co.mercenary.creators.kotlin.util.test.AbstractSecurityTest
-
-fun toDecimalPlaces(data: Double, scale: Int = 2, places: Int = abs(scale)): String {
-    return "%.${places}f".format(data.rounded(abs(scale)))
+interface CloseEnough<T> {
+    fun closeEnough(value: T, precision: Double = Numeric.DEFAULT_PRECISION): Boolean
 }

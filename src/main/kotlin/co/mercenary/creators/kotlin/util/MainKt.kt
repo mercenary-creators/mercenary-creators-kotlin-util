@@ -20,7 +20,7 @@ package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.io.*
 import co.mercenary.creators.kotlin.util.time.NanoTicker
-import co.mercenary.creators.kotlin.util.type.Validated
+import co.mercenary.creators.kotlin.util.type.*
 import org.reactivestreams.Publisher
 import reactor.core.publisher.*
 import java.io.*
@@ -50,6 +50,10 @@ const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company."
 
 typealias TimeUnit = java.util.concurrent.TimeUnit
+
+typealias Logging = co.mercenary.creators.kotlin.util.logging.Logging
+
+typealias LoggingFactory = co.mercenary.creators.kotlin.util.logging.LoggingFactory
 
 typealias Randoms = co.mercenary.creators.kotlin.util.security.Randoms
 
@@ -136,17 +140,15 @@ fun getCheckedString(data: String): String {
 
 fun toJavaClass(data: Any): Class<*> = data.javaClass
 
-fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS): Long {
-    if (duration <= 0) {
-        return 0
+fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) {
+    if (duration > 0) {
+        try {
+            unit.sleep(duration)
+        }
+        catch (cause: Throwable) {
+            Throwables.assert(cause)
+        }
     }
-    try {
-        return duration.also { TimeUnit.MILLISECONDS.sleep(unit.convert(it, TimeUnit.MILLISECONDS)) }
-    }
-    catch (cause: Throwable) {
-        Throwables.assert(cause)
-    }
-    return 0
 }
 
 fun Date?.copyOf(): Date = when (this) {
@@ -212,6 +214,12 @@ fun pow2Round(value: Int, down: Boolean = true): Int {
         }
     }
 }
+
+fun Double.closeEnough(value: Double, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+    return Numeric.delta(this, value, Numeric.check(precision))
+}
+
+fun Double.rounded(scale: Int = 2): Double = Numeric.rounded(this, abs(scale))
 
 fun Date.toLong(): Long = this.time
 
@@ -423,3 +431,6 @@ fun InputStreamSupplier.toByteArray(): ByteArray = when (this) {
 fun ContentResource.cache() = if (isContentCache()) this else toContentCache()
 
 fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()
+
+val RESOURCE_LOADER = DefaultContentResourceLoader()
+
