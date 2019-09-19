@@ -20,6 +20,10 @@ import mu.*
 
 open class Logging(name: String? = null) : KLoggable, ILoggingBase {
 
+    init {
+        LoggingFactory
+    }
+
     private val logs: KLogger by lazy {
         if (name == null) logger() else logger(name)
     }

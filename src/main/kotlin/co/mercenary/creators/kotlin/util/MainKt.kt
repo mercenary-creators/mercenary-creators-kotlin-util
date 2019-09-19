@@ -434,3 +434,22 @@ fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()
 
 val RESOURCE_LOADER = DefaultContentResourceLoader()
 
+inline fun <T> withLoggingContext(args: Pair<String, Any>, block: () -> T): T {
+    return mu.withLoggingContext(args.first to args.second.toString(), block)
+}
+
+inline fun <T> withLoggingContext(args: Map<String, Any>, block: () -> T): T {
+    val hash = LinkedHashMap<String, String>(args.size)
+    for ((k, v) in args) {
+        hash[k] = v.toString()
+    }
+    return mu.withLoggingContext(hash, block)
+}
+
+inline fun <T> withLoggingContext(vararg args: Pair<String, Any>, block: () -> T): T {
+    val hash = LinkedHashMap<String, String>(args.size)
+    for ((k, v) in args) {
+        hash[k] = v.toString()
+    }
+    return mu.withLoggingContext(hash, block)
+}

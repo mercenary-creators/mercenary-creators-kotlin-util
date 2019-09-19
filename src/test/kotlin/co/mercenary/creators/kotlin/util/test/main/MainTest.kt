@@ -21,11 +21,13 @@ import org.junit.jupiter.api.Test
 
 class MainTest : KotlinTest() {
     @Test
-    fun text() {
-        val data = -0.0000101
-        info { data.rounded(3) }
-        info { data.rounded(5) }
-        info { toDecimalPlaces(data, 3) }
-        info { toDecimalPlaces(data, 5) }
+    fun test() {
+        withLoggingContext("dean" to 5) {
+            val data = -0.0000101
+            info { data.rounded(3) }
+            info { data.rounded(5) }
+            info { toDecimalPlaces(data, 3) }
+            info { toDecimalPlaces(data, 5) }
+        }
     }
 }

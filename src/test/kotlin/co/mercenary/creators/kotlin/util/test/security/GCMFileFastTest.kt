@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 class GCMFileFastTest : KotlinSecurityTest() {
     @Test
-    fun text() {
+    fun test() {
         val pass = getGeneratedPass()
         val salt = getGeneratedSalt()
         info { pass }

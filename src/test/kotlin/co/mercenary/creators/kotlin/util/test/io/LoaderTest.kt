@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 class LoaderTest : KotlinDataTest() {
     @Test
-    fun text() {
+    fun test() {
         info { getContentResourceDetails(RESOURCE_LOADER["test.zip"]) }
         info { getContentResourceDetails(RESOURCE_LOADER["test.jpg"]) }
         info { getContentResourceDetails(RESOURCE_LOADER["test.css"]) }

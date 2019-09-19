@@ -16,6 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.reflect.KClass
 
 @Suppress("NOTHING_TO_INLINE")
@@ -24,6 +25,14 @@ object LoggingFactory {
     const val KE = "$"
 
     const val KT = "Kt$"
+
+    private val opem = AtomicBoolean(false)
+
+    init {
+        if (opem.compareAndSet(false, true)) {
+            (org.slf4j.LoggerFactory.getILoggerFactory() as  ch.qos.logback.classic.LoggerContext).frameworkPackages.add(ILoggingBase::class.java.`package`.name)
+        }
+    }
 
     @JvmStatic
     fun logger(name: String): ILogging = Logging(name)

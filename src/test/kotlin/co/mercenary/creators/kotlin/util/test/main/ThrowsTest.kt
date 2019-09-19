@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 class ThrowsTest : KotlinTest() {
     @Test
-    fun text() {
+    fun test() {
         Throwables.ignored(MercenaryExceptiion::class)
         Throwables.assert(MercenaryExceptiion(EMPTY_STRING))
         try {

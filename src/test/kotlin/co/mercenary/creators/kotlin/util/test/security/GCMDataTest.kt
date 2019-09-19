@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 class GCMDataTest : KotlinSecurityTest() {
     @Test
-    fun text() {
+    fun test() {
         val rand = Randoms.toRandom()
         val pass = getGeneratedPass()
         val salt = getGeneratedSalt()

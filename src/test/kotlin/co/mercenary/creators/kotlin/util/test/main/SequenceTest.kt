@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 class SequenceTest : KotlinTest() {
     @Test
-    fun text() {
+    fun test() {
         val size = 10
         val data = sequenceOf(1) {
             if (it < size) it.inc() else null
