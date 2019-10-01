@@ -23,9 +23,9 @@ class ThrowsTest : KotlinTest() {
     @Test
     fun test() {
         Throwables.ignored(MercenaryExceptiion::class)
-        Throwables.assert(MercenaryExceptiion(EMPTY_STRING))
+        Throwables.thrown(MercenaryExceptiion(EMPTY_STRING))
         try {
-            Throwables.assert(NullPointerException(EMPTY_STRING))
+            Throwables.thrown(NullPointerException(EMPTY_STRING))
         }
         catch (cause: Throwable) {
             true.shouldBe(cause is NullPointerException) {

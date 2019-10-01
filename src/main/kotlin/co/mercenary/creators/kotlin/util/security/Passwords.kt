@@ -39,6 +39,7 @@ object Passwords {
     internal const val THE_LOOPS = 64 * 1024
 
     @JvmStatic
+    @JvmOverloads
     fun salt(loop: Int = THE_LOOPS): CharSequence {
         val hash = Digests.proxy(Digests.sha512())
         val data = Randoms.getByteArray(SALT_SIZE)
@@ -49,6 +50,7 @@ object Passwords {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun pass(part: Int = THE_PARTS): CharSequence {
         val loop = getPartOf(part)
         val buff = StringBuilder((loop * PART_SIZE) + loop + PART_SIZE)
@@ -59,6 +61,7 @@ object Passwords {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun good(pass: CharSequence, test: Boolean = true, part: Int = THE_PARTS): Boolean {
         val loop = getPartOf(part)
         val last = pass.lastIndexOf(SEPARATOR)

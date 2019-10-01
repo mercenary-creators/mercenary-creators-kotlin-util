@@ -16,8 +16,11 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.SerialIgnore
 import javax.activation.FileTypeMap
 
 interface FileTypeMapSupplier {
+
+    @SerialIgnore
     fun getFileTypeMap(): FileTypeMap
 }

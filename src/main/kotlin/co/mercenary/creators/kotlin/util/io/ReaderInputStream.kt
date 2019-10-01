@@ -16,7 +16,9 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.SerialIgnore
 import java.io.Reader
 import java.nio.charset.Charset
 
-class ReaderInputStream(reader: Reader, charset: Charset = Charsets.UTF_8) : org.apache.commons.io.input.ReaderInputStream(reader, charset)
+@SerialIgnore
+class ReaderInputStream @JvmOverloads constructor(reader: Reader, charset: Charset = Charsets.UTF_8) : org.apache.commons.io.input.ReaderInputStream(reader, charset)

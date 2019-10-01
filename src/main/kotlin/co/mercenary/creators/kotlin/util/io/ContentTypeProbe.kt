@@ -36,6 +36,7 @@ interface ContentTypeProbe : FileTypeMapSupplier {
         }
 
         @JvmStatic
+        @SerialIgnore
         fun getDefaultFileTypeMap(): DefaultContentFileTypeMap = maps
     }
 }

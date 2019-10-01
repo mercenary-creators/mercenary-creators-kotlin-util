@@ -18,7 +18,8 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-class ByteArrayContentResource(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractCachedContentResource(data, path, type, time) {
+@SerialIgnore
+class ByteArrayContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractCachedContentResource(data, path, type, time) {
 
     override fun toString() = getDescription()
 
@@ -27,5 +28,5 @@ class ByteArrayContentResource(data: ByteArray, path: String, type: String = DEF
         else -> false
     }
 
-    override fun hashCode() = save.hashCode() + 31 * getContentPath().hashCode()
+    override fun hashCode() = save.contentHashCode() + 31 * getContentPath().hashCode()
 }

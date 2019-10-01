@@ -16,11 +16,14 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.SerialIgnore
 import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.spec.*
 
+@SerialIgnore
 interface CipherAlgorithm {
+
     fun getFactoryKeysSize(): Int
     fun getCipherKeyLength(): Int
     fun getCipherIteration(): Int
@@ -40,7 +43,8 @@ interface CipherAlgorithm {
             IvParameterSpec(vector)
         }
 
-        open class CipherAlgorithmFactory(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {
+        @SerialIgnore
+        open class CipherAlgorithmFactory @JvmOverloads constructor(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {
             override fun getFactoryKeysSize() = size
             override fun getCipherKeyLength() = leng
             override fun getCipherIteration() = iter

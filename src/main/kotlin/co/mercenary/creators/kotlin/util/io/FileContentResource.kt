@@ -19,13 +19,20 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.io.File
 
-class FileContentResource(internal val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type), OutputContentResource {
+@SerialIgnore
+class FileContentResource @JvmOverloads constructor(internal val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type), OutputContentResource {
+
     private val resolved = getResolvedContentType()
+
     override fun getContentType() = resolved
     override fun getContentSize() = data.length()
     override fun getContentTime() = data.lastModified()
-    override fun getInputStream() = data.toInputStream()
     override fun isContentThere() = data.isValidToRead()
+
+    @SerialIgnore
+    override fun getInputStream() = data.toInputStream()
+
+    @SerialIgnore
     override fun getOutputStream() = data.toOutputStream()
 
     override fun toString() = getDescription()

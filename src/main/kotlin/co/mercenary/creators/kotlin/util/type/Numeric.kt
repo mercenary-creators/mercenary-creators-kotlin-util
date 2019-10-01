@@ -24,22 +24,101 @@ object Numeric {
     const val DEFAULT_PRECISION = 0.0000001
 
     @JvmStatic
-    fun check(precision: Double): Double = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION else precision
-
-    @JvmStatic
-    fun delta(value: Double, other: Double, precision: Double = DEFAULT_PRECISION): Boolean {
-        return if (value.toBits() != other.toBits()) (abs(value - other) <= abs(precision)) else true
+    @JvmOverloads
+    fun toDecimalPlaces(data: Double, scale: Int = 2, places: Int = abs(scale)): String {
+        return "%.${places}f".format(rounded(data, scale))
     }
 
     @JvmStatic
+    @JvmOverloads
+    fun closeEnough(value: Double, other: Double, precision: Double = DEFAULT_PRECISION): Boolean {
+        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION else abs(precision)
+        return if (value.toBits() != other.toBits()) (abs(value - other) <= delta) else true
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun closeEnough(value: DoubleArray, other: DoubleArray, precision: Double = DEFAULT_PRECISION): Boolean {
+        if (value.size != other.size) {
+            return false
+        }
+        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION else abs(precision)
+        for (i in value.indices) {
+            val v = value[i]
+            val o = other[i]
+            if (v.toBits() != o.toBits()) {
+                if (abs(v - o) > delta) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun closeEnough(value: Array<Double>, other: Array<Double>, precision: Double = DEFAULT_PRECISION): Boolean {
+        return closeEnough(value.toDoubleArray(), other.toDoubleArray(), precision)
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun closeEnough(value: Array<DoubleArray>, other: Array<DoubleArray>, precision: Double = DEFAULT_PRECISION): Boolean {
+        if (value.size != other.size) {
+            return false
+        }
+        for (i in value.indices) {
+            if (closeEnough(value[i], other[i], precision).not()) {
+                return false
+            }
+        }
+        return true
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun closeEnough(value: Array<Array<Double>>, other: Array<Array<Double>>, precision: Double = DEFAULT_PRECISION): Boolean {
+        if (value.size != other.size) {
+            return false
+        }
+        for (i in value.indices) {
+            if (closeEnough(value[i], other[i], precision).not()) {
+                return false
+            }
+        }
+        return true
+    }
+
+    @JvmStatic
+    @JvmOverloads
     fun rounded(value: Double, scale: Int = 2): Double {
         try {
-            val round = BigDecimal(value.toString()).setScale(scale, RoundingMode.HALF_UP).toDouble()
+            val round = BigDecimal(value.toString()).setScale(abs(scale), RoundingMode.HALF_UP).toDouble()
             return if (round == 0.0) round * 0.0 else round
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         return if (value.isInfinite()) value else Double.NaN
+    }
+
+    @JvmStatic
+    fun hashCode(value: DoubleArray): Int {
+        return value.contentHashCode()
+    }
+
+    @JvmStatic
+    fun hashCode(value: Array<Double>): Int {
+        return value.toDoubleArray().contentHashCode()
+    }
+
+    @JvmStatic
+    fun hashCode(value: Array<DoubleArray>): Int {
+        return value.contentDeepHashCode()
+    }
+
+    @JvmStatic
+    fun hashCode(value: Array<Array<Double>>): Int {
+        return value.contentDeepHashCode()
     }
 }

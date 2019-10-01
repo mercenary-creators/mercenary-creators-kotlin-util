@@ -26,8 +26,8 @@ class MainTest : KotlinTest() {
             val data = -0.0000101
             info { data.rounded(3) }
             info { data.rounded(5) }
-            info { toDecimalPlaces(data, 3) }
-            info { toDecimalPlaces(data, 5) }
+            info { data.toDecimalPlaces(3) }
+            info { data.toDecimalPlaces(5) }
         }
     }
 }

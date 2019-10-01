@@ -22,6 +22,7 @@ import co.mercenary.creators.kotlin.util.logging.LoggingFactory
 import java.io.*
 import javax.activation.*
 
+@SerialIgnore
 class ContentFileTypeMap : FileTypeMap() {
 
     private val logs: ILogging by lazy {
@@ -30,6 +31,7 @@ class ContentFileTypeMap : FileTypeMap() {
 
     private val maps = getMimetypesFileTypeMapInputStream()?.use { MimetypesFileTypeMap(it) } ?: MimetypesFileTypeMap()
 
+    @SerialIgnore
     private fun getMimetypesFileTypeMapInputStream(): InputStream? {
         val name = getMimetypesFileName()
         val data = IO.getInputStream(name)
@@ -55,7 +57,7 @@ class ContentFileTypeMap : FileTypeMap() {
     override fun getContentType(name: String): String = maps.getContentType(name).toLowerTrim()
 
     companion object {
-        const val DEFAULT_FILE = "MIME-INF/co-mercenary-creators-kotlin-mime.types"
-        fun getMimetypesFileName(): String = System.getProperty("co.mercenary.creators.kotlin.mime.file", DEFAULT_FILE)
+        private const val DEFAULT_FILE = "MIME-INF/co-mercenary-creators-kotlin-mime.types"
+        private fun getMimetypesFileName(): String = System.getProperty("co.mercenary.creators.kotlin.mime.file", DEFAULT_FILE)
     }
 }

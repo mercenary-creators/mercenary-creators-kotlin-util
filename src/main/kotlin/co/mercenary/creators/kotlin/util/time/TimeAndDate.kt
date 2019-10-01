@@ -26,6 +26,7 @@ object TimeAndDate {
     fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(DEFAULT_ZONE_STRING)
 
     @JvmStatic
+    @JvmOverloads
     fun setDefaultTimeZone(zone: TimeZone = getDefaultTimeZone()) {
         TimeZone.setDefault(zone)
     }
@@ -37,5 +38,6 @@ object TimeAndDate {
     fun getDefaultDateFormat(zone: TimeZone): SimpleDateFormat = getDefaultDateFormat().also { it.timeZone = zone }
 
     @JvmStatic
+    @JvmOverloads
     fun getThreadLocalDefaultDateFormat(zone: TimeZone = getDefaultTimeZone()): ThreadLocal<SimpleDateFormat> = ThreadLocal.withInitial { getDefaultDateFormat(zone) }
 }

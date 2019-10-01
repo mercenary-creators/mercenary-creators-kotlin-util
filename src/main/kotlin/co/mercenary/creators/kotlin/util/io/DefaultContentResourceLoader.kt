@@ -19,7 +19,8 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.net.URL
 
-open class DefaultContentResourceLoader(private val loader: ClassLoader? = null) : ContentResourceLoader {
+@SerialIgnore
+open class DefaultContentResourceLoader @JvmOverloads constructor(private val loader: ClassLoader? = null) : ContentResourceLoader {
 
     private val resolvers = mutableSetOf<ContentProtocolResolver>()
 
@@ -48,22 +49,25 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
                 return ByteArrayContentResource(Encoders.hex().decode(data), name, type)
             }
         }
-        try {
-            val data = URL(path)
-            if (isFileURL(data)) {
-                val file = IO.toFileOrNull(data)
-                if (file != null) {
-                    return FileContentResource(file)
+        if (path.contains(IO.PREFIX_COLON)) {
+            try {
+                val data = URL(path)
+                if (isFileURL(data)) {
+                    val file = IO.toFileOrNull(data)
+                    if (file != null) {
+                        return FileContentResource(file)
+                    }
                 }
+                return URLContentResource(data)
             }
-            return URLContentResource(data)
-        }
-        catch (cause: Throwable) {
-            Throwables.assert(cause)
+            catch (cause: Throwable) {
+                Throwables.thrown(cause)
+            }
         }
         return getContentResourceByPath(path)
     }
 
+    @SerialIgnore
     override fun getClassLoader(): ClassLoader? {
         return loader ?: IO.getDefaultClassLoader()
     }
@@ -77,7 +81,7 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
                 }
             }
             catch (cause: Throwable) {
-                Throwables.assert(cause)
+                Throwables.thrown(cause)
             }
         }
         return ClassPathContentResource(path, getDefaultContentTypeProbe().getContentType(path), null, getClassLoader())
@@ -97,6 +101,18 @@ open class DefaultContentResourceLoader(private val loader: ClassLoader? = null)
 
     open fun add(args: Sequence<ContentProtocolResolver>) {
         resolvers += args
+    }
+
+    override operator fun plusAssign(args: Array<ContentProtocolResolver>) {
+        add(args)
+    }
+
+    override operator fun plusAssign(args: Iterable<ContentProtocolResolver>) {
+        add(args)
+    }
+
+    override operator fun plusAssign(args: Sequence<ContentProtocolResolver>) {
+        add(args)
     }
 
     override operator fun plusAssign(args: ContentProtocolResolver) {

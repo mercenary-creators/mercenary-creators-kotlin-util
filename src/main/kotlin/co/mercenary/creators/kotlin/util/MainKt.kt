@@ -15,6 +15,7 @@
  */
 
 @file:kotlin.jvm.JvmName("MainKt")
+@file:kotlin.jvm.JvmMultifileClass
 
 package co.mercenary.creators.kotlin.util
 
@@ -48,6 +49,12 @@ const val DEFAULT_ZONE_STRING = "UTC"
 const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
 
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company."
+
+typealias DVector = Array<Double>
+
+typealias DMatrix = Array<DoubleArray>
+
+typealias DMatrixArray = Array<Array<Double>>
 
 typealias TimeUnit = java.util.concurrent.TimeUnit
 
@@ -99,6 +106,12 @@ open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : Mercenary
     }
 }
 
+private const val METADATA_FQ_NAME = "kotlin.Metadata"
+
+fun Class<*>.isKotlinClass(): Boolean {
+    return declaredAnnotations.any { it.annotationClass.java.name == METADATA_FQ_NAME }
+}
+
 fun uuid(): String = UUID.randomUUID().toString()
 
 fun getProcessors(): Int = Runtime.getRuntime().availableProcessors()
@@ -117,14 +130,14 @@ fun toDecimalPlaces3(data: Double, tail: String = EMPTY_STRING): String = "(%.3f
 
 fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseconds." else if (data < 1000000000L) toDecimalPlaces3(1.0E-6 * data, " milliseconds.") else toDecimalPlaces3(1.0E-9 * data, " seconds.")
 
-fun toSafeString(block: () -> Any?): String = try {
+inline fun toSafeString(block: () -> Any?): String = try {
     when (val data = block()) {
         null -> "null"
         else -> data.toString()
     }
 }
 catch (cause: Throwable) {
-    Throwables.assert(cause)
+    Throwables.thrown(cause)
     "toSafeString(${cause.message})"
 }
 
@@ -146,7 +159,7 @@ fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) {
             unit.sleep(duration)
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
     }
 }
@@ -188,7 +201,7 @@ fun isValid(value: Any?): Boolean = when (value) {
             value.isValid()
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
             false
         }
     }
@@ -199,7 +212,7 @@ fun isValid(block: () -> Any?): Boolean = try {
     isValid(block())
 }
 catch (cause: Throwable) {
-    Throwables.assert(cause)
+    Throwables.thrown(cause)
     false
 }
 
@@ -215,11 +228,57 @@ fun pow2Round(value: Int, down: Boolean = true): Int {
     }
 }
 
-fun Double.closeEnough(value: Double, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
-    return Numeric.delta(this, value, Numeric.check(precision))
+fun Double.toDecimalPlaces(scale: Int = 2, places: Int = abs(scale)): String {
+    return Numeric.toDecimalPlaces(this, scale, places)
 }
 
-fun Double.rounded(scale: Int = 2): Double = Numeric.rounded(this, abs(scale))
+fun Double.closeEnough(value: Double, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+    return Numeric.closeEnough(this, value, precision)
+}
+
+fun DoubleArray.closeEnough(value: DoubleArray, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+    return Numeric.closeEnough(this, value, precision)
+}
+
+fun DVector.closeEnough(value: DVector, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+    return Numeric.closeEnough(this, value, precision)
+}
+
+fun DMatrix.closeEnough(value: DMatrix, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+    return Numeric.closeEnough(this, value, precision)
+}
+
+fun DMatrixArray.closeEnough(value: DMatrixArray, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+    return Numeric.closeEnough(this, value, precision)
+}
+
+fun Double.rounded(scale: Int = 2): Double = Numeric.rounded(this, scale)
+
+fun Double.root(root: Int = 2): Double {
+    return when (root) {
+        0 -> 1.0
+        1 -> this
+        2 -> sqrt(this)
+        else -> this.pow(-root.toDouble())
+    }
+}
+
+fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
+
+fun toDoubleArrayOf(vararg args: Number): DoubleArray = DoubleArray(args.size) { i -> args[i].toDouble() }
+
+fun toArrayOfDoubleArray(cols: Int, args: DoubleArray): DMatrix {
+    return if (cols == 0) throw MercenaryFatalExceptiion("invalid size") else toArrayOfDoubleArray(args.size / cols, cols, args)
+}
+
+fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): DMatrix {
+    return if (args.size != (rows * cols)) throw MercenaryFatalExceptiion("invalid size")
+    else Array(rows) { r ->
+        (r * cols).let { args.copyOfRange(it, it + cols) }
+    }
+}
+
+fun distance(dx: Double, dy: Double): Double = sqrt((dx * dx) + (dy * dy))
 
 fun Date.toLong(): Long = this.time
 

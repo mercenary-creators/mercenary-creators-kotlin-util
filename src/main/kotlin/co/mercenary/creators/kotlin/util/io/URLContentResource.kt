@@ -20,12 +20,18 @@ import co.mercenary.creators.kotlin.util.*
 
 import java.net.URL
 
-class URLContentResource(internal val data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type), OutputContentResource {
-    override fun getInputStream() = data.toInputStream()
+@SerialIgnore
+class URLContentResource @JvmOverloads constructor(internal val data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type), OutputContentResource {
+
     override fun isContentThere() = IO.isContentThere(data)
     override fun getContentSize() = IO.getContentSize(data)
     override fun getContentTime() = IO.getContentTime(data)
     override fun getContentType() = IO.getContentType(data, type)
+
+    @SerialIgnore
+    override fun getInputStream() = data.toInputStream()
+
+    @SerialIgnore
     override fun getOutputStream() = data.toOutputStream()
 
     override fun toString() = getDescription()

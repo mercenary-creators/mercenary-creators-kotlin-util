@@ -16,12 +16,18 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.SerialIgnore
 import java.io.*
 import javax.crypto.SecretKey
 
-class CipherEncryptingCopy(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherCopyStreams {
+@SerialIgnore
+class CipherEncryptingCopy @JvmOverloads constructor(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherCopyStreams {
+
+    @JvmOverloads
     constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
+
     private val proxy = Ciphers.copy(secret, algorithm)
+
     override fun encrypt(data: InputStream, copy: OutputStream) = proxy.encrypt(data, copy)
     override fun decrypt(data: InputStream, copy: OutputStream) = proxy.decrypt(data, copy)
 }

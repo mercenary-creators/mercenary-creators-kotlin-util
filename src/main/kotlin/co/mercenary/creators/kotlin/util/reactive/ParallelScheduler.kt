@@ -16,8 +16,11 @@
 
 package co.mercenary.creators.kotlin.util.reactive
 
+import co.mercenary.creators.kotlin.util.SerialIgnore
 import reactor.core.scheduler.*
 
+@SerialIgnore
 class ParallelScheduler private constructor(private val proxy: Scheduler) : Scheduler by proxy {
+    @JvmOverloads
     constructor(name: String, parallelism: Int = Schedulers.DEFAULT_POOL_SIZE, daemon: Boolean = false) : this(Schedulers.newParallel(name, parallelism, daemon))
 }

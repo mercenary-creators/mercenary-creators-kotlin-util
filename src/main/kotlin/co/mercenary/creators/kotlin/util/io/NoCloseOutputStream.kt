@@ -19,7 +19,8 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.io.*
 
-class NoCloseOutputStream(data: OutputStream, private val done: Boolean = true) : FilterOutputStream(data), OpenCloseable {
+@SerialIgnore
+class NoCloseOutputStream @JvmOverloads constructor(data: OutputStream, private val done: Boolean = true) : FilterOutputStream(data), OpenCloseable {
 
     private val open = true.toAtomic()
 
@@ -31,10 +32,11 @@ class NoCloseOutputStream(data: OutputStream, private val done: Boolean = true) 
                 }
             }
             catch (cause: Throwable) {
-                Throwables.assert(cause)
+                Throwables.thrown(cause)
             }
         }
     }
 
+    @SerialIgnore
     override fun isOpen(): Boolean = open.get()
 }

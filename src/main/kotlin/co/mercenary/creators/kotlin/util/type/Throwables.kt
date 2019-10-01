@@ -34,8 +34,7 @@ object Throwables {
     }
 
     @JvmStatic
-    @JvmName("test")
-    fun assert(cause: Throwable?) {
+    fun thrown(cause: Throwable?) {
         if (cause != null) {
             val type = toJavaClass(cause)
             if (type in ignored) {
@@ -53,6 +52,7 @@ object Throwables {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun <T : Throwable> append(type: Class<T>, mode: Mode = Mode.FAILURE) {
         when (mode) {
             Mode.FAILURE -> failure.add(type)
@@ -61,6 +61,7 @@ object Throwables {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun <T : Throwable> append(type: KClass<T>, mode: Mode = Mode.FAILURE) {
         append(type.java, mode)
     }
@@ -76,6 +77,7 @@ object Throwables {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun <T : Throwable> remove(type: Class<T>, mode: Mode = Mode.FAILURE) {
         when (mode) {
             Mode.FAILURE -> failure.remove(type)
@@ -84,6 +86,7 @@ object Throwables {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun <T : Throwable> remove(type: KClass<T>, mode: Mode = Mode.FAILURE) {
         remove(type.java, mode)
     }
@@ -105,6 +108,7 @@ object Throwables {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun reset(defaults: Boolean = true) {
         clear()
         if (defaults) {

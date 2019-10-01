@@ -45,5 +45,8 @@ class SequenceTest : KotlinTest() {
         ints.size.shouldBe(16) {
             "not 16"
         }
+        info { data.javaClass.isKotlinClass() }
+        val temp = getTempFile(uuid(), ".txt")
+        info { temp.javaClass.isKotlinClass() }
     }
 }

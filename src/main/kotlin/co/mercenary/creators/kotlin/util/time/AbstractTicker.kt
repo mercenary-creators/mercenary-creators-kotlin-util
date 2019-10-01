@@ -28,5 +28,6 @@ abstract class AbstractTicker(private val tick: () -> Long) : Ticker {
 
     override fun since(): Long = tick() - time
 
+    @JvmOverloads
     operator fun invoke(reset: Boolean = false): String = toString().also { if (reset) reset() }
 }

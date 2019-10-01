@@ -18,9 +18,16 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-abstract class AbstractCachedContentResource(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractContentResourceBase(path, type, time), CachedContentResource {
+@SerialIgnore
+abstract class AbstractCachedContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractContentResourceBase(path, type, time), CachedContentResource {
+
     internal val save = data.copyOf()
+
+    @SerialIgnore
     override fun getContentData() = save.copyOf()
-    override fun getContentSize() = save.size.toLong()
+
+    @SerialIgnore
     override fun getInputStream() = save.inputStream()
+
+    override fun getContentSize() = save.size.toLong()
 }

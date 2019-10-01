@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-import co.mercenary.creators.kotlin.util.Throwables
+import co.mercenary.creators.kotlin.util.*
 import java.io.*
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.*
@@ -67,22 +67,23 @@ object Ciphers {
     @JvmStatic
     fun getAlgorithms(): Algorithm = Algorithms.getAlgorithmForName("Cipher")
 
-    internal fun getBufferOf(data: InputStream): Int {
+    private fun getBufferOf(data: InputStream): Int {
         try {
             return max(data.available(), DEFAULT_BUFFER_SIZE)
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         return DEFAULT_BUFFER_SIZE
     }
 
-    internal fun getCipher(algorithm: CipherAlgorithm): Cipher = Cipher.getInstance(algorithm.getCipherTransform())
+    private fun getCipher(algorithm: CipherAlgorithm): Cipher = Cipher.getInstance(algorithm.getCipherTransform())
 
-    internal fun setCypher(cipher: Cipher, mode: Int, secret: SecretKey, parameter: AlgorithmParameterSpec): Cipher = cipher.also { it.init(mode, secret, parameter) }
+    private fun setCypher(cipher: Cipher, mode: Int, secret: SecretKey, parameter: AlgorithmParameterSpec): Cipher = cipher.also { it.init(mode, secret, parameter) }
 
-    internal fun getParams(algorithm: CipherAlgorithm, vector: ByteArray): AlgorithmParameterSpec = algorithm.getAlgorithmParams(vector)
+    private fun getParams(algorithm: CipherAlgorithm, vector: ByteArray): AlgorithmParameterSpec = algorithm.getAlgorithmParams(vector)
 
+    @SerialIgnore
     private class InternalEncryptingData(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherEncrypting<ByteArray, ByteArray> {
 
         override fun encrypt(data: ByteArray): ByteArray = synchronized(encrypt) {
@@ -94,6 +95,7 @@ object Ciphers {
         }
     }
 
+    @SerialIgnore
     private class InternalEncryptingCopy(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherCopyStreams {
 
         override fun encrypt(data: InputStream, copy: OutputStream) = synchronized(encrypt) {
@@ -113,6 +115,7 @@ object Ciphers {
         }
     }
 
+    @SerialIgnore
     private class FastCipherOutputStream(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream() {
         private var obuf: ByteArray? = null
         private val sbuf: ByteArray = ByteArray(1)
@@ -149,7 +152,7 @@ object Ciphers {
             }
             catch (cause: Throwable) {
                 obuf = null
-                Throwables.assert(cause)
+                Throwables.thrown(cause)
             }
             flush()
         }

@@ -14,22 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.logging
+package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.SerialIgnore
-import mu.*
-
-open class Logging @JvmOverloads constructor(name: String? = null) : KLoggable, ILoggingBase {
-
-    init {
-        LoggingFactory
-    }
-
-    private val logs: KLogger by lazy {
-        if (name == null) logger() else logger(name)
-    }
-
-    override val logger: KLogger
-        @SerialIgnore
-        get() = logs
-}
+@MercenaryAnnotation
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.TYPE, AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
+annotation class SerialIgnore

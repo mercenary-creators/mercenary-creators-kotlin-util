@@ -16,28 +16,35 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import co.mercenary.creators.kotlin.util.timed
+import co.mercenary.creators.kotlin.util.*
 
 interface ILoggingBase : ILogging {
 
+    @SerialIgnore
     val logger: mu.KLogger
 
     override val isLoggingInfoEnabled: Boolean
+        @SerialIgnore
         get() = logger.isInfoEnabled
 
     override val isLoggingWarnEnabled: Boolean
+        @SerialIgnore
         get() = logger.isWarnEnabled
 
     override val isLoggingTraceEnabled: Boolean
+        @SerialIgnore
         get() = logger.isTraceEnabled
 
     override val isLoggingDebugEnabled: Boolean
+        @SerialIgnore
         get() = logger.isDebugEnabled
 
     override val isLoggingErrorEnabled: Boolean
+        @SerialIgnore
         get() = logger.isErrorEnabled
 
     override val isLoggingFatalEnabled: Boolean
+        @SerialIgnore
         get() = isLoggingErrorEnabled.and(isLoggingDebugEnabled.or(isLoggingTraceEnabled))
 
     fun <T> timed(block: () -> T): T = timed({ info { it } }, block)

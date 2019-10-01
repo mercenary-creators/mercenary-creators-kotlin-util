@@ -18,11 +18,12 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import java.io.*
-import java.net.*
+import java.net.URL
 import java.nio.file.Path
 import javax.activation.FileTypeMap
 
-class MimeContentTypeProbe(private val maps: FileTypeMap = ContentTypeProbe.getDefaultFileTypeMap()) : ContentTypeProbe {
+@SerialIgnore
+class MimeContentTypeProbe @JvmOverloads constructor(private val maps: FileTypeMap = ContentTypeProbe.getDefaultFileTypeMap()) : ContentTypeProbe {
 
     override fun getContentType(data: ByteArray, type: String): String {
         return IO.getContentType(data, type)
@@ -52,5 +53,6 @@ class MimeContentTypeProbe(private val maps: FileTypeMap = ContentTypeProbe.getD
         return type.toLowerTrim()
     }
 
+    @SerialIgnore
     override fun getFileTypeMap(): FileTypeMap = maps
 }

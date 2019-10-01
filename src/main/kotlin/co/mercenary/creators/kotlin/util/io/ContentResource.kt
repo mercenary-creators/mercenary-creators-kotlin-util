@@ -16,6 +16,8 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.SerialIgnore
+
 interface ContentResource : InputStreamSupplier {
     fun getContentSize(): Long
     fun getContentTime(): Long
@@ -24,6 +26,10 @@ interface ContentResource : InputStreamSupplier {
     fun getDescription(): String
     fun isContentThere(): Boolean
     fun isContentCache(): Boolean
+
+    @SerialIgnore
     fun getContentData(): ByteArray
+
+    @SerialIgnore
     fun toContentCache(): CachedContentResource
 }

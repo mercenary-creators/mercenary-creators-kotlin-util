@@ -18,4 +18,4 @@ package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
 
-open class DefaultTimeWindowMovingAverage(time: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) : AbstractTimeWindowMovingAverage(time, TimeUnit.MILLISECONDS, unit)
+open class DefaultTimeWindowMovingAverage  @JvmOverloads constructor(time: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) : AbstractTimeWindowMovingAverage(time, TimeUnit.MILLISECONDS, unit)

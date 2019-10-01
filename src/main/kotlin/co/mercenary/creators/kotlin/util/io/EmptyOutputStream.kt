@@ -16,8 +16,10 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.SerialIgnore
 import java.io.OutputStream
 
+@SerialIgnore
 class EmptyOutputStream : OutputStream() {
     override fun write(b: Int) = Unit
     override fun write(b: ByteArray) = Unit

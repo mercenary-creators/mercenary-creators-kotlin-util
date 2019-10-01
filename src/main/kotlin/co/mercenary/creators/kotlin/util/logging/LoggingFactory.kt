@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import java.util.concurrent.atomic.AtomicBoolean
+import co.mercenary.creators.kotlin.util.*
 import kotlin.reflect.KClass
 
 @Suppress("NOTHING_TO_INLINE")
@@ -26,7 +26,7 @@ object LoggingFactory {
 
     const val KT = "Kt$"
 
-    private val opem = AtomicBoolean(false)
+    private val opem = false.toAtomic()
 
     init {
         if (opem.compareAndSet(false, true)) {
@@ -38,17 +38,17 @@ object LoggingFactory {
     fun logger(name: String): ILogging = Logging(name)
 
     @JvmStatic
-    fun logger(self: Any): ILogging = logger(self.javaClass)
-
-    @JvmStatic
     fun logger(type: Class<*>): ILogging = logger(type.name)
 
     @JvmStatic
     fun logger(type: KClass<*>): ILogging = logger(type.java)
 
     @JvmStatic
+    fun logger(self: Any): ILogging = logger(toJavaClass(self))
+
+    @JvmStatic
     inline fun logger(noinline func: () -> Unit): ILogging {
-        val name = func.javaClass.name
+        val name = toJavaClass(func).name
         return when {
             name.contains(KT) -> logger(name.substringBefore(KT))
             name.contains(KE) -> logger(name.substringBefore(KE))

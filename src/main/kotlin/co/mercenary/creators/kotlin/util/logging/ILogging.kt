@@ -16,13 +16,28 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
+import co.mercenary.creators.kotlin.util.SerialIgnore
+
 interface ILogging {
+
+    @SerialIgnore
     val isLoggingInfoEnabled: Boolean
+
+    @SerialIgnore
     val isLoggingWarnEnabled: Boolean
+
+    @SerialIgnore
     val isLoggingTraceEnabled: Boolean
+
+    @SerialIgnore
     val isLoggingDebugEnabled: Boolean
+
+    @SerialIgnore
     val isLoggingErrorEnabled: Boolean
+
+    @SerialIgnore
     val isLoggingFatalEnabled: Boolean
+
     fun info(block: () -> Any?)
     fun info(cause: Throwable, block: () -> Any?)
     fun warn(block: () -> Any?)

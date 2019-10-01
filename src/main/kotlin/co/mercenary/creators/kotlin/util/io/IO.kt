@@ -32,6 +32,7 @@ object IO {
     const val DOUBLE_SLASH = SINGLE_SLASH + SINGLE_SLASH
     const val TILDE_PREFIX = SINGLE_TILDE + SINGLE_SLASH
     const val PREFIX_TILDE = SINGLE_SLASH + SINGLE_TILDE
+    const val PREFIX_COLON = ":"
     const val PREFIX_BYTES = "byte:"
     const val PREFIX_FILES = "file:"
     const val PREFIX_CLASS = "classpath:"
@@ -43,6 +44,7 @@ object IO {
     private fun patch(path: String): String = path.trim().let { if (it.contains(DOUBLE_SLASH)) patch(it.replace(DOUBLE_SLASH, SINGLE_SLASH)) else it }
 
     @JvmStatic
+    @SerialIgnore
     fun getContentTypeProbe() = probe
 
     @JvmStatic
@@ -97,12 +99,13 @@ object IO {
             conn.getInputStream().close()
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         return null
     }
 
     @JvmStatic
+    @SerialIgnore
     fun getDefaultClassLoader(): ClassLoader? {
         try {
             val load = Thread.currentThread().contextClassLoader
@@ -111,7 +114,7 @@ object IO {
             }
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         try {
             val load = IO.javaClass.classLoader
@@ -120,7 +123,7 @@ object IO {
             }
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         try {
             val load = ClassLoader.getSystemClassLoader()
@@ -129,12 +132,13 @@ object IO {
             }
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         return null
     }
 
     @JvmStatic
+    @JvmOverloads
     fun getResouce(path: String, claz: Class<*>? = null, load: ClassLoader? = null): URL? = try {
         when {
             claz != null -> claz.getResource(path)
@@ -146,17 +150,18 @@ object IO {
         }
     }
     catch (cause: Throwable) {
-        Throwables.assert(cause)
+        Throwables.thrown(cause)
         null
     }
 
     @JvmStatic
+    @JvmOverloads
     fun getInputStream(path: String, claz: Class<*>? = null, load: ClassLoader? = null): InputStream? {
         try {
             return getInputStream(getResouce(path, claz, load))
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         return null
     }
@@ -177,7 +182,7 @@ object IO {
             return data.openStream()
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         return null
     }
@@ -203,7 +208,7 @@ object IO {
             }
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         return null
     }
@@ -220,7 +225,7 @@ object IO {
             return null
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         return null
     }
@@ -249,7 +254,7 @@ object IO {
             }
         }
         catch (cause: Throwable) {
-            Throwables.assert(cause)
+            Throwables.thrown(cause)
         }
         return false
     }
