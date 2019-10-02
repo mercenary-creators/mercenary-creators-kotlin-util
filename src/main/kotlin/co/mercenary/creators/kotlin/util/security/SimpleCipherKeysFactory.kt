@@ -16,10 +16,8 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-import co.mercenary.creators.kotlin.util.SerialIgnore
 import java.security.SecureRandom
 
-@SerialIgnore
 class SimpleCipherKeysFactory(private val size: Int, private val rand: SecureRandom): CipherKeysFactory {
     constructor(cipher: CipherAlgorithm): this(cipher.getFactoryKeysSize(), cipher.getFactoryKeysRand())
     override fun getSize(): Int = size

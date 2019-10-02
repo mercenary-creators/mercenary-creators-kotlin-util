@@ -22,7 +22,6 @@ import java.net.URL
 import java.nio.file.Path
 import javax.activation.FileTypeMap
 
-@SerialIgnore
 class MimeContentTypeProbe @JvmOverloads constructor(private val maps: FileTypeMap = ContentTypeProbe.getDefaultFileTypeMap()) : ContentTypeProbe {
 
     override fun getContentType(data: ByteArray, type: String): String {
@@ -53,6 +52,5 @@ class MimeContentTypeProbe @JvmOverloads constructor(private val maps: FileTypeM
         return type.toLowerTrim()
     }
 
-    @SerialIgnore
     override fun getFileTypeMap(): FileTypeMap = maps
 }

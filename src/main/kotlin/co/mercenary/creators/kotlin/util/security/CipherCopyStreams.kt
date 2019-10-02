@@ -23,7 +23,6 @@ import java.net.URL
 import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 
-@SerialIgnore
 interface CipherCopyStreams {
     fun encrypt(data: InputStream, copy: OutputStream)
     fun decrypt(data: InputStream, copy: OutputStream)

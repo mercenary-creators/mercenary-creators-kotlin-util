@@ -16,7 +16,6 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import co.mercenary.creators.kotlin.util.SerialIgnore
 import mu.*
 
 open class Logging @JvmOverloads constructor(name: String? = null) : KLoggable, ILoggingBase {
@@ -30,6 +29,5 @@ open class Logging @JvmOverloads constructor(name: String? = null) : KLoggable, 
     }
 
     override val logger: KLogger
-        @SerialIgnore
         get() = logs
 }

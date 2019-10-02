@@ -16,11 +16,9 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-import co.mercenary.creators.kotlin.util.SerialIgnore
 import java.io.*
 import javax.crypto.SecretKey
 
-@SerialIgnore
 class CipherEncryptingCopy @JvmOverloads constructor(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherCopyStreams {
 
     @JvmOverloads

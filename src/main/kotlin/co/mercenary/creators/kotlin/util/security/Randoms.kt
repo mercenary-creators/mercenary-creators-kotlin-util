@@ -30,33 +30,27 @@ object Randoms {
     }
 
     @JvmStatic
-    @SerialIgnore
     fun getRandom() = RANDOM
 
     @JvmStatic
     fun toRandom() = SecureRandom()
 
     @JvmStatic
-    @SerialIgnore
     fun getInteger() = getRandom().nextInt()
 
     @JvmStatic
     fun getInteger(bound: Int) = getRandom().nextInt(bound)
 
     @JvmStatic
-    @SerialIgnore
     fun getDouble() = getRandom().nextDouble()
 
     @JvmStatic
-    @SerialIgnore
     fun getBoolean() = getRandom().nextBoolean()
 
     @JvmStatic
-    @SerialIgnore
     fun getLongValue() = getRandom().nextLong()
 
     @JvmStatic
-    @SerialIgnore
     fun getGaussian() = getRandom().nextGaussian()
 
     @JvmStatic
@@ -117,11 +111,9 @@ object Randoms {
     }
 
     @JvmStatic
-    @SerialIgnore
     fun getCharArrayValues(): CharArray = VALUES.copyOf()
 
     @JvmStatic
-    @SerialIgnore
     private fun getCharArrayValuesInternal(): CharArray {
         val buff = StringBuilder(72)
         for (c in 'a'..'z') {

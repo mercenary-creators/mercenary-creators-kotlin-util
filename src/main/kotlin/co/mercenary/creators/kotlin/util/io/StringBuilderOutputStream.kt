@@ -16,15 +16,10 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import co.mercenary.creators.kotlin.util.SerialIgnore
 import org.apache.commons.io.output.*
 import java.nio.charset.Charset
 
-@SerialIgnore
 class StringBuilderOutputStream @JvmOverloads constructor(private val builder: StringBuilder = StringBuilder(DEFAULT_BUFFER_SIZE), charset: Charset = Charsets.UTF_8) : WriterOutputStream(StringBuilderWriter(builder), charset) {
-
-    @SerialIgnore
     fun getBuilder(): StringBuilder = builder
-
     override fun toString(): String = getBuilder().toString()
 }

@@ -83,7 +83,6 @@ object Ciphers {
 
     private fun getParams(algorithm: CipherAlgorithm, vector: ByteArray): AlgorithmParameterSpec = algorithm.getAlgorithmParams(vector)
 
-    @SerialIgnore
     private class InternalEncryptingData(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherEncrypting<ByteArray, ByteArray> {
 
         override fun encrypt(data: ByteArray): ByteArray = synchronized(encrypt) {
@@ -95,7 +94,6 @@ object Ciphers {
         }
     }
 
-    @SerialIgnore
     private class InternalEncryptingCopy(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherCopyStreams {
 
         override fun encrypt(data: InputStream, copy: OutputStream) = synchronized(encrypt) {
@@ -115,7 +113,6 @@ object Ciphers {
         }
     }
 
-    @SerialIgnore
     private class FastCipherOutputStream(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream() {
         private var obuf: ByteArray? = null
         private val sbuf: ByteArray = ByteArray(1)

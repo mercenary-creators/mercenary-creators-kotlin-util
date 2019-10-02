@@ -18,7 +18,6 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-@SerialIgnore
 class ByteArrayContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractCachedContentResource(data, path, type, time) {
 
     override fun toString() = getDescription()

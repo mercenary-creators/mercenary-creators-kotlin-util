@@ -44,7 +44,6 @@ object IO {
     private fun patch(path: String): String = path.trim().let { if (it.contains(DOUBLE_SLASH)) patch(it.replace(DOUBLE_SLASH, SINGLE_SLASH)) else it }
 
     @JvmStatic
-    @SerialIgnore
     fun getContentTypeProbe() = probe
 
     @JvmStatic
@@ -105,7 +104,6 @@ object IO {
     }
 
     @JvmStatic
-    @SerialIgnore
     fun getDefaultClassLoader(): ClassLoader? {
         try {
             val load = Thread.currentThread().contextClassLoader

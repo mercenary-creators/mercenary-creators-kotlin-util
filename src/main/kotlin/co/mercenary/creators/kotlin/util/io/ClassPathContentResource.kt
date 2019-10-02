@@ -18,7 +18,6 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-@SerialIgnore
 class ClassPathContentResource @JvmOverloads constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, internal val claz: Class<*>?, internal val load: ClassLoader?) : AbstractContentResource(path, type) {
 
     @JvmOverloads
@@ -63,7 +62,6 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
 
     override fun getContentType() = resolved
 
-    @SerialIgnore
     override fun getInputStream() = when (val data = IO.getInputStream(resource)) {
         null -> throw MercenaryExceptiion(getDescription())
         else -> data

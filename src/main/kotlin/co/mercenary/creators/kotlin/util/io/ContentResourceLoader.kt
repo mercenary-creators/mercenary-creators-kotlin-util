@@ -16,20 +16,11 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import co.mercenary.creators.kotlin.util.SerialIgnore
-
 interface ContentResourceLoader {
-
-    @SerialIgnore
     fun getClassLoader(): ClassLoader?
-
     operator fun get(path: String): ContentResource
-
     operator fun plusAssign(args: ContentProtocolResolver)
-
     operator fun plusAssign(args: Array<ContentProtocolResolver>)
-
     operator fun plusAssign(args: Iterable<ContentProtocolResolver>)
-
     operator fun plusAssign(args: Sequence<ContentProtocolResolver>)
 }

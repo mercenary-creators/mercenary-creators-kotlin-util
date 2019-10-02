@@ -16,7 +16,4 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-import co.mercenary.creators.kotlin.util.SerialIgnore
-
-@SerialIgnore
 abstract class CipherEncryptingProxy<T>(proxy: CipherEncrypting<T, T>) : CipherEncrypting<T, T> by proxy

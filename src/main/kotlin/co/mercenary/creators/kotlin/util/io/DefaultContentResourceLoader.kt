@@ -19,7 +19,6 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.net.URL
 
-@SerialIgnore
 open class DefaultContentResourceLoader @JvmOverloads constructor(private val loader: ClassLoader? = null) : ContentResourceLoader {
 
     private val resolvers = mutableSetOf<ContentProtocolResolver>()
@@ -67,7 +66,6 @@ open class DefaultContentResourceLoader @JvmOverloads constructor(private val lo
         return getContentResourceByPath(path)
     }
 
-    @SerialIgnore
     override fun getClassLoader(): ClassLoader? {
         return loader ?: IO.getDefaultClassLoader()
     }

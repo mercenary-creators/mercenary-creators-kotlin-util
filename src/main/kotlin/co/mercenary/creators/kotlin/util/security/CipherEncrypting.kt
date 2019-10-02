@@ -16,9 +16,6 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-import co.mercenary.creators.kotlin.util.SerialIgnore
-
-@SerialIgnore
 interface CipherEncrypting<E, D> {
     fun encrypt(data: D): E
     fun decrypt(data: E): D

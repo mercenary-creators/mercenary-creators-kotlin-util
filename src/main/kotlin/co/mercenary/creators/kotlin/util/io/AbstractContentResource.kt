@@ -18,14 +18,12 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-@SerialIgnore
 abstract class AbstractContentResource @JvmOverloads constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = 0L) : AbstractContentResourceBase(path, type, time) {
 
     private val cache: CachedContentResource by lazy {
         ByteArrayContentResource(getContentData(), getContentPath(), getContentType(), getContentTime())
     }
 
-    @SerialIgnore
     protected fun getResolvedContentType(): String {
         val keep = super.getContentType()
         if (isDefaultContentType(keep)) {
@@ -40,12 +38,7 @@ abstract class AbstractContentResource @JvmOverloads constructor(path: String, t
     }
 
     override fun isContentCache() = false
-
-    @SerialIgnore
     override fun toContentCache() = cache
-
-    @SerialIgnore
     override fun getContentData() = getInputStream().toByteArray()
-
     override fun getContentSize() = getInputStream().use { it.copyTo(EmptyOutputStream.INSTANCE) }
 }
