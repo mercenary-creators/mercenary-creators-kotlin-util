@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 
 import java.net.URL
 
-class URLContentResource @JvmOverloads constructor(internal val data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type), OutputContentResource {
+class URLContentResource @JvmOverloads constructor(private val data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type), OutputContentResource {
 
     override fun isContentThere() = IO.isContentThere(data)
     override fun getContentSize() = IO.getContentSize(data)

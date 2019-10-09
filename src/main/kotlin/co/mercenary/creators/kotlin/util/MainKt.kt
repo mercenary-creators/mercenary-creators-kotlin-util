@@ -20,8 +20,9 @@
 package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.io.*
+import co.mercenary.creators.kotlin.util.math.Numeric
 import co.mercenary.creators.kotlin.util.time.NanoTicker
-import co.mercenary.creators.kotlin.util.type.*
+import co.mercenary.creators.kotlin.util.type.Validated
 import org.reactivestreams.Publisher
 import reactor.core.publisher.*
 import java.io.*
@@ -50,13 +51,15 @@ const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
 
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company."
 
-typealias DVector = Array<Double>
+private typealias DVector = Array<Double>
 
-typealias DMatrix = Array<DoubleArray>
+private typealias DMatrix = Array<DoubleArray>
 
-typealias DMatrixArray = Array<Array<Double>>
+private typealias DMatrixArray = Array<Array<Double>>
 
 typealias TimeUnit = java.util.concurrent.TimeUnit
+
+typealias Numeric = Numeric
 
 typealias Logging = co.mercenary.creators.kotlin.util.logging.Logging
 
@@ -151,8 +154,6 @@ fun getCheckedString(data: String): String {
     return data
 }
 
-fun toJavaClass(data: Any): Class<*> = data.javaClass
-
 fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) {
     if (duration > 0) {
         try {
@@ -216,20 +217,50 @@ catch (cause: Throwable) {
     false
 }
 
-fun pow2Round(value: Int, down: Boolean = true): Int {
-    return when (value < 2) {
-        true -> 1
-        else -> Integer.highestOneBit(value - 1).also {
-            return when (down) {
-                true -> it
-                else -> it * 2
-            }
-        }
-    }
-}
+fun powNegative1(value: Int): Double = Numeric.powNegative1(value)
 
-fun Double.toDecimalPlaces(scale: Int = 2, places: Int = abs(scale)): String {
-    return Numeric.toDecimalPlaces(this, scale, places)
+fun powNegative1(value: Long): Double = Numeric.powNegative1(value)
+
+fun powNegative1(value: Int, other: Int): Double = Numeric.powNegative1(value, other)
+
+fun pow2Round(value: Int, down: Boolean = true): Int = Numeric.pow2Round(value, down)
+
+fun pow2Round(value: Long, down: Boolean = true): Long = Numeric.pow2Round(value, down)
+
+fun gcd(vararg args: Int): Int = Numeric.gcd(args)
+
+fun gcd(vararg args: Long): Long = Numeric.gcd(args)
+
+fun gcd(value: Int): Int = abs(value)
+
+fun gcd(value: Long): Long = abs(value)
+
+fun gcd(value: Int, other: Int): Int = Numeric.gcd(value, other)
+
+fun gcd(value: Long, other: Long): Long = Numeric.gcd(value, other)
+
+fun gcd(value: Int, other: Long): Long = Numeric.gcd(value.toLong(), other)
+
+fun gcd(value: Long, other: Int): Long = Numeric.gcd(value, other.toLong())
+
+fun lcm(vararg args: Int): Int = Numeric.lcm(args)
+
+fun lcm(vararg args: Long): Long = Numeric.lcm(args)
+
+fun lcm(value: Int): Int = abs(value)
+
+fun lcm(value: Long): Long = abs(value)
+
+fun lcm(value: Int, other: Int): Int = Numeric.lcm(value, other)
+
+fun lcm(value: Long, other: Long): Long = Numeric.lcm(value, other)
+
+fun lcm(value: Int, other: Long): Long = Numeric.lcm(value.toLong(), other)
+
+fun lcm(value: Long, other: Int): Long = Numeric.lcm(value, other.toLong())
+
+fun Double.toDecimalPlacesString(scale: Int = 2, places: Int = abs(scale)): String {
+    return Numeric.toDecimalPlacesString(this, scale, places)
 }
 
 fun Double.closeEnough(value: Double, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
@@ -252,23 +283,20 @@ fun DMatrixArray.closeEnough(value: DMatrixArray, precision: Double = Numeric.DE
     return Numeric.closeEnough(this, value, precision)
 }
 
+fun closeEnough(v1: Double, v2: Double, o1: Double, o2: Double, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+    return Numeric.closeEnough(v1, v2, o1, o2, precision)
+}
+
 fun Double.rounded(scale: Int = 2): Double = Numeric.rounded(this, scale)
 
-fun Double.root(root: Int = 2): Double {
-    return when (root) {
-        0 -> 1.0
-        1 -> this
-        2 -> sqrt(this)
-        else -> this.pow(-root.toDouble())
-    }
-}
+fun Double.root(root: Int = 2): Double = Numeric.root(this, root)
 
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 
 fun toDoubleArrayOf(vararg args: Number): DoubleArray = DoubleArray(args.size) { i -> args[i].toDouble() }
 
 fun toArrayOfDoubleArray(cols: Int, args: DoubleArray): DMatrix {
-    return if (cols == 0) throw MercenaryFatalExceptiion("invalid size") else toArrayOfDoubleArray(args.size / cols, cols, args)
+    return if (cols < 1) throw MercenaryFatalExceptiion("invalid size") else toArrayOfDoubleArray(args.size / cols, cols, args)
 }
 
 fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): DMatrix {
@@ -277,6 +305,8 @@ fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): DMatrix {
         (r * cols).let { args.copyOfRange(it, it + cols) }
     }
 }
+
+fun squared(value: Double): Double = (value * value)
 
 fun distance(dx: Double, dy: Double): Double = sqrt((dx * dx) + (dy * dy))
 
@@ -435,6 +465,14 @@ fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
 fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
 
 fun <T : Any> Flux<T>.toList(): List<T> = collect(Collectors.toList<T>()).block().orElse { emptyList() }
+
+fun <T : Any> Flux<T>.limit(size: Long): Flux<T> = limitRequest(size)
+
+fun <T : Any> Flux<T>.limit(size: Int): Flux<T> = limitRequest(size.toLong())
+
+fun <T : Any> Flux<T>.rated(size: Int): Flux<T> = limitRate(size)
+
+fun <T : Any> Flux<T>.rated(high: Int, lows: Int): Flux<T> = limitRate(high, lows)
 
 fun <T : Any> T.toMono(): Mono<T> = Mono.just(this)
 

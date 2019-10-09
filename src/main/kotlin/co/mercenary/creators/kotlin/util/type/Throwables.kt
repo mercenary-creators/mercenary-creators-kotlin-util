@@ -36,7 +36,7 @@ object Throwables {
     @JvmStatic
     fun thrown(cause: Throwable?) {
         if (cause != null) {
-            val type = toJavaClass(cause)
+            val type = cause.javaClass
             if (type in ignored) {
                 logger.debug {
                     "${type.name}(${cause.message}) IGNORED."

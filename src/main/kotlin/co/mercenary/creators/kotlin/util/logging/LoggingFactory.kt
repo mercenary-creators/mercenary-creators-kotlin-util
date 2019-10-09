@@ -44,11 +44,11 @@ object LoggingFactory {
     fun logger(type: KClass<*>): ILogging = logger(type.java)
 
     @JvmStatic
-    fun logger(self: Any): ILogging = logger(toJavaClass(self))
+    fun logger(self: Any): ILogging = logger(self.javaClass)
 
     @JvmStatic
     inline fun logger(noinline func: () -> Unit): ILogging {
-        val name = toJavaClass(func).name
+        val name = func.javaClass.name
         return when {
             name.contains(KT) -> logger(name.substringBefore(KT))
             name.contains(KE) -> logger(name.substringBefore(KE))

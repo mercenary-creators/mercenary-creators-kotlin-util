@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.type
+package co.mercenary.creators.kotlin.util.math
 
 interface CloseEnough<T> {
     fun closeEnough(value: T, precision: Double = Numeric.DEFAULT_PRECISION): Boolean

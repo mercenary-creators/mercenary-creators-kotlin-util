@@ -20,5 +20,5 @@ import javax.crypto.SecretKey
 
 class CipherEncryptingText @JvmOverloads constructor(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherEncryptingProxy<String>(Ciphers.text(secret, algorithm)) {
     @JvmOverloads
-    constructor  (pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
+    constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
 }

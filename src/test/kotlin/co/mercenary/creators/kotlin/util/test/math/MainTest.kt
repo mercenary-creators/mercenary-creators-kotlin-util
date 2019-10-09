@@ -14,20 +14,28 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test.main
+package co.mercenary.creators.kotlin.util.test.math
 
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
+import kotlin.math.pow
 
 class MainTest : KotlinTest() {
     @Test
     fun test() {
-        withLoggingContext("dean" to 5) {
-            val data = -0.0000101
-            info { data.rounded(3) }
-            info { data.rounded(5) }
-            info { data.toDecimalPlaces(3) }
-            info { data.toDecimalPlaces(5) }
-        }
+        val data = -0.0000101
+        info { data.rounded(3) }
+        info { data.rounded(7) }
+        info { data.toDecimalPlacesString(3) }
+        info { data.toDecimalPlacesString(7) }
+        info { (-1.0).pow(-5) }
+        info { (-1.0).pow(-4) }
+        info { powNegative1(-5) }
+        info { powNegative1(-4) }
+        info { gcd(8, 12) }
+        info { lcm(8, 12) }
+        info { gcd(8, -6, 12) }
+        info { lcm(8, 12, 10) }
+        info { lcm(0, 8) }
     }
 }
