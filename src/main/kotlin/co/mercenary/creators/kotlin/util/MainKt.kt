@@ -26,9 +26,11 @@ import co.mercenary.creators.kotlin.util.type.Validated
 import org.reactivestreams.Publisher
 import reactor.core.publisher.*
 import java.io.*
+import java.math.BigDecimal
 import java.net.URL
 import java.nio.channels.*
 import java.nio.file.*
+import java.time.Duration
 import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
@@ -58,6 +60,8 @@ private typealias DMatrix = Array<DoubleArray>
 private typealias DMatrixArray = Array<Array<Double>>
 
 typealias TimeUnit = java.util.concurrent.TimeUnit
+
+typealias TimeDuration = co.mercenary.creators.kotlin.util.time.TimeDuration
 
 typealias Numeric = Numeric
 
@@ -114,6 +118,32 @@ private const val METADATA_FQ_NAME = "kotlin.Metadata"
 fun Class<*>.isKotlinClass(): Boolean {
     return declaredAnnotations.any { it.annotationClass.java.name == METADATA_FQ_NAME }
 }
+
+val Int.days: TimeDuration
+    get() = TimeDuration.days(this)
+
+val Int.hours: TimeDuration
+    get() = TimeDuration.hours(this)
+
+val Int.weeks: TimeDuration
+    get() = TimeDuration.weeks(this)
+
+val Int.years: TimeDuration
+    get() = TimeDuration.years(this)
+
+val Int.minutes: TimeDuration
+    get() = TimeDuration.minutes(this)
+
+val Int.seconds: TimeDuration
+    get() = TimeDuration.seconds(this)
+
+val Int.milliseconds: TimeDuration
+    get() = TimeDuration.milliseconds(this)
+
+val Int.nanoseconds: TimeDuration
+    get() = TimeDuration.nanoseconds(this)
+
+fun copyOf(time: Duration): Duration = Duration.ofSeconds(time.seconds, time.nano.toLong())
 
 fun uuid(): String = UUID.randomUUID().toString()
 
@@ -473,6 +503,10 @@ fun <T : Any> Flux<T>.limit(size: Int): Flux<T> = limitRequest(size.toLong())
 fun <T : Any> Flux<T>.rated(size: Int): Flux<T> = limitRate(size)
 
 fun <T : Any> Flux<T>.rated(high: Int, lows: Int): Flux<T> = limitRate(high, lows)
+
+fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.duration)
+
+fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.duration)
 
 fun <T : Any> T.toMono(): Mono<T> = Mono.just(this)
 
