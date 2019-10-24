@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-class ClassPathContentResource @JvmOverloads constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, internal val claz: Class<*>?, internal val load: ClassLoader?) : AbstractContentResource(path, type) {
+class ClassPathContentResource @JvmOverloads constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, private val claz: Class<*>?, private val load: ClassLoader?) : AbstractContentResource(path, type) {
 
     @JvmOverloads
     constructor(path: String, type: String = DEFAULT_CONTENT_TYPE) : this(getPathNormalizedNoTail(path, true), type, null, IO.getDefaultClassLoader())

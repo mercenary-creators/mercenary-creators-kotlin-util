@@ -22,7 +22,20 @@ import org.junit.jupiter.api.Test
 class MainTest : KotlinTest() {
     @Test
     fun test() {
-        val time = 6.days + 3.hours
-        info { time }
+        val time = 6.days + 3.hours + 1.minutes + 4.weeks
+        val same = 1.minutes + 3.hours + 6.days + 4.weeks
+        info { time.parts() }
+        info { time == same }
+        val half = 1000.milliseconds + 100.nanoseconds
+        info { half }
+        info { half.parts() }
+        sleepFor(half)
+        val oops = IS_NOT_FOUND.days
+        info { oops }
+        info { oops.parts() }
+        info { oops.isValid() }
+        val data = 100.nanoseconds - 99.nanoseconds
+        info { data }
+        info { data.parts() }
     }
 }

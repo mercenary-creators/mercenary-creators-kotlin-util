@@ -24,6 +24,8 @@ object Numeric {
 
     const val DEFAULT_PRECISION = 0.0000001
 
+    const val INVALID_SIZE = "invalid size"
+
     private val FUNCTIONS = Functions()
 
     @JvmStatic
@@ -253,8 +255,8 @@ object Numeric {
         }
 
         fun gcd(args: IntArray): Int {
-            return when(args.size) {
-                0 -> throw MercenaryFatalExceptiion("invalid size")
+            return when (args.size) {
+                0 -> throw MercenaryFatalExceptiion(INVALID_SIZE)
                 1 -> abs(args[0])
                 2 -> gcd(args[0], args[1])
                 else -> args.reduce { x, y ->
@@ -264,8 +266,8 @@ object Numeric {
         }
 
         fun gcd(args: LongArray): Long {
-            return when(args.size) {
-                0 -> throw MercenaryFatalExceptiion("invalid size")
+            return when (args.size) {
+                0 -> throw MercenaryFatalExceptiion(INVALID_SIZE)
                 1 -> abs(args[0])
                 2 -> gcd(args[0], args[1])
                 else -> args.reduce { x, y ->
@@ -279,8 +281,8 @@ object Numeric {
         fun lcm(value: Long, other: Long): Long = (value * other) / gcd(value, other)
 
         fun lcm(args: IntArray): Int {
-            return when(args.size) {
-                0 -> throw MercenaryFatalExceptiion("invalid size")
+            return when (args.size) {
+                0 -> throw MercenaryFatalExceptiion(INVALID_SIZE)
                 1 -> abs(args[0])
                 2 -> lcm(args[0], args[1])
                 else -> args.reduce { x, y ->
@@ -290,8 +292,8 @@ object Numeric {
         }
 
         fun lcm(args: LongArray): Long {
-            return when(args.size) {
-                0 -> throw MercenaryFatalExceptiion("invalid size")
+            return when (args.size) {
+                0 -> throw MercenaryFatalExceptiion(INVALID_SIZE)
                 1 -> abs(args[0])
                 2 -> lcm(args[0], args[1])
                 else -> args.reduce { x, y ->

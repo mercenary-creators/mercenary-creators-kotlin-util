@@ -26,11 +26,9 @@ import co.mercenary.creators.kotlin.util.type.Validated
 import org.reactivestreams.Publisher
 import reactor.core.publisher.*
 import java.io.*
-import java.math.BigDecimal
 import java.net.URL
 import java.nio.channels.*
 import java.nio.file.*
-import java.time.Duration
 import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
@@ -143,7 +141,29 @@ val Int.milliseconds: TimeDuration
 val Int.nanoseconds: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
-fun copyOf(time: Duration): Duration = Duration.ofSeconds(time.seconds, time.nano.toLong())
+val Long.days: TimeDuration
+    get() = TimeDuration.days(this)
+
+val Long.hours: TimeDuration
+    get() = TimeDuration.hours(this)
+
+val Long.weeks: TimeDuration
+    get() = TimeDuration.weeks(this)
+
+val Long.years: TimeDuration
+    get() = TimeDuration.years(this)
+
+val Long.minutes: TimeDuration
+    get() = TimeDuration.minutes(this)
+
+val Long.seconds: TimeDuration
+    get() = TimeDuration.seconds(this)
+
+val Long.milliseconds: TimeDuration
+    get() = TimeDuration.milliseconds(this)
+
+val Long.nanoseconds: TimeDuration
+    get() = TimeDuration.nanoseconds(this)
 
 fun uuid(): String = UUID.randomUUID().toString()
 
@@ -163,7 +183,7 @@ fun toDecimalPlaces3(data: Double, tail: String = EMPTY_STRING): String = "(%.3f
 
 fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseconds." else if (data < 1000000000L) toDecimalPlaces3(1.0E-6 * data, " milliseconds.") else toDecimalPlaces3(1.0E-9 * data, " seconds.")
 
-inline fun toSafeString(block: () -> Any?): String = try {
+fun toSafeString(block: () -> Any?): String = try {
     when (val data = block()) {
         null -> "null"
         else -> data.toString()
@@ -184,6 +204,17 @@ fun getCheckedString(data: String): String {
     return data
 }
 
+fun sleepFor(duration: Int, unit: TimeUnit = TimeUnit.MILLISECONDS) {
+    if (duration > 0) {
+        try {
+            unit.sleep(duration.toLong())
+        }
+        catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+    }
+}
+
 fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) {
     if (duration > 0) {
         try {
@@ -193,6 +224,10 @@ fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) {
             Throwables.thrown(cause)
         }
     }
+}
+
+fun sleepFor(duration: TimeDuration) {
+    duration.sleepFor()
 }
 
 fun Date?.copyOf(): Date = when (this) {
