@@ -17,9 +17,7 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.logging.Logging
 import org.junit.jupiter.api.*
-import java.io.ByteArrayOutputStream
 import java.util.*
 
 abstract class AbstractKotlinTest : Logging() {
@@ -34,6 +32,7 @@ abstract class AbstractKotlinTest : Logging() {
 
     protected open fun getConfigPropertiesBuilder(): () -> Properties = { Properties() }
 
+    @JvmOverloads
     fun getConfigProperty(name: String, other: String = EMPTY_STRING): String = conf.getProperty(name, other)
 
     fun setConfigProperty(vararg args: Pair<String, Any>) {
@@ -44,8 +43,6 @@ abstract class AbstractKotlinTest : Logging() {
             }
         }
     }
-
-    fun baos(size: Int = DEFAULT_BUFFER_SIZE): ByteArrayOutputStream = ByteArrayOutputStream(size)
 
     fun assertEach(vararg list: Executable) {
         if (list.isNotEmpty()) {
@@ -71,6 +68,10 @@ abstract class AbstractKotlinTest : Logging() {
         Assertions.assertFalse(condition, toSafeString(block))
     }
 
+    fun assertEquals(expected: Any?, actual: Any?) {
+        Assertions.assertEquals(expected, actual)
+    }
+
     fun assertEquals(expected: Any?, actual: Any?, block: () -> Any?) {
         Assertions.assertEquals(expected, actual, toSafeString(block))
     }
@@ -85,6 +86,10 @@ abstract class AbstractKotlinTest : Logging() {
 
     fun assertNotEquals(expected: Any?, actual: Any?, block: () -> Any?) {
         Assertions.assertNotEquals(expected, actual, toSafeString(block))
+    }
+
+    fun assertNotEquals(expected: Any?, actual: Any?) {
+        Assertions.assertNotEquals(expected, actual)
     }
 
     inline fun <reified T : Throwable, R> assumeThat(block: () -> R): R? {
@@ -102,6 +107,10 @@ abstract class AbstractKotlinTest : Logging() {
             null
         }
     }
+
+    infix fun <T: Any?> T.shouldBe(value: T) = assertEquals(value, this)
+
+    infix fun <T: Any?> T.shouldNotBe(value: T) = assertNotEquals(value, this)
 
     fun <T : Any?> List<T>.shouldBe(value: Iterable<*>?, block: () -> Any?) = assertEquals(value?.toList(), this, block)
 

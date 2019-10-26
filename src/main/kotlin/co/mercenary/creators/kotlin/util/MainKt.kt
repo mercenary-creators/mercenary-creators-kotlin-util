@@ -41,8 +41,6 @@ const val EMPTY_STRING = ""
 
 const val SPACE_STRING = " "
 
-const val CHAR_INVALID = Char.MIN_VALUE
-
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
 const val DEFAULT_ZONE_STRING = "UTC"
@@ -50,12 +48,6 @@ const val DEFAULT_ZONE_STRING = "UTC"
 const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
 
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company."
-
-private typealias DVector = Array<Double>
-
-private typealias DMatrix = Array<DoubleArray>
-
-private typealias DMatrixArray = Array<Array<Double>>
 
 typealias TimeUnit = java.util.concurrent.TimeUnit
 
@@ -111,11 +103,33 @@ open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : Mercenary
     }
 }
 
-private const val METADATA_FQ_NAME = "kotlin.Metadata"
-
 fun Class<*>.isKotlinClass(): Boolean {
-    return declaredAnnotations.any { it.annotationClass.java.name == METADATA_FQ_NAME }
+    return declaredAnnotations.any { it.annotationClass.java.name == "kotlin.Metadata" }
 }
+
+val Int.day: TimeDuration
+    get() = TimeDuration.days(this)
+
+val Int.hour: TimeDuration
+    get() = TimeDuration.hours(this)
+
+val Int.week: TimeDuration
+    get() = TimeDuration.weeks(this)
+
+val Int.year: TimeDuration
+    get() = TimeDuration.years(this)
+
+val Int.minute: TimeDuration
+    get() = TimeDuration.minutes(this)
+
+val Int.second: TimeDuration
+    get() = TimeDuration.seconds(this)
+
+val Int.millisecond: TimeDuration
+    get() = TimeDuration.milliseconds(this)
+
+val Int.nanosecond: TimeDuration
+    get() = TimeDuration.nanoseconds(this)
 
 val Int.days: TimeDuration
     get() = TimeDuration.days(this)
@@ -139,6 +153,30 @@ val Int.milliseconds: TimeDuration
     get() = TimeDuration.milliseconds(this)
 
 val Int.nanoseconds: TimeDuration
+    get() = TimeDuration.nanoseconds(this)
+
+val Long.day: TimeDuration
+    get() = TimeDuration.days(this)
+
+val Long.hour: TimeDuration
+    get() = TimeDuration.hours(this)
+
+val Long.week: TimeDuration
+    get() = TimeDuration.weeks(this)
+
+val Long.year: TimeDuration
+    get() = TimeDuration.years(this)
+
+val Long.minute: TimeDuration
+    get() = TimeDuration.minutes(this)
+
+val Long.second: TimeDuration
+    get() = TimeDuration.seconds(this)
+
+val Long.millisecond: TimeDuration
+    get() = TimeDuration.milliseconds(this)
+
+val Long.nanosecond: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
 val Long.days: TimeDuration
@@ -197,7 +235,7 @@ catch (cause: Throwable) {
 fun getCheckedString(data: String): String {
     val size = data.length
     for (posn in 0 until size) {
-        if (data[posn] == CHAR_INVALID) {
+        if (data[posn] == Char.MIN_VALUE) {
             throw MercenaryFatalExceptiion("Null byte present in file/path name. There are no known legitimate use cases for such data, but several injection attacks may use it.")
         }
     }
@@ -336,15 +374,15 @@ fun DoubleArray.closeEnough(value: DoubleArray, precision: Double = Numeric.DEFA
     return Numeric.closeEnough(this, value, precision)
 }
 
-fun DVector.closeEnough(value: DVector, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+fun Array<Double>.closeEnough(value: Array<Double>, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
-fun DMatrix.closeEnough(value: DMatrix, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+fun Array<DoubleArray>.closeEnough(value: Array<DoubleArray>, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
-fun DMatrixArray.closeEnough(value: DMatrixArray, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+fun Array<Array<Double>>.closeEnough(value: Array<Array<Double>>, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
@@ -360,12 +398,12 @@ fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 
 fun toDoubleArrayOf(vararg args: Number): DoubleArray = DoubleArray(args.size) { i -> args[i].toDouble() }
 
-fun toArrayOfDoubleArray(cols: Int, args: DoubleArray): DMatrix {
-    return if (cols < 1) throw MercenaryFatalExceptiion("invalid size") else toArrayOfDoubleArray(args.size / cols, cols, args)
+fun toArrayOfDoubleArray(cols: Int, args: DoubleArray): Array<DoubleArray> {
+    return if (cols < 1) throw MercenaryFatalExceptiion(Numeric.INVALID_SIZE) else toArrayOfDoubleArray(args.size / cols, cols, args)
 }
 
-fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): DMatrix {
-    return if (args.size != (rows * cols)) throw MercenaryFatalExceptiion("invalid size")
+fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): Array<DoubleArray> {
+    return if (args.size != (rows * cols)) throw MercenaryFatalExceptiion(Numeric.INVALID_SIZE)
     else Array(rows) { r ->
         (r * cols).let { args.copyOfRange(it, it + cols) }
     }
@@ -539,9 +577,9 @@ fun <T : Any> Flux<T>.rated(size: Int): Flux<T> = limitRate(size)
 
 fun <T : Any> Flux<T>.rated(high: Int, lows: Int): Flux<T> = limitRate(high, lows)
 
-fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.duration)
+fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.getDuration())
 
-fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.duration)
+fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.getDuration())
 
 fun <T : Any> T.toMono(): Mono<T> = Mono.just(this)
 

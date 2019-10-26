@@ -22,30 +22,34 @@ import co.mercenary.creators.kotlin.util.type.*
 import java.time.Duration
 import kotlin.math.abs
 
-class TimeDuration @JvmOverloads constructor(val duration: Duration, private val unit: TimeDurationUnit, private val high: TimeDurationUnit = unit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Validated {
+class TimeDuration(private val duration: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Validated {
 
-    operator fun plus(other: TimeDuration): TimeDuration = TimeDuration(copyOf(duration).plus(other.duration), high(high(unit, high), other.high))
+    fun getUnit() = unit
 
-    operator fun minus(other: TimeDuration): TimeDuration = TimeDuration(copyOf(duration).minus(other.duration), high(high(unit, high), other.high))
+    fun getDuration() = copyOf(duration)
+
+    operator fun plus(other: TimeDuration): TimeDuration = TimeDuration(copyOf(duration).plus(other.duration), unit)
+
+    operator fun minus(other: TimeDuration): TimeDuration = TimeDuration(copyOf(duration).minus(other.duration), unit)
 
     operator fun div(other: Int): TimeDuration = div(other.toLong())
 
-    operator fun div(other: Long): TimeDuration = TimeDuration(copyOf(duration).dividedBy(other), unit, high)
+    operator fun div(other: Long): TimeDuration = TimeDuration(copyOf(duration).dividedBy(other), unit)
 
     operator fun times(other: Int): TimeDuration = times(other.toLong())
 
-    operator fun times(other: Long): TimeDuration = TimeDuration(copyOf(duration).multipliedBy(other), unit, high)
+    operator fun times(other: Long): TimeDuration = TimeDuration(copyOf(duration).multipliedBy(other), unit)
 
-    operator fun unaryPlus(): TimeDuration = TimeDuration(copyOf(duration).abs(), unit, high)
+    operator fun unaryPlus(): TimeDuration = TimeDuration(copyOf(duration).abs(), unit)
 
-    operator fun unaryMinus(): TimeDuration = TimeDuration(copyOf(duration).negated(), unit, high)
+    operator fun unaryMinus(): TimeDuration = TimeDuration(copyOf(duration).negated(), unit)
 
     override operator fun compareTo(other: TimeDuration): Int {
         return duration.compareTo(other.duration)
     }
 
     override fun copyOf(): TimeDuration {
-        return TimeDuration(copyOf(duration), unit, high)
+        return TimeDuration(copyOf(duration), unit)
     }
 
     override fun isValid(): Boolean {
@@ -64,11 +68,11 @@ class TimeDuration @JvmOverloads constructor(val duration: Duration, private val
     }
 
     override fun toString(): String {
-        return text(duration, unit, false).trim()
+        return text(copyOf(duration), unit, false).trim()
     }
 
     fun parts(): String {
-        return toTrimOrElse(text(duration, high, true)) {
+        return toTrimOrElse(text(copyOf(duration), TimeDurationUnit.YEARS, true)) {
             text(unit)
         }
     }
@@ -87,30 +91,30 @@ class TimeDuration @JvmOverloads constructor(val duration: Duration, private val
 
     companion object {
 
-        private const val DAYS_PER_WEEK = 7L
+        const val DAYS_PER_WEEK = 7L
 
-        private const val DAYS_PER_YEAR = 365L
+        const val DAYS_PER_YEAR = 365L
 
-        private val next = mutableMapOf<Int, TimeDurationUnit>()
+        enum class TimeDurationUnit {
+            YEARS, WEEKS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, NANOSECONDS
+        }
+
+        private val maps = mutableMapOf<Int, TimeDurationUnit>()
 
         init {
             TimeDurationUnit.values().forEach {
-                next[it.ordinal] = it
+                maps[it.ordinal] = it
             }
         }
 
         private fun copyOf(time: Duration): Duration = Duration.ofSeconds(time.seconds, time.nano.toLong())
 
         private fun isEmpty(time: Duration): Boolean {
-            return (time.seconds == 0L).and(time.nano == 0).or(time.isNegative)
+            return time.isZero.or(time.isNegative)
         }
 
         private fun next(unit: TimeDurationUnit): TimeDurationUnit? {
-            return next[unit.ordinal.plus(1)]
-        }
-
-        private fun high(unit: TimeDurationUnit, high: TimeDurationUnit): TimeDurationUnit {
-            return if (high < unit) high else unit
+            return maps[unit.ordinal.plus(1)]
         }
 
         private fun text(unit: TimeDurationUnit, time: Long = 0): String {
@@ -127,24 +131,48 @@ class TimeDuration @JvmOverloads constructor(val duration: Duration, private val
             if (isEmpty(time)) {
                 return if (part) EMPTY_STRING else text(unit)
             }
-            var copy = copyOf(time)
+            var copy = time
             val save = when (unit) {
-                TimeDurationUnit.DAYS -> copy.toDays().also { copy = copy.minusDays(it) }
-                TimeDurationUnit.HOURS -> copy.toHours().also { copy = copy.minusHours(it) }
+                TimeDurationUnit.DAYS -> copy.toDays().also {
+                    if (part.and(it > 0)) {
+                        copy = copy.minusDays(it)
+                    }
+                }
+                TimeDurationUnit.HOURS -> copy.toHours().also {
+                    if (part.and(it > 0)) {
+                        copy = copy.minusHours(it)
+                    }
+                }
                 TimeDurationUnit.WEEKS -> copy.toDays().div(DAYS_PER_WEEK).also {
-                    if (it > 0) {
+                    if (part.and(it > 0)) {
                         copy = copy.minusDays(it.times(DAYS_PER_WEEK))
                     }
                 }
                 TimeDurationUnit.YEARS -> copy.toDays().div(DAYS_PER_YEAR).also {
-                    if (it > 0) {
+                    if (part.and(it > 0)) {
                         copy = copy.minusDays(it.times(DAYS_PER_YEAR))
                     }
                 }
-                TimeDurationUnit.MINUTES -> copy.toMinutes().also { copy = copy.minusMinutes(it) }
-                TimeDurationUnit.SECONDS -> copy.seconds.also { copy = copy.minusSeconds(it) }
-                TimeDurationUnit.NANOSECONDS -> copy.nano.toLong().also { copy = copy.minusNanos(it) }
-                TimeDurationUnit.MILLISECONDS -> copy.toMillis().also { copy = copy.minusMillis(it) }
+                TimeDurationUnit.MINUTES -> copy.toMinutes().also {
+                    if (part.and(it > 0)) {
+                        copy = copy.minusMinutes(it)
+                    }
+                }
+                TimeDurationUnit.SECONDS -> copy.seconds.also {
+                    if (part.and(it > 0)) {
+                        copy = copy.minusSeconds(it)
+                    }
+                }
+                TimeDurationUnit.NANOSECONDS -> copy.nano.toLong().also {
+                    if (part.and(it > 0)) {
+                        copy = copy.minusNanos(it)
+                    }
+                }
+                TimeDurationUnit.MILLISECONDS -> copy.toMillis().also {
+                    if (part.and(it > 0)) {
+                        copy = copy.minusMillis(it)
+                    }
+                }
             }
             if (part) {
                 return when (val look = next(unit)) {
@@ -186,10 +214,10 @@ class TimeDuration @JvmOverloads constructor(val duration: Duration, private val
         fun milliseconds(time: Int) = milliseconds(time.toLong())
 
         @JvmStatic
-        fun weeks(time: Long) = TimeDuration(Duration.ofDays(time * DAYS_PER_WEEK), TimeDurationUnit.WEEKS)
+        fun years(time: Long) = TimeDuration(Duration.ofDays(time * DAYS_PER_YEAR), TimeDurationUnit.YEARS)
 
         @JvmStatic
-        fun years(time: Long) = TimeDuration(Duration.ofDays(time * DAYS_PER_YEAR), TimeDurationUnit.YEARS)
+        fun weeks(time: Long) = TimeDuration(Duration.ofDays(time * DAYS_PER_WEEK), TimeDurationUnit.WEEKS)
 
         @JvmStatic
         fun days(time: Long) = TimeDuration(Duration.ofDays(time), TimeDurationUnit.DAYS)
@@ -204,9 +232,9 @@ class TimeDuration @JvmOverloads constructor(val duration: Duration, private val
         fun seconds(time: Long) = TimeDuration(Duration.ofSeconds(time), TimeDurationUnit.SECONDS)
 
         @JvmStatic
-        fun nanoseconds(time: Long) = TimeDuration(Duration.ofNanos(time), TimeDurationUnit.NANOSECONDS)
+        fun milliseconds(time: Long) = TimeDuration(Duration.ofMillis(time), TimeDurationUnit.MILLISECONDS)
 
         @JvmStatic
-        fun milliseconds(time: Long) = TimeDuration(Duration.ofMillis(time), TimeDurationUnit.MILLISECONDS)
+        fun nanoseconds(time: Long) = TimeDuration(Duration.ofNanos(time), TimeDurationUnit.NANOSECONDS)
     }
 }

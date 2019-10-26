@@ -33,25 +33,29 @@ abstract class AbstractDataTest : AbstractKotlinTest() {
         return getTempFileNamed(name, suff).path
     }
 
-    protected fun getContentResourceByteURL(resource: ContentResource): String {
-        return StringBuilder(IO.PREFIX_BYTES).also {
-            it.append(resource.getContentPath().trim())
-            it.append(IO.COL_SEPARATOR_CHAR)
-            it.append(resource.getContentType().trim())
-            it.append(IO.COL_SEPARATOR_CHAR)
-            it.append(Encoders.hex().encode(resource.getContentData()))
-        }.toString()
+    protected fun getContentResourceByteURL(resource: ContentResource): String = buildString {
+        append(IO.PREFIX_BYTES)
+            .append(resource.getContentPath().trim())
+            .append(IO.COL_SEPARATOR_CHAR)
+            .append(resource.getContentType().trim())
+            .append(IO.COL_SEPARATOR_CHAR)
+            .append(Encoders.hex().encode(resource.getContentData()))
     }
 
-    protected fun getContentResourceDetails(resource: ContentResource): CharSequence = StringBuilder().also {
-        it.append(resource.getDescription()).append(dets("size", resource.getContentSize())).append(date("date", resource.getContentTime())).append(date("time", getTimeStamp())).append(dets("good", resource.isContentThere()))
+    protected fun getContentResourceDetails(resource: ContentResource): String = buildString {
+        append(resource.getDescription())
+            .append(dets("good", resource.isContentThere()))
+            .append(dets("size", resource.getContentSize()))
+            .append(date("date", resource.getContentTime()))
+            .append(date("time"))
     }
 
     protected fun dets(text: String, args: Any): String {
         return ", $text($args)"
     }
 
-    protected fun date(text: String, args: Long): String {
+    @JvmOverloads
+    protected fun date(text: String, args: Long = getTimeStamp()): String {
         return dets(text, form.get().format(args.toDate()))
     }
 }

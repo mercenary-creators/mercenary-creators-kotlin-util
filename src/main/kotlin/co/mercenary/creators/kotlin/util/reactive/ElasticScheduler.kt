@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.reactive
 
 import reactor.core.scheduler.*
 
-class ElasticScheduler private constructor(private val proxy: Scheduler) : Scheduler by proxy {
+class ElasticScheduler private constructor(proxy: Scheduler) : Scheduler by proxy {
     @JvmOverloads
     constructor(name: String, live: Int = DEFAULT_TIME_TO_LIVE_SECONDS, daemon: Boolean = false) : this(Schedulers.newElastic(name, live, daemon))
 

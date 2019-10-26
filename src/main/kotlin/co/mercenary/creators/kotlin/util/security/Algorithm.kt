@@ -16,7 +16,26 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-data class Algorithm(private val name: String, private val algorithms: List<String>) {
-    fun getName() = name
-    fun getAlgorithms() = algorithms
+data class Algorithm(val service: String, val algorithms: List<String>) {
+    override fun toString(): String {
+        return buildString {
+            append("\n{ ")
+                .append( "\"")
+                .append("service")
+                .append( "\"")
+                .append(" : ")
+                .append( "\"")
+                .append(service)
+                .append( "\"")
+                .append(", ")
+                .append("\"")
+                .append("algorithms")
+                .append("\"")
+                .append(" : ")
+                .append(algorithms.joinToString(",\n\t\t", prefix = "\n\t[\n\t\t", postfix = "\n\t]"){
+                    "\"" + it + "\""
+                })
+                .append("\n}")
+        }
+    }
 }

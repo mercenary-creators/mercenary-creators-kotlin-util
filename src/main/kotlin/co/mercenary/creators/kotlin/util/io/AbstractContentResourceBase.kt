@@ -20,12 +20,8 @@ import co.mercenary.creators.kotlin.util.*
 
 abstract class AbstractContentResourceBase @JvmOverloads constructor(private val path: String, private val type: String = DEFAULT_CONTENT_TYPE, private val time: Long = 0L) : ContentResource {
 
-    private val name: String by lazy {
-        this.javaClass.name
-    }
-
     private val desc: String by lazy {
-        "$name(${getContentPath()}, ${getContentType()}, ${isContentCache()})"
+        "${javaClass.name}(${getContentPath()}, ${getContentType()}, ${isContentCache()})"
     }
 
     override fun getContentPath() = path

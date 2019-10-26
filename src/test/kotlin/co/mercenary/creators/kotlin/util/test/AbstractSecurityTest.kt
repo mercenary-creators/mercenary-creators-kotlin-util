@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.security.*
 import co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
-abstract class AbstractSecurityTest(private val text: String = CREATORS_AUTHOR_INFO) : AbstractKotlinTest() {
+abstract class AbstractSecurityTest @JvmOverloads constructor(private val text: String = CREATORS_AUTHOR_INFO) : AbstractKotlinTest() {
 
     protected open fun getGeneratedText(): String = text
 
@@ -28,11 +28,14 @@ abstract class AbstractSecurityTest(private val text: String = CREATORS_AUTHOR_I
 
     protected open fun getGeneratedSalt(): CharSequence = Passwords.salt()
 
-    protected fun isGood(pass: CharSequence): Boolean = Passwords.good(pass)
+    protected open fun isGood(pass: CharSequence): Boolean = Passwords.good(pass)
 
+    @JvmOverloads
     protected fun getTextCipher(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) = CipherEncryptingText(pass, salt, algorithm)
 
+    @JvmOverloads
     protected fun getDataCipher(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) = CipherEncryptingData(pass, salt, algorithm)
 
+    @JvmOverloads
     protected fun getCopyCipher(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) = CipherEncryptingCopy(pass, salt, algorithm)
 }

@@ -19,6 +19,8 @@
 
 package co.mercenary.creators.kotlin.util
 
+typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream
+
 typealias Executable = org.junit.jupiter.api.function.Executable
 
 typealias KotlinTest = co.mercenary.creators.kotlin.util.test.AbstractKotlinTest
@@ -26,3 +28,5 @@ typealias KotlinTest = co.mercenary.creators.kotlin.util.test.AbstractKotlinTest
 typealias KotlinDataTest = co.mercenary.creators.kotlin.util.test.AbstractDataTest
 
 typealias KotlinSecurityTest = co.mercenary.creators.kotlin.util.test.AbstractSecurityTest
+
+

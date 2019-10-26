@@ -18,25 +18,26 @@ package co.mercenary.creators.kotlin.util.security
 
 import kotlin.math.*
 
+@Suppress("NOTHING_TO_INLINE")
 object Passwords {
 
-    internal const val PART_SIZE = 8
+    const val PART_SIZE = 8
 
-    internal const val MIN_PARTS = 3
+    const val MIN_PARTS = 3
 
-    internal const val MAX_PARTS = 31
+    const val MAX_PARTS = 31
 
-    internal const val THE_PARTS = 15
+    const val THE_PARTS = 15
 
-    internal const val SEPARATOR = '-'
+    const val SEPARATOR = '-'
 
-    internal const val SALT_SIZE = 64
+    const val SALT_SIZE = 64
 
-    internal const val MIN_LOOPS = 16 * 1024
+    const val MIN_LOOPS = 16 * 1024
 
-    internal const val MAX_LOOPS = 96 * 1024
+    const val MAX_LOOPS = 96 * 1024
 
-    internal const val THE_LOOPS = 64 * 1024
+    const val THE_LOOPS = 64 * 1024
 
     @JvmStatic
     @JvmOverloads
@@ -74,7 +75,8 @@ object Passwords {
         return pass.endsWith(CheckSums.crc32().encoder(pass.substring(0, last + 1)))
     }
 
-    internal fun oops(list: List<String>, loop: Int): Boolean {
+    @JvmStatic
+    private fun oops(list: List<String>, loop: Int): Boolean {
         if (list.size != (loop + 1)) {
             return true
         }
@@ -87,7 +89,7 @@ object Passwords {
         return false
     }
 
-    internal fun getPartOf(part: Int) = min(max(part, MIN_PARTS), MAX_PARTS)
+    private inline fun getPartOf(part: Int) = min(max(part, MIN_PARTS), MAX_PARTS)
 
-    internal fun getLoopOf(loop: Int) = min(max(loop, MIN_LOOPS), MAX_LOOPS)
+    private inline fun getLoopOf(loop: Int) = min(max(loop, MIN_LOOPS), MAX_LOOPS)
 }

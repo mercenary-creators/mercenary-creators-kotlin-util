@@ -25,8 +25,6 @@ class ProbeTest : KotlinDataTest() {
         val look = DefaultContentTypeProbe()
         val type = look.getContentType("test.zip")
         info { type }
-        type.shouldBe("application/zip") {
-            type
-        }
+        type shouldBe "application/zip"
     }
 }

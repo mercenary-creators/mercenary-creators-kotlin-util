@@ -19,7 +19,7 @@ package co.mercenary.creators.kotlin.util.time
 import co.mercenary.creators.kotlin.util.*
 import kotlin.math.*
 
-abstract class AbstractTimeWindowMovingAverage  @JvmOverloads constructor(window: Long, private val wait: TimeUnit = TimeUnit.MILLISECONDS, unit: TimeUnit = TimeUnit.MILLISECONDS, private val moment: () -> Long = System::currentTimeMillis) : TimeWindowMovingAverage {
+abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window: Long, private val wait: TimeUnit = TimeUnit.MILLISECONDS, unit: TimeUnit = TimeUnit.MILLISECONDS, private val moment: () -> Long = System::currentTimeMillis) : TimeWindowMovingAverage {
 
     @Volatile
     private var ticker = 0L
