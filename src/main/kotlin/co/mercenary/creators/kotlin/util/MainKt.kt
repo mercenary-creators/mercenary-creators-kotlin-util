@@ -53,6 +53,8 @@ typealias TimeUnit = java.util.concurrent.TimeUnit
 
 typealias TimeDuration = co.mercenary.creators.kotlin.util.time.TimeDuration
 
+typealias TimeDurationUnit = co.mercenary.creators.kotlin.util.time.TimeDurationUnit
+
 typealias Numeric = Numeric
 
 typealias Logging = co.mercenary.creators.kotlin.util.logging.Logging
@@ -577,9 +579,9 @@ fun <T : Any> Flux<T>.rated(size: Int): Flux<T> = limitRate(size)
 
 fun <T : Any> Flux<T>.rated(high: Int, lows: Int): Flux<T> = limitRate(high, lows)
 
-fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.getDuration())
+fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.toDuration())
 
-fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.getDuration())
+fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.toDuration())
 
 fun <T : Any> T.toMono(): Mono<T> = Mono.just(this)
 

@@ -34,15 +34,17 @@ class MainTest : KotlinTest() {
         val oops = 0.days
         info { oops }
         info { oops.parts() }
-        info { oops.isValid() }
-        oops.isValid() shouldBe false
         val data = 100.nanoseconds - 99.nanoseconds
         info { data }
         info { data.parts() }
         data shouldBe 1.nanosecond
         data shouldNotBe 99.nanoseconds
         timed {
-            sleepFor(5.seconds)
+            sleepFor(2.seconds)
         }
+        val text = 1.year + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds + 8.milliseconds + 1.nanosecond
+        info { text }
+        info { text.parts() }
+        info { TimeDuration(text.parts()).parts() }
     }
 }

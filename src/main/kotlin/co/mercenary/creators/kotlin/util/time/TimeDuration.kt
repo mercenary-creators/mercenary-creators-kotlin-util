@@ -17,16 +17,17 @@
 package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.Throwables
-import co.mercenary.creators.kotlin.util.type.*
+import co.mercenary.creators.kotlin.util.type.Copyable
 import java.time.Duration
 import kotlin.math.abs
 
-class TimeDuration(private val duration: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Validated {
+class TimeDuration(private val duration: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration> {
 
-    fun getUnit() = unit
+    constructor(time: String) : this(parseCharSequence(time))
 
-    fun getDuration() = copyOf(duration)
+    constructor(time: TimeDuration) : this(copyOf(time.duration), time.unit)
+
+    fun toDuration() = copyOf(duration)
 
     operator fun plus(other: TimeDuration): TimeDuration = TimeDuration(copyOf(duration).plus(other.duration), unit)
 
@@ -50,10 +51,6 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
 
     override fun copyOf(): TimeDuration {
         return TimeDuration(copyOf(duration), unit)
-    }
-
-    override fun isValid(): Boolean {
-        return isEmpty(duration).not()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -95,15 +92,17 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
 
         const val DAYS_PER_YEAR = 365L
 
-        enum class TimeDurationUnit {
-            YEARS, WEEKS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, NANOSECONDS
-        }
+        private val REGEX = Regex("")
 
         private val maps = mutableMapOf<Int, TimeDurationUnit>()
+
+        private val look = mutableMapOf<String, TimeDurationUnit>()
 
         init {
             TimeDurationUnit.values().forEach {
                 maps[it.ordinal] = it
+                look[it.name.toLowerCase()] = it
+                look[it.name.toLowerCase().removeSuffix("s")] = it
             }
         }
 
@@ -236,5 +235,32 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
 
         @JvmStatic
         fun nanoseconds(time: Long) = TimeDuration(Duration.ofNanos(time), TimeDurationUnit.NANOSECONDS)
+
+        private fun parseCharSequence(text: String): TimeDuration {
+            val list = text.trim().replace(Regex("\\h+"), SPACE_STRING).toLowerCase().trim().split(SPACE_STRING)
+            if (list.isEmpty().or(list.size.rem(2) == 1)) {
+                throw MercenaryFatalExceptiion(Numeric.INVALID_SIZE)
+            }
+            var copy = seconds(0)
+            for (i in list.indices step 2) {
+                copy += make(list[i], list[i + 1]) ?: throw MercenaryFatalExceptiion(Numeric.INVALID_SIZE)
+            }
+            return copy
+        }
+
+        private fun make(buff: String, name: String): TimeDuration? {
+            val time = buff.toLongOrNull() ?: return null
+            return when (look[name]) {
+                null -> null
+                TimeDurationUnit.DAYS -> days(time)
+                TimeDurationUnit.YEARS -> years(time)
+                TimeDurationUnit.WEEKS -> weeks(time)
+                TimeDurationUnit.HOURS -> hours(time)
+                TimeDurationUnit.MINUTES -> minutes(time)
+                TimeDurationUnit.SECONDS -> seconds(time)
+                TimeDurationUnit.NANOSECONDS -> nanoseconds(time)
+                TimeDurationUnit.MILLISECONDS -> milliseconds(time)
+            }
+        }
     }
 }
