@@ -17,11 +17,10 @@
 package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.type.Copyable
 import java.time.Duration
 import kotlin.math.abs
 
-class TimeDuration(private val duration: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration> {
+class TimeDuration(private val duration: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Cloneable {
 
     constructor(time: String) : this(parseCharSequence(time))
 
@@ -49,7 +48,11 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
         return duration.compareTo(other.duration)
     }
 
-    override fun copyOf(): TimeDuration {
+    fun copyOf(): TimeDuration {
+        return TimeDuration(copyOf(duration), unit)
+    }
+
+    override fun clone(): Any {
         return TimeDuration(copyOf(duration), unit)
     }
 
@@ -68,7 +71,7 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
         return text(copyOf(duration), unit, false).trim()
     }
 
-    fun parts(): String {
+    fun toFormattedString(): String {
         return toTrimOrElse(text(copyOf(duration), TimeDurationUnit.YEARS, true)) {
             text(unit)
         }
@@ -92,17 +95,11 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
 
         const val DAYS_PER_YEAR = 365L
 
-        private val REGEX = Regex("")
-
         private val maps = mutableMapOf<Int, TimeDurationUnit>()
-
-        private val look = mutableMapOf<String, TimeDurationUnit>()
 
         init {
             TimeDurationUnit.values().forEach {
                 maps[it.ordinal] = it
-                look[it.name.toLowerCase()] = it
-                look[it.name.toLowerCase().removeSuffix("s")] = it
             }
         }
 
@@ -231,35 +228,37 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
         fun seconds(time: Long) = TimeDuration(Duration.ofSeconds(time), TimeDurationUnit.SECONDS)
 
         @JvmStatic
+        fun nanoseconds(time: Long) = TimeDuration(Duration.ofNanos(time), TimeDurationUnit.NANOSECONDS)
+
+        @JvmStatic
         fun milliseconds(time: Long) = TimeDuration(Duration.ofMillis(time), TimeDurationUnit.MILLISECONDS)
 
         @JvmStatic
-        fun nanoseconds(time: Long) = TimeDuration(Duration.ofNanos(time), TimeDurationUnit.NANOSECONDS)
-
-        private fun parseCharSequence(text: String): TimeDuration {
-            val list = text.trim().replace(Regex("\\h+"), SPACE_STRING).toLowerCase().trim().split(SPACE_STRING)
-            if (list.isEmpty().or(list.size.rem(2) == 1)) {
-                throw MercenaryFatalExceptiion(Numeric.INVALID_SIZE)
+        fun parseCharSequence(text: String): TimeDuration {
+            val list = text.toLowerTrim().split(Regex("\\h+"))
+            val size = list.size
+            if ((size == 0).or(size.rem(2) == 1)) {
+                throw MercenaryFatalExceptiion("invalid size $size")
             }
-            var copy = seconds(0)
-            for (i in list.indices step 2) {
-                copy += make(list[i], list[i + 1]) ?: throw MercenaryFatalExceptiion(Numeric.INVALID_SIZE)
+            var copy = make(list[0], list[1])
+            for (i in 2 until size step 2) {
+                copy += make(list[i], list[i + 1])
             }
             return copy
         }
 
-        private fun make(buff: String, name: String): TimeDuration? {
-            val time = buff.toLongOrNull() ?: return null
-            return when (look[name]) {
-                null -> null
-                TimeDurationUnit.DAYS -> days(time)
-                TimeDurationUnit.YEARS -> years(time)
-                TimeDurationUnit.WEEKS -> weeks(time)
-                TimeDurationUnit.HOURS -> hours(time)
-                TimeDurationUnit.MINUTES -> minutes(time)
-                TimeDurationUnit.SECONDS -> seconds(time)
-                TimeDurationUnit.NANOSECONDS -> nanoseconds(time)
-                TimeDurationUnit.MILLISECONDS -> milliseconds(time)
+        private fun make(buff: String, unit: String): TimeDuration {
+            val time = buff.toLongOrNull() ?: throw MercenaryFatalExceptiion("invalid time $buff")
+            return when (unit) {
+                "day", "days" -> days(time)
+                "year", "years" -> years(time)
+                "week", "weeks" -> weeks(time)
+                "hour", "hours" -> hours(time)
+                "minute", "minutes" -> minutes(time)
+                "second", "seconds" -> seconds(time)
+                "nanosecond", "nanoseconds" -> nanoseconds(time)
+                "millisecond", "milliseconds" -> milliseconds(time)
+                else -> throw MercenaryFatalExceptiion("invalid unit $unit")
             }
         }
     }

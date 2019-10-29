@@ -17,7 +17,7 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.logging.*
+import co.mercenary.creators.kotlin.util.logging.ILogging
 import co.mercenary.creators.kotlin.util.logging.LoggingFactory
 import java.io.*
 import javax.activation.*

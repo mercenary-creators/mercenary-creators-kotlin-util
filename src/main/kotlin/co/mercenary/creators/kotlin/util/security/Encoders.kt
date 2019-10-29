@@ -22,8 +22,8 @@ import org.apache.commons.codec.binary.Hex
 object Encoders {
 
     private val bhex = object : Encoder<String, ByteArray> {
-        override fun decode(data: String): ByteArray = Hex.decodeHex(getLowerTrim(data))
-        override fun encode(data: ByteArray): String = getLowerTrim(Hex.encodeHexString(data))
+        override fun decode(data: String): ByteArray = Hex.decodeHex(data.toLowerTrim())
+        override fun encode(data: ByteArray): String = Hex.encodeHexString(data).toLowerTrim()
     }
 
     init {
