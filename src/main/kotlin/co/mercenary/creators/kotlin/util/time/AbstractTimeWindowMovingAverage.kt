@@ -47,7 +47,7 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window:
         return getAverage()
     }
 
-    override fun toString(): String = toDecimalPlaces3(getAverage(), " milliseconds.")
+    override fun toString(): String = toDecimalPlaces3(getAverage(), " milliseconds")
 
     override fun getWindowHandle(): TimeWindowHandle = DefaultTimeWindowHandle(this, getMomentInTime())
 
@@ -59,7 +59,14 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window:
             if (open.compareAndSet(true, false)) {
                 self.getMomentInTime().minus(time).toDouble().also { diff ->
                     self.addAverage(diff).minus(diff).toLong().also {
-                        sleepFor(it, self.getWaitTimeUnit())
+                        if (it > 0) {
+                            try {
+                                self.getWaitTimeUnit().sleep(it)
+                            }
+                            catch (cause: Throwable) {
+                                Throwables.thrown(cause)
+                            }
+                        }
                     }
                 }
             }

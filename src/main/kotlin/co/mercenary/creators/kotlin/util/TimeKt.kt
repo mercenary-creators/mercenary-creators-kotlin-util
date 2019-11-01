@@ -131,34 +131,6 @@ val Long.milliseconds: TimeDuration
 val Long.nanoseconds: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
-@JvmOverloads
-fun sleepFor(duration: Int, unit: TimeUnit = TimeUnit.MILLISECONDS) {
-    if (duration > 0) {
-        try {
-            unit.sleep(duration.toLong())
-        }
-        catch (cause: Throwable) {
-            Throwables.thrown(cause)
-        }
-    }
-}
-
-@JvmOverloads
-fun sleepFor(duration: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) {
-    if (duration > 0) {
-        try {
-            unit.sleep(duration)
-        }
-        catch (cause: Throwable) {
-            Throwables.thrown(cause)
-        }
-    }
-}
-
-fun sleepFor(duration: TimeDuration) {
-    duration.sleepFor()
-}
-
 fun Date?.copyOf(): Date = when (this) {
     null -> Date()
     else -> Date(time)
@@ -176,4 +148,4 @@ fun getTimeStamp(nano: Boolean = false): Long = if (nano) System.nanoTime() else
 @JvmOverloads
 fun toDecimalPlaces3(data: Double, tail: String = EMPTY_STRING): String = "(%.3f)%s".format(data, tail)
 
-fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseconds." else if (data < 1000000000L) toDecimalPlaces3(1.0E-6 * data, " milliseconds.") else toDecimalPlaces3(1.0E-9 * data, " seconds.")
+fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseconds" else if (data < 1000000000L) toDecimalPlaces3(1.0E-6 * data, " milliseconds") else toDecimalPlaces3(1.0E-9 * data, " seconds")

@@ -15,7 +15,6 @@
  */
 
 @file:kotlin.jvm.JvmName("TestKt")
-@file:kotlin.jvm.JvmMultifileClass
 
 package co.mercenary.creators.kotlin.util
 

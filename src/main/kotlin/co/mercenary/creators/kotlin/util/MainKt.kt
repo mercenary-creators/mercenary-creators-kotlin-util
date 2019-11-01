@@ -26,6 +26,7 @@ import reactor.core.publisher.*
 import java.io.*
 import java.net.URL
 import java.nio.channels.*
+import java.nio.charset.Charset
 import java.nio.file.*
 import java.util.*
 import java.util.concurrent.*
@@ -71,6 +72,8 @@ typealias ParallelScheduler = co.mercenary.creators.kotlin.util.reactive.Paralle
 typealias ClassPathContentResource = co.mercenary.creators.kotlin.util.io.ClassPathContentResource
 
 typealias DefaultContentResourceLoader = co.mercenary.creators.kotlin.util.io.DefaultContentResourceLoader
+
+typealias DefaultCachedContentResourceLoader = co.mercenary.creators.kotlin.util.io.DefaultCachedContentResourceLoader
 
 open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
     constructor(text: String) : this(text, null)
@@ -131,6 +134,8 @@ fun getCheckedString(data: String): String {
 }
 
 fun String.toLowerTrim(): String = trim().toLowerCase()
+
+fun CharSequence.toLowerTrim(): String = toString().toLowerTrim()
 
 fun isDefaultContentType(type: String): Boolean = type.toLowerTrim() == DEFAULT_CONTENT_TYPE
 
@@ -328,6 +333,31 @@ fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
 
 fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
 
+@JvmOverloads
+fun URL.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
+    toInputStream().forEachLineIndexed(charset, block)
+}
+
+@JvmOverloads
+fun File.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
+    toInputStream().forEachLineIndexed(charset, block)
+}
+
+@JvmOverloads
+fun Path.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
+    toInputStream().forEachLineIndexed(charset, block)
+}
+
+@JvmOverloads
+fun InputStreamSupplier.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
+    toInputStream().forEachLineIndexed(charset, block)
+}
+
+@JvmOverloads
+fun InputStream.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
+    BufferedReader(InputStreamReader(this, charset)).readLines().forEachIndexed(block)
+}
+
 fun <T : Any> Flux<T>.toList(): List<T> = collect(Collectors.toList<T>()).block().orElse { emptyList() }
 
 fun <T : Any> Flux<T>.limit(size: Long): Flux<T> = limitRequest(size)
@@ -338,9 +368,9 @@ fun <T : Any> Flux<T>.rated(size: Int): Flux<T> = limitRate(size)
 
 fun <T : Any> Flux<T>.rated(high: Int, lows: Int): Flux<T> = limitRate(high, lows)
 
-fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.toDuration())
+fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.duration())
 
-fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.toDuration())
+fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.duration())
 
 fun <T : Any> T.toMono(): Mono<T> = Mono.just(this)
 
@@ -393,11 +423,11 @@ fun InputStreamSupplier.toByteArray(): ByteArray = when (this) {
     else -> getInputStream().toByteArray()
 }
 
-fun ContentResource.cache() = if (isContentCache()) this else toContentCache()
-
 fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()
 
-val RESOURCE_LOADER = DefaultContentResourceLoader()
+val contentResourceLoader = DefaultContentResourceLoader.INSTANCE
+
+val cachedContentResourceLoader = DefaultCachedContentResourceLoader.INSTANCE
 
 inline fun <T> withLoggingContext(args: Pair<String, Any>, block: () -> T): T {
     return mu.withLoggingContext(args.first to args.second.toString(), block)

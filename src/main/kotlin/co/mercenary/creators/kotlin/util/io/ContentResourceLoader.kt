@@ -17,7 +17,11 @@
 package co.mercenary.creators.kotlin.util.io
 
 interface ContentResourceLoader {
+    val size: Int
+    fun clear()
     fun getClassLoader(): ClassLoader?
+    fun isContentCache(): Boolean = false
+    fun getSuperLoader(): ContentResourceLoader? = null
     operator fun get(path: String): ContentResource
     operator fun plusAssign(args: ContentProtocolResolver)
     operator fun plusAssign(args: Array<ContentProtocolResolver>)

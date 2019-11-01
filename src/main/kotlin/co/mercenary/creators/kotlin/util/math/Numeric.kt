@@ -26,7 +26,11 @@ object Numeric {
 
     const val INVALID_SIZE = "invalid size"
 
-    private val FUNCTIONS = Functions()
+    const val ZERO_DIVISOR = "can't divide by zero"
+
+    private val TAIL_RECURSIVE_FUNCTIONS: TailRecursiveFunctions by lazy {
+        TailRecursiveFunctions()
+    }
 
     @JvmStatic
     @JvmOverloads
@@ -153,37 +157,37 @@ object Numeric {
     }
 
     @JvmStatic
-    fun powNegative1(value: Int): Double = if (value.rem(2) == 0) 1.0 else -1.0
+    fun powNegative1(value: Int): Double = powNegative1(value.toLong())
 
     @JvmStatic
-    fun powNegative1(value: Long): Double = if (value.rem(2) == 0L) 1.0 else -1.0
+    fun powNegative1(value: Long): Double = if (value % 2 == 0L) 1.0 else -1.0
 
     @JvmStatic
-    fun powNegative1(value: Int, other: Int): Double = powNegative1(value.toLong().plus(other))
+    fun powNegative1(value: Int, other: Int): Double = powNegative1(value.toLong() + other)
 
     @JvmStatic
-    fun gcd(value: Int, other: Int): Int = if (other == 0) abs(value) else FUNCTIONS.gcd(value, other)
+    fun gcd(value: Int, other: Int): Int = if (other == 0) abs(value) else TAIL_RECURSIVE_FUNCTIONS.gcd(value, other)
 
     @JvmStatic
-    fun gcd(value: Long, other: Long): Long = if (other == 0L) abs(value) else FUNCTIONS.gcd(value, other)
+    fun gcd(value: Long, other: Long): Long = if (other == 0L) abs(value) else TAIL_RECURSIVE_FUNCTIONS.gcd(value, other)
 
     @JvmStatic
-    fun gcd(args: IntArray): Int = FUNCTIONS.gcd(args)
+    fun gcd(args: IntArray): Int = TAIL_RECURSIVE_FUNCTIONS.gcd(args)
 
     @JvmStatic
-    fun gcd(args: LongArray): Long = FUNCTIONS.gcd(args)
+    fun gcd(args: LongArray): Long = TAIL_RECURSIVE_FUNCTIONS.gcd(args)
 
     @JvmStatic
-    fun lcm(value: Int, other: Int): Int = FUNCTIONS.lcm(value, other)
+    fun lcm(value: Int, other: Int): Int = TAIL_RECURSIVE_FUNCTIONS.lcm(value, other)
 
     @JvmStatic
-    fun lcm(value: Long, other: Long): Long = FUNCTIONS.lcm(value, other)
+    fun lcm(value: Long, other: Long): Long = TAIL_RECURSIVE_FUNCTIONS.lcm(value, other)
 
     @JvmStatic
-    fun lcm(args: IntArray): Int = FUNCTIONS.lcm(args)
+    fun lcm(args: IntArray): Int = TAIL_RECURSIVE_FUNCTIONS.lcm(args)
 
     @JvmStatic
-    fun lcm(args: LongArray): Long = FUNCTIONS.lcm(args)
+    fun lcm(args: LongArray): Long = TAIL_RECURSIVE_FUNCTIONS.lcm(args)
 
     @JvmStatic
     @JvmOverloads
@@ -216,7 +220,7 @@ object Numeric {
     fun divide(value: Double, other: Long): Double = divide(value, other.toDouble())
 
     @JvmStatic
-    fun divide(value: Double, other: Double): Double = if (other == 0.0) throw MercenaryFatalExceptiion("can't divide by zero") else value.div(other)
+    fun divide(value: Double, other: Double): Double = if (other == 0.0) throw MercenaryFatalExceptiion(ZERO_DIVISOR) else value / other
 
     @JvmStatic
     fun hashCode(value: DoubleArray): Int {
@@ -238,20 +242,20 @@ object Numeric {
         return value.contentDeepHashCode()
     }
 
-    private class Functions {
+    private class TailRecursiveFunctions {
 
         tailrec fun gcd(value: Int, other: Int): Int {
             if (other == 0) {
                 return abs(value)
             }
-            return gcd(other, value.rem(other))
+            return gcd(other, value % other)
         }
 
         tailrec fun gcd(value: Long, other: Long): Long {
             if (other == 0L) {
                 return abs(value)
             }
-            return gcd(other, value.rem(other))
+            return gcd(other, value % other)
         }
 
         fun gcd(args: IntArray): Int {
@@ -276,9 +280,19 @@ object Numeric {
             }
         }
 
-        fun lcm(value: Int, other: Int): Int = (value * other) / gcd(value, other)
+        fun lcm(value: Int, other: Int): Int {
+            return when (val gcd = gcd(value, other)) {
+                0 -> throw MercenaryFatalExceptiion(ZERO_DIVISOR)
+                else -> (value * other) / gcd
+            }
+        }
 
-        fun lcm(value: Long, other: Long): Long = (value * other) / gcd(value, other)
+        fun lcm(value: Long, other: Long): Long {
+            return when (val gcd = gcd(value, other)) {
+                0L -> throw MercenaryFatalExceptiion(ZERO_DIVISOR)
+                else -> (value * other) / gcd
+            }
+        }
 
         fun lcm(args: IntArray): Int {
             return when (args.size) {
@@ -286,7 +300,10 @@ object Numeric {
                 1 -> abs(args[0])
                 2 -> lcm(args[0], args[1])
                 else -> args.reduce { x, y ->
-                    x.times(y.div(gcd(x, y)))
+                    when (val gcd = gcd(x, y)) {
+                        0 -> throw MercenaryFatalExceptiion(ZERO_DIVISOR)
+                        else -> x * (y / gcd)
+                    }
                 }
             }
         }
@@ -297,7 +314,10 @@ object Numeric {
                 1 -> abs(args[0])
                 2 -> lcm(args[0], args[1])
                 else -> args.reduce { x, y ->
-                    x.times(y.div(gcd(x, y)))
+                    when (val gcd = gcd(x, y)) {
+                        0L -> throw MercenaryFatalExceptiion(ZERO_DIVISOR)
+                        else -> x * (y / gcd)
+                    }
                 }
             }
         }

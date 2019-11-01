@@ -104,10 +104,10 @@ fun closeEnough(v1: Double, v2: Double, o1: Double, o2: Double, precision: Doubl
 }
 
 @JvmOverloads
-fun Double.rounded(scale: Int = 2): Double = Numeric.rounded(this, scale)
+fun Double.root(root: Int = 2): Double = Numeric.root(this, root)
 
 @JvmOverloads
-fun Double.root(root: Int = 2): Double = Numeric.root(this, root)
+fun Double.rounded(scale: Int = 2): Double = Numeric.rounded(this, scale)
 
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 

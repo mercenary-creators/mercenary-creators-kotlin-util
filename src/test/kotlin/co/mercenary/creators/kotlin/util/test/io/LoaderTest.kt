@@ -22,17 +22,17 @@ import org.junit.jupiter.api.Test
 class LoaderTest : KotlinDataTest() {
     @Test
     fun test() {
-        info { getContentResourceDetails(RESOURCE_LOADER["test.zip"]) }
-        info { getContentResourceDetails(RESOURCE_LOADER["test.jpg"]) }
-        info { getContentResourceDetails(RESOURCE_LOADER["test.css"]) }
-        info { getContentResourceDetails(RESOURCE_LOADER["test.doc"]) }
-        info { getContentResourceDetails(RESOURCE_LOADER["http://jsonplaceholder.typicode.com/posts"]) }
+        info { getContentResourceDetails(contentResourceLoader["test.zip"]) }
+        info { getContentResourceDetails(contentResourceLoader["test.jpg"]) }
+        info { getContentResourceDetails(contentResourceLoader["test.css"]) }
+        info { getContentResourceDetails(contentResourceLoader["test.doc"]) }
+        info { getContentResourceDetails(contentResourceLoader["http://jsonplaceholder.typicode.com/posts"]) }
         val path = getTempFileNamedPath(uuid(), ".json")
-        info { getContentResourceDetails(RESOURCE_LOADER[path]) }
-        val data = getContentResourceByteURL(RESOURCE_LOADER["test.jpg"])
+        info { getContentResourceDetails(contentResourceLoader[path]) }
+        val data = getContentResourceByteURL(contentResourceLoader["test.jpg"])
         info { data }
-        info { getContentResourceDetails(RESOURCE_LOADER[data]) }
+        info { getContentResourceDetails(contentResourceLoader[data]) }
         val temp = getTempFileNamedPath(uuid(), ".yaml")
-        info { getContentResourceDetails(RESOURCE_LOADER[temp]) }
+        info { getContentResourceDetails(contentResourceLoader[temp]) }
     }
 }

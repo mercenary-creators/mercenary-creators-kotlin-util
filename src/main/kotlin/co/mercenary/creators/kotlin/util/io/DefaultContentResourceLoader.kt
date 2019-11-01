@@ -19,14 +19,21 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.net.URL
 
-open class DefaultContentResourceLoader @JvmOverloads constructor(private val loader: ClassLoader? = null) : ContentResourceLoader {
+open class DefaultContentResourceLoader @JvmOverloads constructor(private val load: ClassLoader? = null) : ContentResourceLoader {
 
-    private val resolvers = mutableSetOf<ContentProtocolResolver>()
+    private val maps = mutableSetOf<ContentProtocolResolver>()
+
+    override val size: Int
+        get() = maps.size
+
+    override fun clear() {
+        maps.clear()
+    }
 
     override operator fun get(path: String): ContentResource {
-        if (resolvers.isNotEmpty()) {
-            for (resolver in resolvers) {
-                val data = resolver.resolve(path, this)
+        if (maps.isNotEmpty()) {
+            maps.forEach {
+                val data = it.resolve(path, this)
                 if (data != null) {
                     return data
                 }
@@ -67,7 +74,7 @@ open class DefaultContentResourceLoader @JvmOverloads constructor(private val lo
     }
 
     override fun getClassLoader(): ClassLoader? {
-        return loader ?: IO.getDefaultClassLoader()
+        return load ?: IO.getDefaultClassLoader()
     }
 
     protected open fun getContentResourceByPath(path: String): ContentResource {
@@ -86,19 +93,19 @@ open class DefaultContentResourceLoader @JvmOverloads constructor(private val lo
     }
 
     open fun add(args: ContentProtocolResolver) {
-        resolvers += args
+        maps += args
     }
 
     open fun add(args: Array<ContentProtocolResolver>) {
-        resolvers += args
+        maps += args
     }
 
     open fun add(args: Iterable<ContentProtocolResolver>) {
-        resolvers += args
+        maps += args
     }
 
     open fun add(args: Sequence<ContentProtocolResolver>) {
-        resolvers += args
+        maps += args
     }
 
     override operator fun plusAssign(args: Array<ContentProtocolResolver>) {
@@ -115,5 +122,9 @@ open class DefaultContentResourceLoader @JvmOverloads constructor(private val lo
 
     override operator fun plusAssign(args: ContentProtocolResolver) {
         add(args)
+    }
+
+    companion object {
+        val INSTANCE = DefaultContentResourceLoader()
     }
 }

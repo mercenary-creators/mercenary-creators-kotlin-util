@@ -17,83 +17,80 @@
 package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.type.Copyable
 import java.time.Duration
 import kotlin.math.abs
 
-class TimeDuration(private val duration: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Cloneable {
+class TimeDuration private constructor(private val time: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable {
 
-    constructor(time: String) : this(parseCharSequence(time))
+    constructor(time: CharSequence) : this(parseCharSequence(time))
 
-    constructor(time: TimeDuration) : this(copyOf(time.duration), time.unit)
+    constructor(time: TimeDuration) : this(time.duration(), time.unit())
 
-    fun toDuration() = copyOf(duration)
+    fun unit() = unit
 
-    operator fun plus(other: TimeDuration): TimeDuration = TimeDuration(copyOf(duration).plus(other.duration), unit)
+    fun duration() = copyOf(time)
 
-    operator fun minus(other: TimeDuration): TimeDuration = TimeDuration(copyOf(duration).minus(other.duration), unit)
+    operator fun plus(other: TimeDuration): TimeDuration = TimeDuration(duration().plus(other.time), unit())
+
+    operator fun minus(other: TimeDuration): TimeDuration = TimeDuration(duration().minus(other.time), unit())
 
     operator fun div(other: Int): TimeDuration = div(other.toLong())
 
-    operator fun div(other: Long): TimeDuration = TimeDuration(copyOf(duration).dividedBy(other), unit)
+    operator fun div(other: Long): TimeDuration = TimeDuration(duration().dividedBy(other), unit())
 
     operator fun times(other: Int): TimeDuration = times(other.toLong())
 
-    operator fun times(other: Long): TimeDuration = TimeDuration(copyOf(duration).multipliedBy(other), unit)
-
-    operator fun unaryPlus(): TimeDuration = TimeDuration(copyOf(duration).abs(), unit)
-
-    operator fun unaryMinus(): TimeDuration = TimeDuration(copyOf(duration).negated(), unit)
+    operator fun times(other: Long): TimeDuration = TimeDuration(duration().multipliedBy(other), unit())
 
     override operator fun compareTo(other: TimeDuration): Int {
-        return duration.compareTo(other.duration)
-    }
-
-    fun copyOf(): TimeDuration {
-        return TimeDuration(copyOf(duration), unit)
+        return time.compareTo(other.time)
     }
 
     override fun clone(): Any {
-        return TimeDuration(copyOf(duration), unit)
+        return copyOf()
+    }
+
+    override fun copyOf(): TimeDuration {
+        return TimeDuration(this)
     }
 
     override fun equals(other: Any?): Boolean {
         return when (other) {
-            is TimeDuration -> duration == other.duration
+            is TimeDuration -> time == other.time
             else -> false
         }
     }
 
     override fun hashCode(): Int {
-        return duration.hashCode()
+        return time.hashCode()
     }
 
     override fun toString(): String {
-        return text(copyOf(duration), unit, false).trim()
+        return text(duration(), unit(), false).trim()
     }
 
     fun toFormattedString(): String {
-        return toTrimOrElse(text(copyOf(duration), TimeDurationUnit.YEARS, true)) {
-            text(unit)
-        }
-    }
-
-    fun sleepFor() {
-        if (isEmpty(duration)) {
-            return
-        }
-        try {
-            Thread.sleep(duration.toMillis(), duration.nano.rem(1000000))
-        }
-        catch (cause: Throwable) {
-            Throwables.thrown(cause)
+        return toTrimOrElse(text(duration(), TimeDurationUnit.YEARS, true)) {
+            text(unit())
         }
     }
 
     companion object {
 
-        const val DAYS_PER_WEEK = 7L
+        private const val DAYS_PER_WEEK = 7L
 
-        const val DAYS_PER_YEAR = 365L
+        private const val HOURS_PER_DAY = 24L
+
+        private const val DAYS_PER_YEAR = 365L
+
+        private const val MINUTES_PER_HOUR = 60L
+
+        private const val SECONDS_PER_MINUTE = 60L
+
+        private const val MILLISECONDS_PER_SECOND = 1000L
+
+        private val look = Regex("\\h+")
 
         private val maps = mutableMapOf<Int, TimeDurationUnit>()
 
@@ -107,10 +104,6 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
 
         private fun isEmpty(time: Duration): Boolean {
             return time.isZero.or(time.isNegative)
-        }
-
-        private fun next(unit: TimeDurationUnit): TimeDurationUnit? {
-            return maps[unit.ordinal.plus(1)]
         }
 
         private fun text(unit: TimeDurationUnit, time: Long = 0): String {
@@ -171,7 +164,7 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
                 }
             }
             if (part) {
-                return when (val look = next(unit)) {
+                return when (val look = maps[unit.ordinal.plus(1)]) {
                     null -> when ((unit == TimeDurationUnit.NANOSECONDS).and(save > 0)) {
                         true -> text(unit, save)
                         else -> EMPTY_STRING
@@ -186,13 +179,13 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
         }
 
         @JvmStatic
+        fun days(time: Int) = days(time.toLong())
+
+        @JvmStatic
         fun weeks(time: Int) = weeks(time.toLong())
 
         @JvmStatic
         fun years(time: Int) = years(time.toLong())
-
-        @JvmStatic
-        fun days(time: Int) = days(time.toLong())
 
         @JvmStatic
         fun hours(time: Int) = hours(time.toLong())
@@ -234,20 +227,20 @@ class TimeDuration(private val duration: Duration, private val unit: TimeDuratio
         fun milliseconds(time: Long) = TimeDuration(Duration.ofMillis(time), TimeDurationUnit.MILLISECONDS)
 
         @JvmStatic
-        fun parseCharSequence(text: String): TimeDuration {
-            val list = text.toLowerTrim().split(Regex("\\h+"))
+        fun parseCharSequence(text: CharSequence): TimeDuration {
+            val list = text.toLowerTrim().split(look)
             val size = list.size
             if ((size == 0).or(size.rem(2) == 1)) {
                 throw MercenaryFatalExceptiion("invalid size $size")
             }
-            var copy = make(list[0], list[1])
+            var copy = makeTimeDuration(list[0], list[1])
             for (i in 2 until size step 2) {
-                copy += make(list[i], list[i + 1])
+                copy += makeTimeDuration(list[i], list[i + 1])
             }
             return copy
         }
 
-        private fun make(buff: String, unit: String): TimeDuration {
+        private fun makeTimeDuration(buff: String, unit: String): TimeDuration {
             val time = buff.toLongOrNull() ?: throw MercenaryFatalExceptiion("invalid time $buff")
             return when (unit) {
                 "day", "days" -> days(time)

@@ -35,7 +35,7 @@ class CBCFileTest : KotlinSecurityTest() {
         val baos = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
         val save = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
         val code = getCopyCipher(pass, salt, CipherAlgorithm.CBC)
-        val data = RESOURCE_LOADER["test.txt"]
+        val data = contentResourceLoader["test.txt"]
         repeat(7) {
             baos.reset()
             save.reset()
@@ -52,7 +52,7 @@ class CBCFileTest : KotlinSecurityTest() {
         timed {
             code.decrypt(temp, copy)
         }
-        copy.readLines().forEachIndexed { i, s ->
+        copy.forEachLineIndexed { i, s ->
             info { "%2d : %s".format(i + 1, s) }
         }
         data.toByteArray().shouldBe(copy.toByteArray()) {
