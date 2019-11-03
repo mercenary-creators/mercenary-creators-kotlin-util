@@ -19,9 +19,9 @@
 
 package co.mercenary.creators.kotlin.util
 
+import co.mercenary.creators.kotlin.util.time.NanoTicker
 import java.util.*
 import kotlin.math.max
-import co.mercenary.creators.kotlin.util.time.NanoTicker
 
 const val DEFAULT_ZONE_STRING = "UTC"
 
@@ -146,6 +146,7 @@ fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { b
 fun getTimeStamp(nano: Boolean = false): Long = if (nano) System.nanoTime() else System.currentTimeMillis()
 
 @JvmOverloads
-fun toDecimalPlaces3(data: Double, tail: String = EMPTY_STRING): String = "(%.3f)%s".format(data, tail)
+fun toDecimalPlaces3(data: Double, tail: String = EMPTY_STRING): String = data.toDecimalPlacesString(3).plus(tail)
 
-fun toElapsedString(data: Long): String = if (data < 1000000L) "($data) nanoseconds" else if (data < 1000000000L) toDecimalPlaces3(1.0E-6 * data, " milliseconds") else toDecimalPlaces3(1.0E-9 * data, " seconds")
+@JvmOverloads
+fun toElapsedString(data: Long, head: String = "elapsed "): String = head + if (data < 1000000L) "$data nanoseconds" else if (data < 1000000000L) toDecimalPlaces3(1.0E-6 * data, " milliseconds") else toDecimalPlaces3(1.0E-9 * data, " seconds")

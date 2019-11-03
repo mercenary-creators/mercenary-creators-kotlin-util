@@ -19,15 +19,9 @@
 
 package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.io.*
 import co.mercenary.creators.kotlin.util.type.Validated
 import org.reactivestreams.Publisher
 import reactor.core.publisher.*
-import java.io.*
-import java.net.URL
-import java.nio.channels.*
-import java.nio.charset.Charset
-import java.nio.file.*
 import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
@@ -38,8 +32,6 @@ const val IS_NOT_FOUND = -1
 const val EMPTY_STRING = ""
 
 const val SPACE_STRING = " "
-
-const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2019, Mercenary Creators Company."
 
@@ -59,21 +51,11 @@ typealias Throwables = co.mercenary.creators.kotlin.util.type.Throwables
 
 typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
-typealias DefaultContentTypeProbe = MimeContentTypeProbe
-
-typealias DefaultContentFileTypeMap = ContentFileTypeMap
-
 typealias SingleScheduler = co.mercenary.creators.kotlin.util.reactive.SingleScheduler
 
 typealias ElasticScheduler = co.mercenary.creators.kotlin.util.reactive.ElasticScheduler
 
 typealias ParallelScheduler = co.mercenary.creators.kotlin.util.reactive.ParallelScheduler
-
-typealias ClassPathContentResource = co.mercenary.creators.kotlin.util.io.ClassPathContentResource
-
-typealias DefaultContentResourceLoader = co.mercenary.creators.kotlin.util.io.DefaultContentResourceLoader
-
-typealias DefaultCachedContentResourceLoader = co.mercenary.creators.kotlin.util.io.DefaultCachedContentResourceLoader
 
 open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
     constructor(text: String) : this(text, null)
@@ -133,34 +115,7 @@ fun getCheckedString(data: String): String {
     return data
 }
 
-fun String.toLowerTrim(): String = trim().toLowerCase()
-
-fun CharSequence.toLowerTrim(): String = toString().toLowerTrim()
-
-fun isDefaultContentType(type: String): Boolean = type.toLowerTrim() == DEFAULT_CONTENT_TYPE
-
-@JvmOverloads
-fun toCommonContentTypes(name: String, type: String = DEFAULT_CONTENT_TYPE): String = when (IO.getPathExtension(name).toLowerTrim()) {
-    ".json" -> "application/json"
-    ".java" -> "text/x-java-source"
-    ".yaml" -> "application/x-yaml"
-    ".yml" -> "application/x-yaml"
-    ".properties" -> "text/x-java-properties"
-    else -> type.toLowerTrim()
-}
-
-fun getDefaultContentTypeProbe(): ContentTypeProbe = IO.getContentTypeProbe()
-
-@JvmOverloads
-fun getPathNormalizedOrElse(path: String?, other: String = EMPTY_STRING): String = toTrimOrElse(IO.getPathNormalized(path), other)
-
-fun getPathNormalizedNoTail(path: String?, tail: Boolean): String {
-    val norm = getPathNormalizedOrElse(path)
-    if ((tail) && (norm.startsWith(IO.SINGLE_SLASH))) {
-        return norm.substring(1)
-    }
-    return norm
-}
+fun CharSequence.toLowerTrim(): String = trim().toString().toLowerCase()
 
 fun isValid(value: Any?): Boolean = when (value) {
     null -> false
@@ -284,80 +239,6 @@ fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(genera
 
 fun <T : Any> sequenceOf(seed: T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
 
-fun isFileURL(data: URL): Boolean = data.toString().toLowerTrim().startsWith(IO.PREFIX_FILES)
-
-@JvmOverloads
-fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): File = createTempFile(prefix, suffix, folder).apply { deleteOnExit() }
-
-fun File.isSame(other: File): Boolean = isSame(other.toPath())
-
-fun File.isSame(other: Path): Boolean = toPath().isSame(other)
-
-fun Path.isSame(other: File): Boolean = isSame(other.toPath())
-
-fun Path.isSame(other: Path): Boolean = Files.isSameFile(this, other)
-
-fun File.isValidToRead(): Boolean = exists() && isFile && canRead()
-
-fun Path.isValidToRead(): Boolean = toFile().isValidToRead()
-
-fun URL.toInputStream(): InputStream = when (val data = IO.getInputStream(this)) {
-    null -> throw MercenaryExceptiion(toString())
-    else -> data
-}
-
-fun ByteArray.toInputStream(): ByteArrayInputStream = ByteArrayInputStream(this)
-
-fun File.toInputStream(vararg args: OpenOption): InputStream = toPath().toInputStream(*args)
-
-fun Path.toInputStream(vararg args: OpenOption): InputStream = if (isValidToRead()) Files.newInputStream(this, *args) else throw MercenaryExceptiion(toString())
-
-fun ReadableByteChannel.toInputStream(): InputStream = Channels.newInputStream(this)
-
-fun InputStreamSupplier.toInputStream(): InputStream = getInputStream()
-
-fun Reader.toInputStream(): InputStream = ReaderInputStream(this)
-
-fun URL.toOutputStream(): OutputStream = when (val data = IO.getOutputStream(this)) {
-    null -> throw MercenaryExceptiion(toString())
-    else -> data
-}
-
-fun File.toOutputStream(vararg args: OpenOption): OutputStream = toPath().toOutputStream(*args)
-
-fun Path.toOutputStream(vararg args: OpenOption): OutputStream = Files.newOutputStream(this, *args)
-
-fun URL.toByteArray(): ByteArray = readBytes()
-
-fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
-
-fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
-
-@JvmOverloads
-fun URL.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    toInputStream().forEachLineIndexed(charset, block)
-}
-
-@JvmOverloads
-fun File.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    toInputStream().forEachLineIndexed(charset, block)
-}
-
-@JvmOverloads
-fun Path.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    toInputStream().forEachLineIndexed(charset, block)
-}
-
-@JvmOverloads
-fun InputStreamSupplier.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    toInputStream().forEachLineIndexed(charset, block)
-}
-
-@JvmOverloads
-fun InputStream.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    BufferedReader(InputStreamReader(this, charset)).readLines().forEachIndexed(block)
-}
-
 fun <T : Any> Flux<T>.toList(): List<T> = collect(Collectors.toList<T>()).block().orElse { emptyList() }
 
 fun <T : Any> Flux<T>.limit(size: Long): Flux<T> = limitRequest(size)
@@ -414,20 +295,7 @@ inline fun <reified T : Any> Flux<*>.ofType(): Flux<T> {
 
 fun <T : Any> Flux<out Iterable<T>>.split(): Flux<T> = flatMapIterable { it }
 
-fun Path.toByteArray(): ByteArray = toInputStream().toByteArray()
-
-fun Reader.toByteArray(): ByteArray = toInputStream().toByteArray()
-
-fun InputStreamSupplier.toByteArray(): ByteArray = when (this) {
-    is ContentResource -> getContentData()
-    else -> getInputStream().toByteArray()
-}
-
 fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()
-
-val contentResourceLoader = DefaultContentResourceLoader.INSTANCE
-
-val cachedContentResourceLoader = DefaultCachedContentResourceLoader.INSTANCE
 
 inline fun <T> withLoggingContext(args: Pair<String, Any>, block: () -> T): T {
     return mu.withLoggingContext(args.first to args.second.toString(), block)

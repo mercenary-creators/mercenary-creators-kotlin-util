@@ -67,10 +67,6 @@ class TimeDuration private constructor(private val time: Duration, private val u
     }
 
     override fun toString(): String {
-        return text(duration(), unit(), false).trim()
-    }
-
-    fun toFormattedString(): String {
         return toTrimOrElse(text(duration(), TimeDurationUnit.YEARS, true)) {
             text(unit())
         }
@@ -78,17 +74,17 @@ class TimeDuration private constructor(private val time: Duration, private val u
 
     companion object {
 
-        private const val DAYS_PER_WEEK = 7L
+        const val DAYS_PER_WEEK = 7L
 
-        private const val HOURS_PER_DAY = 24L
+        const val HOURS_PER_DAY = 24L
 
-        private const val DAYS_PER_YEAR = 365L
+        const val DAYS_PER_YEAR = 365L
 
-        private const val MINUTES_PER_HOUR = 60L
+        const val MINUTES_PER_HOUR = 60L
 
-        private const val SECONDS_PER_MINUTE = 60L
+        const val SECONDS_PER_MINUTE = 60L
 
-        private const val MILLISECONDS_PER_SECOND = 1000L
+        const val MILLISECONDS_PER_SECOND = 1000L
 
         private val look = Regex("\\h+")
 
@@ -233,25 +229,56 @@ class TimeDuration private constructor(private val time: Duration, private val u
             if ((size == 0).or(size.rem(2) == 1)) {
                 throw MercenaryFatalExceptiion("invalid size $size")
             }
-            var copy = makeTimeDuration(list[0], list[1])
-            for (i in 2 until size step 2) {
-                copy += makeTimeDuration(list[i], list[i + 1])
+            val data = TimeData()
+            for (i in 0 until size step 2) {
+                make(list[i], list[i + 1], data)
             }
-            return copy
+            less(data)
+            return TimeDuration(data.time, data.unit)
         }
 
-        private fun makeTimeDuration(buff: String, unit: String): TimeDuration {
-            val time = buff.toLongOrNull() ?: throw MercenaryFatalExceptiion("invalid time $buff")
-            return when (unit) {
-                "day", "days" -> days(time)
-                "year", "years" -> years(time)
-                "week", "weeks" -> weeks(time)
-                "hour", "hours" -> hours(time)
-                "minute", "minutes" -> minutes(time)
-                "second", "seconds" -> seconds(time)
-                "nanosecond", "nanoseconds" -> nanoseconds(time)
-                "millisecond", "milliseconds" -> milliseconds(time)
+        private fun less(data: TimeData) {
+            val time = data.time
+            if (isEmpty(time)) {
+                return
+            }
+            val days = time.toDays()
+            when {
+                days > 0 -> when {
+                    days >= DAYS_PER_YEAR -> data.unit = TimeDurationUnit.YEARS
+                    days >= DAYS_PER_WEEK -> data.unit = TimeDurationUnit.WEEKS
+                    else -> data.unit = TimeDurationUnit.DAYS
+                }
+                time.toHours() > 0 -> data.unit = TimeDurationUnit.HOURS
+                time.toMinutes() > 0 -> data.unit = TimeDurationUnit.MINUTES
+                time.seconds > 0 -> data.unit = TimeDurationUnit.SECONDS
+                time.toMillis() > 0 -> data.unit = TimeDurationUnit.MILLISECONDS
+                time.nano > 0 -> data.unit = TimeDurationUnit.NANOSECONDS
+            }
+        }
+
+        private fun make(buff: String, unit: String, data: TimeData) {
+            val time = data.time
+            val plus = buff.toLongOrNull() ?: throw MercenaryFatalExceptiion("invalid time $buff")
+            when (unit) {
+                "day", "days" -> data(plus, time::plusDays, TimeDurationUnit.DAYS)
+                "year", "years" -> data(plus.times(DAYS_PER_YEAR), time::plusDays, TimeDurationUnit.YEARS)
+                "week", "weeks" -> data(plus.times(DAYS_PER_WEEK), time::plusDays, TimeDurationUnit.WEEKS)
+                "hour", "hours" -> data(plus, time::plusHours, TimeDurationUnit.HOURS)
+                "minute", "minutes" -> data(plus, time::plusMinutes, TimeDurationUnit.MINUTES)
+                "second", "seconds" -> data(plus, time::plusSeconds, TimeDurationUnit.SECONDS)
+                "nanosecond", "nanoseconds" -> data(plus, time::plusNanos, TimeDurationUnit.NANOSECONDS)
+                "millisecond", "milliseconds" -> data(plus, time::plusMillis, TimeDurationUnit.MILLISECONDS)
                 else -> throw MercenaryFatalExceptiion("invalid unit $unit")
+            }
+        }
+
+        private class TimeData(var time: Duration = Duration.ZERO, var unit: TimeDurationUnit = TimeDurationUnit.NANOSECONDS) {
+            operator fun invoke(plus: Long, make: (Long) -> Duration, less: TimeDurationUnit) {
+                time = make(plus)
+                if (less < unit) {
+                    unit = less
+                }
             }
         }
     }

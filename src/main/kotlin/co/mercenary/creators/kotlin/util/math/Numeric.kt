@@ -34,7 +34,7 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
-    fun toDecimalPlacesString(data: Double, scale: Int = 2, places: Int = abs(scale)): String {
+    fun toDecimalPlacesString(data: Double, scale: Int = 3, places: Int = abs(scale)): String {
         return "%.${places}f".format(rounded(data, scale))
     }
 
@@ -202,7 +202,7 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
-    fun rounded(value: Double, scale: Int = 2): Double {
+    fun rounded(value: Double, scale: Int = 3): Double {
         return try {
             val round = BigDecimal(value.toString()).setScale(abs(scale), RoundingMode.HALF_UP).toDouble()
             if (round == 0.0) round * 0.0 else round

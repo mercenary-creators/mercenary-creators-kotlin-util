@@ -44,6 +44,16 @@ abstract class AbstractKotlinTest : Logging() {
         }
     }
 
+    fun measured(loop: Int, logs: (String) -> Unit = { info { it } }, call: (Int) -> Unit) {
+        val list = LongArray(loop)
+        repeat(loop) {
+            val time = System.nanoTime()
+            call(it)
+            list[it] = System.nanoTime() - time
+        }
+        logs(toElapsedString(list.average().toLong()))
+    }
+
     fun assertEach(vararg list: Executable) {
         if (list.isNotEmpty()) {
             Assertions.assertAll(*list)
@@ -108,9 +118,9 @@ abstract class AbstractKotlinTest : Logging() {
         }
     }
 
-    infix fun <T: Any?> T.shouldBe(value: T) = assertEquals(value, this)
+    infix fun <T : Any?> T.shouldBe(value: T) = assertEquals(value, this)
 
-    infix fun <T: Any?> T.shouldNotBe(value: T) = assertNotEquals(value, this)
+    infix fun <T : Any?> T.shouldNotBe(value: T) = assertNotEquals(value, this)
 
     fun <T : Any?> List<T>.shouldBe(value: Iterable<*>?, block: () -> Any?) = assertEquals(value?.toList(), this, block)
 

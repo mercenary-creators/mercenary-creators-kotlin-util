@@ -18,6 +18,8 @@
 
 package co.mercenary.creators.kotlin.util
 
+import kotlin.system.measureNanoTime
+
 typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream
 
 typealias Executable = org.junit.jupiter.api.function.Executable

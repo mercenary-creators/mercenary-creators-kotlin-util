@@ -69,7 +69,7 @@ fun lcm(value: Int, other: Long): Long = Numeric.lcm(value.toLong(), other)
 fun lcm(value: Long, other: Int): Long = Numeric.lcm(value, other.toLong())
 
 @JvmOverloads
-fun Double.toDecimalPlacesString(scale: Int = 2, places: Int = abs(scale)): String {
+fun Double.toDecimalPlacesString(scale: Int = 3, places: Int = abs(scale)): String {
     return Numeric.toDecimalPlacesString(this, scale, places)
 }
 

@@ -24,29 +24,25 @@ class MainTest : KotlinTest() {
     fun test() {
         val time = 6.days + 3.hours + 1.minute + 4.weeks
         val same = 1.minute + 3.hours + 6.days + (1.week * 4)
-        info { time.toFormattedString() }
-        info { same.toFormattedString() }
+        info { time }
+        info { same }
         info { time == same }
         time shouldBe same
         val half = 1000.milliseconds + 100.nanoseconds
         info { half }
-        info { half.toFormattedString() }
         val oops = 0.days
         info { oops }
-        info { oops.toFormattedString() }
         val data = 100.nanoseconds - 99.nanoseconds
         info { data }
-        info { data.toFormattedString() }
         data shouldBe 1.nanosecond
         data shouldNotBe 99.nanoseconds
         val test = 1.year + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds + 8.milliseconds + 1.nanosecond
+        val buff = test.toString()
         info { test }
-        info { test.toFormattedString() }
-        info { TimeDuration(test.toFormattedString()) }
-        info { TimeDuration(test.toFormattedString()).toFormattedString() }
-        val buff = test.toFormattedString()
-        timed {
-            for (i in 1..1000000) {
+        info { buff }
+        info { TimeDuration.parseCharSequence(buff) }
+        measured(10) {
+            for (i in 1..100000) {
                 TimeDuration.parseCharSequence(buff)
             }
         }
