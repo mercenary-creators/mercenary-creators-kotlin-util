@@ -28,8 +28,12 @@ class MainTest : KotlinTest() {
         info { same }
         info { time == same }
         time shouldBe same
-        val half = 1000.milliseconds + 100.nanoseconds
+        val plus = 1000.milliseconds + 100.nanoseconds
+        info { plus }
+        info { plus.unit() }
+        val half = 1.year / 2
         info { half }
+        info { half.unit() }
         val oops = 0.days
         info { oops }
         val data = 100.nanoseconds - 99.nanoseconds
@@ -42,7 +46,22 @@ class MainTest : KotlinTest() {
         info { buff }
         info { TimeDuration.parseCharSequence(buff) }
         measured(10) {
-            for (i in 1..100000) {
+            for (i in 1..1000000) {
+                TimeDuration.parseCharSequence("1 second 100 nanoseconds")
+            }
+        }
+        measured(10) {
+            for (i in 1..1000000) {
+                TimeDuration.parseCharSequence("3 hours 1 minute")
+            }
+        }
+        measured(10) {
+            for (i in 1..1000000) {
+                TimeDuration.parseCharSequence("6 days 3 hours 1 minute")
+            }
+        }
+        measured(10) {
+            for (i in 1..1000000) {
                 TimeDuration.parseCharSequence(buff)
             }
         }

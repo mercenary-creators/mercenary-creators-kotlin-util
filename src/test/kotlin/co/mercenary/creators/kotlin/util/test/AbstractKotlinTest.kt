@@ -51,7 +51,7 @@ abstract class AbstractKotlinTest : Logging() {
             call(it)
             list[it] = System.nanoTime() - time
         }
-        logs(toElapsedString(list.average().toLong()))
+        logs(TimeAndDate.toElapsedString(list.average().toLong()))
     }
 
     fun assertEach(vararg list: Executable) {

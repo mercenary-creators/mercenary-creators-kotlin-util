@@ -19,4 +19,5 @@ package co.mercenary.creators.kotlin.util.time
 interface Ticker {
     fun reset()
     fun since(): Long
+    fun toElapsedString(): String
 }

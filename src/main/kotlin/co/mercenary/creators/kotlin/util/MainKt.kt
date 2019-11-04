@@ -25,6 +25,7 @@ import reactor.core.publisher.*
 import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
+import java.util.function.BooleanSupplier
 import java.util.stream.Collectors
 
 const val IS_NOT_FOUND = -1
@@ -94,7 +95,7 @@ fun toTrimOrElse(data: String?, other: () -> String): String = toTrimOrNull(data
 @JvmOverloads
 fun toTrimOrElse(data: String?, other: String = EMPTY_STRING): String = toTrimOrNull(data) ?: other
 
-fun toSafeString(block: () -> Any?): String = try {
+inline fun toSafeString(block: () -> Any?): String = try {
     when (val data = block()) {
         null -> "null"
         else -> data.toString()
@@ -128,10 +129,13 @@ fun isValid(value: Any?): Boolean = when (value) {
             false
         }
     }
+    is Boolean -> value
+    is AtomicBoolean -> value.get()
+    is BooleanSupplier -> value.asBoolean
     else -> true
 }
 
-fun isValid(block: () -> Any?): Boolean = try {
+inline fun isValid(block: () -> Any?): Boolean = try {
     isValid(block())
 }
 catch (cause: Throwable) {
@@ -141,79 +145,17 @@ catch (cause: Throwable) {
 
 fun Long.toAtomic(): AtomicLong = AtomicLong(this)
 
-fun AtomicLong.toValue(): Long = this.get()
+fun AtomicLong.asLong(): Long = this.get()
 
 fun Int.toAtomic(): AtomicInteger = AtomicInteger(this)
 
-fun AtomicInteger.toValue(): Int = this.get()
+fun AtomicInteger.asInt(): Int = this.get()
 
 fun Boolean.toAtomic(): AtomicBoolean = AtomicBoolean(this)
 
-fun AtomicBoolean.toValue(): Boolean = this.get()
+fun AtomicBoolean.asBoolean(): Boolean = this.get()
 
-fun AtomicLong.assign(value: Long): Boolean {
-    return this.compareAndSet(value, value)
-}
-
-fun AtomicInteger.assign(value: Int): Boolean {
-    return this.compareAndSet(value, value)
-}
-
-fun AtomicBoolean.assign(value: Boolean): Boolean {
-    return this.compareAndSet(value, value)
-}
-
-operator fun AtomicInteger.inc(): AtomicInteger {
-    this.incrementAndGet()
-    return this
-}
-
-operator fun AtomicInteger.dec(): AtomicInteger {
-    this.decrementAndGet()
-    return this
-}
-
-operator fun AtomicInteger.plusAssign(delta: Int) {
-    this.addAndGet(delta)
-}
-
-operator fun AtomicInteger.plusAssign(delta: AtomicInteger) {
-    this.addAndGet(delta.get())
-}
-
-operator fun AtomicInteger.minusAssign(delta: Int) {
-    this.addAndGet(delta)
-}
-
-operator fun AtomicInteger.minusAssign(delta: AtomicInteger) {
-    this.addAndGet(delta.get())
-}
-
-operator fun AtomicLong.inc(): AtomicLong {
-    this.incrementAndGet()
-    return this
-}
-
-operator fun AtomicLong.dec(): AtomicLong {
-    this.decrementAndGet()
-    return this
-}
-
-operator fun AtomicLong.plusAssign(delta: Int) {
-    this.addAndGet(delta.toLong())
-}
-
-operator fun AtomicLong.plusAssign(delta: Long) {
-    this.addAndGet(delta)
-}
-
-operator fun AtomicLong.minusAssign(delta: Int) {
-    this.addAndGet(delta.toLong())
-}
-
-operator fun AtomicLong.minusAssign(delta: Long) {
-    this.addAndGet(delta)
-}
+operator fun AtomicBoolean.not(): Boolean = this.get().not()
 
 open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
     constructor() : this(listOf())
@@ -282,7 +224,7 @@ fun <T : Any> Publisher<T>.toFlux(): Flux<T> = Flux.from(this)
 fun <T : Any> Iterable<T>.toFlux(): Flux<T> = Flux.fromIterable(this)
 
 fun <T : Any> Sequence<T>.toFlux(): Flux<T> = Flux.fromIterable(object : Iterable<T> {
-    override fun iterator(): Iterator<T> = this@toFlux.iterator()
+    override operator fun iterator(): Iterator<T> = this@toFlux.iterator()
 })
 
 inline fun <reified T : Any> Flux<*>.cast(): Flux<T> {
@@ -295,7 +237,7 @@ inline fun <reified T : Any> Flux<*>.ofType(): Flux<T> {
 
 fun <T : Any> Flux<out Iterable<T>>.split(): Flux<T> = flatMapIterable { it }
 
-fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()
+inline fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()
 
 inline fun <T> withLoggingContext(args: Pair<String, Any>, block: () -> T): T {
     return mu.withLoggingContext(args.first to args.second.toString(), block)

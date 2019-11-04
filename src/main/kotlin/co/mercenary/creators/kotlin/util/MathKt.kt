@@ -22,7 +22,11 @@ package co.mercenary.creators.kotlin.util
 import co.mercenary.creators.kotlin.util.math.Numeric
 import kotlin.math.*
 
-typealias Numeric = Numeric
+const val DEFAULT_PRECISION_DELTA = 0.0000001
+
+const val MATH_INVALID_SIZE_ERROR = "invalid size"
+
+const val MATH_ZERO_DIVISOR_ERROR = "can't divide by zero"
 
 fun powNegative1(value: Int): Double = Numeric.powNegative1(value)
 
@@ -74,51 +78,46 @@ fun Double.toDecimalPlacesString(scale: Int = 3, places: Int = abs(scale)): Stri
 }
 
 @JvmOverloads
-fun Double.closeEnough(value: Double, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+fun Double.closeEnough(value: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
-fun DoubleArray.closeEnough(value: DoubleArray, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+fun DoubleArray.closeEnough(value: DoubleArray, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
-fun Array<Double>.closeEnough(value: Array<Double>, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+fun Array<Double>.closeEnough(value: Array<Double>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
-fun Array<DoubleArray>.closeEnough(value: Array<DoubleArray>, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+fun Array<DoubleArray>.closeEnough(value: Array<DoubleArray>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
-fun Array<Array<Double>>.closeEnough(value: Array<Array<Double>>, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
+fun Array<Array<Double>>.closeEnough(value: Array<Array<Double>>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
-}
-
-@JvmOverloads
-fun closeEnough(v1: Double, v2: Double, o1: Double, o2: Double, precision: Double = Numeric.DEFAULT_PRECISION): Boolean {
-    return Numeric.closeEnough(v1, v2, o1, o2, precision)
 }
 
 @JvmOverloads
 fun Double.root(root: Int = 2): Double = Numeric.root(this, root)
 
 @JvmOverloads
-fun Double.rounded(scale: Int = 2): Double = Numeric.rounded(this, scale)
+fun Double.rounded(scale: Int = 3): Double = Numeric.rounded(this, scale)
 
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 
 fun toDoubleArrayOf(vararg args: Number): DoubleArray = DoubleArray(args.size) { i -> args[i].toDouble() }
 
 fun toArrayOfDoubleArray(cols: Int, args: DoubleArray): Array<DoubleArray> {
-    return if (cols < 1) throw MercenaryFatalExceptiion(Numeric.INVALID_SIZE) else toArrayOfDoubleArray(args.size / cols, cols, args)
+    return if (cols < 1) throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR) else toArrayOfDoubleArray(args.size / cols, cols, args)
 }
 
 fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): Array<DoubleArray> {
-    return if (args.size != (rows * cols)) throw MercenaryFatalExceptiion(Numeric.INVALID_SIZE)
+    return if (args.size != (rows * cols)) throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
     else Array(rows) { r ->
         (r * cols).let { args.copyOfRange(it, it + cols) }
     }

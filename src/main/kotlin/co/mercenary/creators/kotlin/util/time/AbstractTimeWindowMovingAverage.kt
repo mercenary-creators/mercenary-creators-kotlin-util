@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.*
 
 abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window: Long, private val wait: TimeUnit = TimeUnit.MILLISECONDS, unit: TimeUnit = TimeUnit.MILLISECONDS, private val moment: () -> Long = System::currentTimeMillis) : TimeWindowMovingAverage {
@@ -47,7 +48,7 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window:
         return getAverage()
     }
 
-    override fun toString(): String = toDecimalPlaces3(getAverage(), " milliseconds")
+    override fun toString(): String = TimeAndDate.toDecimalPlaces(getAverage(), " milliseconds")
 
     override fun getWindowHandle(): TimeWindowHandle = DefaultTimeWindowHandle(this, getMomentInTime())
 

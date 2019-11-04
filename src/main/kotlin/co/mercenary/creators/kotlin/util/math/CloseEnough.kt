@@ -16,6 +16,8 @@
 
 package co.mercenary.creators.kotlin.util.math
 
+import co.mercenary.creators.kotlin.util.DEFAULT_PRECISION_DELTA
+
 interface CloseEnough<T> {
-    fun closeEnough(value: T, precision: Double = Numeric.DEFAULT_PRECISION): Boolean
+    fun closeEnough(value: T, precision: Double = DEFAULT_PRECISION_DELTA): Boolean
 }

@@ -27,8 +27,6 @@ const val DEFAULT_ZONE_STRING = "UTC"
 
 const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
 
-typealias TimeUnit = java.util.concurrent.TimeUnit
-
 typealias TimeAndDate = co.mercenary.creators.kotlin.util.time.TimeAndDate
 
 typealias TimeDuration = co.mercenary.creators.kotlin.util.time.TimeDuration
@@ -143,10 +141,4 @@ fun Long.toDate(): Date = Date(max(this, 0))
 fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
 
 @JvmOverloads
-fun getTimeStamp(nano: Boolean = false): Long = if (nano) System.nanoTime() else System.currentTimeMillis()
-
-@JvmOverloads
-fun toDecimalPlaces3(data: Double, tail: String = EMPTY_STRING): String = data.toDecimalPlacesString(3).plus(tail)
-
-@JvmOverloads
-fun toElapsedString(data: Long, head: String = "elapsed "): String = head + if (data < 1000000L) "$data nanoseconds" else if (data < 1000000000L) toDecimalPlaces3(1.0E-6 * data, " milliseconds") else toDecimalPlaces3(1.0E-9 * data, " seconds")
+fun getTimeStamp(nano: Boolean = false): Long = TimeAndDate.getTimeStamp(nano)

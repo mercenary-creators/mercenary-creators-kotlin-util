@@ -17,7 +17,7 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.io.ContentResource
+import co.mercenary.creators.kotlin.util.io.*
 import java.io.File
 
 abstract class AbstractDataTest : AbstractKotlinTest() {

@@ -19,37 +19,22 @@
 
 package co.mercenary.creators.kotlin.util
 
+import co.mercenary.creators.kotlin.util.io.*
 import java.io.*
 import java.net.URL
 import java.nio.channels.*
 import java.nio.charset.Charset
 import java.nio.file.*
 
-typealias IO = co.mercenary.creators.kotlin.util.io.IO
+typealias DefaultContentTypeProbe = MimeContentTypeProbe
 
-typealias ContentTypeProbe = co.mercenary.creators.kotlin.util.io.ContentTypeProbe
-
-typealias DefaultContentTypeProbe = co.mercenary.creators.kotlin.util.io.MimeContentTypeProbe
-
-typealias DefaultContentFileTypeMap = co.mercenary.creators.kotlin.util.io.ContentFileTypeMap
-
-typealias ReaderInputStream = co.mercenary.creators.kotlin.util.io.ReaderInputStream
-
-typealias ContentResource = co.mercenary.creators.kotlin.util.io.ContentResource
-
-typealias InputStreamSupplier = co.mercenary.creators.kotlin.util.io.InputStreamSupplier
-
-typealias ClassPathContentResource = co.mercenary.creators.kotlin.util.io.ClassPathContentResource
-
-typealias DefaultContentResourceLoader = co.mercenary.creators.kotlin.util.io.DefaultContentResourceLoader
-
-typealias DefaultCachedContentResourceLoader = co.mercenary.creators.kotlin.util.io.DefaultCachedContentResourceLoader
+typealias DefaultContentFileTypeMap = ContentFileTypeMap
 
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
-val contentResourceLoader = DefaultContentResourceLoader.INSTANCE
+val contentResourceLoader = BasicContentResourceLoader.INSTANCE
 
-val cachedContentResourceLoader = DefaultCachedContentResourceLoader.INSTANCE
+val cachedContentResourceLoader = CachedContentResourceLoader.INSTANCE
 
 fun isDefaultContentType(type: String): Boolean = type.toLowerTrim() == DEFAULT_CONTENT_TYPE
 

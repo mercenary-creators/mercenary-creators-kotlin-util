@@ -16,6 +16,6 @@
 
 package co.mercenary.creators.kotlin.util.time
 
-import co.mercenary.creators.kotlin.util.TimeUnit
+import java.util.concurrent.TimeUnit
 
 open class DefaultTimeWindowMovingAverage @JvmOverloads constructor(time: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) : AbstractTimeWindowMovingAverage(time, TimeUnit.MILLISECONDS, unit)

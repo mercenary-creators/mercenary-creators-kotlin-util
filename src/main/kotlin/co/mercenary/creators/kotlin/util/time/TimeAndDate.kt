@@ -23,6 +23,22 @@ import java.util.*
 object TimeAndDate {
 
     @JvmStatic
+    fun nanos(): Long = System.nanoTime()
+
+    @JvmStatic
+    fun nanosOf(): () -> Long = System::nanoTime
+
+    @JvmStatic
+    fun mills(): Long = System.currentTimeMillis()
+
+    @JvmStatic
+    fun millsOf(): () -> Long = System::currentTimeMillis
+
+    @JvmStatic
+    @JvmOverloads
+    fun getTimeStamp(nano: Boolean = false): Long = if (nano) nanos() else mills()
+
+    @JvmStatic
     fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(DEFAULT_ZONE_STRING)
 
     @JvmStatic
@@ -40,4 +56,12 @@ object TimeAndDate {
     @JvmStatic
     @JvmOverloads
     fun getThreadLocalDefaultDateFormat(zone: TimeZone = getDefaultTimeZone()): ThreadLocal<SimpleDateFormat> = ThreadLocal.withInitial { getDefaultDateFormat(zone) }
+
+    @JvmStatic
+    @JvmOverloads
+    fun toDecimalPlaces(data: Double, tail: String = EMPTY_STRING, places: Int = 3): String = data.toDecimalPlacesString(places) + tail
+
+    @JvmStatic
+    @JvmOverloads
+    fun toElapsedString(data: Long, head: String = "elapsed "): String = head + if (data < 1000000L) "$data nanoseconds" else if (data < 1000000000L) toDecimalPlaces(1.0E-6 * data, " milliseconds") else toDecimalPlaces(1.0E-9 * data, " seconds")
 }

@@ -16,8 +16,6 @@
 
 package co.mercenary.creators.kotlin.util.time
 
-import co.mercenary.creators.kotlin.util.*
-
-class NanoTicker : AbstractTicker(System::nanoTime) {
-    override fun toString() = toElapsedString(since())
+class NanoTicker : AbstractTicker(TimeAndDate::nanos) {
+    override fun toString() = toElapsedString()
 }

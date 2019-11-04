@@ -31,17 +31,32 @@ class TimeDuration private constructor(private val time: Duration, private val u
 
     fun duration() = copyOf(time)
 
-    operator fun plus(other: TimeDuration): TimeDuration = TimeDuration(duration().plus(other.time), unit())
+    operator fun plus(other: TimeDuration): TimeDuration {
+        val value = duration().plus(other.time)
+        return TimeDuration(value, less(value, unit()))
+    }
 
-    operator fun minus(other: TimeDuration): TimeDuration = TimeDuration(duration().minus(other.time), unit())
+    operator fun minus(other: TimeDuration): TimeDuration {
+        val value = duration().minus(other.time)
+        return TimeDuration(value, less(value, unit()))
+    }
 
     operator fun div(other: Int): TimeDuration = div(other.toLong())
 
-    operator fun div(other: Long): TimeDuration = TimeDuration(duration().dividedBy(other), unit())
+    operator fun div(other: Long): TimeDuration {
+        if (other == 0L) {
+            throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+        }
+        val value = duration().dividedBy(other)
+        return TimeDuration(value, less(value, unit()))
+    }
 
     operator fun times(other: Int): TimeDuration = times(other.toLong())
 
-    operator fun times(other: Long): TimeDuration = TimeDuration(duration().multipliedBy(other), unit())
+    operator fun times(other: Long): TimeDuration {
+        val value = duration().multipliedBy(other)
+        return TimeDuration(value, less(value, unit()))
+    }
 
     override operator fun compareTo(other: TimeDuration): Int {
         return time.compareTo(other.time)
@@ -67,7 +82,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
     }
 
     override fun toString(): String {
-        return toTrimOrElse(text(duration(), TimeDurationUnit.YEARS, true)) {
+        return toTrimOrElse(text(duration(), unit())) {
             text(unit())
         }
     }
@@ -112,66 +127,63 @@ class TimeDuration private constructor(private val time: Duration, private val u
             return if (abs(time) != 1L) name else name.removeSuffix("s")
         }
 
-        private fun text(time: Duration, unit: TimeDurationUnit, part: Boolean): String {
+        private fun text(time: Duration, unit: TimeDurationUnit): String {
             if (isEmpty(time)) {
-                return if (part) EMPTY_STRING else text(unit)
+                return EMPTY_STRING
             }
             var copy = time
             val save = when (unit) {
                 TimeDurationUnit.DAYS -> copy.toDays().also {
-                    if (part.and(it > 0)) {
+                    if (it > 0) {
                         copy = copy.minusDays(it)
                     }
                 }
                 TimeDurationUnit.HOURS -> copy.toHours().also {
-                    if (part.and(it > 0)) {
+                    if (it > 0) {
                         copy = copy.minusHours(it)
                     }
                 }
                 TimeDurationUnit.WEEKS -> copy.toDays().div(DAYS_PER_WEEK).also {
-                    if (part.and(it > 0)) {
+                    if (it > 0) {
                         copy = copy.minusDays(it.times(DAYS_PER_WEEK))
                     }
                 }
                 TimeDurationUnit.YEARS -> copy.toDays().div(DAYS_PER_YEAR).also {
-                    if (part.and(it > 0)) {
+                    if (it > 0) {
                         copy = copy.minusDays(it.times(DAYS_PER_YEAR))
                     }
                 }
                 TimeDurationUnit.MINUTES -> copy.toMinutes().also {
-                    if (part.and(it > 0)) {
+                    if (it > 0) {
                         copy = copy.minusMinutes(it)
                     }
                 }
                 TimeDurationUnit.SECONDS -> copy.seconds.also {
-                    if (part.and(it > 0)) {
+                    if (it > 0) {
                         copy = copy.minusSeconds(it)
                     }
                 }
                 TimeDurationUnit.NANOSECONDS -> copy.nano.toLong().also {
-                    if (part.and(it > 0)) {
+                    if (it > 0) {
                         copy = copy.minusNanos(it)
                     }
                 }
                 TimeDurationUnit.MILLISECONDS -> copy.toMillis().also {
-                    if (part.and(it > 0)) {
+                    if (it > 0) {
                         copy = copy.minusMillis(it)
                     }
                 }
             }
-            if (part) {
-                return when (val look = maps[unit.ordinal.plus(1)]) {
-                    null -> when ((unit == TimeDurationUnit.NANOSECONDS).and(save > 0)) {
-                        true -> text(unit, save)
-                        else -> EMPTY_STRING
-                    }
-                    else -> when (save < 1) {
-                        true -> text(copy, look, part)
-                        else -> text(unit, save).plus(SPACE_STRING).plus(text(copy, look, part))
-                    }
+            return when (val look = maps[unit.ordinal.plus(1)]) {
+                null -> when ((unit == TimeDurationUnit.NANOSECONDS).and(save > 0)) {
+                    true -> text(unit, save)
+                    else -> EMPTY_STRING
+                }
+                else -> when (save < 1) {
+                    true -> text(copy, look)
+                    else -> text(unit, save).plus(SPACE_STRING).plus(text(copy, look))
                 }
             }
-            return text(unit, save)
         }
 
         @JvmStatic
@@ -233,27 +245,25 @@ class TimeDuration private constructor(private val time: Duration, private val u
             for (i in 0 until size step 2) {
                 make(list[i], list[i + 1], data)
             }
-            less(data)
             return TimeDuration(data.time, data.unit)
         }
 
-        private fun less(data: TimeData) {
-            val time = data.time
+        private fun less(time: Duration, unit: TimeDurationUnit): TimeDurationUnit {
             if (isEmpty(time)) {
-                return
+                return unit
             }
             val days = time.toDays()
-            when {
+            return when {
                 days > 0 -> when {
-                    days >= DAYS_PER_YEAR -> data.unit = TimeDurationUnit.YEARS
-                    days >= DAYS_PER_WEEK -> data.unit = TimeDurationUnit.WEEKS
-                    else -> data.unit = TimeDurationUnit.DAYS
+                    days >= DAYS_PER_YEAR -> TimeDurationUnit.YEARS
+                    days >= DAYS_PER_WEEK -> TimeDurationUnit.WEEKS
+                    else -> TimeDurationUnit.DAYS
                 }
-                time.toHours() > 0 -> data.unit = TimeDurationUnit.HOURS
-                time.toMinutes() > 0 -> data.unit = TimeDurationUnit.MINUTES
-                time.seconds > 0 -> data.unit = TimeDurationUnit.SECONDS
-                time.toMillis() > 0 -> data.unit = TimeDurationUnit.MILLISECONDS
-                time.nano > 0 -> data.unit = TimeDurationUnit.NANOSECONDS
+                time.toHours() > 0 -> TimeDurationUnit.HOURS
+                time.toMinutes() > 0 -> TimeDurationUnit.MINUTES
+                time.seconds > 0 -> TimeDurationUnit.SECONDS
+                time.toMillis() > 0 -> TimeDurationUnit.MILLISECONDS
+                else -> TimeDurationUnit.NANOSECONDS
             }
         }
 
@@ -261,21 +271,21 @@ class TimeDuration private constructor(private val time: Duration, private val u
             val time = data.time
             val plus = buff.toLongOrNull() ?: throw MercenaryFatalExceptiion("invalid time $buff")
             when (unit) {
-                "day", "days" -> data(plus, time::plusDays, TimeDurationUnit.DAYS)
-                "year", "years" -> data(plus.times(DAYS_PER_YEAR), time::plusDays, TimeDurationUnit.YEARS)
-                "week", "weeks" -> data(plus.times(DAYS_PER_WEEK), time::plusDays, TimeDurationUnit.WEEKS)
-                "hour", "hours" -> data(plus, time::plusHours, TimeDurationUnit.HOURS)
-                "minute", "minutes" -> data(plus, time::plusMinutes, TimeDurationUnit.MINUTES)
-                "second", "seconds" -> data(plus, time::plusSeconds, TimeDurationUnit.SECONDS)
-                "nanosecond", "nanoseconds" -> data(plus, time::plusNanos, TimeDurationUnit.NANOSECONDS)
-                "millisecond", "milliseconds" -> data(plus, time::plusMillis, TimeDurationUnit.MILLISECONDS)
+                "day", "days" -> data.make(plus, time::plusDays, TimeDurationUnit.DAYS)
+                "year", "years" -> data.make(plus.times(DAYS_PER_YEAR), time::plusDays, TimeDurationUnit.YEARS)
+                "week", "weeks" -> data.make(plus.times(DAYS_PER_WEEK), time::plusDays, TimeDurationUnit.WEEKS)
+                "hour", "hours" -> data.make(plus, time::plusHours, TimeDurationUnit.HOURS)
+                "minute", "minutes" -> data.make(plus, time::plusMinutes, TimeDurationUnit.MINUTES)
+                "second", "seconds" -> data.make(plus, time::plusSeconds, TimeDurationUnit.SECONDS)
+                "nanosecond", "nanoseconds" -> data.make(plus, time::plusNanos, TimeDurationUnit.NANOSECONDS)
+                "millisecond", "milliseconds" -> data.make(plus, time::plusMillis, TimeDurationUnit.MILLISECONDS)
                 else -> throw MercenaryFatalExceptiion("invalid unit $unit")
             }
         }
 
         private class TimeData(var time: Duration = Duration.ZERO, var unit: TimeDurationUnit = TimeDurationUnit.NANOSECONDS) {
-            operator fun invoke(plus: Long, make: (Long) -> Duration, less: TimeDurationUnit) {
-                time = make(plus)
+            fun make(plus: Long, call: (Long) -> Duration, less: TimeDurationUnit) {
+                time = call(plus)
                 if (less < unit) {
                     unit = less
                 }

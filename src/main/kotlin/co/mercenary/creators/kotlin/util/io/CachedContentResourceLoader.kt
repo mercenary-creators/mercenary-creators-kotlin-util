@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import java.util.concurrent.ConcurrentHashMap
 
-open class DefaultCachedContentResourceLoader @JvmOverloads constructor(private val load: DefaultContentResourceLoader = DefaultContentResourceLoader.INSTANCE) : ContentResourceLoader by load {
+open class CachedContentResourceLoader @JvmOverloads constructor(private val load: BasicContentResourceLoader = BasicContentResourceLoader.INSTANCE) : ContentResourceLoader by load {
 
     private val maps = ConcurrentHashMap<String, CachedContentResource>()
 
@@ -40,6 +40,6 @@ open class DefaultCachedContentResourceLoader @JvmOverloads constructor(private 
     override fun getSuperLoader() = load
 
     companion object {
-        val INSTANCE = DefaultCachedContentResourceLoader()
+        val INSTANCE = CachedContentResourceLoader()
     }
 }

@@ -22,16 +22,6 @@ import kotlin.math.*
 
 object Numeric {
 
-    const val DEFAULT_PRECISION = 0.0000001
-
-    const val INVALID_SIZE = "invalid size"
-
-    const val ZERO_DIVISOR = "can't divide by zero"
-
-    private val TAIL_RECURSIVE_FUNCTIONS: TailRecursiveFunctions by lazy {
-        TailRecursiveFunctions()
-    }
-
     @JvmStatic
     @JvmOverloads
     fun toDecimalPlacesString(data: Double, scale: Int = 3, places: Int = abs(scale)): String {
@@ -68,15 +58,15 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
-    fun closeEnough(value: Double, other: Double, precision: Double = DEFAULT_PRECISION): Boolean {
-        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION else abs(precision)
+    fun closeEnough(value: Double, other: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
+        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION_DELTA else abs(precision)
         return if (value.toBits() != other.toBits()) (abs(value - other) <= delta) else true
     }
 
     @JvmStatic
     @JvmOverloads
-    fun closeEnough(v1: Double, v2: Double, o1: Double, o2: Double, precision: Double = DEFAULT_PRECISION): Boolean {
-        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION else abs(precision)
+    fun closeEnough(v1: Double, v2: Double, o1: Double, o2: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
+        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION_DELTA else abs(precision)
         if (v1.toBits() != v2.toBits()) {
             if (abs(v1 - v2) > delta) {
                 return false
@@ -92,11 +82,11 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
-    fun closeEnough(value: DoubleArray, other: DoubleArray, precision: Double = DEFAULT_PRECISION): Boolean {
+    fun closeEnough(value: DoubleArray, other: DoubleArray, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
         if (value.size != other.size) {
             return false
         }
-        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION else abs(precision)
+        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION_DELTA else abs(precision)
         for (i in value.indices) {
             val v = value[i]
             val o = other[i]
@@ -111,11 +101,11 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
-    fun closeEnough(value: Array<Double>, other: Array<Double>, precision: Double = DEFAULT_PRECISION): Boolean {
+    fun closeEnough(value: Array<Double>, other: Array<Double>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
         if (value.size != other.size) {
             return false
         }
-        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION else abs(precision)
+        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION_DELTA else abs(precision)
         for (i in value.indices) {
             val v = value[i]
             val o = other[i]
@@ -130,7 +120,7 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
-    fun closeEnough(value: Array<DoubleArray>, other: Array<DoubleArray>, precision: Double = DEFAULT_PRECISION): Boolean {
+    fun closeEnough(value: Array<DoubleArray>, other: Array<DoubleArray>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
         if (value.size != other.size) {
             return false
         }
@@ -144,7 +134,7 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
-    fun closeEnough(value: Array<Array<Double>>, other: Array<Array<Double>>, precision: Double = DEFAULT_PRECISION): Boolean {
+    fun closeEnough(value: Array<Array<Double>>, other: Array<Array<Double>>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
         if (value.size != other.size) {
             return false
         }
@@ -166,28 +156,28 @@ object Numeric {
     fun powNegative1(value: Int, other: Int): Double = powNegative1(value.toLong() + other)
 
     @JvmStatic
-    fun gcd(value: Int, other: Int): Int = if (other == 0) abs(value) else TAIL_RECURSIVE_FUNCTIONS.gcd(value, other)
+    fun gcd(value: Int, other: Int): Int = if (other == 0) abs(value) else TailRecursiveFunctions.INSTANCE.gcd(value, other)
 
     @JvmStatic
-    fun gcd(value: Long, other: Long): Long = if (other == 0L) abs(value) else TAIL_RECURSIVE_FUNCTIONS.gcd(value, other)
+    fun gcd(value: Long, other: Long): Long = if (other == 0L) abs(value) else TailRecursiveFunctions.INSTANCE.gcd(value, other)
 
     @JvmStatic
-    fun gcd(args: IntArray): Int = TAIL_RECURSIVE_FUNCTIONS.gcd(args)
+    fun gcd(args: IntArray): Int = TailRecursiveFunctions.INSTANCE.gcd(args)
 
     @JvmStatic
-    fun gcd(args: LongArray): Long = TAIL_RECURSIVE_FUNCTIONS.gcd(args)
+    fun gcd(args: LongArray): Long = TailRecursiveFunctions.INSTANCE.gcd(args)
 
     @JvmStatic
-    fun lcm(value: Int, other: Int): Int = TAIL_RECURSIVE_FUNCTIONS.lcm(value, other)
+    fun lcm(value: Int, other: Int): Int = TailRecursiveFunctions.INSTANCE.lcm(value, other)
 
     @JvmStatic
-    fun lcm(value: Long, other: Long): Long = TAIL_RECURSIVE_FUNCTIONS.lcm(value, other)
+    fun lcm(value: Long, other: Long): Long = TailRecursiveFunctions.INSTANCE.lcm(value, other)
 
     @JvmStatic
-    fun lcm(args: IntArray): Int = TAIL_RECURSIVE_FUNCTIONS.lcm(args)
+    fun lcm(args: IntArray): Int = TailRecursiveFunctions.INSTANCE.lcm(args)
 
     @JvmStatic
-    fun lcm(args: LongArray): Long = TAIL_RECURSIVE_FUNCTIONS.lcm(args)
+    fun lcm(args: LongArray): Long = TailRecursiveFunctions.INSTANCE.lcm(args)
 
     @JvmStatic
     @JvmOverloads
@@ -220,7 +210,7 @@ object Numeric {
     fun divide(value: Double, other: Long): Double = divide(value, other.toDouble())
 
     @JvmStatic
-    fun divide(value: Double, other: Double): Double = if (other == 0.0) throw MercenaryFatalExceptiion(ZERO_DIVISOR) else value / other
+    fun divide(value: Double, other: Double): Double = if (other == 0.0) throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR) else value / other
 
     @JvmStatic
     fun hashCode(value: DoubleArray): Int {
@@ -260,7 +250,7 @@ object Numeric {
 
         fun gcd(args: IntArray): Int {
             return when (args.size) {
-                0 -> throw MercenaryFatalExceptiion(INVALID_SIZE)
+                0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(args[0])
                 2 -> gcd(args[0], args[1])
                 else -> args.reduce { x, y ->
@@ -271,7 +261,7 @@ object Numeric {
 
         fun gcd(args: LongArray): Long {
             return when (args.size) {
-                0 -> throw MercenaryFatalExceptiion(INVALID_SIZE)
+                0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(args[0])
                 2 -> gcd(args[0], args[1])
                 else -> args.reduce { x, y ->
@@ -282,26 +272,26 @@ object Numeric {
 
         fun lcm(value: Int, other: Int): Int {
             return when (val gcd = gcd(value, other)) {
-                0 -> throw MercenaryFatalExceptiion(ZERO_DIVISOR)
+                0 -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
                 else -> (value * other) / gcd
             }
         }
 
         fun lcm(value: Long, other: Long): Long {
             return when (val gcd = gcd(value, other)) {
-                0L -> throw MercenaryFatalExceptiion(ZERO_DIVISOR)
+                0L -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
                 else -> (value * other) / gcd
             }
         }
 
         fun lcm(args: IntArray): Int {
             return when (args.size) {
-                0 -> throw MercenaryFatalExceptiion(INVALID_SIZE)
+                0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(args[0])
                 2 -> lcm(args[0], args[1])
                 else -> args.reduce { x, y ->
                     when (val gcd = gcd(x, y)) {
-                        0 -> throw MercenaryFatalExceptiion(ZERO_DIVISOR)
+                        0 -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
                         else -> x * (y / gcd)
                     }
                 }
@@ -310,16 +300,20 @@ object Numeric {
 
         fun lcm(args: LongArray): Long {
             return when (args.size) {
-                0 -> throw MercenaryFatalExceptiion(INVALID_SIZE)
+                0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(args[0])
                 2 -> lcm(args[0], args[1])
                 else -> args.reduce { x, y ->
                     when (val gcd = gcd(x, y)) {
-                        0L -> throw MercenaryFatalExceptiion(ZERO_DIVISOR)
+                        0L -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
                         else -> x * (y / gcd)
                     }
                 }
             }
+        }
+
+        companion object {
+            val INSTANCE = TailRecursiveFunctions()
         }
     }
 }
