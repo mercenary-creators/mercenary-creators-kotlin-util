@@ -36,6 +36,9 @@ class MainTest : KotlinTest() {
         info { half.unit() }
         val oops = 0.days
         info { oops }
+        val date = 366.days
+        info { date }
+        info { date.unit() }
         val data = 100.nanoseconds - 99.nanoseconds
         info { data }
         data shouldBe 1.nanosecond

@@ -20,13 +20,8 @@
 package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.type.Validated
-import org.reactivestreams.Publisher
-import reactor.core.publisher.*
 import java.util.*
-import java.util.concurrent.*
 import java.util.concurrent.atomic.*
-import java.util.function.BooleanSupplier
-import java.util.stream.Collectors
 
 const val IS_NOT_FOUND = -1
 
@@ -52,16 +47,9 @@ typealias Throwables = co.mercenary.creators.kotlin.util.type.Throwables
 
 typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
-typealias SingleScheduler = co.mercenary.creators.kotlin.util.reactive.SingleScheduler
-
-typealias ElasticScheduler = co.mercenary.creators.kotlin.util.reactive.ElasticScheduler
-
-typealias ParallelScheduler = co.mercenary.creators.kotlin.util.reactive.ParallelScheduler
-
 open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
     constructor(text: String) : this(text, null)
-    constructor(root: Throwable) : this(null, root)
-    constructor(func: () -> String) : this(func(), null)
+    constructor(root: Throwable) : this(root.message, root)
 
     companion object {
         private const val serialVersionUID = 2L
@@ -70,8 +58,7 @@ open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeExcepti
 
 open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : MercenaryExceptiion(text, root) {
     constructor(text: String) : this(text, null)
-    constructor(root: Throwable) : this(null, root)
-    constructor(func: () -> String) : this(func(), null)
+    constructor(root: Throwable) : this(root.message, root)
 
     companion object {
         private const val serialVersionUID = 2L
@@ -131,7 +118,6 @@ fun isValid(value: Any?): Boolean = when (value) {
     }
     is Boolean -> value
     is AtomicBoolean -> value.get()
-    is BooleanSupplier -> value.asBoolean
     else -> true
 }
 
@@ -180,62 +166,6 @@ fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = MercenarySequence(iterator
 fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(generateSequence(next))
 
 fun <T : Any> sequenceOf(seed: T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
-
-fun <T : Any> Flux<T>.toList(): List<T> = collect(Collectors.toList<T>()).block().orElse { emptyList() }
-
-fun <T : Any> Flux<T>.limit(size: Long): Flux<T> = limitRequest(size)
-
-fun <T : Any> Flux<T>.limit(size: Int): Flux<T> = limitRequest(size.toLong())
-
-fun <T : Any> Flux<T>.rated(size: Int): Flux<T> = limitRate(size)
-
-fun <T : Any> Flux<T>.rated(high: Int, lows: Int): Flux<T> = limitRate(high, lows)
-
-fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.duration())
-
-fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.duration())
-
-fun <T : Any> T.toMono(): Mono<T> = Mono.just(this)
-
-fun <T> Throwable.toMono(): Mono<T> = Mono.error(this)
-
-fun <T> Publisher<T>.toMono(): Mono<T> = Mono.from(this)
-
-fun <T> (() -> T?).toMono(): Mono<T> = Mono.fromSupplier(this)
-
-fun <T> Callable<T?>.toMono(): Mono<T> = Mono.fromCallable(this::call)
-
-fun <T> CompletableFuture<out T?>.toMono(): Mono<T> = Mono.fromFuture(this)
-
-inline fun <reified T : Any> Mono<*>.cast(): Mono<T> {
-    return this.cast(T::class.java)
-}
-
-inline fun <reified T : Any> Mono<*>.ofType(): Mono<T> {
-    return ofType(T::class.java)
-}
-
-fun <T> Throwable.toFlux(): Flux<T> = Flux.error(this)
-
-fun <T> Array<out T>.toFlux(): Flux<T> = Flux.fromArray(this)
-
-fun <T : Any> Publisher<T>.toFlux(): Flux<T> = Flux.from(this)
-
-fun <T : Any> Iterable<T>.toFlux(): Flux<T> = Flux.fromIterable(this)
-
-fun <T : Any> Sequence<T>.toFlux(): Flux<T> = Flux.fromIterable(object : Iterable<T> {
-    override operator fun iterator(): Iterator<T> = this@toFlux.iterator()
-})
-
-inline fun <reified T : Any> Flux<*>.cast(): Flux<T> {
-    return cast(T::class.java)
-}
-
-inline fun <reified T : Any> Flux<*>.ofType(): Flux<T> {
-    return ofType(T::class.java)
-}
-
-fun <T : Any> Flux<out Iterable<T>>.split(): Flux<T> = flatMapIterable { it }
 
 inline fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()
 

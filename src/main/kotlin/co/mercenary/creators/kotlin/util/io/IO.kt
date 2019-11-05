@@ -33,6 +33,7 @@ object IO {
     const val TILDE_PREFIX = SINGLE_TILDE + SINGLE_SLASH
     const val PREFIX_TILDE = SINGLE_SLASH + SINGLE_TILDE
     const val PREFIX_COLON = ":"
+    const val TYPE_IS_FILE = "file"
     const val PREFIX_BYTES = "byte:"
     const val PREFIX_FILES = "file:"
     const val PREFIX_CLASS = "classpath:"
@@ -76,7 +77,7 @@ object IO {
     fun getPathExtension(path: String?): String {
         val temp = getPathNormalized(path).orEmpty()
         if ((temp.isNotEmpty()) && (temp.indexOf(EXT_SEPARATOR_CHAR) != IS_NOT_FOUND)) {
-            val last = getCheckedString(toTrimOrNull(FilenameUtils.getExtension(temp)).orEmpty())
+            val last = toTrimOrNull(FilenameUtils.getExtension(temp)).orEmpty()
             if (last.isNotEmpty()) {
                 if (last.startsWith(EXT_SEPARATOR_CHAR)) {
                     return last
@@ -171,7 +172,7 @@ object IO {
         }
         try {
             if (isFileURL(data)) {
-                val file = toFileOrNull(data)
+                val file = toFileOrNull(data, true)
                 if ((file != null) && (file.isValidToRead())) {
                     return file.toInputStream()
                 }
@@ -192,7 +193,7 @@ object IO {
         }
         try {
             if (isFileURL(data)) {
-                val file = toFileOrNull(data)
+                val file = toFileOrNull(data, true)
                 if (file != null) {
                     return file.toOutputStream()
                 }
@@ -212,9 +213,10 @@ object IO {
     }
 
     @JvmStatic
-    fun toFileOrNull(data: URL): File? {
+    @JvmOverloads
+    fun toFileOrNull(data: URL, skip: Boolean = false): File? {
         try {
-            if (isFileURL(data)) {
+            if (skip || isFileURL(data)) {
                 val path = getPathNormalized(data.file).orEmpty()
                 if (path.isNotEmpty()) {
                     return File(path)
@@ -232,7 +234,7 @@ object IO {
     fun isContentThere(data: URL): Boolean {
         try {
             if (isFileURL(data)) {
-                val file = toFileOrNull(data)
+                val file = toFileOrNull(data, true)
                 return ((file != null) && (file.isValidToRead()))
             }
             else {
@@ -260,7 +262,7 @@ object IO {
     @JvmStatic
     fun getContentSize(data: URL): Long {
         if (isFileURL(data)) {
-            val file = toFileOrNull(data)
+            val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
                 return file.length()
             }
@@ -282,7 +284,7 @@ object IO {
     @JvmStatic
     fun getContentSize(data: URL, func: () -> Long): Long {
         if (isFileURL(data)) {
-            val file = toFileOrNull(data)
+            val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
                 return file.length()
             }
@@ -293,7 +295,7 @@ object IO {
     @JvmStatic
     fun getContentTime(data: URL): Long {
         if (isFileURL(data)) {
-            val file = toFileOrNull(data)
+            val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
                 return file.lastModified()
             }

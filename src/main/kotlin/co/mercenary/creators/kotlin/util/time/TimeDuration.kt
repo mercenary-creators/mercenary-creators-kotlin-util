@@ -211,28 +211,52 @@ class TimeDuration private constructor(private val time: Duration, private val u
         fun milliseconds(time: Int) = milliseconds(time.toLong())
 
         @JvmStatic
-        fun years(time: Long) = TimeDuration(Duration.ofDays(time * DAYS_PER_YEAR), TimeDurationUnit.YEARS)
+        fun years(time: Long): TimeDuration {
+            val make = Duration.ofDays(time * DAYS_PER_YEAR)
+            return TimeDuration(make, less(make, TimeDurationUnit.YEARS))
+        }
 
         @JvmStatic
-        fun weeks(time: Long) = TimeDuration(Duration.ofDays(time * DAYS_PER_WEEK), TimeDurationUnit.WEEKS)
+        fun weeks(time: Long): TimeDuration {
+            val make = Duration.ofDays(time * DAYS_PER_WEEK)
+            return TimeDuration(make, less(make, TimeDurationUnit.WEEKS))
+        }
 
         @JvmStatic
-        fun days(time: Long) = TimeDuration(Duration.ofDays(time), TimeDurationUnit.DAYS)
+        fun days(time: Long): TimeDuration {
+            val make = Duration.ofDays(time)
+            return TimeDuration(make, less(make, TimeDurationUnit.DAYS))
+        }
 
         @JvmStatic
-        fun hours(time: Long) = TimeDuration(Duration.ofHours(time), TimeDurationUnit.HOURS)
+        fun hours(time: Long): TimeDuration {
+            val make = Duration.ofHours(time)
+            return TimeDuration(make, less(make, TimeDurationUnit.HOURS))
+        }
 
         @JvmStatic
-        fun minutes(time: Long) = TimeDuration(Duration.ofMinutes(time), TimeDurationUnit.MINUTES)
+        fun minutes(time: Long): TimeDuration {
+            val make = Duration.ofMinutes(time)
+            return TimeDuration(make, less(make, TimeDurationUnit.MINUTES))
+        }
 
         @JvmStatic
-        fun seconds(time: Long) = TimeDuration(Duration.ofSeconds(time), TimeDurationUnit.SECONDS)
+        fun seconds(time: Long): TimeDuration {
+            val make = Duration.ofSeconds(time)
+            return TimeDuration(make, less(make, TimeDurationUnit.SECONDS))
+        }
 
         @JvmStatic
-        fun nanoseconds(time: Long) = TimeDuration(Duration.ofNanos(time), TimeDurationUnit.NANOSECONDS)
+        fun nanoseconds(time: Long): TimeDuration {
+            val make = Duration.ofNanos(time)
+            return TimeDuration(make, less(make, TimeDurationUnit.NANOSECONDS))
+        }
 
         @JvmStatic
-        fun milliseconds(time: Long) = TimeDuration(Duration.ofMillis(time), TimeDurationUnit.MILLISECONDS)
+        fun milliseconds(time: Long): TimeDuration {
+            val make = Duration.ofMillis(time)
+            return TimeDuration(make, less(make, TimeDurationUnit.MILLISECONDS))
+        }
 
         @JvmStatic
         fun parseCharSequence(text: CharSequence): TimeDuration {

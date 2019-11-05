@@ -26,6 +26,7 @@ class LoaderTest : KotlinDataTest() {
         info { getContentResourceDetails(contentResourceLoader["test.jpg"]) }
         info { getContentResourceDetails(contentResourceLoader["test.css"]) }
         info { getContentResourceDetails(contentResourceLoader["test.doc"]) }
+        info { getContentResourceDetails(contentResourceLoader["test.htm"]) }
         info { getContentResourceDetails(contentResourceLoader["http://jsonplaceholder.typicode.com/posts"]) }
         val path = getTempFileNamedPath(uuid(), ".json")
         info { getContentResourceDetails(contentResourceLoader[path]) }

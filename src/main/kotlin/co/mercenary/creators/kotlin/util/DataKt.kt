@@ -38,10 +38,11 @@ val cachedContentResourceLoader = CachedContentResourceLoader.INSTANCE
 
 fun isDefaultContentType(type: String): Boolean = type.toLowerTrim() == DEFAULT_CONTENT_TYPE
 
-@JvmOverloads
 fun toCommonContentTypes(name: String, type: String = DEFAULT_CONTENT_TYPE): String = when (IO.getPathExtension(name).toLowerTrim()) {
     ".json" -> "application/json"
     ".java" -> "text/x-java-source"
+    ".css", ".scss" -> "text/css"
+    ".htm", ".html" -> "text/html"
     ".yml", ".yaml" -> "application/x-yaml"
     ".properties" -> "text/x-java-properties"
     else -> type.toLowerTrim()
@@ -49,7 +50,6 @@ fun toCommonContentTypes(name: String, type: String = DEFAULT_CONTENT_TYPE): Str
 
 fun getDefaultContentTypeProbe(): ContentTypeProbe = IO.getContentTypeProbe()
 
-@JvmOverloads
 fun getPathNormalizedOrElse(path: String?, other: String = EMPTY_STRING): String = toTrimOrElse(IO.getPathNormalized(path), other)
 
 fun getPathNormalizedNoTail(path: String?, tail: Boolean): String {
@@ -60,9 +60,8 @@ fun getPathNormalizedNoTail(path: String?, tail: Boolean): String {
     return norm
 }
 
-fun isFileURL(data: URL): Boolean = data.toString().toLowerTrim().startsWith(IO.PREFIX_FILES)
+fun isFileURL(data: URL): Boolean = (data.protocol.toLowerTrim() == IO.TYPE_IS_FILE).or(data.toString().toLowerTrim().startsWith(IO.PREFIX_FILES))
 
-@JvmOverloads
 fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): File = createTempFile(prefix, suffix, folder).apply { deleteOnExit() }
 
 fun File.isSame(other: File): Boolean = isSame(other.toPath())
@@ -109,6 +108,10 @@ fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
 
 fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
 
+fun Reader.forEachLineIndexed(block: (Int, String) -> Unit) {
+    buffered().useLines { it.forEachIndexed(block) }
+}
+
 @JvmOverloads
 fun URL.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
     toInputStream().forEachLineIndexed(charset, block)
@@ -131,7 +134,7 @@ fun InputStreamSupplier.forEachLineIndexed(charset: Charset = Charsets.UTF_8, bl
 
 @JvmOverloads
 fun InputStream.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    BufferedReader(InputStreamReader(this, charset)).readLines().forEachIndexed(block)
+    InputStreamReader(this, charset).forEachLineIndexed(block)
 }
 
 fun Path.toByteArray(): ByteArray = toInputStream().toByteArray()
