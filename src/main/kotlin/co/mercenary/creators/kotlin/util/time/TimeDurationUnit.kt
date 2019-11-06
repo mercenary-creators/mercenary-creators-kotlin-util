@@ -17,5 +17,39 @@
 package co.mercenary.creators.kotlin.util.time
 
 enum class TimeDurationUnit {
-    YEARS, WEEKS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, NANOSECONDS
+
+    YEARS, WEEKS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, NANOSECONDS;
+
+    fun next() = next(this)
+
+    fun prev() = prev(this)
+
+    fun toLowerCase() = name.toLowerCase()
+
+    companion object {
+
+        @JvmStatic
+        private fun next(unit: TimeDurationUnit): TimeDurationUnit? = when (unit) {
+            MILLISECONDS -> NANOSECONDS
+            SECONDS -> MILLISECONDS
+            MINUTES -> SECONDS
+            HOURS -> MINUTES
+            YEARS -> WEEKS
+            WEEKS -> DAYS
+            DAYS -> HOURS
+            else -> null
+        }
+
+        @JvmStatic
+        private fun prev(unit: TimeDurationUnit): TimeDurationUnit? = when (unit) {
+            NANOSECONDS -> MILLISECONDS
+            MILLISECONDS -> SECONDS
+            SECONDS -> MINUTES
+            MINUTES -> HOURS
+            WEEKS -> YEARS
+            DAYS -> WEEKS
+            HOURS -> DAYS
+            else -> null
+        }
+    }
 }

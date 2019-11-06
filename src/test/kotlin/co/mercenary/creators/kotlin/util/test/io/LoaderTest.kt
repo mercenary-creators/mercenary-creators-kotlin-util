@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.test.io
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.io.*
 import org.junit.jupiter.api.Test
 
 class LoaderTest : KotlinDataTest() {
@@ -35,5 +36,15 @@ class LoaderTest : KotlinDataTest() {
         info { getContentResourceDetails(contentResourceLoader[data]) }
         val temp = getTempFileNamedPath(uuid(), ".yaml")
         info { getContentResourceDetails(contentResourceLoader[temp]) }
+        val look = object : ContentProtocolResolver {
+            override fun resolve(path: String, load: ContentResourceLoader): ContentResource? {
+                if (load.isContentCache()) {
+                    warn { path }
+                }
+                return null
+            }
+        }
+        cachedContentResourceLoader += look
+        info { getContentResourceDetails(cachedContentResourceLoader["test.htm"]) }
     }
 }

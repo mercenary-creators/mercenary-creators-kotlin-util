@@ -40,9 +40,9 @@ fun <T : Any> Flux<T>.rated(size: Int): Flux<T> = limitRate(size)
 
 fun <T : Any> Flux<T>.rated(high: Int, lows: Int): Flux<T> = limitRate(high, lows)
 
-fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.duration())
+fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.toDuration())
 
-fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.duration())
+fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.toDuration())
 
 fun <T : Any> T.toMono(): Mono<T> = Mono.just(this)
 

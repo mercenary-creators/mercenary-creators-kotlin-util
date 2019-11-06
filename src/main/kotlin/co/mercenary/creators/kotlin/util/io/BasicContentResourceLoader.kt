@@ -108,6 +108,10 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
         maps += args
     }
 
+    override operator fun plusAssign(args: ContentProtocolResolver) {
+        add(args)
+    }
+
     override operator fun plusAssign(args: Array<ContentProtocolResolver>) {
         add(args)
     }
@@ -117,10 +121,6 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
     }
 
     override operator fun plusAssign(args: Sequence<ContentProtocolResolver>) {
-        add(args)
-    }
-
-    override operator fun plusAssign(args: ContentProtocolResolver) {
         add(args)
     }
 

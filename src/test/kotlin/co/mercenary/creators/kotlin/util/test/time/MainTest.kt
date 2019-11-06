@@ -27,18 +27,19 @@ class MainTest : KotlinTest() {
         info { time }
         info { same }
         info { time == same }
+        info { time.toDuration() }
         time shouldBe same
         val plus = 1000.milliseconds + 100.nanoseconds
         info { plus }
-        info { plus.unit() }
+        info { plus.toUnit().toLowerCase() }
         val half = 1.year / 2
         info { half }
-        info { half.unit() }
+        info { half.toUnit().toLowerCase() }
         val oops = 0.days
         info { oops }
         val date = 366.days
         info { date }
-        info { date.unit() }
+        info { date.toUnit().toLowerCase() }
         val data = 100.nanoseconds - 99.nanoseconds
         info { data }
         data shouldBe 1.nanosecond
