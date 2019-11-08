@@ -20,36 +20,32 @@ enum class TimeDurationUnit {
 
     YEARS, WEEKS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, NANOSECONDS;
 
-    fun next() = next(this)
+    private val lows = name.toLowerCase()
 
-    fun prev() = prev(this)
+    private val suff = name.toLowerCase().removeSuffix("s")
 
-    fun toLowerCase() = name.toLowerCase()
-
-    companion object {
-
-        @JvmStatic
-        private fun next(unit: TimeDurationUnit): TimeDurationUnit? = when (unit) {
-            MILLISECONDS -> NANOSECONDS
-            SECONDS -> MILLISECONDS
-            MINUTES -> SECONDS
-            HOURS -> MINUTES
-            YEARS -> WEEKS
-            WEEKS -> DAYS
-            DAYS -> HOURS
-            else -> null
-        }
-
-        @JvmStatic
-        private fun prev(unit: TimeDurationUnit): TimeDurationUnit? = when (unit) {
-            NANOSECONDS -> MILLISECONDS
-            MILLISECONDS -> SECONDS
-            SECONDS -> MINUTES
-            MINUTES -> HOURS
-            WEEKS -> YEARS
-            DAYS -> WEEKS
-            HOURS -> DAYS
-            else -> null
-        }
+    fun next(): TimeDurationUnit? = when (this) {
+        MILLISECONDS -> NANOSECONDS
+        SECONDS -> MILLISECONDS
+        MINUTES -> SECONDS
+        HOURS -> MINUTES
+        YEARS -> WEEKS
+        WEEKS -> DAYS
+        DAYS -> HOURS
+        else -> null
     }
+
+    fun prev(): TimeDurationUnit? = when (this) {
+        NANOSECONDS -> MILLISECONDS
+        MILLISECONDS -> SECONDS
+        SECONDS -> MINUTES
+        MINUTES -> HOURS
+        WEEKS -> YEARS
+        DAYS -> WEEKS
+        HOURS -> DAYS
+        else -> null
+    }
+
+    @JvmOverloads
+    fun toLowerCase(full: Boolean = true) = if (full) lows else suff
 }

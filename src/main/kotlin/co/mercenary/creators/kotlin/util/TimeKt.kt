@@ -129,6 +129,30 @@ val Long.milliseconds: TimeDuration
 val Long.nanoseconds: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
+val Double.days: TimeDuration
+    get() = TimeDuration.days(this)
+
+val Double.hours: TimeDuration
+    get() = TimeDuration.hours(this)
+
+val Double.weeks: TimeDuration
+    get() = TimeDuration.weeks(this)
+
+val Double.years: TimeDuration
+    get() = TimeDuration.years(this)
+
+val Double.minutes: TimeDuration
+    get() = TimeDuration.minutes(this)
+
+val Double.seconds: TimeDuration
+    get() = TimeDuration.seconds(this)
+
+val Double.milliseconds: TimeDuration
+    get() = TimeDuration.milliseconds(this)
+
+val Double.nanoseconds: TimeDuration
+    get() = TimeDuration.nanoseconds(this)
+
 fun Date?.copyOf(): Date = when (this) {
     null -> Date()
     else -> Date(time)

@@ -38,6 +38,7 @@ val cachedContentResourceLoader = CachedContentResourceLoader.INSTANCE
 
 fun isDefaultContentType(type: String): Boolean = type.toLowerTrim() == DEFAULT_CONTENT_TYPE
 
+@JvmOverloads
 fun toCommonContentTypes(name: String, type: String = DEFAULT_CONTENT_TYPE): String = when (IO.getPathExtension(name).toLowerTrim()) {
     ".json" -> "application/json"
     ".java" -> "text/x-java-source"
@@ -50,6 +51,7 @@ fun toCommonContentTypes(name: String, type: String = DEFAULT_CONTENT_TYPE): Str
 
 fun getDefaultContentTypeProbe(): ContentTypeProbe = IO.getContentTypeProbe()
 
+@JvmOverloads
 fun getPathNormalizedOrElse(path: String?, other: String = EMPTY_STRING): String = toTrimOrElse(IO.getPathNormalized(path), other)
 
 fun getPathNormalizedNoTail(path: String?, tail: Boolean): String {
@@ -62,6 +64,7 @@ fun getPathNormalizedNoTail(path: String?, tail: Boolean): String {
 
 fun isFileURL(data: URL): Boolean = (data.protocol.toLowerTrim() == IO.TYPE_IS_FILE).or(data.toString().toLowerTrim().startsWith(IO.PREFIX_FILES))
 
+@JvmOverloads
 fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): File = createTempFile(prefix, suffix, folder).apply { deleteOnExit() }
 
 fun File.isSame(other: File): Boolean = isSame(other.toPath())

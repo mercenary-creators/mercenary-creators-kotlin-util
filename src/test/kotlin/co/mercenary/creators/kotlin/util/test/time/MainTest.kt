@@ -45,10 +45,7 @@ class MainTest : KotlinTest() {
         data shouldBe 1.nanosecond
         data shouldNotBe 99.nanoseconds
         val test = 1.year + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds + 8.milliseconds + 1.nanosecond
-        val buff = test.toString()
         info { test }
-        info { buff }
-        info { TimeDuration.parseCharSequence(buff) }
         measured(10) {
             for (i in 1..1000000) {
                 TimeDuration.parseCharSequence("1 second 100 nanoseconds")
@@ -64,6 +61,7 @@ class MainTest : KotlinTest() {
                 TimeDuration.parseCharSequence("6 days 3 hours 1 minute")
             }
         }
+        val buff = test.toString()
         measured(10) {
             for (i in 1..1000000) {
                 TimeDuration.parseCharSequence(buff)

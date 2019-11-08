@@ -19,7 +19,7 @@ package co.mercenary.creators.kotlin.util.time
 import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.type.Copyable
 import java.time.Duration
-import kotlin.math.abs
+import kotlin.math.*
 
 class TimeDuration private constructor(private val time: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable {
 
@@ -89,6 +89,20 @@ class TimeDuration private constructor(private val time: Duration, private val u
 
         const val DAYS_PER_YEAR = 365L
 
+        const val SECONDS_PER_TICK = 60L
+
+        const val MILLS_PER_SECOND = 1000L
+
+        const val NANOS_PER_SECOND = 1000000000L
+
+        const val SECONDS_PER_HOUR = SECONDS_PER_TICK * 60L
+
+        const val SECONDS_PER_DAYS = SECONDS_PER_HOUR * 24L
+
+        const val SECONDS_PER_WEEK = SECONDS_PER_DAYS * DAYS_PER_WEEK
+
+        const val SECONDS_PER_YEAR = SECONDS_PER_DAYS * DAYS_PER_YEAR
+
         private val look = Regex("\\h+")
 
         private fun copyOf(time: Duration): Duration = Duration.ofSeconds(time.seconds, time.nano.toLong())
@@ -98,11 +112,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
         }
 
         private fun text(unit: TimeDurationUnit, time: Long = 0): String {
-            return "$time ${name(unit.toLowerCase(), time)}"
-        }
-
-        private fun name(name: String, time: Long): String {
-            return if (abs(time) != 1L) name else name.removeSuffix("s")
+            return "$time ${unit.toLowerCase(abs(time) != 1L)}"
         }
 
         private fun text(time: Duration, unit: TimeDurationUnit): String {
@@ -237,6 +247,52 @@ class TimeDuration private constructor(private val time: Duration, private val u
         }
 
         @JvmStatic
+        fun years(time: Double): TimeDuration {
+            return secondsOf(time * SECONDS_PER_YEAR, TimeDurationUnit.YEARS)
+        }
+
+        @JvmStatic
+        fun weeks(time: Double): TimeDuration {
+            return secondsOf(time * SECONDS_PER_WEEK, TimeDurationUnit.WEEKS)
+        }
+
+        @JvmStatic
+        fun days(time: Double): TimeDuration {
+            return secondsOf(time * SECONDS_PER_DAYS, TimeDurationUnit.DAYS)
+        }
+
+        @JvmStatic
+        fun hours(time: Double): TimeDuration {
+            return secondsOf(time * SECONDS_PER_HOUR, TimeDurationUnit.HOURS)
+        }
+
+        @JvmStatic
+        fun minutes(time: Double): TimeDuration {
+            return secondsOf(time * SECONDS_PER_TICK, TimeDurationUnit.MINUTES)
+        }
+
+        @JvmStatic
+        fun seconds(time: Double): TimeDuration {
+            return secondsOf(time, TimeDurationUnit.SECONDS)
+        }
+
+        @JvmStatic
+        fun milliseconds(time: Double): TimeDuration {
+            return secondsOf(time / MILLS_PER_SECOND, TimeDurationUnit.MILLISECONDS)
+        }
+
+        @JvmStatic
+        fun nanoseconds(time: Double): TimeDuration {
+            return secondsOf(time / NANOS_PER_SECOND, TimeDurationUnit.NANOSECONDS)
+        }
+
+        @JvmStatic
+        fun durationOf(time: Duration): TimeDuration {
+            val make = copyOf(time)
+            return TimeDuration(make, less(make, TimeDurationUnit.NANOSECONDS))
+        }
+
+        @JvmStatic
         fun parseCharSequence(text: CharSequence): TimeDuration {
             val list = text.toLowerTrim().split(look)
             val size = list.size
@@ -248,6 +304,20 @@ class TimeDuration private constructor(private val time: Duration, private val u
                 make(list[i], list[i + 1], data)
             }
             return TimeDuration(data.time, data.unit)
+        }
+
+        private fun secondsOf(time: Double, unit: TimeDurationUnit): TimeDuration {
+            val full = if (time.isNaN().or(time.isInfinite())) throw MercenaryFatalExceptiion("invalid time $time") else abs(time)
+            val part = floor(full)
+            if (part >= Long.MAX_VALUE) {
+                throw MercenaryFatalExceptiion("invalid part $part")
+            }
+            val frac = (full - part) * NANOS_PER_SECOND
+            if (frac >= Long.MAX_VALUE) {
+                throw MercenaryFatalExceptiion("invalid frac $frac")
+            }
+            val make = if (sign(time) < 0) Duration.ofSeconds(part.toLong(), frac.toLong()).negated() else Duration.ofSeconds(part.toLong(), frac.toLong())
+            return TimeDuration(make, less(make, unit))
         }
 
         private fun less(time: Duration, unit: TimeDurationUnit): TimeDurationUnit {

@@ -32,6 +32,7 @@ object IO {
     const val DOUBLE_SLASH = SINGLE_SLASH + SINGLE_SLASH
     const val TILDE_PREFIX = SINGLE_TILDE + SINGLE_SLASH
     const val PREFIX_TILDE = SINGLE_SLASH + SINGLE_TILDE
+    const val SINGLE_MINUS = "-"
     const val PREFIX_COLON = ":"
     const val TYPE_IS_FILE = "file"
     const val PREFIX_BYTES = "byte:"

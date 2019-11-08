@@ -19,6 +19,7 @@ package co.mercenary.creators.kotlin.util.test
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.*
 import java.util.*
+import kotlin.math.absoluteValue
 
 abstract class AbstractKotlinTest : Logging() {
 
@@ -44,7 +45,8 @@ abstract class AbstractKotlinTest : Logging() {
         }
     }
 
-    fun measured(loop: Int, logs: (String) -> Unit = { info { it } }, call: (Int) -> Unit) {
+    @JvmOverloads
+    fun measured(loop: Int, logs: (Any?) -> Unit = { info { it } }, call: (Int) -> Unit) {
         val list = LongArray(loop)
         repeat(loop) {
             val time = System.nanoTime()
@@ -53,6 +55,9 @@ abstract class AbstractKotlinTest : Logging() {
         }
         logs(TimeAndDate.toElapsedString(list.average().toLong()))
     }
+
+    @JvmOverloads
+    fun dash(loop: Int = 48): String = "-".repeat(loop.absoluteValue)
 
     fun assertEach(vararg list: Executable) {
         if (list.isNotEmpty()) {
