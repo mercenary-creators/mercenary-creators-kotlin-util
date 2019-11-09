@@ -20,12 +20,13 @@
 package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.time.NanoTicker
+import java.time.Duration
 import java.util.*
 import kotlin.math.max
 
-const val DEFAULT_ZONE_STRING = "UTC"
+const val TIME_DEFAULT_ZONE_STRING = "UTC"
 
-const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
+const val TIME_DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
 
 typealias TimeAndDate = co.mercenary.creators.kotlin.util.time.TimeAndDate
 
@@ -129,6 +130,30 @@ val Long.milliseconds: TimeDuration
 val Long.nanoseconds: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
+val Float.days: TimeDuration
+    get() = TimeDuration.days(this)
+
+val Float.hours: TimeDuration
+    get() = TimeDuration.hours(this)
+
+val Float.weeks: TimeDuration
+    get() = TimeDuration.weeks(this)
+
+val Float.years: TimeDuration
+    get() = TimeDuration.years(this)
+
+val Float.minutes: TimeDuration
+    get() = TimeDuration.minutes(this)
+
+val Float.seconds: TimeDuration
+    get() = TimeDuration.seconds(this)
+
+val Float.milliseconds: TimeDuration
+    get() = TimeDuration.milliseconds(this)
+
+val Float.nanoseconds: TimeDuration
+    get() = TimeDuration.nanoseconds(this)
+
 val Double.days: TimeDuration
     get() = TimeDuration.days(this)
 
@@ -155,14 +180,30 @@ val Double.nanoseconds: TimeDuration
 
 fun Date?.copyOf(): Date = when (this) {
     null -> Date()
-    else -> Date(time)
+    else -> Date(toLong())
 }
 
-fun Date.toLong(): Long = this.time
+fun dateOf(): Date = Date()
 
-fun Long.toDate(): Date = Date(max(this, 0))
+fun Date.toLong(): Long = time
 
-fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
+fun Long.toDate(): Date = Date(this)
+
+operator fun Date.plus(value: TimeDuration): Date = plus(value.toDuration())
+
+operator fun Date.minus(value: TimeDuration): Date = minus(value.toDuration())
+
+operator fun Date.plus(value: Duration): Date = Date(toLong() + value.toMillis())
+
+operator fun Date.minus(value: Duration): Date = Date(toLong() - value.toMillis())
 
 @JvmOverloads
 fun getTimeStamp(nano: Boolean = false): Long = TimeAndDate.getTimeStamp(nano)
+
+@JvmOverloads
+fun Date.toDefaultFormat(safe: Boolean = true): String = TimeAndDate.format(this, safe)
+
+@JvmOverloads
+fun CharSequence.parseDefaultDateFormat(safe: Boolean = true): Date = TimeAndDate.parse(this, safe)
+
+fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }

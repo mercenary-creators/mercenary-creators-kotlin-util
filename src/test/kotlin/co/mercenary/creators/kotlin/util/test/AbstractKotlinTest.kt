@@ -31,6 +31,8 @@ abstract class AbstractKotlinTest : Logging() {
         getConfigPropertiesBuilder().invoke()
     }
 
+    protected val form = TimeAndDate.getThreadLocalDefaultDateFormat()
+
     protected open fun getConfigPropertiesBuilder(): () -> Properties = { Properties() }
 
     @JvmOverloads

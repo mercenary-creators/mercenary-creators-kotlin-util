@@ -18,6 +18,7 @@ package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.type.Copyable
+import java.math.*
 import java.time.Duration
 import kotlin.math.*
 
@@ -28,30 +29,77 @@ class TimeDuration private constructor(private val time: Duration, private val u
     fun toDuration() = copyOf(time)
 
     operator fun plus(other: TimeDuration): TimeDuration {
-        val make = copyOf(time).plus(other.time)
-        return TimeDuration(make, less(make, unit))
+        return copyOf(time).plus(other.time).let {
+            TimeDuration(it, less(it, unit))
+        }
     }
 
     operator fun minus(other: TimeDuration): TimeDuration {
-        val make = copyOf(time).minus(other.time)
-        return TimeDuration(make, less(make, unit))
+        return copyOf(time).minus(other.time).let {
+            TimeDuration(it, less(it, unit))
+        }
     }
 
     operator fun div(other: Int): TimeDuration = div(other.toLong())
 
     operator fun div(other: Long): TimeDuration {
-        if (other == 0L) {
-            throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+        return when (other) {
+            1L -> TimeDuration(copyOf(time), unit)
+            0L -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+            else -> copyOf(time).dividedBy(other).let {
+                TimeDuration(it, less(it, unit))
+            }
         }
-        val make = copyOf(time).dividedBy(other)
-        return TimeDuration(make, less(make, unit))
+    }
+
+    operator fun div(other: Float): TimeDuration = div(other.toDouble())
+
+    operator fun div(other: Double): TimeDuration {
+        if (other.isFinite()) {
+            return when (other) {
+                1.0 -> TimeDuration(copyOf(time), unit)
+                0.0 -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+                else -> create(create(time).divide(BigDecimal.valueOf(other), RoundingMode.DOWN)).let {
+                    TimeDuration(it, less(it, unit))
+                }
+            }
+        }
+        throw MercenaryFatalExceptiion("invalid value $other")
     }
 
     operator fun times(other: Int): TimeDuration = times(other.toLong())
 
     operator fun times(other: Long): TimeDuration {
-        val make = copyOf(time).multipliedBy(other)
-        return TimeDuration(make, less(make, unit))
+        return when (other) {
+            1L -> TimeDuration(copyOf(time), unit)
+            0L -> TimeDuration(copyOf(ZERO), unit)
+            else -> copyOf(time).multipliedBy(other).let {
+                TimeDuration(it, less(it, unit))
+            }
+        }
+    }
+
+    operator fun times(other: Float): TimeDuration = times(other.toDouble())
+
+    operator fun times(other: Double): TimeDuration {
+        if (other.isFinite()) {
+            return when (other) {
+                1.0 -> TimeDuration(copyOf(time), unit)
+                0.0 -> TimeDuration(copyOf(ZERO), unit)
+                else -> create(create(time).multiply(BigDecimal.valueOf(other))).let {
+                    TimeDuration(it, less(it, unit))
+                }
+            }
+        }
+        throw MercenaryFatalExceptiion("invalid value $other")
+    }
+
+    operator fun unaryPlus(): TimeDuration {
+        return TimeDuration(copyOf(time).abs(), unit)
+    }
+
+    operator fun unaryMinus(): TimeDuration {
+        return TimeDuration(copyOf(time).negated(), unit)
     }
 
     override operator fun compareTo(other: TimeDuration): Int {
@@ -85,27 +133,42 @@ class TimeDuration private constructor(private val time: Duration, private val u
 
     companion object {
 
-        const val DAYS_PER_WEEK = 7L
+        private const val DAYS_PER_WEEK = 7L
 
-        const val DAYS_PER_YEAR = 365L
+        private const val DAYS_PER_YEAR = 365L
 
-        const val SECONDS_PER_TICK = 60L
+        private const val SECONDS_PER_TICK = 60L
 
-        const val MILLS_PER_SECOND = 1000L
+        private const val MILLS_PER_SECOND = 1000L
 
-        const val NANOS_PER_SECOND = 1000000000L
+        private const val NANOS_PER_SECOND = 1000000000L
 
-        const val SECONDS_PER_HOUR = SECONDS_PER_TICK * 60L
+        private const val SECONDS_PER_HOUR = SECONDS_PER_TICK * 60L
 
-        const val SECONDS_PER_DAYS = SECONDS_PER_HOUR * 24L
+        private const val SECONDS_PER_DAYS = SECONDS_PER_HOUR * 24L
 
-        const val SECONDS_PER_WEEK = SECONDS_PER_DAYS * DAYS_PER_WEEK
+        private const val SECONDS_PER_WEEK = SECONDS_PER_DAYS * DAYS_PER_WEEK
 
-        const val SECONDS_PER_YEAR = SECONDS_PER_DAYS * DAYS_PER_YEAR
+        private const val SECONDS_PER_YEAR = SECONDS_PER_DAYS * DAYS_PER_YEAR
+
+        private val NANOS_PER_SECOND_VALUE = BigInteger.valueOf(NANOS_PER_SECOND)
+
+        private val ZERO = Duration.ZERO
 
         private val look = Regex("\\h+")
 
         private fun copyOf(time: Duration): Duration = Duration.ofSeconds(time.seconds, time.nano.toLong())
+
+        private fun create(time: Duration): BigDecimal = BigDecimal.valueOf(time.seconds).add(BigDecimal.valueOf(time.nano.toLong(), 9))
+
+        private fun create(time: BigDecimal): Duration {
+            val nano = time.movePointRight(9).toBigIntegerExact()
+            val list = nano.divideAndRemainder(NANOS_PER_SECOND_VALUE)
+            if (list[0].bitLength() > 63) {
+                throw MercenaryFatalExceptiion("invalid capacity $nano")
+            }
+            return Duration.ofSeconds(list[0].toLong(), list[1].toLong())
+        }
 
         private fun isEmpty(time: Duration): Boolean {
             return time.isZero.or(time.isNegative)
@@ -199,51 +262,83 @@ class TimeDuration private constructor(private val time: Duration, private val u
         fun milliseconds(time: Int) = milliseconds(time.toLong())
 
         @JvmStatic
+        fun days(time: Float) = days(time.toDouble())
+
+        @JvmStatic
+        fun weeks(time: Float) = weeks(time.toDouble())
+
+        @JvmStatic
+        fun years(time: Float) = years(time.toDouble())
+
+        @JvmStatic
+        fun hours(time: Float) = hours(time.toDouble())
+
+        @JvmStatic
+        fun minutes(time: Float) = minutes(time.toDouble())
+
+        @JvmStatic
+        fun seconds(time: Float) = seconds(time.toDouble())
+
+        @JvmStatic
+        fun nanoseconds(time: Float) = nanoseconds(time.toDouble())
+
+        @JvmStatic
+        fun milliseconds(time: Float) = milliseconds(time.toDouble())
+
+        @JvmStatic
         fun years(time: Long): TimeDuration {
-            val make = Duration.ofDays(time * DAYS_PER_YEAR)
-            return TimeDuration(make, less(make, TimeDurationUnit.YEARS))
+            return Duration.ofDays(time * DAYS_PER_YEAR).let {
+                TimeDuration(it, less(it, TimeDurationUnit.YEARS))
+            }
         }
 
         @JvmStatic
         fun weeks(time: Long): TimeDuration {
-            val make = Duration.ofDays(time * DAYS_PER_WEEK)
-            return TimeDuration(make, less(make, TimeDurationUnit.WEEKS))
+            return Duration.ofDays(time * DAYS_PER_WEEK).let {
+                TimeDuration(it, less(it, TimeDurationUnit.WEEKS))
+            }
         }
 
         @JvmStatic
         fun days(time: Long): TimeDuration {
-            val make = Duration.ofDays(time)
-            return TimeDuration(make, less(make, TimeDurationUnit.DAYS))
+            return Duration.ofDays(time).let {
+                TimeDuration(it, less(it, TimeDurationUnit.DAYS))
+            }
         }
 
         @JvmStatic
         fun hours(time: Long): TimeDuration {
-            val make = Duration.ofHours(time)
-            return TimeDuration(make, less(make, TimeDurationUnit.HOURS))
+            return Duration.ofHours(time).let {
+                TimeDuration(it, less(it, TimeDurationUnit.HOURS))
+            }
         }
 
         @JvmStatic
         fun minutes(time: Long): TimeDuration {
-            val make = Duration.ofMinutes(time)
-            return TimeDuration(make, less(make, TimeDurationUnit.MINUTES))
+            return Duration.ofMinutes(time).let {
+                TimeDuration(it, less(it, TimeDurationUnit.MINUTES))
+            }
         }
 
         @JvmStatic
         fun seconds(time: Long): TimeDuration {
-            val make = Duration.ofSeconds(time)
-            return TimeDuration(make, less(make, TimeDurationUnit.SECONDS))
+            return Duration.ofSeconds(time).let {
+                TimeDuration(it, less(it, TimeDurationUnit.SECONDS))
+            }
         }
 
         @JvmStatic
         fun nanoseconds(time: Long): TimeDuration {
-            val make = Duration.ofNanos(time)
-            return TimeDuration(make, less(make, TimeDurationUnit.NANOSECONDS))
+            return Duration.ofNanos(time).let {
+                TimeDuration(it, less(it, TimeDurationUnit.NANOSECONDS))
+            }
         }
 
         @JvmStatic
         fun milliseconds(time: Long): TimeDuration {
-            val make = Duration.ofMillis(time)
-            return TimeDuration(make, less(make, TimeDurationUnit.MILLISECONDS))
+            return Duration.ofMillis(time).let {
+                TimeDuration(it, less(it, TimeDurationUnit.MILLISECONDS))
+            }
         }
 
         @JvmStatic
@@ -288,8 +383,9 @@ class TimeDuration private constructor(private val time: Duration, private val u
 
         @JvmStatic
         fun durationOf(time: Duration): TimeDuration {
-            val make = copyOf(time)
-            return TimeDuration(make, less(make, TimeDurationUnit.NANOSECONDS))
+            return copyOf(time).let {
+                TimeDuration(it, less(it, TimeDurationUnit.NANOSECONDS))
+            }
         }
 
         @JvmStatic
@@ -307,7 +403,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
         }
 
         private fun secondsOf(time: Double, unit: TimeDurationUnit): TimeDuration {
-            val full = if (time.isNaN().or(time.isInfinite())) throw MercenaryFatalExceptiion("invalid time $time") else abs(time)
+            val full = if (time.isFinite()) abs(time) else throw MercenaryFatalExceptiion("invalid time $time")
             val part = floor(full)
             if (part >= Long.MAX_VALUE) {
                 throw MercenaryFatalExceptiion("invalid part $part")
@@ -355,7 +451,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
             }
         }
 
-        private class TimeData(var time: Duration = Duration.ZERO, var unit: TimeDurationUnit = TimeDurationUnit.NANOSECONDS) {
+        private class TimeData(var time: Duration = ZERO, var unit: TimeDurationUnit = TimeDurationUnit.NANOSECONDS) {
             inline fun make(plus: Long, block: (Long) -> Duration, less: TimeDurationUnit) {
                 if (less < unit) {
                     unit = less

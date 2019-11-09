@@ -52,5 +52,14 @@ class TimeTest : KotlinTest() {
         info { 1.0.milliseconds }
         info { 1.5.milliseconds }
         info { dash() }
+        info { 1.year * 0.5 }
+        info { 1.year * 1.0 }
+        info { 1.year * 1.5 }
+        info { dash() }
+        info { 1.year / 0.5 }
+        info { 1.year / 1.0 }
+        info { 1.year / 1.5 }
+        info { 1.year / 2.0 }
+        info { dash() }
     }
 }

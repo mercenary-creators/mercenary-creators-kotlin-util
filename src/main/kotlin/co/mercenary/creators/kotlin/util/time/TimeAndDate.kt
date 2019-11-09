@@ -39,7 +39,7 @@ object TimeAndDate {
     fun getTimeStamp(nano: Boolean = false): Long = if (nano) nanos() else mills()
 
     @JvmStatic
-    fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(DEFAULT_ZONE_STRING)
+    fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(TIME_DEFAULT_ZONE_STRING)
 
     @JvmStatic
     @JvmOverloads
@@ -48,10 +48,26 @@ object TimeAndDate {
     }
 
     @JvmStatic
-    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat(DEFAULT_DATE_FORMAT)
+    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat(TIME_DEFAULT_DATE_FORMAT)
 
     @JvmStatic
     fun getDefaultDateFormat(zone: TimeZone): SimpleDateFormat = getDefaultDateFormat().also { it.timeZone = zone }
+
+    @JvmStatic
+    @JvmOverloads
+    fun getDefaultDateFormatAndTimeZone(zone: TimeZone = getDefaultTimeZone()): SimpleDateFormat = getDefaultDateFormat(zone)
+
+    @JvmStatic
+    @JvmOverloads
+    fun format(date: Date, safe: Boolean = true): String {
+        return if (safe) getThreadLocalDefaultDateFormat().get().format(date) else getDefaultDateFormatAndTimeZone().format(date)
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun parse(text: CharSequence, safe: Boolean = true): Date {
+        return if (safe) getThreadLocalDefaultDateFormat().get().parse(text.toString()) else getDefaultDateFormatAndTimeZone().parse(text.toString())
+    }
 
     @JvmStatic
     @JvmOverloads

@@ -22,8 +22,6 @@ import java.io.File
 
 abstract class AbstractDataTest : AbstractKotlinTest() {
 
-    private val form = TimeAndDate.getThreadLocalDefaultDateFormat()
-
     protected fun getTempFileNamed(name: String, suff: String): File {
         return getTempFile(name, suff)
     }
