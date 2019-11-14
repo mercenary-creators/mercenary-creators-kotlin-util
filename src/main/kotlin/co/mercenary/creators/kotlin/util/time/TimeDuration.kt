@@ -29,13 +29,13 @@ class TimeDuration private constructor(private val time: Duration, private val u
     fun toDuration() = copyOf(time)
 
     operator fun plus(other: TimeDuration): TimeDuration {
-        return copyOf(time).plus(other.time).let {
+        return time.plus(other.time).let {
             TimeDuration(it, less(it, unit))
         }
     }
 
     operator fun minus(other: TimeDuration): TimeDuration {
-        return copyOf(time).minus(other.time).let {
+        return time.minus(other.time).let {
             TimeDuration(it, less(it, unit))
         }
     }
@@ -44,9 +44,9 @@ class TimeDuration private constructor(private val time: Duration, private val u
 
     operator fun div(other: Long): TimeDuration {
         return when (other) {
-            1L -> TimeDuration(copyOf(time), unit)
+            1L -> TimeDuration(time, unit)
             0L -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
-            else -> copyOf(time).dividedBy(other).let {
+            else -> time.dividedBy(other).let {
                 TimeDuration(it, less(it, unit))
             }
         }
@@ -57,9 +57,9 @@ class TimeDuration private constructor(private val time: Duration, private val u
     operator fun div(other: Double): TimeDuration {
         if (other.isFinite()) {
             return when (other) {
-                1.0 -> TimeDuration(copyOf(time), unit)
+                1.0 -> TimeDuration(time, unit)
                 0.0 -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
-                else -> create(create(time).divide(BigDecimal.valueOf(other), RoundingMode.DOWN)).let {
+                else -> time.toBigDecimal().divide(BigDecimal.valueOf(other), RoundingMode.DOWN).toDuration().let {
                     TimeDuration(it, less(it, unit))
                 }
             }
@@ -71,9 +71,9 @@ class TimeDuration private constructor(private val time: Duration, private val u
 
     operator fun times(other: Long): TimeDuration {
         return when (other) {
-            1L -> TimeDuration(copyOf(time), unit)
-            0L -> TimeDuration(copyOf(ZERO), unit)
-            else -> copyOf(time).multipliedBy(other).let {
+            1L -> TimeDuration(time, unit)
+            0L -> TimeDuration(ZERO, unit)
+            else -> time.multipliedBy(other).let {
                 TimeDuration(it, less(it, unit))
             }
         }
@@ -84,9 +84,9 @@ class TimeDuration private constructor(private val time: Duration, private val u
     operator fun times(other: Double): TimeDuration {
         if (other.isFinite()) {
             return when (other) {
-                1.0 -> TimeDuration(copyOf(time), unit)
-                0.0 -> TimeDuration(copyOf(ZERO), unit)
-                else -> create(create(time).multiply(BigDecimal.valueOf(other))).let {
+                1.0 -> TimeDuration(time, unit)
+                0.0 -> TimeDuration(ZERO, unit)
+                else -> time.toBigDecimal().multiply(BigDecimal.valueOf(other)).toDuration().let {
                     TimeDuration(it, less(it, unit))
                 }
             }
@@ -95,11 +95,11 @@ class TimeDuration private constructor(private val time: Duration, private val u
     }
 
     operator fun unaryPlus(): TimeDuration {
-        return TimeDuration(copyOf(time).abs(), unit)
+        return TimeDuration(time.abs(), unit)
     }
 
     operator fun unaryMinus(): TimeDuration {
-        return TimeDuration(copyOf(time).negated(), unit)
+        return TimeDuration(time.negated(), unit)
     }
 
     override operator fun compareTo(other: TimeDuration): Int {
@@ -126,7 +126,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
     }
 
     override fun toString(): String {
-        return toTrimOrElse(text(copyOf(time), unit)) {
+        return toTrimOrElse(text(time, unit)) {
             text(unit)
         }
     }
@@ -155,19 +155,16 @@ class TimeDuration private constructor(private val time: Duration, private val u
 
         private val ZERO = Duration.ZERO
 
-        private val look = Regex("\\h+")
+        private val GLOB = Regex("\\h+")
 
         private fun copyOf(time: Duration): Duration = Duration.ofSeconds(time.seconds, time.nano.toLong())
 
-        private fun create(time: Duration): BigDecimal = BigDecimal.valueOf(time.seconds).add(BigDecimal.valueOf(time.nano.toLong(), 9))
+        private fun Duration.toBigDecimal(): BigDecimal = BigDecimal.valueOf(seconds).add(BigDecimal.valueOf(nano.toLong(), 9))
 
-        private fun create(time: BigDecimal): Duration {
-            val nano = time.movePointRight(9).toBigIntegerExact()
-            val list = nano.divideAndRemainder(NANOS_PER_SECOND_VALUE)
-            if (list[0].bitLength() > 63) {
-                throw MercenaryFatalExceptiion("invalid capacity $nano")
+        private fun BigDecimal.toDuration(): Duration = movePointRight(9).toBigIntegerExact().let { nano ->
+            nano.divideAndRemainder(NANOS_PER_SECOND_VALUE).let {
+                if (it[0].bitLength() > 63) throw MercenaryFatalExceptiion("invalid capacity $nano") else Duration.ofSeconds(it[0].toLong(), it[1].toLong())
             }
-            return Duration.ofSeconds(list[0].toLong(), list[1].toLong())
         }
 
         private fun isEmpty(time: Duration): Boolean {
@@ -226,7 +223,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
                 }
             }
             return when (val next = unit.next()) {
-                null -> when ((unit == TimeDurationUnit.NANOSECONDS).and(save > 0)) {
+                null -> when (save > 0) {
                     true -> text(unit, save)
                     else -> EMPTY_STRING
                 }
@@ -382,15 +379,8 @@ class TimeDuration private constructor(private val time: Duration, private val u
         }
 
         @JvmStatic
-        fun durationOf(time: Duration): TimeDuration {
-            return copyOf(time).let {
-                TimeDuration(it, less(it, TimeDurationUnit.NANOSECONDS))
-            }
-        }
-
-        @JvmStatic
         fun parseCharSequence(text: CharSequence): TimeDuration {
-            val list = text.toLowerTrim().split(look)
+            val list = text.toLowerTrim().split(GLOB)
             val size = list.size
             if ((size == 0).or(size.rem(2) == 1)) {
                 throw MercenaryFatalExceptiion("invalid size $size")

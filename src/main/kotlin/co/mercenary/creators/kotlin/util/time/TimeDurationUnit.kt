@@ -35,17 +35,6 @@ enum class TimeDurationUnit {
         else -> null
     }
 
-    fun prev(): TimeDurationUnit? = when (this) {
-        NANOSECONDS -> MILLISECONDS
-        MILLISECONDS -> SECONDS
-        SECONDS -> MINUTES
-        MINUTES -> HOURS
-        WEEKS -> YEARS
-        DAYS -> WEEKS
-        HOURS -> DAYS
-        else -> null
-    }
-
     @JvmOverloads
     fun toLowerCase(full: Boolean = true) = if (full) lows else suff
 }

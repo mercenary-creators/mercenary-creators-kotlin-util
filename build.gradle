@@ -52,7 +52,7 @@ targetCompatibility = 1.8
 
 group = 'co.mercenary-creators'
 
-version = '9.0.1-SNAPSHOT'
+version = '9.0.2-SNAPSHOT'
 
 task doJavaDocs(type: Javadoc) {
     source = sourceSets.main.allJava
@@ -139,8 +139,6 @@ dependencies {
     compile(group: 'commons-io', name: 'commons-io', version: '2.6')
     compile(group: 'commons-codec', name: 'commons-codec', version: '1.12')
     compile(group: 'io.projectreactor', name: 'reactor-core', version: '3.3.0.RELEASE')
-    compile(group: 'io.projectreactor.addons', name: 'reactor-extra', version: '3.3.0.RELEASE')
-    compile(group: 'io.projectreactor.kotlin', name: 'reactor-kotlin-extensions', version: '1.0.0.RELEASE')
     compile(group: 'io.github.microutils', name: 'kotlin-logging', version: '1.7.6')
     compile(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.28')
     compile(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3')

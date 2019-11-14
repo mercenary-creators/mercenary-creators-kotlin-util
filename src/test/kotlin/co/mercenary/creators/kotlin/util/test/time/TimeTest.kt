@@ -61,5 +61,10 @@ class TimeTest : KotlinTest() {
         info { 1.year / 1.5 }
         info { 1.year / 2.0 }
         info { dash() }
+        val oops = 1.year * IS_NOT_FOUND.toDouble()
+        info { oops }
+        info { +oops }
+        info { -oops }
+        info { oops * 2.0 / IS_NOT_FOUND.toDouble() }
     }
 }

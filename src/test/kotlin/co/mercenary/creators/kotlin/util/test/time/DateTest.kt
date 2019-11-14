@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 class DateTest : KotlinTest() {
     @Test
     fun test() {
-        val date = dateOf()
+        val date = date()
         info { date.toDefaultFormat() }
         val plus = date + 1.year
         info { plus.toDefaultFormat() }

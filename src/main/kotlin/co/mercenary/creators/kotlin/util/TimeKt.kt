@@ -22,7 +22,6 @@ package co.mercenary.creators.kotlin.util
 import co.mercenary.creators.kotlin.util.time.NanoTicker
 import java.time.Duration
 import java.util.*
-import kotlin.math.max
 
 const val TIME_DEFAULT_ZONE_STRING = "UTC"
 
@@ -183,7 +182,7 @@ fun Date?.copyOf(): Date = when (this) {
     else -> Date(toLong())
 }
 
-fun dateOf(): Date = Date()
+fun date(): Date = Date()
 
 fun Date.toLong(): Long = time
 
