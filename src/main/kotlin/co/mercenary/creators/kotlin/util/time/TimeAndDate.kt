@@ -18,9 +18,19 @@ package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
 import java.text.SimpleDateFormat
+import java.time.*
+import java.time.format.*
 import java.util.*
 
 object TimeAndDate {
+
+    private val formatter: DateTimeFormatter by lazy {
+        DateTimeFormatterBuilder().appendPattern(TIME_DEFAULT_DATE_FORMAT).toFormatter()
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun dateTimeOf(zone: ZoneId = getDefaultTimeZoneId()): LocalDateTime = LocalDateTime.now(zone)
 
     @JvmStatic
     fun nanos(): Long = System.nanoTime()
@@ -37,6 +47,9 @@ object TimeAndDate {
     @JvmStatic
     @JvmOverloads
     fun getTimeStamp(nano: Boolean = false): Long = if (nano) nanos() else mills()
+
+    @JvmStatic
+    fun getDefaultTimeZoneId(): ZoneId = ZoneId.of(TIME_DEFAULT_ZONE_STRING)
 
     @JvmStatic
     fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(TIME_DEFAULT_ZONE_STRING)
@@ -59,14 +72,26 @@ object TimeAndDate {
 
     @JvmStatic
     @JvmOverloads
-    fun format(date: Date, safe: Boolean = true): String {
+    fun formatDate(date: Date, safe: Boolean = true): String {
         return if (safe) getThreadLocalDefaultDateFormat().get().format(date) else getDefaultDateFormatAndTimeZone().format(date)
     }
 
     @JvmStatic
     @JvmOverloads
-    fun parse(text: CharSequence, safe: Boolean = true): Date {
+    fun formatDate(date: LocalDateTime, zone: ZoneId = getDefaultTimeZoneId()): String {
+        return formatter.withZone(zone).format(date)
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun parseDate(text: CharSequence, safe: Boolean = true): Date {
         return if (safe) getThreadLocalDefaultDateFormat().get().parse(text.toString()) else getDefaultDateFormatAndTimeZone().parse(text.toString())
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun parseDate(text: CharSequence, zone: ZoneId = getDefaultTimeZoneId()): LocalDateTime {
+        return LocalDateTime.parse(text, formatter.withZone(zone))
     }
 
     @JvmStatic

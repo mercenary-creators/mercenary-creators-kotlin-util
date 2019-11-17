@@ -19,10 +19,10 @@ package co.mercenary.creators.kotlin.util.test.time
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
-class DateTest : KotlinTest() {
+class DateTimeTest : KotlinTest() {
     @Test
     fun test() {
-        val date = dateOf()
+        val date = dateTimeOf()
         info { date.formatDate() }
         val plus = date + 1.year
         info { plus.formatDate() }

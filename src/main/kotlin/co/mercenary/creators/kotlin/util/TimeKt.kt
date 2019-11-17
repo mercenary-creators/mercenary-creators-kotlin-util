@@ -20,7 +20,8 @@
 package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.time.NanoTicker
-import java.time.Duration
+import java.time.*
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 const val TIME_DEFAULT_ZONE_STRING = "UTC"
@@ -182,27 +183,40 @@ fun Date?.copyOf(): Date = when (this) {
     else -> Date(toLong())
 }
 
-fun date(): Date = Date()
-
 fun Date.toLong(): Long = time
 
 fun Long.toDate(): Date = Date(this)
 
-operator fun Date.plus(value: TimeDuration): Date = plus(value.toDuration())
+fun dateOf(): Date = Date()
 
-operator fun Date.minus(value: TimeDuration): Date = minus(value.toDuration())
+operator fun Date.plus(value: TimeDuration): Date = Date(toLong() + value.toDuration().toMillis())
 
-operator fun Date.plus(value: Duration): Date = Date(toLong() + value.toMillis())
+operator fun Date.minus(value: TimeDuration): Date = Date(toLong() - value.toDuration().toMillis())
 
-operator fun Date.minus(value: Duration): Date = Date(toLong() - value.toMillis())
+operator fun LocalDateTime.plus(value: TimeDuration): LocalDateTime = value.toDuration().let {
+    plus(it.seconds, ChronoUnit.SECONDS).plus(it.nano.toLong(), ChronoUnit.NANOS)
+}
+
+operator fun LocalDateTime.minus(value: TimeDuration): LocalDateTime = value.toDuration().let {
+    minus(it.seconds, ChronoUnit.SECONDS).minus(it.nano.toLong(), ChronoUnit.NANOS)
+}
+
+@JvmOverloads
+fun dateTimeOf(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): LocalDateTime = TimeAndDate.dateTimeOf(zone)
 
 @JvmOverloads
 fun getTimeStamp(nano: Boolean = false): Long = TimeAndDate.getTimeStamp(nano)
 
 @JvmOverloads
-fun Date.toDefaultFormat(safe: Boolean = true): String = TimeAndDate.format(this, safe)
+fun Date.formatDate(safe: Boolean = true): String = TimeAndDate.formatDate(this, safe)
 
 @JvmOverloads
-fun CharSequence.parseDefaultDateFormat(safe: Boolean = true): Date = TimeAndDate.parse(this, safe)
+fun LocalDateTime.formatDate(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): String = TimeAndDate.formatDate(this, zone)
+
+@JvmOverloads
+fun CharSequence.parseDate(safe: Boolean = true): Date = TimeAndDate.parseDate(this, safe)
+
+@JvmOverloads
+fun CharSequence.parseDateTime(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): LocalDateTime = TimeAndDate.parseDate(this, zone)
 
 fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
