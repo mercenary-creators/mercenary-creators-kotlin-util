@@ -277,7 +277,7 @@ object IO {
                     return size
                 }
             }
-            return data.toInputStream().use { it.copyTo(EmptyOutputStream.INSTANCE) }
+            return data.toInputStream().use { it.copyTo(EmptyOutputStream) }
         }
         throw MercenaryExceptiion(data.toString())
     }

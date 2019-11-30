@@ -16,10 +16,9 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import java.io.OutputStream
+import java.io.InputStream
 
-object EmptyOutputStream : OutputStream() {
-    override fun write(b: Int) = Unit
-    override fun write(b: ByteArray) = Unit
-    override fun write(b: ByteArray, off: Int, len: Int) = Unit
+object EmptyInputStream : InputStream() {
+
+    override fun read() = -1
 }

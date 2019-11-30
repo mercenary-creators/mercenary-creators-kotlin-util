@@ -40,5 +40,5 @@ abstract class AbstractContentResource @JvmOverloads constructor(path: String, t
     override fun isContentCache() = false
     override fun toContentCache() = cache
     override fun getContentData() = getInputStream().toByteArray()
-    override fun getContentSize() = getInputStream().use { it.copyTo(EmptyOutputStream.INSTANCE) }
+    override fun getContentSize() = getInputStream().use { it.copyTo(EmptyOutputStream) }
 }
