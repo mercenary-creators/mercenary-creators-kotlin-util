@@ -84,7 +84,7 @@ fun URL.toInputStream(): InputStream = when (val data = IO.getInputStream(this))
     else -> data
 }
 
-fun ByteArray.toInputStream(): ByteArrayInputStream = ByteArrayInputStream(this)
+fun ByteArray.toInputStream(): InputStream = ByteArrayInputStream(this)
 
 fun File.toInputStream(vararg args: OpenOption): InputStream = toPath().toInputStream(*args)
 
@@ -104,12 +104,6 @@ fun URL.toOutputStream(): OutputStream = when (val data = IO.getOutputStream(thi
 fun File.toOutputStream(vararg args: OpenOption): OutputStream = toPath().toOutputStream(*args)
 
 fun Path.toOutputStream(vararg args: OpenOption): OutputStream = Files.newOutputStream(this, *args)
-
-fun URL.toByteArray(): ByteArray = readBytes()
-
-fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
-
-fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
 
 fun Reader.forEachLineIndexed(block: (Int, String) -> Unit) {
     buffered().useLines { it.forEachIndexed(block) }
@@ -140,7 +134,15 @@ fun InputStream.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (In
     InputStreamReader(this, charset).forEachLineIndexed(block)
 }
 
+fun URL.toByteArray(): ByteArray = readBytes()
+
+fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
+
+fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
+
 fun Path.toByteArray(): ByteArray = toInputStream().toByteArray()
+
+fun ReadableByteChannel.toByteArray(): ByteArray = toInputStream().toByteArray()
 
 fun Reader.toByteArray(): ByteArray = toInputStream().toByteArray()
 
@@ -149,3 +151,8 @@ fun InputStreamSupplier.toByteArray(): ByteArray = when (this) {
     else -> getInputStream().toByteArray()
 }
 
+fun URL.toContentResource() = URLContentResource(this)
+
+fun File.toContentResource() = FileContentResource(this)
+
+fun Path.toContentResource() = FileContentResource(this.toFile())

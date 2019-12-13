@@ -131,20 +131,115 @@ catch (cause: Throwable) {
 
 fun Long.toAtomic(): AtomicLong = AtomicLong(this)
 
-fun AtomicLong.asLong(): Long = this.get()
+operator fun AtomicLong.div(value: Int): AtomicLong {
+    if (value == 0) throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+    updateAndGet { it / value }
+    return this
+}
+
+operator fun AtomicLong.times(value: Int): AtomicLong {
+    updateAndGet { it * value }
+    return this
+}
+
+operator fun AtomicLong.plus(value: Int): AtomicLong {
+    updateAndGet { it + value }
+    return this
+}
+
+operator fun AtomicLong.minus(value: Int): AtomicLong {
+    updateAndGet { it - value }
+    return this
+}
+
+operator fun AtomicLong.div(value: Long): AtomicLong {
+    if (value == 0L) throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+    updateAndGet { it / value }
+    return this
+}
+
+operator fun AtomicLong.times(value: Long): AtomicLong {
+    updateAndGet { it * value }
+    return this
+}
+
+operator fun AtomicLong.plus(value: Long): AtomicLong {
+    updateAndGet { it + value }
+    return this
+}
+
+operator fun AtomicLong.minus(value: Long): AtomicLong {
+    updateAndGet { it - value }
+    return this
+}
+
+fun AtomicLong.increment(): AtomicLong {
+    getAndIncrement()
+    return this
+}
+
+fun AtomicLong.decrement(): AtomicLong {
+    getAndDecrement()
+    return this
+}
 
 fun Int.toAtomic(): AtomicInteger = AtomicInteger(this)
 
-fun AtomicInteger.asInt(): Int = this.get()
+operator fun AtomicInteger.div(value: Int): AtomicInteger {
+    if (value == 0) throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+    updateAndGet { it / value }
+    return this
+}
 
-fun Boolean.toAtomic(): AtomicBoolean = AtomicBoolean(this)
+operator fun AtomicInteger.times(value: Int): AtomicInteger {
+    updateAndGet { it * value }
+    return this
+}
 
-fun AtomicBoolean.asBoolean(): Boolean = this.get()
+operator fun AtomicInteger.plus(value: Int): AtomicInteger {
+    updateAndGet { it + value }
+    return this
+}
 
-operator fun AtomicBoolean.not(): Boolean = this.get().not()
+operator fun AtomicInteger.minus(value: Int): AtomicInteger {
+    updateAndGet { it - value }
+    return this
+}
+
+fun AtomicInteger.increment(): AtomicInteger {
+    getAndIncrement()
+    return this
+}
+
+fun AtomicInteger.decrement(): AtomicInteger {
+    getAndDecrement()
+    return this
+}
+
+fun Boolean.toAtomic() = AtomicBoolean(this)
+
+operator fun AtomicBoolean.not(): Boolean = get().not()
+
+infix fun Boolean.or(value: AtomicBoolean): Boolean = or(value.get())
+
+infix fun AtomicBoolean.or(value: Boolean): Boolean = get().or(value)
+
+infix fun AtomicBoolean.or(value: AtomicBoolean): Boolean = get().or(value.get())
+
+infix fun Boolean.and(value: AtomicBoolean): Boolean = and(value.get())
+
+infix fun AtomicBoolean.and(value: Boolean): Boolean = get().and(value)
+
+infix fun AtomicBoolean.and(value: AtomicBoolean): Boolean = get().and(value.get())
+
+infix fun Boolean.xor(value: AtomicBoolean): Boolean = xor(value.get())
+
+infix fun AtomicBoolean.xor(value: Boolean): Boolean = get().xor(value)
+
+infix fun AtomicBoolean.xor(value: AtomicBoolean): Boolean = get().xor(value.get())
 
 open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
-    constructor() : this(listOf())
+    constructor() : this(emptyList())
     constructor(source: Iterable<T>) : this(source.iterator())
     constructor(source: Sequence<T>) : this(source.iterator())
 
@@ -166,6 +261,18 @@ fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = MercenarySequence(iterator
 fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(generateSequence(next))
 
 fun <T : Any> sequenceOf(seed: T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
+
+inline fun <T> Sequence<T>.forEachIndexedPlus(plus: Int = 1, action: (index: Int, T) -> Unit) {
+    this.forEachIndexed { i, v -> action(i + plus, v) }
+}
+
+inline fun <T> Iterable<T>.forEachIndexedPlus(plus: Int = 1, action: (index: Int, T) -> Unit) {
+    this.forEachIndexed { i, v -> action(i + plus, v) }
+}
+
+fun Sequence<String>.uniqueTrimmedOf(): List<String> = asIterable().uniqueTrimmedOf()
+
+fun Iterable<String>.uniqueTrimmedOf(): List<String> = mapNotNull { toTrimOrNull(it) }.distinct()
 
 inline fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()
 

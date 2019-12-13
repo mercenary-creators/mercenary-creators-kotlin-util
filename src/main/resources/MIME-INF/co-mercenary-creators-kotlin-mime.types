@@ -1488,6 +1488,8 @@ text/vnd.wap.wmlscript				wmls
 text/x-asm					s asm
 text/x-c					c cc cxx cpp h hh dic
 text/x-fortran					f for f77 f90
+text/x-kotlin-source            kt
+text/x-kotlin-script            kts
 text/x-java-source				java
 text/x-java-properties			properties
 text/x-opml					opml
