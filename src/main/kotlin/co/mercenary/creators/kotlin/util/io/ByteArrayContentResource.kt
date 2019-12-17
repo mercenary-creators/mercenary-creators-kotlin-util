@@ -23,7 +23,7 @@ class ByteArrayContentResource @JvmOverloads constructor(data: ByteArray, path: 
     override fun toString() = getDescription()
 
     override fun equals(other: Any?) = when (other) {
-        is ByteArrayContentResource -> getContentPath() == other.getContentPath() && save.contentEquals(other.save)
+        is ByteArrayContentResource -> this === other || (getContentPath() == other.getContentPath() && save contentEquals other.save)
         else -> false
     }
 

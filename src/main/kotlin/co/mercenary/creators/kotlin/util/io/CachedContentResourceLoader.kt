@@ -22,13 +22,6 @@ open class CachedContentResourceLoader @JvmOverloads constructor(load: ClassLoad
 
     private val maps = ConcurrentHashMap<String, CachedContentResource>()
 
-    override val size: Int
-        get() = maps.size
-
-    override fun clear() {
-        maps.clear()
-    }
-
     override operator fun get(path: String): CachedContentResource {
         return maps.computeIfAbsent(path) {
             super.get(it).toContentCache()

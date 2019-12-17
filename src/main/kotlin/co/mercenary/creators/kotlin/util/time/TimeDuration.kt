@@ -106,17 +106,13 @@ class TimeDuration private constructor(private val time: Duration, private val u
         return time.compareTo(other.time)
     }
 
-    override fun clone(): Any {
-        return copyOf()
-    }
-
     override fun copyOf(): TimeDuration {
         return TimeDuration(copyOf(time), unit)
     }
 
     override fun equals(other: Any?): Boolean {
         return when (other) {
-            is TimeDuration -> time == other.time
+            is TimeDuration -> (this === other)  || time == other.time
             else -> false
         }
     }

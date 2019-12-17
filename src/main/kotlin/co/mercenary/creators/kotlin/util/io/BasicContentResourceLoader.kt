@@ -21,14 +21,7 @@ import java.net.URL
 
 open class BasicContentResourceLoader @JvmOverloads constructor(private val load: ClassLoader? = null) : ContentResourceLoader {
 
-    private val maps = mutableSetOf<ContentProtocolResolver>()
-
-    override val size: Int
-        get() = maps.size
-
-    override fun clear() {
-        maps.clear()
-    }
+    private val maps = arrayListOf<ContentProtocolResolver>()
 
     override operator fun get(path: String): ContentResource {
         if (maps.isNotEmpty()) {
@@ -92,36 +85,32 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
         return ClassPathContentResource(path, getDefaultContentTypeProbe().getContentType(path), null, getClassLoader())
     }
 
-    open fun add(args: ContentProtocolResolver) {
-        maps += args
-    }
-
-    open fun add(args: Array<ContentProtocolResolver>) {
-        maps += args
-    }
-
-    open fun add(args: Iterable<ContentProtocolResolver>) {
-        maps += args
-    }
-
-    open fun add(args: Sequence<ContentProtocolResolver>) {
-        maps += args
-    }
-
     override operator fun plusAssign(args: ContentProtocolResolver) {
-        add(args)
+        synchronized(maps) {
+            if (!contains(args)) {
+                maps += args
+            }
+        }
     }
 
-    override operator fun plusAssign(args: Array<ContentProtocolResolver>) {
-        add(args)
+    override operator fun minusAssign(args: ContentProtocolResolver) {
+        synchronized(maps) {
+            if (contains(args)) {
+                maps -= args
+            }
+        }
     }
 
-    override operator fun plusAssign(args: Iterable<ContentProtocolResolver>) {
-        add(args)
-    }
-
-    override operator fun plusAssign(args: Sequence<ContentProtocolResolver>) {
-        add(args)
+    override operator fun contains(args: ContentProtocolResolver): Boolean {
+        if (maps.contains(args)) {
+            return true
+        }
+        maps.forEach {
+            if (it === args) {
+                return true
+            }
+        }
+        return false
     }
 
     companion object {
