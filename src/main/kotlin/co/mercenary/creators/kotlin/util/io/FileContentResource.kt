@@ -29,11 +29,12 @@ class FileContentResource @JvmOverloads constructor(private val data: File, type
     override fun isContentThere() = data.isValidToRead()
     override fun getInputStream() = data.toInputStream()
     override fun getOutputStream() = data.toOutputStream()
+    override fun toRelativePath(path: String) = data.toRelative(path).toContentResource()
 
     override fun toString() = getDescription()
 
     override fun equals(other: Any?) = when (other) {
-        is FileContentResource -> data.isSame(other.data)
+        is FileContentResource -> this === other || data.isSame(other.data) || data == other.data
         else -> false
     }
 

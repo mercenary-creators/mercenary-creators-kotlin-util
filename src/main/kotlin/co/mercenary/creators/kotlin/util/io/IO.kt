@@ -35,7 +35,6 @@ object IO {
     const val SINGLE_MINUS = "-"
     const val PREFIX_COLON = ":"
     const val TYPE_IS_FILE = "file"
-    const val PREFIX_BYTES = "byte:"
     const val PREFIX_FILES = "file:"
     const val PREFIX_CLASS = "classpath:"
 
@@ -75,6 +74,12 @@ object IO {
     }
 
     @JvmStatic
+    @JvmOverloads
+    fun getPathRelative(path: String, tail: String, root: Boolean = true): String {
+        return FilenameUtils.concat(path, tail).orEmpty().let { if (root) it.removePrefix(SINGLE_SLASH) else it }
+    }
+
+    @JvmStatic
     fun getPathExtension(path: String?): String {
         val temp = getPathNormalized(path).orEmpty()
         if ((temp.isNotEmpty()) && (temp.indexOf(EXT_SEPARATOR_CHAR) != IS_NOT_FOUND)) {
@@ -87,6 +92,19 @@ object IO {
             }
         }
         return EMPTY_STRING
+    }
+
+    @JvmStatic
+    fun getRelative(data: URL, path: String): URL {
+        return when(val file = toFileOrNull(data)) {
+            null -> URL(data, getPathRelative(data.path, path).replace("#", "%23"))
+            else -> getRelative(file, path).toURI().toURL()
+        }
+    }
+
+    @JvmStatic
+    fun getRelative(data: File, path: String): File {
+        return File(getPathRelative(data.path, path))
     }
 
     @JvmStatic

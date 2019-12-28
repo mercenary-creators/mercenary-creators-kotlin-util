@@ -20,21 +20,21 @@ import co.mercenary.creators.kotlin.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.*
 
-abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window: Long, private val wait: TimeUnit = TimeUnit.MILLISECONDS, unit: TimeUnit = TimeUnit.MILLISECONDS, private val moment: () -> Long = System::currentTimeMillis) : TimeWindowMovingAverage {
+abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window: Long, private val wait: TimeUnit = TimeUnit.MILLISECONDS, unit: TimeUnit = TimeUnit.MILLISECONDS, private val moment: () -> Long = TimeAndDate::mills) : TimeWindowMovingAverage {
 
     @Volatile
     private var ticker = 0L
 
     @Volatile
-    private var moving = ticker.toDouble()
+    private var moving = 0.0
 
     private val window = wait.convert(max(window, 1L), unit).toDouble()
 
-    override fun getAverage(): Double = moving
+    override fun getAverage() = moving
 
-    override fun getWaitTimeUnit(): TimeUnit = wait
+    override fun getWaitTimeUnit() = wait
 
-    override fun getMomentInTime(): Long = moment()
+    override fun getMomentInTime() = moment.invoke()
 
     @Synchronized
     override fun addAverage(delta: Double): Double {

@@ -26,4 +26,5 @@ interface ContentResource : InputStreamSupplier {
     fun isContentCache(): Boolean
     fun getContentData(): ByteArray
     fun toContentCache(): CachedContentResource
+    fun toRelativePath(path: String): ContentResource
 }

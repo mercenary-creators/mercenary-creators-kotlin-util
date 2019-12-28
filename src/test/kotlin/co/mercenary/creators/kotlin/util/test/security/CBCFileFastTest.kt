@@ -52,9 +52,7 @@ class CBCFileFastTest : KotlinSecurityTest() {
         timed {
             code.decrypt(temp, copy)
         }
-        copy.forEachLineIndexed { i, s ->
-            info { "%2d : %s".format(i + 1, s) }
-        }
+        copy.forEachLineIndexed(block = printer)
         data.toByteArray().shouldBe(copy.toByteArray()) {
             "files should not be different."
         }

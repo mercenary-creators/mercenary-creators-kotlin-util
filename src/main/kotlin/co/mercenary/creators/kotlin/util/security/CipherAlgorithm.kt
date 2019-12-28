@@ -42,13 +42,18 @@ interface CipherAlgorithm {
         }
 
         open class CipherAlgorithmFactory @JvmOverloads constructor(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {
+
+            private val rand: SecureRandom by lazy {
+                SecureRandom()
+            }
+
             override fun getFactoryKeysSize() = size
             override fun getCipherKeyLength() = leng
             override fun getCipherIteration() = iter
             override fun getCipherSecretKey() = type
             override fun getCipherAlgorithm() = algo
             override fun getCipherTransform() = tran
-            override fun getFactoryKeysRand() = SecureRandom()
+            override fun getFactoryKeysRand() = rand
             override fun getAlgorithmParams(vector: ByteArray) = factory(vector)
         }
     }

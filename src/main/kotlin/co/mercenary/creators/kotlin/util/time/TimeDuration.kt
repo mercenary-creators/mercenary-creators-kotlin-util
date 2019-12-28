@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.type.Copyable
-import java.math.*
+import java.math.BigDecimal
 import java.time.Duration
 import kotlin.math.*
 
@@ -26,7 +26,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
 
     fun toUnit() = unit
 
-    fun toDuration() = copyOf(time)
+    fun toDuration() = time.copyOf()
 
     operator fun plus(other: TimeDuration): TimeDuration {
         return time.plus(other.time).let {
@@ -40,17 +40,9 @@ class TimeDuration private constructor(private val time: Duration, private val u
         }
     }
 
-    operator fun div(other: Int): TimeDuration = div(other.toLong())
+    operator fun div(other: Int): TimeDuration = div(other.toDouble())
 
-    operator fun div(other: Long): TimeDuration {
-        return when (other) {
-            1L -> TimeDuration(time, unit)
-            0L -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
-            else -> time.dividedBy(other).let {
-                TimeDuration(it, less(it, unit))
-            }
-        }
-    }
+    operator fun div(other: Long): TimeDuration = div(other.toDouble())
 
     operator fun div(other: Float): TimeDuration = div(other.toDouble())
 
@@ -59,7 +51,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
             return when (other) {
                 1.0 -> TimeDuration(time, unit)
                 0.0 -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
-                else -> time.toBigDecimal().divide(BigDecimal.valueOf(other), RoundingMode.DOWN).toDuration().let {
+                else -> time.toBigDecimal().div(other.toBigDecimal()).toDuration().let {
                     TimeDuration(it, less(it, unit))
                 }
             }
@@ -67,17 +59,9 @@ class TimeDuration private constructor(private val time: Duration, private val u
         throw MercenaryFatalExceptiion("invalid value $other")
     }
 
-    operator fun times(other: Int): TimeDuration = times(other.toLong())
+    operator fun times(other: Int): TimeDuration = times(other.toDouble())
 
-    operator fun times(other: Long): TimeDuration {
-        return when (other) {
-            1L -> TimeDuration(time, unit)
-            0L -> TimeDuration(ZERO, unit)
-            else -> time.multipliedBy(other).let {
-                TimeDuration(it, less(it, unit))
-            }
-        }
-    }
+    operator fun times(other: Long): TimeDuration = times(other.toDouble())
 
     operator fun times(other: Float): TimeDuration = times(other.toDouble())
 
@@ -86,7 +70,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
             return when (other) {
                 1.0 -> TimeDuration(time, unit)
                 0.0 -> TimeDuration(ZERO, unit)
-                else -> time.toBigDecimal().multiply(BigDecimal.valueOf(other)).toDuration().let {
+                else -> time.toBigDecimal().times(other.toBigDecimal()).toDuration().let {
                     TimeDuration(it, less(it, unit))
                 }
             }
@@ -94,40 +78,28 @@ class TimeDuration private constructor(private val time: Duration, private val u
         throw MercenaryFatalExceptiion("invalid value $other")
     }
 
-    operator fun unaryPlus(): TimeDuration {
-        return TimeDuration(time.abs(), unit)
+    operator fun unaryPlus() = TimeDuration(time.abs(), unit)
+
+    operator fun unaryMinus() = TimeDuration(time.negated(), unit)
+
+    override operator fun compareTo(other: TimeDuration) = time.compareTo(other.time)
+
+    override fun clone() = copyOf()
+
+    override fun copyOf() = TimeDuration(time.copyOf(), unit)
+
+    override fun equals(other: Any?) = when (other) {
+        is TimeDuration -> this === other || time == other.time
+        else -> false
     }
 
-    operator fun unaryMinus(): TimeDuration {
-        return TimeDuration(time.negated(), unit)
-    }
+    override fun hashCode() = time.hashCode()
 
-    override operator fun compareTo(other: TimeDuration): Int {
-        return time.compareTo(other.time)
-    }
-
-    override fun copyOf(): TimeDuration {
-        return TimeDuration(copyOf(time), unit)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return when (other) {
-            is TimeDuration -> (this === other)  || time == other.time
-            else -> false
-        }
-    }
-
-    override fun hashCode(): Int {
-        return time.hashCode()
-    }
-
-    override fun toString(): String {
-        return toTrimOrElse(text(time, unit)) {
-            text(unit)
-        }
-    }
+    override fun toString() = toTrimOrElse(text(time, unit)) { text(unit) }
 
     companion object {
+
+        private const val NANOS_SHIFTED = 9
 
         private const val DAYS_PER_WEEK = 7L
 
@@ -147,17 +119,17 @@ class TimeDuration private constructor(private val time: Duration, private val u
 
         private const val SECONDS_PER_YEAR = SECONDS_PER_DAYS * DAYS_PER_YEAR
 
-        private val NANOS_PER_SECOND_VALUE = BigInteger.valueOf(NANOS_PER_SECOND)
+        private val NANOS_PER_SECOND_VALUE = NANOS_PER_SECOND.toBigInteger()
 
         private val ZERO = Duration.ZERO
 
         private val GLOB = Regex("\\h+")
 
-        private fun copyOf(time: Duration): Duration = Duration.ofSeconds(time.seconds, time.nano.toLong())
+        private fun Duration.copyOf(): Duration = Duration.ofSeconds(seconds, nano.toLong())
 
-        private fun Duration.toBigDecimal(): BigDecimal = BigDecimal.valueOf(seconds).add(BigDecimal.valueOf(nano.toLong(), 9))
+        private fun Duration.toBigDecimal(): BigDecimal = seconds.toBigDecimal().plus(BigDecimal.valueOf(nano.toLong(), NANOS_SHIFTED))
 
-        private fun BigDecimal.toDuration(): Duration = movePointRight(9).toBigIntegerExact().let { nano ->
+        private fun BigDecimal.toDuration(): Duration = movePointRight(NANOS_SHIFTED).toBigIntegerExact().let { nano ->
             nano.divideAndRemainder(NANOS_PER_SECOND_VALUE).let {
                 if (it[0].bitLength() > 63) throw MercenaryFatalExceptiion("invalid capacity $nano") else Duration.ofSeconds(it[0].toLong(), it[1].toLong())
             }
@@ -225,7 +197,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
                 }
                 else -> when (save < 1) {
                     true -> text(copy, next)
-                    else -> text(unit, save).plus(SPACE_STRING).plus(text(copy, next))
+                    else -> "${text(unit, save)} ${text(copy, next)}"
                 }
             }
         }

@@ -17,5 +17,13 @@
 package co.mercenary.creators.kotlin.util.time
 
 class NanoTicker : AbstractTicker(TimeAndDate::nanos) {
+
     override fun toString() = toElapsedString()
+
+    override fun equals(other: Any?) = when (other) {
+        is NanoTicker -> this === other || tick == other.tick
+        else -> false
+    }
+
+    override fun hashCode() = tick.hashCode()
 }

@@ -21,7 +21,6 @@ package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.time.NanoTicker
 import java.time.*
-import java.time.temporal.ChronoUnit
 import java.util.*
 
 const val TIME_DEFAULT_ZONE_STRING = "UTC"
@@ -193,13 +192,9 @@ operator fun Date.plus(value: TimeDuration): Date = Date(toLong() + value.toDura
 
 operator fun Date.minus(value: TimeDuration): Date = Date(toLong() - value.toDuration().toMillis())
 
-operator fun LocalDateTime.plus(value: TimeDuration): LocalDateTime = value.toDuration().let {
-    plus(it.seconds, ChronoUnit.SECONDS).plus(it.nano.toLong(), ChronoUnit.NANOS)
-}
+operator fun LocalDateTime.plus(value: TimeDuration): LocalDateTime = plus(value.toDuration())
 
-operator fun LocalDateTime.minus(value: TimeDuration): LocalDateTime = value.toDuration().let {
-    minus(it.seconds, ChronoUnit.SECONDS).minus(it.nano.toLong(), ChronoUnit.NANOS)
-}
+operator fun LocalDateTime.minus(value: TimeDuration): LocalDateTime = minus(value.toDuration())
 
 @JvmOverloads
 fun dateTimeOf(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): LocalDateTime = TimeAndDate.dateTimeOf(zone)

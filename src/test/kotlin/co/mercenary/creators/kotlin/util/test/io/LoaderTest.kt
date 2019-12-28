@@ -28,12 +28,10 @@ class LoaderTest : KotlinDataTest() {
         info { getContentResourceDetails(contentResourceLoader["test.css"]) }
         info { getContentResourceDetails(contentResourceLoader["test.doc"]) }
         info { getContentResourceDetails(contentResourceLoader["test.htm"]) }
+        warn { getContentResourceDetails(contentResourceLoader["test.htm"].toRelativePath("../test.txt")) }
         info { getContentResourceDetails(contentResourceLoader["http://jsonplaceholder.typicode.com/posts"]) }
         val path = getTempFileNamedPath(uuid(), ".json")
         info { getContentResourceDetails(contentResourceLoader[path]) }
-        val data = getContentResourceByteURL(contentResourceLoader["test.jpg"])
-        info { data }
-        info { getContentResourceDetails(contentResourceLoader[data]) }
         val temp = getTempFileNamedPath(uuid(), ".yaml")
         info { getContentResourceDetails(contentResourceLoader[temp]) }
         val look = object : ContentProtocolResolver {
@@ -44,7 +42,13 @@ class LoaderTest : KotlinDataTest() {
                 return null
             }
         }
+        info { cachedContentResourceLoader.contains(look) }
         cachedContentResourceLoader += look
+        info { cachedContentResourceLoader.contains(look) }
         info { getContentResourceDetails(cachedContentResourceLoader["test.htm"]) }
+        val dara = EmptyContentResource
+        info { getContentResourceDetails(EmptyContentResource) }
+        info { dara == EmptyContentResource }
+        info { getContentResourceDetails(contentResourceLoader["http://jsonplaceholder.typicode.com/posts"].toRelativePath("../todos")) }
     }
 }

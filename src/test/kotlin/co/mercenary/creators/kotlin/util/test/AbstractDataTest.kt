@@ -30,15 +30,6 @@ abstract class AbstractDataTest : AbstractKotlinTest() {
         return getTempFileNamed(name, suff).path
     }
 
-    protected fun getContentResourceByteURL(resource: ContentResource): String = buildString {
-        append(IO.PREFIX_BYTES)
-            .append(resource.getContentPath().trim())
-            .append(IO.COL_SEPARATOR_CHAR)
-            .append(resource.getContentType().trim())
-            .append(IO.COL_SEPARATOR_CHAR)
-            .append(Encoders.hex().encode(resource.getContentData()))
-    }
-
     protected fun getContentResourceDetails(resource: ContentResource): String = buildString {
         append(resource.getDescription())
             .append(dets("good", resource.isContentThere()))

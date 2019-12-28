@@ -28,11 +28,12 @@ class URLContentResource @JvmOverloads constructor(private val data: URL, privat
     override fun getContentType() = IO.getContentType(data, type)
     override fun getInputStream() = data.toInputStream()
     override fun getOutputStream() = data.toOutputStream()
+    override fun toRelativePath(path: String) = data.toRelative(path).toContentResource()
 
     override fun toString() = getDescription()
 
     override fun equals(other: Any?) = when (other) {
-        is URLContentResource -> data == other.data
+        is URLContentResource -> this === other || data == other.data
         else -> false
     }
 

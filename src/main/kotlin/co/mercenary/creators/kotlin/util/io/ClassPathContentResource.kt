@@ -40,6 +40,10 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
         return false
     }
 
+    override fun toRelativePath(path: String): ClassPathContentResource {
+        return ClassPathContentResource(IO.getPathRelative(getContentPath(), path), DEFAULT_CONTENT_TYPE, claz, load)
+    }
+
     override fun getContentTime(): Long {
         val time = super.getContentTime()
         if (time == 0L) {

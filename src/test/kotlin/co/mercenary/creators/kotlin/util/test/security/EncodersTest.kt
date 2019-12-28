@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.test.security
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.security.Ciphers
 import org.junit.jupiter.api.Test
 
 class EncodersTest : KotlinSecurityTest() {
@@ -53,5 +52,8 @@ class EncodersTest : KotlinSecurityTest() {
         }
         info { Ciphers.getAlgorithms() }
         info { Digests.getAlgorithms() }
+        Randoms.getDoubleSequence(10, 5.0, 10.0).forEach {
+            info { it.toDecimalPlacesString() }
+        }
     }
 }

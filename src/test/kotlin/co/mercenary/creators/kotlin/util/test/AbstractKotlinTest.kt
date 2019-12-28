@@ -19,7 +19,7 @@ package co.mercenary.creators.kotlin.util.test
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.*
 import java.util.*
-import kotlin.math.absoluteValue
+import kotlin.math.*
 
 abstract class AbstractKotlinTest : Logging() {
 
@@ -30,6 +30,8 @@ abstract class AbstractKotlinTest : Logging() {
     private val conf: Properties by lazy {
         getConfigPropertiesBuilder().invoke()
     }
+
+    protected val printer: (Int, String) -> Unit = { i, s -> info { "%2d : %s".format(i + 1, s) }}
 
     protected val form = TimeAndDate.getThreadLocalDefaultDateFormat()
 
@@ -59,7 +61,7 @@ abstract class AbstractKotlinTest : Logging() {
     }
 
     @JvmOverloads
-    fun dash(loop: Int = 48): String = "-".repeat(loop.absoluteValue)
+    fun dash(loop: Int = 48): String = "-".repeat(abs(loop))
 
     fun assertEach(vararg list: Executable) {
         if (list.isNotEmpty()) {

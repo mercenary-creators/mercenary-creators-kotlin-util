@@ -194,7 +194,7 @@ object Numeric {
     @JvmOverloads
     fun rounded(value: Double, scale: Int = 3): Double {
         return try {
-            val round = BigDecimal(value.toString()).setScale(abs(scale), RoundingMode.HALF_UP).toDouble()
+            val round = value.toBigDecimal().setScale(abs(scale), RoundingMode.HALF_UP).toDouble()
             if (round == 0.0) round * 0.0 else round
         }
         catch (cause: Throwable) {

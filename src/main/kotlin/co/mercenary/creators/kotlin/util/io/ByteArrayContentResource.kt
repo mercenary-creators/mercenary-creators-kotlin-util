@@ -20,6 +20,8 @@ import co.mercenary.creators.kotlin.util.*
 
 class ByteArrayContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractCachedContentResource(data, path, type, time) {
 
+    override fun toRelativePath(path: String): ByteArrayContentResource = this
+
     override fun toString() = getDescription()
 
     override fun equals(other: Any?) = when (other) {

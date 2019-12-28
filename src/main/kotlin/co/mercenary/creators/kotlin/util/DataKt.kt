@@ -75,7 +75,7 @@ fun Path.isSame(other: File): Boolean = isSame(other.toPath())
 
 fun Path.isSame(other: Path): Boolean = Files.isSameFile(this, other)
 
-fun File.isValidToRead(): Boolean = exists() && isFile && canRead()
+fun File.isValidToRead(): Boolean = exists() && isFile && canRead() && isDirectory.not()
 
 fun Path.isValidToRead(): Boolean = toFile().isValidToRead()
 
@@ -101,9 +101,13 @@ fun URL.toOutputStream(): OutputStream = when (val data = IO.getOutputStream(thi
     else -> data
 }
 
+fun File.isValidToWrite(): Boolean = canWrite() && isDirectory.not()
+
+fun Path.isValidToWrite(): Boolean = toFile().isValidToWrite()
+
 fun File.toOutputStream(vararg args: OpenOption): OutputStream = toPath().toOutputStream(*args)
 
-fun Path.toOutputStream(vararg args: OpenOption): OutputStream = Files.newOutputStream(this, *args)
+fun Path.toOutputStream(vararg args: OpenOption): OutputStream = if (isValidToWrite()) Files.newOutputStream(this, *args) else throw MercenaryExceptiion(toString())
 
 fun Reader.forEachLineIndexed(block: (Int, String) -> Unit) {
     buffered().useLines { it.forEachIndexed(block) }
@@ -131,8 +135,14 @@ fun InputStreamSupplier.forEachLineIndexed(charset: Charset = Charsets.UTF_8, bl
 
 @JvmOverloads
 fun InputStream.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    InputStreamReader(this, charset).forEachLineIndexed(block)
+    reader(charset).forEachLineIndexed(block)
 }
+
+fun URL.toRelative(path: String) = IO.getRelative(this, path)
+
+fun File.toRelative(path: String) = IO.getRelative(this, path)
+
+fun String.toURL(): URL = URL(this)
 
 fun URL.toByteArray(): ByteArray = readBytes()
 

@@ -16,17 +16,17 @@
 
 package co.mercenary.creators.kotlin.util.time
 
-abstract class AbstractTicker(private val tick: () -> Long) : Ticker {
+abstract class AbstractTicker @JvmOverloads constructor(protected val tick: () -> Long = TimeAndDate::mills) : Ticker {
 
     @Volatile
-    private var time = tick()
+    private var time = tick.invoke()
 
     @Synchronized
     override fun reset() {
-        time = tick()
+        time = tick.invoke()
     }
 
-    override fun since(): Long = tick() - time
+    override fun since(): Long = tick.invoke() - time
 
     override fun toElapsedString(): String = TimeAndDate.toElapsedString(since())
 

@@ -39,6 +39,8 @@ typealias LoggingFactory = co.mercenary.creators.kotlin.util.logging.LoggingFact
 
 typealias Randoms = co.mercenary.creators.kotlin.util.security.Randoms
 
+typealias Ciphers = co.mercenary.creators.kotlin.util.security.Ciphers
+
 typealias Digests = co.mercenary.creators.kotlin.util.security.Digests
 
 typealias Encoders = co.mercenary.creators.kotlin.util.security.Encoders
@@ -239,7 +241,7 @@ infix fun AtomicBoolean.xor(value: Boolean): Boolean = get().xor(value)
 infix fun AtomicBoolean.xor(value: AtomicBoolean): Boolean = get().xor(value.get())
 
 open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
-    constructor() : this(emptyList())
+    constructor() : this(emptySequence())
     constructor(source: Iterable<T>) : this(source.iterator())
     constructor(source: Sequence<T>) : this(source.iterator())
 
@@ -261,14 +263,6 @@ fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = MercenarySequence(iterator
 fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(generateSequence(next))
 
 fun <T : Any> sequenceOf(seed: T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
-
-inline fun <T> Sequence<T>.forEachIndexedPlus(plus: Int = 1, action: (index: Int, T) -> Unit) {
-    this.forEachIndexed { i, v -> action(i + plus, v) }
-}
-
-inline fun <T> Iterable<T>.forEachIndexedPlus(plus: Int = 1, action: (index: Int, T) -> Unit) {
-    this.forEachIndexed { i, v -> action(i + plus, v) }
-}
 
 fun Sequence<String>.uniqueTrimmedOf(): List<String> = asIterable().uniqueTrimmedOf()
 

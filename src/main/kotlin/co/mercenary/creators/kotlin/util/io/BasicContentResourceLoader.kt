@@ -21,11 +21,11 @@ import java.net.URL
 
 open class BasicContentResourceLoader @JvmOverloads constructor(private val load: ClassLoader? = null) : ContentResourceLoader {
 
-    private val maps = arrayListOf<ContentProtocolResolver>()
+    private val list = arrayListOf<ContentProtocolResolver>()
 
     override operator fun get(path: String): ContentResource {
-        if (maps.isNotEmpty()) {
-            maps.forEach {
+        if (list.isNotEmpty()) {
+            list.forEach {
                 val data = it.resolve(path, this)
                 if (data != null) {
                     return data
@@ -39,25 +39,16 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
             val name = path.removePrefix(IO.PREFIX_CLASS)
             return ClassPathContentResource(name, getDefaultContentTypeProbe().getContentType(name), null, getClassLoader())
         }
-        if (path.startsWith(IO.PREFIX_BYTES)) {
-            val list = path.removePrefix(IO.PREFIX_BYTES).split(IO.COL_SEPARATOR_CHAR)
-            if (list.size >= 3) {
-                val name = list[0]
-                val type = list[1]
-                val data = list[2]
-                return ByteArrayContentResource(Encoders.hex().decode(data), name, type)
-            }
-        }
         if (path.contains(IO.PREFIX_COLON)) {
             try {
                 val data = URL(path)
                 if (isFileURL(data)) {
-                    val file = IO.toFileOrNull(data)
+                    val file = IO.toFileOrNull(data, true)
                     if (file != null) {
-                        return FileContentResource(file)
+                        return file.toContentResource()
                     }
                 }
-                return URLContentResource(data)
+                return data.toContentResource()
             }
             catch (cause: Throwable) {
                 Throwables.thrown(cause)
@@ -75,7 +66,7 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
             try {
                 val file = IO.toFileOrNull(URL(IO.PREFIX_FILES + path))
                 if (file != null) {
-                    return FileContentResource(file)
+                    return file.toContentResource()
                 }
             }
             catch (cause: Throwable) {
@@ -86,26 +77,26 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
     }
 
     override operator fun plusAssign(args: ContentProtocolResolver) {
-        synchronized(maps) {
+        synchronized(list) {
             if (!contains(args)) {
-                maps += args
+                list += args
             }
         }
     }
 
     override operator fun minusAssign(args: ContentProtocolResolver) {
-        synchronized(maps) {
+        synchronized(list) {
             if (contains(args)) {
-                maps -= args
+                list -= args
             }
         }
     }
 
     override operator fun contains(args: ContentProtocolResolver): Boolean {
-        if (maps.contains(args)) {
+        if (list.contains(args)) {
             return true
         }
-        maps.forEach {
+        list.forEach {
             if (it === args) {
                 return true
             }
