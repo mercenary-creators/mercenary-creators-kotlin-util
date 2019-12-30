@@ -27,45 +27,56 @@ class MainTest : KotlinTest() {
         info { time }
         info { same }
         info { time == same }
-        info { time.toDuration() }
+        info { time.duration }
         time shouldBe same
+        info { dash() }
         val plus = 1000.milliseconds + 100.nanoseconds
         info { plus }
-        info { plus.toUnit().toLowerCase() }
+        info { plus.unit.toLowerCase() }
+        info { dash() }
         val half = 1.year / 2
         info { half }
-        info { half.toUnit().toLowerCase() }
+        info { half.unit.toLowerCase() }
+        info { dash() }
         val oops = 0.days
         info { oops }
+        info { dash() }
         val date = 366.days
         info { date }
-        info { date.toUnit().toLowerCase() }
+        info { date.unit.toLowerCase() }
+        info { dash() }
         val data = 100.nanoseconds - 99.nanoseconds
         info { data }
         data shouldBe 1.nanosecond
         data shouldNotBe 99.nanoseconds
+        info { dash() }
         val test = 1.year + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds + 8.milliseconds + 1.nanosecond
         info { test }
+        info { dash() }
         measured(10) {
             for (i in 1..1000000) {
                 TimeDuration.parseCharSequence("1 second 100 nanoseconds")
             }
         }
+        info { dash() }
         measured(10) {
             for (i in 1..1000000) {
                 TimeDuration.parseCharSequence("3 hours 1 minute")
             }
         }
+        info { dash() }
         measured(10) {
             for (i in 1..1000000) {
                 TimeDuration.parseCharSequence("6 days 3 hours 1 minute")
             }
         }
         val buff = test.toString()
+        info { dash() }
         measured(10) {
             for (i in 1..1000000) {
                 TimeDuration.parseCharSequence(buff)
             }
         }
+        info { dash() }
     }
 }

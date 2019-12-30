@@ -18,8 +18,8 @@ package co.mercenary.creators.kotlin.util.security
 
 import java.security.SecureRandom
 
-class SimpleCipherKeysFactory(private val size: Int, private val rand: SecureRandom): CipherKeysFactory {
-    constructor(cipher: CipherAlgorithm): this(cipher.getFactoryKeysSize(), cipher.getFactoryKeysRand())
+class SimpleCipherKeysFactory(private val size: Int, private val rand: () -> SecureRandom) : CipherKeysFactory {
+    constructor(cipher: CipherAlgorithm) : this(cipher.getFactoryKeysSize(), cipher::getFactoryKeysRand)
     override fun getSize(): Int = size
-    override fun getKeys(): ByteArray = Randoms.getByteArray(rand, getSize())
+    override fun getKeys(): ByteArray = Randoms.getByteArray(rand.invoke(), getSize())
 }

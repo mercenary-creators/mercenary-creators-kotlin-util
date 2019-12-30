@@ -17,16 +17,15 @@
 package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.type.Copyable
+import co.mercenary.creators.kotlin.util.type.*
 import java.math.BigDecimal
 import java.time.Duration
 import kotlin.math.*
 
-class TimeDuration private constructor(private val time: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable {
+class TimeDuration private constructor(private val time: Duration, val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable {
 
-    fun toUnit() = unit
-
-    fun toDuration() = time.copyOf()
+    val duration: Duration
+        get() = time.copyOf()
 
     operator fun plus(other: TimeDuration): TimeDuration {
         return time.plus(other.time).let {
@@ -357,7 +356,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
             for (i in 0 until size step 2) {
                 make(list[i], list[i + 1], data)
             }
-            return TimeDuration(data.time, data.unit)
+            return data.build()
         }
 
         private fun secondsOf(time: Double, unit: TimeDurationUnit): TimeDuration {
@@ -409,12 +408,17 @@ class TimeDuration private constructor(private val time: Duration, private val u
             }
         }
 
-        private class TimeData(var time: Duration = ZERO, var unit: TimeDurationUnit = TimeDurationUnit.NANOSECONDS) {
-            inline fun make(plus: Long, block: (Long) -> Duration, less: TimeDurationUnit) {
+        private class TimeData(var time: Duration = ZERO, var unit: TimeDurationUnit = TimeDurationUnit.NANOSECONDS) : Builder<TimeDuration> {
+
+            fun make(plus: Long, block: (Long) -> Duration, less: TimeDurationUnit) {
                 if (less < unit) {
                     unit = less
                 }
                 time = block.invoke(plus)
+            }
+
+            override fun build(): TimeDuration {
+                return TimeDuration(time, unit)
             }
         }
     }

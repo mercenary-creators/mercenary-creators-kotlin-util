@@ -50,5 +50,6 @@ class LoaderTest : KotlinDataTest() {
         info { getContentResourceDetails(EmptyContentResource) }
         info { dara == EmptyContentResource }
         info { getContentResourceDetails(contentResourceLoader["http://jsonplaceholder.typicode.com/posts"].toRelativePath("../todos")) }
+        info { getContentResourceDetails(contentResourceLoader["http://jsonplaceholder.typicode.com/todos"]["../posts"]) }
     }
 }
