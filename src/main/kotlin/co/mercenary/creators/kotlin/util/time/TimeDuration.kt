@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ class TimeDuration private constructor(private val time: Duration, val unit: Tim
             return time.isZero.or(time.isNegative)
         }
 
-        private fun text(unit: TimeDurationUnit, time: Long = 0): String {
+        private fun text(unit: TimeDurationUnit, time: Long = 0L): String {
             return "$time ${unit.toLowerCase(abs(time) != 1L)}"
         }
 
@@ -360,8 +360,8 @@ class TimeDuration private constructor(private val time: Duration, val unit: Tim
         }
 
         private fun secondsOf(time: Double, unit: TimeDurationUnit): TimeDuration {
-            val full = if (time.isFinite()) abs(time) else throw MercenaryFatalExceptiion("invalid time $time")
-            val part = floor(full)
+            val full = if (time.isFinite()) time.abs() else throw MercenaryFatalExceptiion("invalid time $time")
+            val part = full.floor()
             if (part >= Long.MAX_VALUE) {
                 throw MercenaryFatalExceptiion("invalid part $part")
             }
