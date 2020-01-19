@@ -47,7 +47,11 @@ typealias Encoders = co.mercenary.creators.kotlin.util.security.Encoders
 
 typealias Throwables = co.mercenary.creators.kotlin.util.type.Throwables
 
+typealias SameAndHashCode = co.mercenary.creators.kotlin.util.type.SameAndHashCode
+
 typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlgorithm
+
+typealias AtomicHashMap<K, V> = java.util.concurrent.ConcurrentHashMap<K, V>
 
 open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
     constructor(text: String) : this(text, null)
@@ -239,6 +243,28 @@ infix fun Boolean.xor(value: AtomicBoolean): Boolean = xor(value.get())
 infix fun AtomicBoolean.xor(value: Boolean): Boolean = get().xor(value)
 
 infix fun AtomicBoolean.xor(value: AtomicBoolean): Boolean = get().xor(value.get())
+
+infix fun <T : Any?> T.isSameAs(value: T) = SameAndHashCode.isSameAs(this, value)
+
+infix fun <T : Any?> T.isNotSameAs(value: T) = SameAndHashCode.isNotSameAs(this, value)
+
+fun isEverySameAs(vararg args: Pair<Any?, Any?>) = SameAndHashCode.isEverySameAs(*args)
+
+fun <T : Any?> T.hashOf() = SameAndHashCode.hashOf(this)
+
+fun <T : Any?> T.hashOf(vararg args: Any?) = SameAndHashCode.hashOf(hashOf().toAtomic(), *args)
+
+fun <T : Any> T.applyIf(flag: Boolean, block: T.() -> T): T {
+    return if (flag) this.block() else this
+}
+
+fun <T : Any> T.applyIf(flag: AtomicBoolean, block: T.() -> T): T {
+    return if (flag.get()) this.block() else this
+}
+
+fun <T : Any> T.applyIf(predicate: () -> Boolean, block: T.() -> T): T {
+    return if (predicate()) this.block() else this
+}
 
 open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
     constructor() : this(emptySequence())

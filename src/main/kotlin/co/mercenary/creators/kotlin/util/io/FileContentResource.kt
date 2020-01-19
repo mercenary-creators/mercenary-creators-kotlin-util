@@ -18,8 +18,12 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import java.io.File
+import java.nio.file.Path
 
 class FileContentResource @JvmOverloads constructor(private val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type), OutputContentResource {
+
+    @JvmOverloads
+    constructor(data: Path, type: String = DEFAULT_CONTENT_TYPE) : this(data.toFile(), type)
 
     private val resolved = getResolvedContentType()
 
@@ -29,12 +33,12 @@ class FileContentResource @JvmOverloads constructor(private val data: File, type
     override fun isContentThere() = data.isValidToRead()
     override fun getInputStream() = data.toInputStream()
     override fun getOutputStream() = data.toOutputStream()
-    override fun toRelativePath(path: String) = data.toRelative(path).toContentResource()
+    override fun getContentLook(): ContentResourceLookup = { data.toRelative(it).toContentResource() }
 
     override fun toString() = getDescription()
 
     override fun equals(other: Any?) = when (other) {
-        is FileContentResource -> this === other || data.isSame(other.data) || data == other.data
+        is FileContentResource -> this === other || data isSameFileAndData other.data
         else -> false
     }
 

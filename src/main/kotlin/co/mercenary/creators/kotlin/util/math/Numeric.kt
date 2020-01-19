@@ -17,7 +17,7 @@
 package co.mercenary.creators.kotlin.util.math
 
 import co.mercenary.creators.kotlin.util.*
-import java.math.*
+import java.math.RoundingMode
 import kotlin.math.*
 
 object Numeric {
@@ -156,28 +156,28 @@ object Numeric {
     fun powNegative1(value: Int, other: Int): Double = powNegative1(value.toLong() + other)
 
     @JvmStatic
-    fun gcd(value: Int, other: Int): Int = if (other == 0) abs(value) else TailRecursiveFunctions.INSTANCE.gcd(value, other)
+    fun gcd(value: Int, other: Int): Int = if (other == 0) abs(value) else TailRecursiveFunctions.gcd(value, other)
 
     @JvmStatic
-    fun gcd(value: Long, other: Long): Long = if (other == 0L) abs(value) else TailRecursiveFunctions.INSTANCE.gcd(value, other)
+    fun gcd(value: Long, other: Long): Long = if (other == 0L) abs(value) else TailRecursiveFunctions.gcd(value, other)
 
     @JvmStatic
-    fun gcd(args: IntArray): Int = TailRecursiveFunctions.INSTANCE.gcd(args)
+    fun gcd(args: IntArray): Int = TailRecursiveFunctions.gcd(args)
 
     @JvmStatic
-    fun gcd(args: LongArray): Long = TailRecursiveFunctions.INSTANCE.gcd(args)
+    fun gcd(args: LongArray): Long = TailRecursiveFunctions.gcd(args)
 
     @JvmStatic
-    fun lcm(value: Int, other: Int): Int = TailRecursiveFunctions.INSTANCE.lcm(value, other)
+    fun lcm(value: Int, other: Int): Int = TailRecursiveFunctions.lcm(value, other)
 
     @JvmStatic
-    fun lcm(value: Long, other: Long): Long = TailRecursiveFunctions.INSTANCE.lcm(value, other)
+    fun lcm(value: Long, other: Long): Long = TailRecursiveFunctions.lcm(value, other)
 
     @JvmStatic
-    fun lcm(args: IntArray): Int = TailRecursiveFunctions.INSTANCE.lcm(args)
+    fun lcm(args: IntArray): Int = TailRecursiveFunctions.lcm(args)
 
     @JvmStatic
-    fun lcm(args: LongArray): Long = TailRecursiveFunctions.INSTANCE.lcm(args)
+    fun lcm(args: LongArray): Long = TailRecursiveFunctions.lcm(args)
 
     @JvmStatic
     @JvmOverloads
@@ -204,35 +204,54 @@ object Numeric {
     }
 
     @JvmStatic
-    fun divide(value: Double, other: Int): Double = divide(value, other.toDouble())
-
-    @JvmStatic
-    fun divide(value: Double, other: Long): Double = divide(value, other.toDouble())
-
-    @JvmStatic
-    fun divide(value: Double, other: Double): Double = if (other == 0.0) throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR) else value / other
-
-    @JvmStatic
-    fun hashCode(value: DoubleArray): Int {
-        return value.contentHashCode()
+    @JvmOverloads
+    fun rounded(args: DoubleArray, scale: Int = 3): DoubleArray {
+        return DoubleArray(args.size) {
+            rounded(args[it], scale)
+        }
     }
 
     @JvmStatic
-    fun hashCode(value: Array<Double>): Int {
-        return value.toDoubleArray().contentHashCode()
+    @JvmOverloads
+    fun rounded(args: Array<Double>, scale: Int = 3): Array<Double> {
+        return Array(args.size) {
+            rounded(args[it], scale)
+        }
     }
 
     @JvmStatic
-    fun hashCode(value: Array<DoubleArray>): Int {
-        return value.contentDeepHashCode()
+    @JvmOverloads
+    fun rounded(args: Array<DoubleArray>, scale: Int = 3): Array<DoubleArray> {
+        return Array(args.size) {
+            rounded(args[it], scale)
+        }
     }
 
     @JvmStatic
-    fun hashCode(value: Array<Array<Double>>): Int {
-        return value.contentDeepHashCode()
+    @JvmOverloads
+    fun rounded(args: Array<Array<Double>>, scale: Int = 3): Array<Array<Double>> {
+        return Array(args.size) {
+            rounded(args[it], scale)
+        }
     }
 
-    private class TailRecursiveFunctions {
+    @JvmStatic
+    @JvmOverloads
+    fun rounded(args: Sequence<Double>, scale: Int = 3): Sequence<Double> {
+        return args.map {
+            rounded(it, scale)
+        }
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun rounded(args: Iterable<Double>, scale: Int = 3): Iterable<Double> {
+        return args.map {
+            rounded(it, scale)
+        }
+    }
+
+    private object TailRecursiveFunctions {
 
         tailrec fun gcd(value: Int, other: Int): Int {
             if (other == 0) {
@@ -310,10 +329,6 @@ object Numeric {
                     }
                 }
             }
-        }
-
-        companion object {
-            val INSTANCE = TailRecursiveFunctions()
         }
     }
 }

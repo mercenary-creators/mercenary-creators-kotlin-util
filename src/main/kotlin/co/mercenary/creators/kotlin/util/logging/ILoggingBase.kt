@@ -43,43 +43,63 @@ interface ILoggingBase : ILogging {
     fun <T> timed(block: () -> T): T = timed({ info { it } }, block)
 
     override fun info(block: () -> Any?) {
-        logger.info(block)
+        if (isLoggingInfoEnabled) {
+            logger.info(block)
+        }
     }
 
     override fun info(cause: Throwable, block: () -> Any?) {
-        logger.info(cause, block)
+        if (isLoggingInfoEnabled) {
+            logger.info(cause, block)
+        }
     }
 
     override fun warn(block: () -> Any?) {
-        logger.warn(block)
+        if (isLoggingWarnEnabled) {
+            logger.warn(block)
+        }
     }
 
     override fun warn(cause: Throwable, block: () -> Any?) {
-        logger.warn(cause, block)
+        if (isLoggingWarnEnabled) {
+            logger.warn(cause, block)
+        }
     }
 
     override fun trace(block: () -> Any?) {
-        logger.trace(block)
+        if (isLoggingTraceEnabled) {
+            logger.trace(block)
+        }
     }
 
     override fun trace(cause: Throwable, block: () -> Any?) {
-        logger.trace(cause, block)
+        if (isLoggingTraceEnabled) {
+            logger.trace(cause, block)
+        }
     }
 
     override fun debug(block: () -> Any?) {
-        logger.debug(block)
+        if (isLoggingDebugEnabled) {
+            logger.debug(block)
+        }
     }
 
     override fun debug(cause: Throwable, block: () -> Any?) {
-        logger.debug(cause, block)
+        if (isLoggingDebugEnabled) {
+            logger.debug(cause, block)
+        }
     }
 
     override fun error(block: () -> Any?) {
-        logger.error(block)
+        if (isLoggingErrorEnabled) {
+            logger.error(block)
+        }
     }
 
     override fun error(cause: Throwable, block: () -> Any?) {
-        logger.error(cause, block)
+        if (isLoggingErrorEnabled) {
+            logger.error(cause, block)
+        }
     }
 
     override fun fatal(block: () -> Any?) {

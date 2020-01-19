@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import java.net.URL
 
 open class BasicContentResourceLoader @JvmOverloads constructor(private val load: ClassLoader? = null) : ContentResourceLoader {
 
@@ -41,9 +40,9 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
         }
         if (path.contains(IO.PREFIX_COLON)) {
             try {
-                val data = URL(path)
-                if (isFileURL(data)) {
-                    val file = IO.toFileOrNull(data, true)
+                val data = path.toURL()
+                if (data.isFileURL()) {
+                    val file = data.toFileOrNull(true)
                     if (file != null) {
                         return file.toContentResource()
                     }
@@ -64,7 +63,7 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
     protected open fun getContentResourceByPath(path: String): ContentResource {
         if (path.startsWith(IO.SINGLE_SLASH)) {
             try {
-                val file = IO.toFileOrNull(URL(IO.PREFIX_FILES + path))
+                val file = IO.toFileOrNull(IO.PREFIX_FILES.plus(path).toURL())
                 if (file != null) {
                     return file.toContentResource()
                 }
@@ -73,7 +72,7 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
                 Throwables.thrown(cause)
             }
         }
-        return ClassPathContentResource(path, getDefaultContentTypeProbe().getContentType(path), null, getClassLoader())
+        return ClassPathContentResource(path, IO.getContentTypeProbe().getContentType(path), null, getClassLoader())
     }
 
     override operator fun plusAssign(args: ContentProtocolResolver) {

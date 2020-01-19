@@ -96,14 +96,8 @@ object Randoms {
     }
 
     @JvmStatic
-    @JvmOverloads
-    fun getLongSequence(sized: Long = Long.MAX_VALUE): Sequence<Long> {
+    fun getLongSequence(sized: Long): Sequence<Long> {
         return MercenarySequence(getRandom().longs(sized).iterator())
-    }
-
-    @JvmStatic
-    fun getLongSequence(lower: Long, upper: Long): Sequence<Long> {
-        return getLongSequence(Long.MAX_VALUE, lower, upper)
     }
 
     @JvmStatic
@@ -122,15 +116,10 @@ object Randoms {
     }
 
     @JvmStatic
-    @JvmOverloads
-    fun getIntegerSequence(sized: Long = Long.MAX_VALUE): Sequence<Int> {
+    fun getIntegerSequence(sized: Long): Sequence<Int> {
         return MercenarySequence(getRandom().ints(sized).iterator())
     }
 
-    @JvmStatic
-    fun getIntegerSequence(lower: Int, upper: Int): Sequence<Int> {
-        return getIntegerSequence(Long.MAX_VALUE, lower, upper)
-    }
 
     @JvmStatic
     fun getIntegerSequence(sized: Int, lower: Int, upper: Int): Sequence<Int> {
@@ -148,15 +137,10 @@ object Randoms {
     }
 
     @JvmStatic
-    @JvmOverloads
-    fun getDoubleSequence(sized: Long = Long.MAX_VALUE): Sequence<Double> {
+    fun getDoubleSequence(sized: Long): Sequence<Double> {
         return MercenarySequence(getRandom().doubles(sized).iterator())
     }
 
-    @JvmStatic
-    fun getDoubleSequence(lower: Double, upper: Double): Sequence<Double> {
-        return getDoubleSequence(Long.MAX_VALUE, lower, upper)
-    }
 
     @JvmStatic
     fun getDoubleSequence(sized: Int, lower: Double, upper: Double): Sequence<Double> {
@@ -188,14 +172,11 @@ object Randoms {
 
     @JvmStatic
     fun getCharSequence(sized: Int, chars: CharArray): CharSequence {
-        if (sized < 0) {
-            throw MercenaryExceptiion("Illegal sized size $sized")
-        }
         if (sized < 1) {
             return EMPTY_STRING
         }
         if (chars.isEmpty()) {
-            throw MercenaryExceptiion("Illegal chars size 0")
+            throw throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
         }
         return StringBuilder(sized).apply {
             repeat(sized) {

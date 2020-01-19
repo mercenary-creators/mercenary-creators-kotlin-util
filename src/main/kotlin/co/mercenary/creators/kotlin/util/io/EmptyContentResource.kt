@@ -50,5 +50,5 @@ object EmptyContentResource : CachedContentResource {
 
     override fun getContentType() = DEFAULT_CONTENT_TYPE
 
-    override fun toRelativePath(path: String) = EmptyContentResource
+    override fun getContentLook(): ContentResourceLookup = { _ -> EmptyContentResource }
 }

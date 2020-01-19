@@ -17,10 +17,12 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-
-import java.net.URL
+import java.net.*
 
 class URLContentResource @JvmOverloads constructor(private val data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type), OutputContentResource {
+
+    @JvmOverloads
+    constructor(data: URI, type: String = DEFAULT_CONTENT_TYPE) : this(data.toURL(), type)
 
     override fun isContentThere() = IO.isContentThere(data)
     override fun getContentSize() = IO.getContentSize(data)
@@ -28,14 +30,14 @@ class URLContentResource @JvmOverloads constructor(private val data: URL, privat
     override fun getContentType() = IO.getContentType(data, type)
     override fun getInputStream() = data.toInputStream()
     override fun getOutputStream() = data.toOutputStream()
-    override fun toRelativePath(path: String) = data.toRelative(path).toContentResource()
+    override fun getContentLook(): ContentResourceLookup = { data.toRelative(it).toContentResource() }
 
     override fun toString() = getDescription()
 
     override fun equals(other: Any?) = when (other) {
-        is URLContentResource -> this === other || data == other.data
+        is URLContentResource -> this === other || data isSameAs other.data
         else -> false
     }
 
-    override fun hashCode() = data.hashCode()
+    override fun hashCode() = data.hashOf()
 }

@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.type.*
 import java.math.BigDecimal
 import java.time.Duration
-import kotlin.math.*
+import kotlin.math.abs
 
 class TimeDuration private constructor(private val time: Duration, val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable {
 
@@ -43,6 +43,8 @@ class TimeDuration private constructor(private val time: Duration, val unit: Tim
 
     operator fun div(other: Long): TimeDuration = div(other.toDouble())
 
+    operator fun div(other: Short): TimeDuration = div(other.toDouble())
+
     operator fun div(other: Float): TimeDuration = div(other.toDouble())
 
     operator fun div(other: Double): TimeDuration {
@@ -61,6 +63,8 @@ class TimeDuration private constructor(private val time: Duration, val unit: Tim
     operator fun times(other: Int): TimeDuration = times(other.toDouble())
 
     operator fun times(other: Long): TimeDuration = times(other.toDouble())
+
+    operator fun times(other: Short): TimeDuration = times(other.toDouble())
 
     operator fun times(other: Float): TimeDuration = times(other.toDouble())
 
@@ -226,6 +230,30 @@ class TimeDuration private constructor(private val time: Duration, val unit: Tim
         fun milliseconds(time: Int) = milliseconds(time.toLong())
 
         @JvmStatic
+        fun days(time: Short) = days(time.toLong())
+
+        @JvmStatic
+        fun weeks(time: Short) = weeks(time.toLong())
+
+        @JvmStatic
+        fun years(time: Short) = years(time.toLong())
+
+        @JvmStatic
+        fun hours(time: Short) = hours(time.toLong())
+
+        @JvmStatic
+        fun minutes(time: Short) = minutes(time.toLong())
+
+        @JvmStatic
+        fun seconds(time: Short) = seconds(time.toLong())
+
+        @JvmStatic
+        fun nanoseconds(time: Short) = nanoseconds(time.toLong())
+
+        @JvmStatic
+        fun milliseconds(time: Short) = milliseconds(time.toLong())
+
+        @JvmStatic
         fun days(time: Float) = days(time.toDouble())
 
         @JvmStatic
@@ -369,8 +397,7 @@ class TimeDuration private constructor(private val time: Duration, val unit: Tim
             if (frac >= Long.MAX_VALUE) {
                 throw MercenaryFatalExceptiion("invalid frac $frac")
             }
-            val make = if (sign(time) < 0) Duration.ofSeconds(part.toLong(), frac.toLong()).negated() else Duration.ofSeconds(part.toLong(), frac.toLong())
-            return TimeDuration(make, less(make, unit))
+            return Duration.ofSeconds(part.toLong(), frac.toLong()).let { if (time.isNegative()) it.negated() else it }.let { TimeDuration(it, less(it, unit)) }
         }
 
         private fun less(time: Duration, unit: TimeDurationUnit): TimeDurationUnit {

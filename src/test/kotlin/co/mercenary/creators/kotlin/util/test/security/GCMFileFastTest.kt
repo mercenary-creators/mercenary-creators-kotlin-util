@@ -35,7 +35,7 @@ class GCMFileFastTest : KotlinSecurityTest() {
         val baos = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
         val save = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
         val code = getCopyCipher(pass, salt, CipherAlgorithm.GCM)
-        val data = cachedContentResourceLoader["test.txt"]
+        val data = CACHED_CONTENT_RESOURCE_LOADER["test.txt"]
         repeat(7) {
             baos.reset()
             save.reset()

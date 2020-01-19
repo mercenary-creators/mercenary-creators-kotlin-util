@@ -18,10 +18,11 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import java.io.*
-import java.net.URL
+import java.net.*
 import java.nio.file.Path
 
 interface ContentTypeProbe : FileTypeMapSupplier {
+    fun getContentType(data: URI, type: String = DEFAULT_CONTENT_TYPE): String
     fun getContentType(data: URL, type: String = DEFAULT_CONTENT_TYPE): String
     fun getContentType(data: File, type: String = DEFAULT_CONTENT_TYPE): String
     fun getContentType(data: Path, type: String = DEFAULT_CONTENT_TYPE): String

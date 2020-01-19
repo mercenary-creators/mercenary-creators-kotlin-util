@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import java.io.*
-import java.net.URL
+import java.net.*
 import java.nio.file.Path
 import javax.activation.FileTypeMap
 
@@ -32,6 +32,10 @@ class MimeContentTypeProbe @JvmOverloads constructor(private val maps: FileTypeM
         return IO.getContentType(data, type)
     }
 
+    override fun getContentType(data: URI, type: String): String {
+        return IO.getContentType(data, type)
+    }
+
     override fun getContentType(data: URL, type: String): String {
         return IO.getContentType(data, type)
     }
@@ -41,10 +45,10 @@ class MimeContentTypeProbe @JvmOverloads constructor(private val maps: FileTypeM
     override fun getContentType(data: Path, type: String): String = getContentType(data.toFile(), type)
 
     override fun getContentType(name: String, type: String): String {
-        if (isDefaultContentType(type)) {
+        if (type.isDefaultContentType()) {
             val path = getPathNormalizedOrElse(name)
             val look = getFileTypeMap().getContentType(path).toLowerTrim()
-            if (isDefaultContentType(look)) {
+            if (look.isDefaultContentType()) {
                 return toCommonContentTypes(name)
             }
             return look

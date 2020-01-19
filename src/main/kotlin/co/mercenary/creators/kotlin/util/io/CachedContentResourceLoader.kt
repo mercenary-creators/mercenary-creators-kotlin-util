@@ -16,17 +16,20 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import java.util.concurrent.ConcurrentHashMap
+import co.mercenary.creators.kotlin.util.AtomicHashMap
 
 open class CachedContentResourceLoader @JvmOverloads constructor(load: ClassLoader? = null) : BasicContentResourceLoader(load) {
 
-    private val maps = ConcurrentHashMap<String, CachedContentResource>()
+    private val maps = AtomicHashMap<String, CachedContentResource>()
 
     override operator fun get(path: String): CachedContentResource {
         return maps.computeIfAbsent(path) {
             super.get(it).toContentCache()
         }
     }
+
+    val keys: MutableSet<String>
+        get() = maps.keys
 
     override fun isContentCache() = true
 

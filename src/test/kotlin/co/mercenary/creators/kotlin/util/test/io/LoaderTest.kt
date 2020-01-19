@@ -23,17 +23,17 @@ import org.junit.jupiter.api.Test
 class LoaderTest : KotlinDataTest() {
     @Test
     fun test() {
-        info { getContentResourceDetails(contentResourceLoader["test.zip"]) }
-        info { getContentResourceDetails(contentResourceLoader["test.jpg"]) }
-        info { getContentResourceDetails(contentResourceLoader["test.css"]) }
-        info { getContentResourceDetails(contentResourceLoader["test.doc"]) }
-        info { getContentResourceDetails(contentResourceLoader["test.htm"]) }
-        warn { getContentResourceDetails(contentResourceLoader["test.htm"].toRelativePath("../test.txt")) }
-        info { getContentResourceDetails(contentResourceLoader["http://jsonplaceholder.typicode.com/posts"]) }
+        info { getContentResourceDetails(CONTENT_RESOURCE_LOADER["test.zip"]) }
+        info { getContentResourceDetails(CONTENT_RESOURCE_LOADER["test.jpg"]) }
+        info { getContentResourceDetails(CONTENT_RESOURCE_LOADER["test.css"]) }
+        info { getContentResourceDetails(CONTENT_RESOURCE_LOADER["test.doc"]) }
+        info { getContentResourceDetails(CONTENT_RESOURCE_LOADER["test.htm"]) }
+        warn { getContentResourceDetails(CONTENT_RESOURCE_LOADER["test.htm"].toRelativePath("../test.txt")) }
+        info { getContentResourceDetails(CONTENT_RESOURCE_LOADER["http://jsonplaceholder.typicode.com/posts"]) }
         val path = getTempFileNamedPath(uuid(), ".json")
-        info { getContentResourceDetails(contentResourceLoader[path]) }
+        info { getContentResourceDetails(CONTENT_RESOURCE_LOADER[path]) }
         val temp = getTempFileNamedPath(uuid(), ".yaml")
-        info { getContentResourceDetails(contentResourceLoader[temp]) }
+        info { getContentResourceDetails(CONTENT_RESOURCE_LOADER[temp]) }
         val look = object : ContentProtocolResolver {
             override fun resolve(path: String, load: ContentResourceLoader): ContentResource? {
                 if (load.isContentCache()) {
@@ -42,14 +42,22 @@ class LoaderTest : KotlinDataTest() {
                 return null
             }
         }
-        info { cachedContentResourceLoader.contains(look) }
-        cachedContentResourceLoader += look
-        info { cachedContentResourceLoader.contains(look) }
-        info { getContentResourceDetails(cachedContentResourceLoader["test.htm"]) }
+        info { CACHED_CONTENT_RESOURCE_LOADER.contains(look) }
+        CACHED_CONTENT_RESOURCE_LOADER += look
+        info { CACHED_CONTENT_RESOURCE_LOADER.contains(look) }
         val dara = EmptyContentResource
         info { getContentResourceDetails(EmptyContentResource) }
         info { dara == EmptyContentResource }
-        info { getContentResourceDetails(contentResourceLoader["http://jsonplaceholder.typicode.com/posts"].toRelativePath("../todos")) }
-        info { getContentResourceDetails(contentResourceLoader["http://jsonplaceholder.typicode.com/todos"]["../posts"]) }
+        info { getContentResourceDetails(CONTENT_RESOURCE_LOADER["http://jsonplaceholder.typicode.com/posts"].toRelativePath("../todos")) }
+        info { getContentResourceDetails(CONTENT_RESOURCE_LOADER["http://jsonplaceholder.typicode.com/todos"]["../posts"]) }
+        info { dash() }
+        info { getContentResourceDetails(CACHED_CONTENT_RESOURCE_LOADER["test.htm"]) }
+        info { getContentResourceDetails(CACHED_CONTENT_RESOURCE_LOADER["test.htm"].toRelativePath("../test.txt")) }
+        info { getContentResourceDetails(CACHED_CONTENT_RESOURCE_LOADER["test.txt"].toRelativePath("../test.pdf")) }
+        info { CACHED_CONTENT_RESOURCE_LOADER.keys }
+        CACHED_CONTENT_RESOURCE_LOADER.keys.clear()
+        info { CACHED_CONTENT_RESOURCE_LOADER.keys }
+        info { getContentResourceDetails(CACHED_CONTENT_RESOURCE_LOADER["test.pdf"].toRelativePath("../test.doc")) }
+        info { CACHED_CONTENT_RESOURCE_LOADER.keys }
     }
 }

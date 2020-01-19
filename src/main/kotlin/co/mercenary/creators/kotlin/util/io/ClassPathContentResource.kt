@@ -40,9 +40,7 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
         return false
     }
 
-    override fun toRelativePath(path: String): ClassPathContentResource {
-        return ClassPathContentResource(IO.getPathRelative(getContentPath(), path), DEFAULT_CONTENT_TYPE, claz, load)
-    }
+    override fun getContentLook(): ContentResourceLookup = { ClassPathContentResource(IO.getPathRelative(getContentPath(), it), DEFAULT_CONTENT_TYPE, claz, load) }
 
     override fun getContentTime(): Long {
         val time = super.getContentTime()
@@ -74,9 +72,7 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
     override fun toString() = getDescription()
 
     override fun equals(other: Any?) = when (other) {
-        is ClassPathContentResource -> {
-            getContentPath() == other.getContentPath() && ((load != null) && (load == other.load)) && ((claz != null) && (claz == other.claz))
-        }
+        is ClassPathContentResource -> this === other || getContentPath() isSameAs other.getContentPath() && claz isSameAs other.claz && load isSameAs other.load
         else -> false
     }
 

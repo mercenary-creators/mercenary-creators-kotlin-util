@@ -21,15 +21,15 @@ import co.mercenary.creators.kotlin.util.*
 abstract class AbstractContentResource @JvmOverloads constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = 0L) : AbstractContentResourceBase(path, type, time) {
 
     private val cache: CachedContentResource by lazy {
-        ByteArrayContentResource(getContentData(), getContentPath(), getContentType(), getContentTime())
+        ByteArrayContentResource(getContentData(), getContentPath(), getContentType(), getContentTime(), getContentLook())
     }
 
     protected fun getResolvedContentType(): String {
         val keep = super.getContentType()
-        if (isDefaultContentType(keep)) {
+        if (keep.isDefaultContentType()) {
             val path = getContentPath()
             val look = getDefaultContentTypeProbe().getContentType(path)
-            if (isDefaultContentType(look)) {
+            if (look.isDefaultContentType()) {
                 return toCommonContentTypes(path)
             }
             return look

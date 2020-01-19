@@ -190,7 +190,7 @@ object IO {
             return null
         }
         try {
-            if (isFileURL(data)) {
+            if (data.isFileURL()) {
                 val file = toFileOrNull(data, true)
                 if ((file != null) && (file.isValidToRead())) {
                     return file.toInputStream()
@@ -211,7 +211,7 @@ object IO {
             return null
         }
         try {
-            if (isFileURL(data)) {
+            if (data.isFileURL()) {
                 val file = toFileOrNull(data, true)
                 if (file != null) {
                     return file.toOutputStream()
@@ -235,7 +235,7 @@ object IO {
     @JvmOverloads
     fun toFileOrNull(data: URL, skip: Boolean = false): File? {
         try {
-            if (skip || isFileURL(data)) {
+            if (skip || data.isFileURL()) {
                 val path = getPathNormalized(data.file).orEmpty()
                 if (path.isNotEmpty()) {
                     return File(path)
@@ -252,7 +252,7 @@ object IO {
     @JvmStatic
     fun isContentThere(data: URL): Boolean {
         try {
-            if (isFileURL(data)) {
+            if (data.isFileURL()) {
                 val file = toFileOrNull(data, true)
                 return ((file != null) && (file.isValidToRead()))
             }
@@ -280,7 +280,7 @@ object IO {
 
     @JvmStatic
     fun getContentSize(data: URL): Long {
-        if (isFileURL(data)) {
+        if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
                 return file.length()
@@ -302,7 +302,7 @@ object IO {
 
     @JvmStatic
     fun getContentSize(data: URL, func: () -> Long): Long {
-        if (isFileURL(data)) {
+        if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
                 return file.length()
@@ -313,7 +313,7 @@ object IO {
 
     @JvmStatic
     fun getContentTime(data: URL): Long {
-        if (isFileURL(data)) {
+        if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
                 return file.lastModified()
@@ -340,8 +340,8 @@ object IO {
 
     @JvmStatic
     fun getContentType(data: URL, type: String): String {
-        if (isDefaultContentType(type)) {
-            if (isFileURL(data)) {
+        if (type.isDefaultContentType()) {
+            if (data.isFileURL()) {
                 val path = getPathNormalized(data.file).orEmpty()
                 if (path.isNotEmpty()) {
                     return getContentTypeProbe().getContentType(path, type)
@@ -360,24 +360,34 @@ object IO {
     }
 
     @JvmStatic
+    fun getContentType(data: URI, type: String): String {
+        if (type.isDefaultContentType() && data.isAbsolute) {
+            try {
+                return getContentType(data.toURL(), type)
+            }
+            catch (cause: Throwable) {
+                Throwables.thrown(cause)
+            }
+        }
+        return type.toLowerTrim()
+    }
+
+    @JvmStatic
     fun getContentType(data: ByteArray, type: String): String {
-        if (isDefaultContentType(type)) {
-            return getContentType(ByteArrayInputStream(data), type)
+        if (type.isDefaultContentType()) {
+            return getContentType(data.toInputStream(), type)
         }
         return type.toLowerTrim()
     }
 
     @JvmStatic
     fun getContentType(data: InputStream, type: String): String {
-        val kind = type.toLowerTrim()
-        when {
-            isDefaultContentType(kind) && data.markSupported() -> {
-                val send = toTrimOrElse(HttpURLConnection.guessContentTypeFromStream(data), EMPTY_STRING).toLowerTrim()
-                if (send.isNotEmpty()) {
-                    return send
-                }
+        if (type.isDefaultContentType() && data.markSupported()) {
+            val send = toTrimOrElse(HttpURLConnection.guessContentTypeFromStream(data)).toLowerTrim()
+            if (send.isNotEmpty()) {
+                return send
             }
         }
-        return kind
+        return type.toLowerTrim()
     }
 }

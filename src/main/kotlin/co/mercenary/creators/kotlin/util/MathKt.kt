@@ -72,8 +72,40 @@ fun lcm(value: Int, other: Long): Long = Numeric.lcm(value.toLong(), other)
 
 fun lcm(value: Long, other: Int): Long = Numeric.lcm(value, other.toLong())
 
+fun Int.abs(): Int {
+    return abs(this)
+}
+
+infix fun Int.minOf(other: Int): Int {
+    return minOf(this, other)
+}
+
+infix fun Int.maxOf(other: Int): Int {
+    return maxOf(this, other)
+}
+
+fun Long.abs(): Long {
+    return abs(this)
+}
+
+infix fun Long.minOf(other: Long): Long {
+    return minOf(this, other)
+}
+
+infix fun Long.maxOf(other: Long): Long {
+    return maxOf(this, other)
+}
+
 fun Double.abs(): Double {
     return abs(this)
+}
+
+infix fun Double.minOf(other: Double): Double {
+    return minOf(this, other)
+}
+
+infix fun Double.maxOf(other: Double): Double {
+    return maxOf(this, other)
 }
 
 fun Double.floor(): Double {
@@ -85,7 +117,7 @@ fun Double.isNegative(): Boolean {
 }
 
 @JvmOverloads
-fun Double.toDecimalPlacesString(scale: Int = 3, places: Int = abs(scale)): String {
+fun Double.toDecimalPlacesString(scale: Int = 3, places: Int = scale.abs()): String {
     return Numeric.toDecimalPlacesString(this, scale, places)
 }
 
@@ -115,10 +147,42 @@ fun Array<Array<Double>>.closeEnough(value: Array<Array<Double>>, precision: Dou
 }
 
 @JvmOverloads
-fun Double.root(root: Int = 2): Double = Numeric.root(this, root)
+fun Double.rounded(scale: Int = 3): Double {
+    return Numeric.rounded(this, scale)
+}
 
 @JvmOverloads
-fun Double.rounded(scale: Int = 3): Double = Numeric.rounded(this, scale)
+fun DoubleArray.rounded(scale: Int = 3): DoubleArray {
+    return Numeric.rounded(this, scale)
+}
+
+@JvmOverloads
+fun Array<Double>.rounded(scale: Int = 3): Array<Double> {
+    return Numeric.rounded(this, scale)
+}
+
+@JvmOverloads
+fun Array<DoubleArray>.rounded(scale: Int = 3): Array<DoubleArray> {
+    return Numeric.rounded(this, scale)
+}
+
+@JvmOverloads
+fun Array<Array<Double>>.rounded(scale: Int = 3): Array<Array<Double>> {
+    return Numeric.rounded(this, scale)
+}
+
+@JvmOverloads
+fun Iterable<Double>.rounded(scale: Int = 3): Iterable<Double> {
+    return Numeric.rounded(this, scale)
+}
+
+@JvmOverloads
+fun Sequence<Double>.rounded(scale: Int = 3): Sequence<Double> {
+    return Numeric.rounded(this, scale)
+}
+
+@JvmOverloads
+fun Double.root(root: Int = 2): Double = Numeric.root(this, root)
 
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 

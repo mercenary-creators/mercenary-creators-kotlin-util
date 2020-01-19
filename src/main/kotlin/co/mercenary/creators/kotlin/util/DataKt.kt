@@ -21,7 +21,7 @@ package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.io.*
 import java.io.*
-import java.net.URL
+import java.net.*
 import java.nio.channels.*
 import java.nio.charset.Charset
 import java.nio.file.*
@@ -30,13 +30,15 @@ typealias DefaultContentTypeProbe = MimeContentTypeProbe
 
 typealias DefaultContentFileTypeMap = ContentFileTypeMap
 
+typealias ContentResourceLookup = (String) -> ContentResource
+
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
-val contentResourceLoader = BasicContentResourceLoader.INSTANCE
+val CONTENT_RESOURCE_LOADER = BasicContentResourceLoader.INSTANCE
 
-val cachedContentResourceLoader = CachedContentResourceLoader.INSTANCE
+val CACHED_CONTENT_RESOURCE_LOADER = CachedContentResourceLoader.INSTANCE
 
-fun isDefaultContentType(type: String): Boolean = type.toLowerTrim() == DEFAULT_CONTENT_TYPE
+fun String.isDefaultContentType(): Boolean = toLowerTrim() == DEFAULT_CONTENT_TYPE
 
 @JvmOverloads
 fun toCommonContentTypes(name: String, type: String = DEFAULT_CONTENT_TYPE): String = when (IO.getPathExtension(name).toLowerTrim()) {
@@ -62,18 +64,29 @@ fun getPathNormalizedNoTail(path: String?, tail: Boolean): String {
     return norm
 }
 
-fun isFileURL(data: URL): Boolean = (data.protocol.toLowerTrim() == IO.TYPE_IS_FILE).or(data.toString().toLowerTrim().startsWith(IO.PREFIX_FILES))
+fun URL.isFileURL(): Boolean = protocol.toLowerTrim() == IO.TYPE_IS_FILE
+
+@JvmOverloads
+fun URL.toFileOrNull(skip: Boolean = false): File? = IO.toFileOrNull(this, skip)
 
 @JvmOverloads
 fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): File = createTempFile(prefix, suffix, folder).apply { deleteOnExit() }
 
-fun File.isSame(other: File): Boolean = isSame(other.toPath())
+infix fun File.isSameFile(other: File): Boolean = isSameFile(other.toPath())
 
-fun File.isSame(other: Path): Boolean = toPath().isSame(other)
+infix fun File.isSameFile(other: Path): Boolean = toPath().isSameFile(other)
 
-fun Path.isSame(other: File): Boolean = isSame(other.toPath())
+infix fun Path.isSameFile(other: File): Boolean = isSameFile(other.toPath())
 
-fun Path.isSame(other: Path): Boolean = Files.isSameFile(this, other)
+infix fun Path.isSameFile(other: Path): Boolean = Files.isSameFile(this, other)
+
+infix fun File.isSameFileAndData(other: File): Boolean = isSameFileAndData(other.toPath())
+
+infix fun File.isSameFileAndData(other: Path): Boolean = toPath().isSameFileAndData(other)
+
+infix fun Path.isSameFileAndData(other: File): Boolean = isSameFileAndData(other.toPath())
+
+infix fun Path.isSameFileAndData(other: Path): Boolean = Files.isSameFile(this, other) || toFile().compareTo(other.toFile()) == 0
 
 fun File.isValidToRead(): Boolean = exists() && isFile && canRead() && isDirectory.not()
 
@@ -163,6 +176,8 @@ fun InputStreamSupplier.toByteArray(): ByteArray = when (this) {
 
 fun URL.toContentResource() = URLContentResource(this)
 
+fun URI.toContentResource() = URLContentResource(this)
+
 fun File.toContentResource() = FileContentResource(this)
 
-fun Path.toContentResource() = FileContentResource(this.toFile())
+fun Path.toContentResource() = FileContentResource(this)

@@ -50,7 +50,7 @@ class ContentFileTypeMap : FileTypeMap() {
         return data
     }
 
-    override fun getContentType(file: File): String = getContentType(file.name)
+    override fun getContentType(file: File): String = maps.getContentType(file).toLowerTrim()
 
     override fun getContentType(name: String): String = maps.getContentType(name).toLowerTrim()
 
