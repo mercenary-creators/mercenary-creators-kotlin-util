@@ -22,7 +22,8 @@ import java.io.File
 
 abstract class AbstractDataTest : AbstractKotlinTest() {
 
-    protected fun getTempFileNamed(name: String, suff: String): File {
+    @JvmOverloads
+    protected fun getTempFileNamed(name: String = uuid(), suff: String = ".tmp"): File {
         return getTempFile(name, suff)
     }
 

@@ -15,7 +15,6 @@
  */
 
 @file:kotlin.jvm.JvmName("MainKt")
-@file:kotlin.jvm.JvmMultifileClass
 
 package co.mercenary.creators.kotlin.util
 
@@ -30,6 +29,8 @@ const val EMPTY_STRING = ""
 const val SPACE_STRING = " "
 
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2020, Mercenary Creators Company."
+
+typealias Inflaters = co.mercenary.creators.kotlin.util.io.Inflaters
 
 typealias Logging = co.mercenary.creators.kotlin.util.logging.Logging
 
@@ -99,14 +100,10 @@ catch (cause: Throwable) {
     "toSafeString(${cause.message})"
 }
 
-fun getCheckedString(data: String): String {
-    val size = data.length
-    for (posn in 0 until size) {
-        if (data[posn] == Char.MIN_VALUE) {
-            throw MercenaryFatalExceptiion("Null byte present in file/path name. There are no known legitimate use cases for such data, but several injection attacks may use it.")
-        }
-    }
-    return data
+fun CharSequence.getoCheckedString(): String {
+    return if (any { it == Char.MIN_VALUE })
+        throw MercenaryFatalExceptiion("null byte present. there are no known legitimate use cases for such data, but several injection attacks may use it.")
+    else toString()
 }
 
 fun CharSequence.toLowerTrim(): String = trim().toString().toLowerCase()
@@ -223,6 +220,8 @@ fun AtomicInteger.decrement(): AtomicInteger {
 }
 
 fun Boolean.toAtomic() = AtomicBoolean(this)
+
+fun AtomicBoolean.toBoolean(): Boolean = get()
 
 operator fun AtomicBoolean.not(): Boolean = get().not()
 

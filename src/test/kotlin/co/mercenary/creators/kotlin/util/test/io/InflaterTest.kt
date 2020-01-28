@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util.test.io
 
 import co.mercenary.creators.kotlin.util.*
-import java.io.*
+import co.mercenary.creators.kotlin.util.io.EmptyOutputStream
+import org.junit.jupiter.api.Test
 
-class NoCloseOutputStream @JvmOverloads constructor(data: OutputStream, private val done: Boolean = true) : FilterOutputStream(data), OpenCloseable {
-
-    private val open = true.toAtomic()
-
-    override fun close() {
-        if (open.compareAndSet(true, false)) {
-            try {
-                if (done) {
-                    flush()
-                }
-            }
-            catch (cause: Throwable) {
-                Throwables.thrown(cause)
-            }
-        }
+class InflaterTest : KotlinDataTest() {
+    @Test
+    fun test() {
+        val data = CONTENT_RESOURCE_LOADER["test.doc"]
+        info { data.getContentSize() }
+        val make = Inflaters.gzip().deflate(data)
+        info { make.size }
+        val back = Inflaters.gzip().inflate(make)
+        info { back.size }
+        info { Inflaters.gzip().deflate(data, EmptyOutputStream) }
+        val file = getTempFileNamed()
+        info { Inflaters.gzip().deflate(data, file) }
+        info { Inflaters.gzip().inflate(file, EmptyOutputStream) }
     }
-
-    override fun isOpen() = open.toBoolean()
 }

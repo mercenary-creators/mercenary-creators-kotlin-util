@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("MainKt")
-@file:kotlin.jvm.JvmMultifileClass
+@file:kotlin.jvm.JvmName("TimeKt")
 
 package co.mercenary.creators.kotlin.util
 

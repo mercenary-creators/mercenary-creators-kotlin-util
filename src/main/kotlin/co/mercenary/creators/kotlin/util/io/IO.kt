@@ -20,6 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import org.apache.commons.io.FilenameUtils
 import java.io.*
 import java.net.*
+import java.nio.file.Paths
 
 object IO {
 
@@ -95,8 +96,13 @@ object IO {
     }
 
     @JvmStatic
+    fun toFileURL(path: String): URL {
+        return PREFIX_FILES.plus(SINGLE_SLASH).plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).orEmpty().removePrefix(SINGLE_SLASH).trim()).toURL()
+    }
+
+    @JvmStatic
     fun getRelative(data: URL, path: String): URL {
-        return when(val file = toFileOrNull(data)) {
+        return when (val file = toFileOrNull(data)) {
             null -> URL(data, getPathRelative(data.path, path).replace("#", "%23"))
             else -> getRelative(file, path).toURI().toURL()
         }
@@ -198,6 +204,26 @@ object IO {
                 return null
             }
             return data.openStream()
+        }
+        catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+        return null
+    }
+
+    @JvmStatic
+    fun getInputStream(data: URI?): InputStream? {
+        if (data == null) {
+            return null
+        }
+        try {
+            return Paths.get(data).toInputStream()
+        }
+        catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+        try {
+            return data.toURL().toInputStream()
         }
         catch (cause: Throwable) {
             Throwables.thrown(cause)

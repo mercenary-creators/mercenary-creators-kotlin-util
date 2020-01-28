@@ -16,25 +16,4 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import co.mercenary.creators.kotlin.util.*
-import java.io.*
-
-class NoCloseOutputStream @JvmOverloads constructor(data: OutputStream, private val done: Boolean = true) : FilterOutputStream(data), OpenCloseable {
-
-    private val open = true.toAtomic()
-
-    override fun close() {
-        if (open.compareAndSet(true, false)) {
-            try {
-                if (done) {
-                    flush()
-                }
-            }
-            catch (cause: Throwable) {
-                Throwables.thrown(cause)
-            }
-        }
-    }
-
-    override fun isOpen() = open.toBoolean()
-}
+data class InflaterType(val name: String)

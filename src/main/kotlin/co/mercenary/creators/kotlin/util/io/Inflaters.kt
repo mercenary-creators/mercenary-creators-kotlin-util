@@ -16,25 +16,30 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import co.mercenary.creators.kotlin.util.*
 import java.io.*
+import java.util.zip.*
 
-class NoCloseOutputStream @JvmOverloads constructor(data: OutputStream, private val done: Boolean = true) : FilterOutputStream(data), OpenCloseable {
+object Inflaters {
 
-    private val open = true.toAtomic()
+    @JvmStatic
+    fun gzip(): Inflater = GZIPInflater
 
-    override fun close() {
-        if (open.compareAndSet(true, false)) {
-            try {
-                if (done) {
-                    flush()
-                }
-            }
-            catch (cause: Throwable) {
-                Throwables.thrown(cause)
-            }
+    private object GZIPInflater : Inflater {
+
+        override val type: InflaterType
+            get() = InflaterType("GZIP")
+
+        override fun inflate(data: InputStream, copy: OutputStream) = GZIPInputStream(NoCloseInputStream(data)).use { gzip ->
+            gzip.copyTo(copy).also { copy.flush() }
         }
-    }
 
-    override fun isOpen() = open.toBoolean()
+        override fun deflate(data: InputStream, copy: OutputStream) = CountSizeOutputStream(copy).let { buff ->
+            GZIPOutputStream(NoCloseOutputStream(buff)).use { gzip ->
+                data.copyTo(gzip)
+            }
+            buff.size
+        }
+
+        override fun toString() = type.name
+    }
 }

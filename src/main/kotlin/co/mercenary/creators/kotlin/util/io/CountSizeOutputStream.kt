@@ -19,22 +19,37 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.io.*
 
-class NoCloseOutputStream @JvmOverloads constructor(data: OutputStream, private val done: Boolean = true) : FilterOutputStream(data), OpenCloseable {
+class CountSizeOutputStream(private val proxy: OutputStream) : OutputStream() {
 
-    private val open = true.toAtomic()
+    private val count = 0L.toAtomic()
 
-    override fun close() {
-        if (open.compareAndSet(true, false)) {
-            try {
-                if (done) {
-                    flush()
-                }
-            }
-            catch (cause: Throwable) {
-                Throwables.thrown(cause)
-            }
+    override fun write(b: Int) {
+        count.increment()
+        proxy.write(b)
+    }
+
+    override fun write(b: ByteArray?) {
+        if (b != null) {
+            count + b.size
+            proxy.write(b)
         }
     }
 
-    override fun isOpen() = open.toBoolean()
+    override fun write(b: ByteArray?, off: Int, len: Int) {
+        count + len
+        if (b != null) {
+            proxy.write(b, off, len)
+        }
+    }
+
+    override fun flush() {
+        proxy.flush()
+    }
+
+    override fun close() {
+        proxy.close()
+    }
+
+    val size: Long
+        get() = count.toLong()
 }

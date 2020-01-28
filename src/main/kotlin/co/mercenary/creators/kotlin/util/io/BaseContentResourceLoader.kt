@@ -18,14 +18,14 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-open class BasicContentResourceLoader @JvmOverloads constructor(private val load: ClassLoader? = null) : ContentResourceLoader {
+open class BaseContentResourceLoader @JvmOverloads constructor(private val loader: ClassLoader? = null, private val parent: ContentResourceLoader? = null) : ContentResourceLoader {
 
     private val list = arrayListOf<ContentProtocolResolver>()
 
     override operator fun get(path: String): ContentResource {
         if (list.isNotEmpty()) {
-            list.forEach {
-                val data = it.resolve(path, this)
+            list.forEach { resolver ->
+                val data = resolver.resolve(path, this)
                 if (data != null) {
                     return data
                 }
@@ -35,8 +35,7 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
             return getContentResourceByPath(IO.getPathNormalized(path).orEmpty())
         }
         if (path.startsWith(IO.PREFIX_CLASS)) {
-            val name = path.removePrefix(IO.PREFIX_CLASS)
-            return ClassPathContentResource(name, getDefaultContentTypeProbe().getContentType(name), null, getClassLoader())
+            return ClassPathContentResource(path.removePrefix(IO.PREFIX_CLASS), DEFAULT_CONTENT_TYPE, null, getClassLoader())
         }
         if (path.contains(IO.PREFIX_COLON)) {
             try {
@@ -56,14 +55,14 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
         return getContentResourceByPath(path)
     }
 
-    override fun getClassLoader(): ClassLoader? {
-        return load ?: IO.getDefaultClassLoader()
-    }
+    override fun getClassLoader() = loader
+
+    override fun getParentMaybe() = parent
 
     protected open fun getContentResourceByPath(path: String): ContentResource {
         if (path.startsWith(IO.SINGLE_SLASH)) {
             try {
-                val file = IO.toFileOrNull(IO.PREFIX_FILES.plus(path).toURL())
+                val file = path.toFileURL().toFileOrNull()
                 if (file != null) {
                     return file.toContentResource()
                 }
@@ -72,7 +71,7 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
                 Throwables.thrown(cause)
             }
         }
-        return ClassPathContentResource(path, IO.getContentTypeProbe().getContentType(path), null, getClassLoader())
+        return ClassPathContentResource(path, DEFAULT_CONTENT_TYPE, null, getClassLoader())
     }
 
     override operator fun plusAssign(args: ContentProtocolResolver) {
@@ -104,6 +103,8 @@ open class BasicContentResourceLoader @JvmOverloads constructor(private val load
     }
 
     companion object {
-        val INSTANCE = BasicContentResourceLoader()
+        val INSTANCE: ContentResourceLoader by lazy {
+            BaseContentResourceLoader()
+        }
     }
 }

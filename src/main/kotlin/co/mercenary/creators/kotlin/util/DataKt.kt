@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("MainKt")
-@file:kotlin.jvm.JvmMultifileClass
+@file:kotlin.jvm.JvmName("DataKt")
 
 package co.mercenary.creators.kotlin.util
 
@@ -23,7 +22,6 @@ import co.mercenary.creators.kotlin.util.io.*
 import java.io.*
 import java.net.*
 import java.nio.channels.*
-import java.nio.charset.Charset
 import java.nio.file.*
 
 typealias DefaultContentTypeProbe = MimeContentTypeProbe
@@ -32,11 +30,15 @@ typealias DefaultContentFileTypeMap = ContentFileTypeMap
 
 typealias ContentResourceLookup = (String) -> ContentResource
 
+typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream
+
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
-val CONTENT_RESOURCE_LOADER = BasicContentResourceLoader.INSTANCE
+val CONTENT_RESOURCE_LOADER: ContentResourceLoader
+    get() = BaseContentResourceLoader.INSTANCE
 
-val CACHED_CONTENT_RESOURCE_LOADER = CachedContentResourceLoader.INSTANCE
+val CACHED_CONTENT_RESOURCE_LOADER: CachedContentResourceLoader
+    get() = BaseCachedContentResourceLoader.INSTANCE
 
 fun String.isDefaultContentType(): Boolean = toLowerTrim() == DEFAULT_CONTENT_TYPE
 
@@ -97,6 +99,11 @@ fun URL.toInputStream(): InputStream = when (val data = IO.getInputStream(this))
     else -> data
 }
 
+fun URI.toInputStream(): InputStream = when (val data = IO.getInputStream(this)) {
+    null -> throw MercenaryExceptiion(toString())
+    else -> data
+}
+
 fun ByteArray.toInputStream(): InputStream = ByteArrayInputStream(this)
 
 fun File.toInputStream(vararg args: OpenOption): InputStream = toPath().toInputStream(*args)
@@ -122,33 +129,32 @@ fun File.toOutputStream(vararg args: OpenOption): OutputStream = toPath().toOutp
 
 fun Path.toOutputStream(vararg args: OpenOption): OutputStream = if (isValidToWrite()) Files.newOutputStream(this, *args) else throw MercenaryExceptiion(toString())
 
+fun WritableByteChannel.toOutputStream(): OutputStream = Channels.newOutputStream(this)
+
+fun OutputStreamSupplier.toOutputStream(): OutputStream = this.getOutputStream()
+
 fun Reader.forEachLineIndexed(block: (Int, String) -> Unit) {
-    buffered().useLines { it.forEachIndexed(block) }
+    useLines { it.forEachIndexed(block) }
 }
 
-@JvmOverloads
-fun URL.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    toInputStream().forEachLineIndexed(charset, block)
+fun URL.forEachLineIndexed(block: (Int, String) -> Unit) {
+    toInputStream().forEachLineIndexed(block)
 }
 
-@JvmOverloads
-fun File.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    toInputStream().forEachLineIndexed(charset, block)
+fun File.forEachLineIndexed(block: (Int, String) -> Unit) {
+    toInputStream().forEachLineIndexed(block)
 }
 
-@JvmOverloads
-fun Path.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    toInputStream().forEachLineIndexed(charset, block)
+fun Path.forEachLineIndexed(block: (Int, String) -> Unit) {
+    toInputStream().forEachLineIndexed(block)
 }
 
-@JvmOverloads
-fun InputStreamSupplier.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    toInputStream().forEachLineIndexed(charset, block)
+fun InputStreamSupplier.forEachLineIndexed(block: (Int, String) -> Unit) {
+    toInputStream().forEachLineIndexed(block)
 }
 
-@JvmOverloads
-fun InputStream.forEachLineIndexed(charset: Charset = Charsets.UTF_8, block: (Int, String) -> Unit) {
-    reader(charset).forEachLineIndexed(block)
+fun InputStream.forEachLineIndexed(block: (Int, String) -> Unit) {
+    reader().forEachLineIndexed(block)
 }
 
 fun URL.toRelative(path: String) = IO.getRelative(this, path)
@@ -157,7 +163,9 @@ fun File.toRelative(path: String) = IO.getRelative(this, path)
 
 fun String.toURL(): URL = URL(this)
 
-fun URL.toByteArray(): ByteArray = readBytes()
+fun String.toFileURL(): URL = IO.toFileURL(this)
+
+fun URL.toByteArray(): ByteArray = toInputStream().toByteArray()
 
 fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
 
@@ -181,3 +189,5 @@ fun URI.toContentResource() = URLContentResource(this)
 fun File.toContentResource() = FileContentResource(this)
 
 fun Path.toContentResource() = FileContentResource(this)
+
+fun Int.toByteArrayOutputStream(): ByteArrayOutputStream = ByteArrayOutputStream(this)
