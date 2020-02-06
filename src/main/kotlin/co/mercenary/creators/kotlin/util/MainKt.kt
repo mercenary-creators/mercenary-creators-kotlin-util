@@ -38,6 +38,8 @@ typealias ILogging = co.mercenary.creators.kotlin.util.logging.ILogging
 
 typealias LoggingFactory = co.mercenary.creators.kotlin.util.logging.LoggingFactory
 
+typealias LoggingMarker = co.mercenary.creators.kotlin.util.logging.LoggingMarker
+
 typealias Randoms = co.mercenary.creators.kotlin.util.security.Randoms
 
 typealias Ciphers = co.mercenary.creators.kotlin.util.security.Ciphers
@@ -100,8 +102,8 @@ catch (cause: Throwable) {
     "toSafeString(${cause.message})"
 }
 
-fun CharSequence.getoCheckedString(): String {
-    return if (any { it == Char.MIN_VALUE })
+fun CharSequence.toChecked(): String {
+    return if (this.any { it == Char.MIN_VALUE })
         throw MercenaryFatalExceptiion("null byte present. there are no known legitimate use cases for such data, but several injection attacks may use it.")
     else toString()
 }
@@ -252,18 +254,6 @@ fun isEverySameAs(vararg args: Pair<Any?, Any?>) = SameAndHashCode.isEverySameAs
 fun <T : Any?> T.hashOf() = SameAndHashCode.hashOf(this)
 
 fun <T : Any?> T.hashOf(vararg args: Any?) = SameAndHashCode.hashOf(hashOf().toAtomic(), *args)
-
-fun <T : Any> T.applyIf(flag: Boolean, block: T.() -> T): T {
-    return if (flag) this.block() else this
-}
-
-fun <T : Any> T.applyIf(flag: AtomicBoolean, block: T.() -> T): T {
-    return if (flag.get()) this.block() else this
-}
-
-fun <T : Any> T.applyIf(predicate: () -> Boolean, block: T.() -> T): T {
-    return if (predicate()) this.block() else this
-}
 
 open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
     constructor() : this(emptySequence())

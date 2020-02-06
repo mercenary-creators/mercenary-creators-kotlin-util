@@ -28,9 +28,9 @@ class ContentFileTypeMap : FileTypeMap() {
         LoggingFactory.logger(ContentFileTypeMap::class)
     }
 
-    private val maps = getMimetypesFileTypeMapInputStream()?.use { MimetypesFileTypeMap(it) } ?: MimetypesFileTypeMap()
+    private val maps = getInputStream()?.use { MimetypesFileTypeMap(it) } ?: MimetypesFileTypeMap()
 
-    private fun getMimetypesFileTypeMapInputStream(): InputStream? {
+    private fun getInputStream(): InputStream? {
         val name = getMimetypesFileName()
         val data = IO.getInputStream(name)
         if (data == null) {

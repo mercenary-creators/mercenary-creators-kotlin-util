@@ -16,20 +16,13 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import mu.*
+import org.slf4j.Marker
 
-open class Logging @JvmOverloads constructor(name: String? = null) : KLoggable, ILoggingBase {
-
-    init {
-        LoggingFactory
-    }
-
-    private val logs: KLogger by lazy {
-        if (name == null) logger() else logger(name)
-    }
-
-    override val logger: KLogger
-        get() = logs
-
-    inline fun <T> timed(block: () -> T): T = co.mercenary.creators.kotlin.util.timed({ info { it } }, block)
+interface IMarker {
+    val name: String
+    fun markerOf(): Marker
+    operator fun plus(value: IMarker): IMarker
+    operator fun minus(value: IMarker): IMarker
+    operator fun contains(value: String): Boolean
+    operator fun contains(value: IMarker): Boolean
 }

@@ -76,23 +76,31 @@ fun Int.abs(): Int {
 }
 
 infix fun Int.minOf(other: Int): Int {
-    return minOf(this, other)
+    return min(this, other)
 }
 
 infix fun Int.maxOf(other: Int): Int {
-    return maxOf(this, other)
+    return max(this, other)
 }
 
 fun Long.abs(): Long {
     return abs(this)
 }
 
+infix fun Long.minOf(other: Int): Long {
+    return min(this, other.toLong())
+}
+
+infix fun Long.maxOf(other: Int): Long {
+    return max(this, other.toLong())
+}
+
 infix fun Long.minOf(other: Long): Long {
-    return minOf(this, other)
+    return min(this, other)
 }
 
 infix fun Long.maxOf(other: Long): Long {
-    return maxOf(this, other)
+    return max(this, other)
 }
 
 fun Double.abs(): Double {
@@ -100,11 +108,11 @@ fun Double.abs(): Double {
 }
 
 infix fun Double.minOf(other: Double): Double {
-    return minOf(this, other)
+    return min(this, other)
 }
 
 infix fun Double.maxOf(other: Double): Double {
-    return maxOf(this, other)
+    return max(this, other)
 }
 
 fun Double.floor(): Double {

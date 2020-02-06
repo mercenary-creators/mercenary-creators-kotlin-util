@@ -43,7 +43,7 @@ val CACHED_CONTENT_RESOURCE_LOADER: CachedContentResourceLoader
 fun String.isDefaultContentType(): Boolean = toLowerTrim() == DEFAULT_CONTENT_TYPE
 
 @JvmOverloads
-fun toCommonContentTypes(name: String, type: String = DEFAULT_CONTENT_TYPE): String = when (IO.getPathExtension(name).toLowerTrim()) {
+fun String.toCommonContentType(type: String = DEFAULT_CONTENT_TYPE): String = when (IO.getPathExtension(this).toLowerTrim()) {
     ".json" -> "application/json"
     ".java" -> "text/x-java-source"
     ".css", ".scss" -> "text/css"

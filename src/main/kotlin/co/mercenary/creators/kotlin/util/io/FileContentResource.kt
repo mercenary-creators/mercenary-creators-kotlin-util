@@ -25,7 +25,7 @@ class FileContentResource @JvmOverloads constructor(private val data: File, type
     @JvmOverloads
     constructor(data: Path, type: String = DEFAULT_CONTENT_TYPE) : this(data.toFile(), type)
 
-    private val resolved = getResolvedContentType()
+    private val resolved = resolved()
 
     override fun getContentType() = resolved
     override fun getContentSize() = data.length()

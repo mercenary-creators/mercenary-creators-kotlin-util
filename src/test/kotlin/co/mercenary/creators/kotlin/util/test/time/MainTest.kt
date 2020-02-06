@@ -78,5 +78,11 @@ class MainTest : KotlinTest() {
             }
         }
         info { dash() }
+        measured(10) {
+            for (i in 1..1000000) {
+                TimeDuration.parse(buff)
+            }
+        }
+        info { dash() }
     }
 }

@@ -20,9 +20,12 @@ import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.type.*
 import java.math.BigDecimal
 import java.time.Duration
-import kotlin.math.abs
 
 class TimeDuration private constructor(private val time: Duration, val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable {
+
+    constructor(text: String) : this(parse(text))
+
+    constructor(self: TimeDuration) : this(self.time, self.unit)
 
     val duration: Duration
         get() = time.copyOf()
@@ -128,6 +131,8 @@ class TimeDuration private constructor(private val time: Duration, val unit: Tim
 
         private val GLOB = Regex("\\h+")
 
+        private val HASH = AtomicHashMap<String, TimeDuration>()
+
         private fun Duration.copyOf(): Duration = Duration.ofSeconds(seconds, nano.toLong())
 
         private fun Duration.toBigDecimal(): BigDecimal = seconds.toBigDecimal().plus(BigDecimal.valueOf(nano.toLong(), NANOS_SHIFTED))
@@ -143,7 +148,7 @@ class TimeDuration private constructor(private val time: Duration, val unit: Tim
         }
 
         private fun text(unit: TimeDurationUnit, time: Long = 0L): String {
-            return "$time ${unit.toLowerCase(abs(time) != 1L)}"
+            return "$time ${unit.toLowerCase(time.abs() != 1L)}"
         }
 
         private fun text(time: Duration, unit: TimeDurationUnit): String {
@@ -371,6 +376,15 @@ class TimeDuration private constructor(private val time: Duration, val unit: Tim
         @JvmStatic
         fun nanoseconds(time: Double): TimeDuration {
             return secondsOf(time / NANOS_PER_SECOND, TimeDurationUnit.NANOSECONDS)
+        }
+
+        @JvmStatic
+        fun parse(text: String): TimeDuration {
+            return text.toLowerTrim().let { look ->
+                HASH.computeIfAbsent(look) {
+                    parseCharSequence(it)
+                }
+            }
         }
 
         @JvmStatic

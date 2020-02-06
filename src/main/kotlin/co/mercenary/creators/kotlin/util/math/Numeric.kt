@@ -59,14 +59,14 @@ object Numeric {
     @JvmStatic
     @JvmOverloads
     fun closeEnough(value: Double, other: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
-        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION_DELTA else abs(precision)
+        val delta = if (precision.isFinite()) precision.abs() else DEFAULT_PRECISION_DELTA
         return if (value.toBits() != other.toBits()) (abs(value - other) <= delta) else true
     }
 
     @JvmStatic
     @JvmOverloads
     fun closeEnough(v1: Double, v2: Double, o1: Double, o2: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
-        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION_DELTA else abs(precision)
+        val delta = if (precision.isFinite()) precision.abs() else DEFAULT_PRECISION_DELTA
         if (v1.toBits() != v2.toBits()) {
             if (abs(v1 - v2) > delta) {
                 return false
@@ -86,7 +86,7 @@ object Numeric {
         if (value.size != other.size) {
             return false
         }
-        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION_DELTA else abs(precision)
+        val delta = if (precision.isFinite()) precision.abs() else DEFAULT_PRECISION_DELTA
         for (i in value.indices) {
             val v = value[i]
             val o = other[i]
@@ -105,7 +105,7 @@ object Numeric {
         if (value.size != other.size) {
             return false
         }
-        val delta = if (precision.isNaN().or(precision.isInfinite())) DEFAULT_PRECISION_DELTA else abs(precision)
+        val delta = if (precision.isFinite()) precision.abs() else DEFAULT_PRECISION_DELTA
         for (i in value.indices) {
             val v = value[i]
             val o = other[i]
@@ -165,7 +165,19 @@ object Numeric {
     fun gcd(args: IntArray): Int = TailRecursiveFunctions.gcd(args)
 
     @JvmStatic
+    fun gcd(args: Iterable<Int>): Int = TailRecursiveFunctions.gcd(args)
+
+    @JvmStatic
+    fun gcd(args: Sequence<Int>): Int = TailRecursiveFunctions.gcd(args)
+
+    @JvmStatic
     fun gcd(args: LongArray): Long = TailRecursiveFunctions.gcd(args)
+
+    @JvmStatic
+    fun gcd(args: Iterable<Long>): Long = TailRecursiveFunctions.gcd(args)
+
+    @JvmStatic
+    fun gcd(args: Sequence<Long>): Long = TailRecursiveFunctions.gcd(args)
 
     @JvmStatic
     fun lcm(value: Int, other: Int): Int = TailRecursiveFunctions.lcm(value, other)
@@ -278,12 +290,60 @@ object Numeric {
             }
         }
 
+        fun gcd(args: Iterable<Int>): Int {
+            val list = args.toList()
+            return when (list.size) {
+                0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
+                1 -> abs(list[0])
+                2 -> gcd(list[0], list[1])
+                else -> list.reduce { x, y ->
+                    gcd(x, y)
+                }
+            }
+        }
+
+        fun gcd(args: Sequence<Int>): Int {
+            val list = args.toList()
+            return when (list.size) {
+                0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
+                1 -> abs(list[0])
+                2 -> gcd(list[0], list[1])
+                else -> list.reduce { x, y ->
+                    gcd(x, y)
+                }
+            }
+        }
+
         fun gcd(args: LongArray): Long {
             return when (args.size) {
                 0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(args[0])
                 2 -> gcd(args[0], args[1])
                 else -> args.reduce { x, y ->
+                    gcd(x, y)
+                }
+            }
+        }
+
+        fun gcd(args: Iterable<Long>): Long {
+            val list = args.toList()
+            return when (list.size) {
+                0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
+                1 -> abs(list[0])
+                2 -> gcd(list[0], list[1])
+                else -> list.reduce { x, y ->
+                    gcd(x, y)
+                }
+            }
+        }
+
+        fun gcd(args: Sequence<Long>): Long {
+            val list = args.toList()
+            return when (list.size) {
+                0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
+                1 -> abs(list[0])
+                2 -> gcd(list[0], list[1])
+                else -> list.reduce { x, y ->
                     gcd(x, y)
                 }
             }

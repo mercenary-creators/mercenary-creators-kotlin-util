@@ -24,13 +24,13 @@ abstract class AbstractContentResource @JvmOverloads constructor(path: String, t
         ByteArrayContentResource(getContentData(), getContentPath(), getContentType(), getContentTime(), getContentLook())
     }
 
-    protected fun getResolvedContentType(): String {
+    protected fun resolved(): String {
         val keep = super.getContentType()
         if (keep.isDefaultContentType()) {
             val path = getContentPath()
-            val look = getDefaultContentTypeProbe().getContentType(path)
+            val look = IO.getContentTypeProbe().getContentType(path)
             if (look.isDefaultContentType()) {
-                return toCommonContentTypes(path)
+                return path.toCommonContentType()
             }
             return look
         }

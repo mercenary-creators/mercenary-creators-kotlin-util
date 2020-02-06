@@ -49,7 +49,7 @@ class MimeContentTypeProbe @JvmOverloads constructor(private val maps: FileTypeM
             val path = getPathNormalizedOrElse(name)
             val look = getFileTypeMap().getContentType(path).toLowerTrim()
             if (look.isDefaultContentType()) {
-                return toCommonContentTypes(name)
+                return name.toCommonContentType()
             }
             return look
         }

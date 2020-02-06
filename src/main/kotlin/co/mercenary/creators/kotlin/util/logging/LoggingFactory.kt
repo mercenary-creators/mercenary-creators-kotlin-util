@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
+import org.slf4j.*
 import kotlin.reflect.KClass
 
 @Suppress("NOTHING_TO_INLINE")
@@ -26,11 +27,11 @@ object LoggingFactory {
 
     const val KT = "Kt$"
 
-    private val opem = false.toAtomic()
+    private val open = false.toAtomic()
 
     init {
-        if (opem.compareAndSet(false, true)) {
-            (org.slf4j.LoggerFactory.getILoggerFactory() as  ch.qos.logback.classic.LoggerContext).frameworkPackages.add(ILoggingBase::class.java.`package`.name)
+        if (open.compareAndSet(false, true)) {
+            (LoggerFactory.getILoggerFactory() as  ch.qos.logback.classic.LoggerContext).frameworkPackages.add(LoggingFactory::class.java.`package`.name)
         }
     }
 
@@ -55,4 +56,25 @@ object LoggingFactory {
             else -> logger(name)
         }
     }
+
+    @JvmStatic
+    inline fun marker(noinline func: () -> Unit): IMarker {
+        val name = func.javaClass.name
+        return when {
+            name.contains(KT) -> LoggingMarker(name.substringBefore(KT))
+            name.contains(KE) -> LoggingMarker(name.substringBefore(KE))
+            else -> LoggingMarker(name)
+        }
+    }
+
+    internal inline fun markerOf(noinline func: () -> Unit): Marker {
+        val name = func.javaClass.name
+        return when {
+            name.contains(KT) -> markerOf(name.substringBefore(KT))
+            name.contains(KE) -> markerOf(name.substringBefore(KE))
+            else -> markerOf(name)
+        }
+    }
+
+    internal fun markerOf(name: String): Marker = MarkerFactory.getMarker(name)
 }

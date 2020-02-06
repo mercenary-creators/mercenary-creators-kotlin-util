@@ -29,7 +29,7 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
     @JvmOverloads
     constructor(path: String, claz: kotlin.reflect.KClass<*>, type: String = DEFAULT_CONTENT_TYPE) : this(path, claz.java, type)
 
-    private val resolved = getResolvedContentType()
+    private val resolved = resolved()
 
     private val resource = IO.getResouce(getContentPath(), claz, load)
 

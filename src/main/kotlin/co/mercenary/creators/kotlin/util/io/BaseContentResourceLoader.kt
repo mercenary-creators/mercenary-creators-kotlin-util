@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 
 open class BaseContentResourceLoader @JvmOverloads constructor(private val loader: ClassLoader? = null, private val parent: ContentResourceLoader? = null) : ContentResourceLoader {
 
-    private val list = arrayListOf<ContentProtocolResolver>()
+    private val list = ArrayList<ContentProtocolResolver>()
 
     override operator fun get(path: String): ContentResource {
         if (list.isNotEmpty()) {

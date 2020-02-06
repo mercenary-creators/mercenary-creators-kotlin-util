@@ -213,4 +213,4 @@ fun CharSequence.parseDate(safe: Boolean = true): Date = TimeAndDate.parseDate(t
 @JvmOverloads
 fun CharSequence.parseDateTime(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): LocalDateTime = TimeAndDate.parseDate(this, zone)
 
-fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
+inline fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
