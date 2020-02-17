@@ -17,6 +17,8 @@
 package co.mercenary.creators.kotlin.util.math
 
 import co.mercenary.creators.kotlin.util.*
+import org.apache.commons.math3.primes.Primes
+import org.apache.commons.math3.stat.StatUtils
 import java.math.RoundingMode
 import kotlin.math.*
 
@@ -145,6 +147,267 @@ object Numeric {
         }
         return true
     }
+
+    @JvmStatic
+    fun isPrimeValue(value: Int): Boolean = Primes.isPrime(value)
+
+    @JvmStatic
+    fun toPrimeAfter(value: Int): Int = Primes.nextPrime(value.coerceAtLeast(1))
+
+    @JvmStatic
+    fun toPrimeRoots(value: Int): List<Int> = if (value < 2) emptyList() else Primes.primeFactors(value)
+
+    @JvmStatic
+    fun toDoubleArray(list: IntArray): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: ByteArray): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: CharArray): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: LongArray): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: ShortArray): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: FloatArray): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(vararg list: Number): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: Array<Int>): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: Array<Byte>): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: Array<Char>): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: Array<Long>): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: Array<Short>): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: Array<Float>): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
+
+    @JvmStatic
+    fun toDoubleArray(list: Array<Double>): DoubleArray = DoubleArray(list.size) { i -> list[i] }
+
+    @JvmStatic
+    fun <N : Number> toDoubleArray(list: Iterable<N>): DoubleArray = list.toList().let { DoubleArray(it.size) { i -> it[i].toDouble() } }
+
+    @JvmStatic
+    fun <N : Number> toDoubleArray(list: Sequence<N>): DoubleArray = list.toList().let { DoubleArray(it.size) { i -> it[i].toDouble() } }
+
+    @JvmStatic
+    fun mean(list: DoubleArray): Double = StatUtils.mean(list)
+
+    @JvmStatic
+    fun mean(list: IntArray): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: ByteArray): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: CharArray): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: LongArray): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: ShortArray): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: FloatArray): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(vararg list: Number): Double = mean(toDoubleArray(*list))
+
+    @JvmStatic
+    fun mean(list: Array<Int>): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: Array<Byte>): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: Array<Char>): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: Array<Long>): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: Array<Short>): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: Array<Float>): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun mean(list: Array<Double>): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun <N : Number> mean(list: Iterable<N>): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun <N : Number> mean(list: Sequence<N>): Double = mean(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: DoubleArray): Double = percentile(50.0, list)
+
+    @JvmStatic
+    fun median(list: IntArray): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: ByteArray): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: CharArray): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: LongArray): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: ShortArray): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: FloatArray): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(vararg list: Number): Double = median(toDoubleArray(*list))
+
+    @JvmStatic
+    fun median(list: Array<Int>): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: Array<Byte>): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: Array<Char>): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: Array<Long>): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: Array<Short>): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: Array<Float>): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun median(list: Array<Double>): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun <N : Number> median(list: Iterable<N>): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun <N : Number> median(list: Sequence<N>): Double = median(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: DoubleArray): Double = StatUtils.variance(list)
+
+    @JvmStatic
+    fun variance(list: IntArray): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: ByteArray): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: CharArray): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: LongArray): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: ShortArray): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: FloatArray): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(vararg list: Number): Double = variance(toDoubleArray(*list))
+
+    @JvmStatic
+    fun variance(list: Array<Int>): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: Array<Byte>): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: Array<Char>): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: Array<Long>): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: Array<Short>): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: Array<Float>): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun variance(list: Array<Double>): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun <N : Number> variance(list: Iterable<N>): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun <N : Number> variance(list: Sequence<N>): Double = variance(toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: DoubleArray): Double = StatUtils.percentile(list, percentile)
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: IntArray): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: ByteArray): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: CharArray): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: LongArray): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: ShortArray): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: FloatArray): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, vararg list: Number): Double = percentile(percentile, toDoubleArray(*list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: Array<Int>): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: Array<Byte>): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: Array<Char>): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: Array<Long>): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: Array<Short>): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: Array<Float>): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun percentile(percentile: Double, list: Array<Double>): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun <N : Number> percentile(percentile: Double, list: Iterable<N>): Double = percentile(percentile, toDoubleArray(list))
+
+    @JvmStatic
+    fun <N : Number> percentile(percentile: Double, list: Sequence<N>): Double = percentile(percentile, toDoubleArray(list))
 
     @JvmStatic
     fun powNegative1(value: Int): Double = powNegative1(value.toLong())

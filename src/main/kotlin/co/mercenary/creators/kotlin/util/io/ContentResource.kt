@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import co.mercenary.creators.kotlin.util.ContentResourceLookup
+import co.mercenary.creators.kotlin.util.*
 
 interface ContentResource : InputStreamSupplier {
     fun getContentSize(): Long
@@ -29,6 +29,7 @@ interface ContentResource : InputStreamSupplier {
     fun getContentData(): ByteArray
     fun toContentCache(): CachedContentResource
     fun getContentLook(): ContentResourceLookup
+    fun getContentKind(): String = EMPTY_STRING
     fun toRelativePath(path: String): ContentResource = getContentLook().invoke(path)
     operator fun get(path: CharSequence): ContentResource = toRelativePath(path.toString())
 }

@@ -187,13 +187,13 @@ fun Long.toDate(): Date = Date(this)
 
 fun dateOf(): Date = Date()
 
-operator fun Date.plus(value: TimeDuration): Date = Date(toLong() + value.duration.toMillis())
+operator fun Date.plus(value: TimeDuration): Date = Date(toLong() + value.duration().toMillis())
 
-operator fun Date.minus(value: TimeDuration): Date = Date(toLong() - value.duration.toMillis())
+operator fun Date.minus(value: TimeDuration): Date = Date(toLong() - value.duration().toMillis())
 
-operator fun LocalDateTime.plus(value: TimeDuration): LocalDateTime = plus(value.duration)
+operator fun LocalDateTime.plus(value: TimeDuration): LocalDateTime = plus(value.duration())
 
-operator fun LocalDateTime.minus(value: TimeDuration): LocalDateTime = minus(value.duration)
+operator fun LocalDateTime.minus(value: TimeDuration): LocalDateTime = minus(value.duration())
 
 @JvmOverloads
 fun dateTimeOf(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): LocalDateTime = TimeAndDate.dateTimeOf(zone)

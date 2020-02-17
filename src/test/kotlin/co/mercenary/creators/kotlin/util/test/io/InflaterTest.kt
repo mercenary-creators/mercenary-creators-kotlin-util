@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.test.io
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.io.EmptyOutputStream
 import org.junit.jupiter.api.Test
 
 class InflaterTest : KotlinDataTest() {

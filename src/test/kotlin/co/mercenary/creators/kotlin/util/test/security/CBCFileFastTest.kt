@@ -28,9 +28,7 @@ class CBCFileFastTest : KotlinSecurityTest() {
         info { salt }
         val good = isGood(pass)
         info { good }
-        good.shouldBe(true) {
-            pass
-        }
+        good.shouldBe(true)
         val temp = getTempFile(uuid(), ".txt")
         val baos = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
         val save = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
@@ -45,16 +43,12 @@ class CBCFileFastTest : KotlinSecurityTest() {
         timed {
             code.encrypt(data, temp)
         }
-        data.toByteArray().shouldNotBe(temp.toByteArray()) {
-            "files should not be the same."
-        }
+        data.toByteArray().shouldNotBe(temp.toByteArray())
         val copy = getTempFile(uuid(), ".txt")
         timed {
             code.decrypt(temp, copy)
         }
         copy.forEachLineIndexed(block = printer)
-        data.toByteArray().shouldBe(copy.toByteArray()) {
-            "files should not be different."
-        }
+        data.toByteArray().shouldBe(copy.toByteArray())
     }
 }

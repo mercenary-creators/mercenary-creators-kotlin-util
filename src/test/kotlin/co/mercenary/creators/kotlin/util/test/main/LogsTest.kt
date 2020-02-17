@@ -14,34 +14,30 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test.security
+package co.mercenary.creators.kotlin.util.test.main
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.time.TimeAndDate
 import org.junit.jupiter.api.Test
 
-class GCMTextTest : KotlinSecurityTest() {
+class LogsTest : KotlinTest() {
     @Test
     fun test() {
-        val name = getGeneratedText()
-        val pass = getGeneratedPass()
-        val salt = getGeneratedSalt()
-        info { name }
-        info { pass }
-        info { salt }
-        val good = isGood(pass)
-        info { good }
-        good.shouldBe(true)
-        val code = getTextCipher(pass, salt, CipherAlgorithm.GCM).also {
-            it.decrypt(it.encrypt(name))
-        }
-        val data = timed {
-            code.encrypt(name)
-        }
-        info { data }
-        val back = timed {
-            code.decrypt(data)
-        }
-        info { back }
-        name.shouldBe(back)
+        info { 16 }
+        info { 1L }
+        info { 1..3 }
+        info { MainData() }
+        info { dateOf() }
+        info { dateTimeOf() }
+        info { listOf(1, 2, 3) }
+        info { sequenceOf(4, 5, 6) }
+        info { toDoubleArrayOf(4, 5, 6) }
+        info { TimeAndDate::nanos }
+        info { mapOf("name" to CREATORS_AUTHOR_INFO, "time" to 56.years) }
+        info { false }
+        info { false.toAtomic() }
+        info { 16.toAtomic() }
+        info { 1L.toAtomic() }
+        info { toDoubleArrayOf(4, 5, 6).toFlux() }
     }
 }

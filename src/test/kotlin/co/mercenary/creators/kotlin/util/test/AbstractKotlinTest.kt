@@ -19,7 +19,6 @@ package co.mercenary.creators.kotlin.util.test
 import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.*
 import java.util.*
-import kotlin.math.*
 
 abstract class AbstractKotlinTest : Logging() {
 
@@ -31,7 +30,7 @@ abstract class AbstractKotlinTest : Logging() {
         getConfigPropertiesBuilder().invoke()
     }
 
-    protected val printer: (Int, String) -> Unit = { i, s -> info { "%2d : %s".format(i + 1, s) }}
+    protected val printer: (Int, String) -> Unit = { i, s -> info { "%2d : %s".format(i + 1, s) } }
 
     protected val form = TimeAndDate.getThreadLocalDefaultDateFormat()
 
@@ -51,65 +50,18 @@ abstract class AbstractKotlinTest : Logging() {
 
     @JvmOverloads
     fun measured(loop: Int, logs: (Any?) -> Unit = { info { it } }, call: (Int) -> Unit) {
-        val list = LongArray(loop)
-        repeat(loop) {
-            val time = System.nanoTime()
+        val list = DoubleArray(loop)
+        loop.forEach {
+            val time = TimeAndDate.nanos()
             call(it)
-            list[it] = System.nanoTime() - time
+            list[it] = TimeAndDate.nanos() - time.toDouble()
         }
-        logs(TimeAndDate.toElapsedString(list.average().toLong()))
+        val time = list.average()
+        logs(TimeAndDate.toElapsedString(time.toLong()))
     }
 
     @JvmOverloads
-    fun dash(loop: Int = 48): String = "-".repeat(abs(loop))
-
-    fun assertEach(vararg list: Executable) {
-        if (list.isNotEmpty()) {
-            Assertions.assertAll(*list)
-        }
-    }
-
-    fun assertEach(list: List<Executable>) {
-        if (list.isNotEmpty()) {
-            Assertions.assertAll(list)
-        }
-    }
-
-    fun assumeThat(condition: Boolean, executable: Executable) {
-        Assumptions.assumingThat(condition, executable)
-    }
-
-    fun assertTrue(condition: Boolean, block: () -> Any?) {
-        Assertions.assertTrue(condition, toSafeString(block))
-    }
-
-    fun assertFalse(condition: Boolean, block: () -> Any?) {
-        Assertions.assertFalse(condition, toSafeString(block))
-    }
-
-    fun assertEquals(expected: Any?, actual: Any?) {
-        Assertions.assertEquals(expected, actual)
-    }
-
-    fun assertEquals(expected: Any?, actual: Any?, block: () -> Any?) {
-        Assertions.assertEquals(expected, actual, toSafeString(block))
-    }
-
-    fun assertEquals(expected: ByteArray?, actual: ByteArray?, block: () -> Any?) {
-        Assertions.assertArrayEquals(expected, actual, toSafeString(block))
-    }
-
-    fun assertNotEquals(expected: ByteArray, actual: ByteArray, block: () -> Any?) {
-        assertFalse(expected.contentEquals(actual), block)
-    }
-
-    fun assertNotEquals(expected: Any?, actual: Any?, block: () -> Any?) {
-        Assertions.assertNotEquals(expected, actual, toSafeString(block))
-    }
-
-    fun assertNotEquals(expected: Any?, actual: Any?) {
-        Assertions.assertNotEquals(expected, actual)
-    }
+    fun dash(loop: Int = 48): String = "-".repeat(loop.abs())
 
     inline fun <reified T : Throwable, R> assumeThat(block: () -> R): R? {
         return try {
@@ -127,27 +79,7 @@ abstract class AbstractKotlinTest : Logging() {
         }
     }
 
-    infix fun <T : Any?> T.shouldBe(value: T) = assertEquals(value, this)
+    infix fun <T : Any?> T.shouldBe(value: T) = Assertions.assertTrue(value isSameAs this)
 
-    infix fun <T : Any?> T.shouldNotBe(value: T) = assertNotEquals(value, this)
-
-    fun <T : Any?> List<T>.shouldBe(value: Iterable<*>?, block: () -> Any?) = assertEquals(value?.toList(), this, block)
-
-    fun <T : Any> T?.shouldBe(value: Any?, block: () -> Any?) = assertEquals(value, this, block)
-
-    fun <T : Any> (() -> T?).shouldBe(value: Any?, block: () -> Any?) = assertEquals(value, this.invoke(), block)
-
-    fun <T : Any> (() -> T?).shouldBe(value: () -> Any?, block: () -> Any?) = assertEquals(value.invoke(), this.invoke(), block)
-
-    fun ByteArray?.shouldBe(value: ByteArray?, block: () -> Any?) = assertEquals(value, this, block)
-
-    fun <T : Any?> List<T>.shouldNotBe(value: Iterable<*>?, block: () -> Any?) = assertNotEquals(value?.toList(), this, block)
-
-    fun <T : Any> T?.shouldNotBe(value: Any?, block: () -> Any?) = assertNotEquals(value, this, block)
-
-    fun <T : Any> (() -> T?).shouldNotBe(value: Any?, block: () -> Any?) = assertNotEquals(value, this.invoke(), block)
-
-    fun <T : Any> (() -> T?).shouldNotBe(value: () -> Any?, block: () -> Any?) = assertNotEquals(value.invoke(), this.invoke(), block)
-
-    fun ByteArray.shouldNotBe(value: ByteArray, block: () -> Any?) = assertNotEquals(value, this, block)
+    infix fun <T : Any?> T.shouldNotBe(value: T) = Assertions.assertTrue(value isNotSameAs this)
 }

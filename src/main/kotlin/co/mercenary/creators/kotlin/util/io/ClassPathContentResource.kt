@@ -64,6 +64,8 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
 
     override fun getContentType() = resolved
 
+    override fun getContentKind() = IO.PREFIX_CLASS
+
     override fun getInputStream() = when (val data = IO.getInputStream(resource)) {
         null -> throw MercenaryExceptiion(getDescription())
         else -> data

@@ -30,9 +30,7 @@ class CBCTextTest : KotlinSecurityTest() {
         info { salt }
         val good = isGood(pass)
         info { good }
-        good.shouldBe(true) {
-            pass
-        }
+        good.shouldBe(true)
         val code = getTextCipher(pass, salt, CipherAlgorithm.CBC).also {
             it.decrypt(it.encrypt(name))
         }
@@ -44,8 +42,6 @@ class CBCTextTest : KotlinSecurityTest() {
             code.decrypt(data)
         }
         info { back }
-        name.shouldBe(back) {
-            back
-        }
+        name.shouldBe(back)
     }
 }

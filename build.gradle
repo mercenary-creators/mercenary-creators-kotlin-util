@@ -23,10 +23,7 @@ buildscript {
     }
     dependencies {
         classpath(group: 'org.ajoberstar', name: 'grgit', version: '1.7.2')
-        classpath(group: 'commons-codec', name: 'commons-codec', version: '1.12')
-        classpath(group: 'commons-logging', name: 'commons-logging', version: '1.2')
         classpath(group: 'org.owasp', name: 'dependency-check-gradle', version: '5.1.1')
-        classpath(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.9')
         classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-noarg', version: kotlinVersion)
         classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-allopen', version: kotlinVersion)
         classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: kotlinVersion)
@@ -52,7 +49,7 @@ targetCompatibility = 1.8
 
 group = 'co.mercenary-creators'
 
-version = '9.3.5-SNAPSHOT'
+version = '9.4.0-SNAPSHOT'
 
 task doJavaDocs(type: Javadoc) {
     source = sourceSets.main.allJava
@@ -138,7 +135,8 @@ repositories {
 dependencies {
     compile(group: 'commons-io', name: 'commons-io', version: '2.6')
     compile(group: 'commons-codec', name: 'commons-codec', version: '1.14')
-    compile(group: 'io.projectreactor', name: 'reactor-core', version: '3.3.1.RELEASE')
+    compile(group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1')
+    compile(group: 'io.projectreactor', name: 'reactor-core', version: '3.3.2.RELEASE')
     compile(group: 'io.github.microutils', name: 'kotlin-logging', version: '1.7.8')
     compile(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30')
     compile(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3')
@@ -147,10 +145,10 @@ dependencies {
     testCompile(group: 'junit', name: 'junit', version: '4.12')
     testCompile(group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.30')
     testCompile(group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.30')
-    testCompile(group: 'io.projectreactor', name: 'reactor-test', version: '3.3.1.RELEASE')
+    testCompile(group: 'io.projectreactor', name: 'reactor-test', version: '3.3.2.RELEASE')
     testCompile(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit5', version: kotlinVersion)
-    testCompile(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.5.2')
-    testRuntime(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.5.2')
+    testCompile(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.0')
+    testRuntime(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.0')
 }
 
 artifacts {

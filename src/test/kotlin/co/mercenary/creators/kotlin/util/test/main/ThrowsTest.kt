@@ -28,9 +28,7 @@ class ThrowsTest : KotlinTest() {
             Throwables.thrown(NullPointerException(EMPTY_STRING))
         }
         catch (cause: Throwable) {
-            true.shouldBe(cause is NullPointerException) {
-                cause
-            }
+            true.shouldBe(cause is NullPointerException)
         }
     }
 }

@@ -37,49 +37,65 @@ interface ILoggingBase : ILogging {
 
     override fun info(block: () -> Any?) {
         if (isLoggingInfoEnabled) {
-            logger.info(block)
+            logger.info {
+                LoggingFactory.toSafeString(block)
+            }
         }
     }
 
     override fun info(cause: Throwable, block: () -> Any?) {
         if (isLoggingInfoEnabled) {
-            logger.info(cause, block)
+            logger.info(cause) {
+                LoggingFactory.toSafeString(block)
+            }
         }
     }
 
     override fun info(marker: String, block: () -> Any?) {
         if (isLoggingInfoEnabled) {
-            logger.info(LoggingFactory.markerOf(marker), block)
+            logger.info(LoggingFactory.markerOf(marker)) {
+                LoggingFactory.toSafeString(block)
+            }
         }
     }
 
     override fun info(cause: Throwable, marker: String, block: () -> Any?) {
         if (isLoggingInfoEnabled) {
-            logger.info(LoggingFactory.markerOf(marker), cause, block)
+            logger.info(LoggingFactory.markerOf(marker), cause) {
+                LoggingFactory.toSafeString(block)
+            }
         }
     }
 
     override fun info(marker: IMarker, block: () -> Any?) {
         if (isLoggingInfoEnabled) {
-            logger.info(marker.markerOf(), block)
+            logger.info(marker.markerOf()) {
+                LoggingFactory.toSafeString(block)
+            }
         }
     }
 
     override fun info(cause: Throwable, marker: IMarker, block: () -> Any?) {
         if (isLoggingInfoEnabled) {
-            logger.info(marker.markerOf(), cause, block)
+            logger.info(marker.markerOf(), cause) {
+                LoggingFactory.toSafeString(block)
+            }
         }
     }
 
     override fun warn(block: () -> Any?) {
         if (isLoggingWarnEnabled) {
-            logger.warn(block)
+            logger.warn {
+                LoggingFactory.toSafeString(block)
+            }
         }
     }
 
     override fun warn(cause: Throwable, block: () -> Any?) {
         if (isLoggingWarnEnabled) {
-            logger.warn(cause, block)
+            logger.warn(cause) {
+                LoggingFactory.toSafeString(block)
+            }
         }
     }
 

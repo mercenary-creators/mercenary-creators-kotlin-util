@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
 /*
  * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
  *
@@ -15,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
--->
-<configuration>
-    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-            <layout class="co.mercenary.creators.kotlin.util.logging.MercenaryLoggingLayout">
-                <description>9.4.0-SNAPSHOT TEST</description>
-            </layout>
-            <charset>UTF-8</charset>
-        </encoder>
-    </appender>
-    <root level="INFO">
-        <appender-ref ref="STDOUT"/>
-    </root>
-</configuration>
+
+package co.mercenary.creators.kotlin.util.type
+
+import java.lang.annotation.Inherited
+
+@Inherited
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+annotation class SuppresSerialize

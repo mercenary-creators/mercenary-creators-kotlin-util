@@ -24,6 +24,7 @@ class URLContentResource @JvmOverloads constructor(private val data: URL, privat
     @JvmOverloads
     constructor(data: URI, type: String = DEFAULT_CONTENT_TYPE) : this(data.toURL(), type)
 
+    override fun getContentKind() = data.protocol.orEmpty()
     override fun isContentThere() = IO.isContentThere(data)
     override fun getContentSize() = IO.getContentSize(data)
     override fun getContentTime() = IO.getContentTime(data)

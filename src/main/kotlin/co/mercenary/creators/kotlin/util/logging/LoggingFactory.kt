@@ -31,7 +31,7 @@ object LoggingFactory {
 
     init {
         if (open.compareAndSet(false, true)) {
-            (LoggerFactory.getILoggerFactory() as  ch.qos.logback.classic.LoggerContext).frameworkPackages.add(LoggingFactory::class.java.`package`.name)
+            (LoggerFactory.getILoggerFactory() as ch.qos.logback.classic.LoggerContext).frameworkPackages.add(LoggingFactory::class.java.`package`.name)
         }
     }
 
@@ -77,4 +77,43 @@ object LoggingFactory {
     }
 
     internal fun markerOf(name: String): Marker = MarkerFactory.getMarker(name)
+
+    @JvmStatic
+    @JvmOverloads
+    fun getFormatterList(load: ClassLoader? = null): List<LoggingStringFormatter> {
+        val list = ArrayList<LoggingStringFormatter>()
+        try {
+            val look = ServiceLoading.loader(LoggingStringFormatter::class, load)
+            look.forEach {
+                list += it
+            }
+        }
+        catch (cause: Throwable) {
+        }
+        return list.sorted().reversed()
+    }
+
+    private val list: List<LoggingStringFormatter> by lazy {
+        getFormatterList()
+    }
+
+    @JvmStatic
+    fun toSafeString(func: () -> Any?): String {
+        return try {
+            when (val data = func.invoke()) {
+                null -> NULLS_STRING
+                else -> {
+                    list.forEach {
+                        if (it.isValidClass(data)) {
+                            return it.toSafeString(data)
+                        }
+                    }
+                    data.toString()
+                }
+            }
+        }
+        catch (cause: Throwable) {
+            "toSafeString() failed"
+        }
+    }
 }

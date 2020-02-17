@@ -209,3 +209,7 @@ fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): Array<DoubleA
 fun squared(value: Double): Double = (value * value)
 
 fun distance(dx: Double, dy: Double): Double = sqrt((dx * dx) + (dy * dy))
+
+inline infix fun Int.forEach(action: (Int) -> Unit) {
+    repeat(this, action)
+}

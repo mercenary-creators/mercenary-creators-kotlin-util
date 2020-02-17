@@ -32,6 +32,8 @@ typealias ContentResourceLookup = (String) -> ContentResource
 
 typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream
 
+typealias EmptyOutputStream = co.mercenary.creators.kotlin.util.io.EmptyOutputStream
+
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
 val CONTENT_RESOURCE_LOADER: ContentResourceLoader

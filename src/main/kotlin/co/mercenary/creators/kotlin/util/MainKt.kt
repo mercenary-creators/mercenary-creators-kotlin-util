@@ -22,11 +22,17 @@ import co.mercenary.creators.kotlin.util.type.Validated
 import java.util.*
 import java.util.concurrent.atomic.*
 
+const val INDENTS_PLUS = 4
+
 const val IS_NOT_FOUND = -1
 
 const val EMPTY_STRING = ""
 
 const val SPACE_STRING = " "
+
+const val NULLS_STRING = "null"
+
+val BREAK_STRING: String = System.lineSeparator()
 
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2020, Mercenary Creators Company."
 
@@ -47,6 +53,8 @@ typealias Ciphers = co.mercenary.creators.kotlin.util.security.Ciphers
 typealias Digests = co.mercenary.creators.kotlin.util.security.Digests
 
 typealias Encoders = co.mercenary.creators.kotlin.util.security.Encoders
+
+typealias ServiceLoading = co.mercenary.creators.kotlin.util.security.ServiceLoading
 
 typealias Throwables = co.mercenary.creators.kotlin.util.type.Throwables
 
@@ -90,17 +98,6 @@ fun toTrimOrElse(data: String?, other: () -> String): String = toTrimOrNull(data
 
 @JvmOverloads
 fun toTrimOrElse(data: String?, other: String = EMPTY_STRING): String = toTrimOrNull(data) ?: other
-
-inline fun toSafeString(block: () -> Any?): String = try {
-    when (val data = block()) {
-        null -> "null"
-        else -> data.toString()
-    }
-}
-catch (cause: Throwable) {
-    Throwables.thrown(cause)
-    "toSafeString(${cause.message})"
-}
 
 fun CharSequence.toChecked(): String {
     return if (this.any { it == Char.MIN_VALUE })

@@ -37,6 +37,7 @@ object IO {
     const val PREFIX_COLON = ":"
     const val TYPE_IS_FILE = "file"
     const val PREFIX_FILES = "file:"
+    const val PREFIX_BYTES = "data:"
     const val PREFIX_CLASS = "classpath:"
 
     private val probe: ContentTypeProbe by lazy {

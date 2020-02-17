@@ -18,11 +18,13 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-class ByteArrayContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp(), private val make: ContentResourceLookup? = null) : AbstractCachedContentResource(data, path, type, time) {
+class ByteArrayContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp(), private val make: ContentResourceLookup? = null, private val kind: String = IO.PREFIX_BYTES) : AbstractCachedContentResource(data, path, type, time) {
 
     override fun getContentLook(): ContentResourceLookup {
         return { make?.invoke(it)?.toContentCache() ?: this }
     }
+
+    override fun getContentKind() = kind
 
     override fun toString() = getDescription()
 

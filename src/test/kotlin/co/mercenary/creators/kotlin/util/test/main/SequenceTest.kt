@@ -35,16 +35,12 @@ class SequenceTest : KotlinTest() {
         list.forEach {
             info { it }
         }
-        list.size.shouldBe(size) {
-            "not 10"
-        }
+        list.size.shouldBe(size)
         val ints = sequenceOf(1..16).toList()
         ints.forEach {
             info { it }
         }
-        ints.size.shouldBe(16) {
-            "not 16"
-        }
+        ints.size.shouldBe(16)
         info { data.javaClass.isKotlinClass() }
         val temp = getTempFile(uuid(), ".txt")
         info { temp.javaClass.isKotlinClass() }

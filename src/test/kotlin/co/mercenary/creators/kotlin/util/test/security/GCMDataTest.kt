@@ -29,9 +29,7 @@ class GCMDataTest : KotlinSecurityTest() {
         info { salt }
         val good = isGood(pass)
         info { good }
-        good.shouldBe(true) {
-            pass
-        }
+        good.shouldBe(true)
         val bits = Randoms.getByteArray(rand, 1024)
         info { Encoders.hex().encode(bits) }
         val code = getDataCipher(pass, salt, CipherAlgorithm.GCM).also {
@@ -45,8 +43,6 @@ class GCMDataTest : KotlinSecurityTest() {
             code.decrypt(data)
         }
         info { Encoders.hex().encode(back) }
-        bits.shouldBe(back) {
-            Encoders.hex().encode(back)
-        }
+        bits.shouldBe(back)
     }
 }

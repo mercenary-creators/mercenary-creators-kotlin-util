@@ -21,14 +21,15 @@ import co.mercenary.creators.kotlin.util.type.*
 import java.math.BigDecimal
 import java.time.Duration
 
-class TimeDuration private constructor(private val time: Duration, val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable {
+class TimeDuration private constructor(private val time: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable {
 
     constructor(text: String) : this(parse(text))
 
     constructor(self: TimeDuration) : this(self.time, self.unit)
 
-    val duration: Duration
-        get() = time.copyOf()
+    fun unit() = unit
+
+    fun duration() = time.copyOf()
 
     operator fun plus(other: TimeDuration): TimeDuration {
         return time.plus(other.time).let {
