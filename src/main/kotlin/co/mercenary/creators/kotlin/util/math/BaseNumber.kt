@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.reactive
+package co.mercenary.creators.kotlin.util.math
 
-import reactor.core.scheduler.*
+import co.mercenary.creators.kotlin.util.HasMapNames
+import co.mercenary.creators.kotlin.util.type.Copyable
 
-class ParallelScheduler private constructor(proxy: Scheduler) : Scheduler by proxy {
-    @JvmOverloads
-    constructor(name: String, parallelism: Int = Schedulers.DEFAULT_POOL_SIZE, daemon: Boolean = false) : this(Schedulers.newParallel(name, parallelism, daemon))
+interface BaseNumber<T : BaseNumber<T>> : Copyable<T>, Cloneable, HasMapNames {
+    operator fun unaryPlus(): T
+    operator fun unaryMinus(): T
+    operator fun div(value: T): T
+    operator fun plus(value: T): T
+    operator fun minus(value: T): T
+    operator fun times(value: T): T
 }

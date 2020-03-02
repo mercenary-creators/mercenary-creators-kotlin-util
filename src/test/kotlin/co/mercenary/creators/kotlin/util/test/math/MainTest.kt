@@ -32,10 +32,10 @@ class MainTest : KotlinTest() {
         info { (-1.0).pow(-4) }
         info { powNegative1(-5) }
         info { powNegative1(-4) }
-        info { gcd(8, 12) }
-        info { lcm(8, 12) }
-        info { gcd(8, -6, 12) }
-        info { lcm(8, 12, 10) }
-        info { lcm(0, 8) }
+        info { gcdOf(8, 12) }
+        info { lcmOf(8, 12) }
+        info { gcdOf(8, -6, 12) }
+        info { lcmOf(8, 12, 10) }
+        info { lcmOf(0, 8) }
     }
 }

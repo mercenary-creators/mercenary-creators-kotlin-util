@@ -21,8 +21,6 @@ package co.mercenary.creators.kotlin.util
 import co.mercenary.creators.kotlin.util.math.Numeric
 import kotlin.math.*
 
-const val DEFAULT_PRECISION_DELTA = 0.0000001
-
 const val MATH_INVALID_SIZE_ERROR = "invalid size"
 
 const val MATH_ZERO_DIVISOR_ERROR = "can't divide by zero"
@@ -39,37 +37,37 @@ fun pow2Round(value: Int, down: Boolean = true): Int = Numeric.pow2Round(value, 
 @JvmOverloads
 fun pow2Round(value: Long, down: Boolean = true): Long = Numeric.pow2Round(value, down)
 
-fun gcd(vararg args: Int): Int = Numeric.gcd(args)
+fun gcdOf(vararg args: Int): Int = Numeric.gcdOf(*args)
 
-fun gcd(vararg args: Long): Long = Numeric.gcd(args)
+fun gcdOf(vararg args: Long): Long = Numeric.gcdOf(*args)
 
-fun gcd(value: Int): Int = abs(value)
+fun gcdOf(value: Int): Int = Numeric.gcdOf(value)
 
-fun gcd(value: Long): Long = abs(value)
+fun gcdOf(value: Long): Long = Numeric.gcdOf(value)
 
-fun gcd(value: Int, other: Int): Int = Numeric.gcd(value, other)
+fun gcdOf(value: Int, other: Int): Int = Numeric.gcdOf(value, other)
 
-fun gcd(value: Long, other: Long): Long = Numeric.gcd(value, other)
+fun gcdOf(value: Long, other: Long): Long = Numeric.gcdOf(value, other)
 
-fun gcd(value: Int, other: Long): Long = Numeric.gcd(value.toLong(), other)
+fun gcdOf(value: Int, other: Long): Long = Numeric.gcdOf(value, other)
 
-fun gcd(value: Long, other: Int): Long = Numeric.gcd(value, other.toLong())
+fun gcdOf(value: Long, other: Int): Long = Numeric.gcdOf(value, other)
 
-fun lcm(vararg args: Int): Int = Numeric.lcm(args)
+fun lcmOf(vararg args: Int): Int = Numeric.lcmOf(*args)
 
-fun lcm(vararg args: Long): Long = Numeric.lcm(args)
+fun lcmOf(vararg args: Long): Long = Numeric.lcmOf(*args)
 
-fun lcm(value: Int): Int = abs(value)
+fun lcmOf(value: Int): Int = Numeric.lcmOf(value)
 
-fun lcm(value: Long): Long = abs(value)
+fun lcmOf(value: Long): Long = Numeric.lcmOf(value)
 
-fun lcm(value: Int, other: Int): Int = Numeric.lcm(value, other)
+fun lcmOf(value: Int, other: Int): Int = Numeric.lcmOf(value, other)
 
-fun lcm(value: Long, other: Long): Long = Numeric.lcm(value, other)
+fun lcmOf(value: Long, other: Long): Long = Numeric.lcmOf(value, other)
 
-fun lcm(value: Int, other: Long): Long = Numeric.lcm(value.toLong(), other)
+fun lcmOf(value: Int, other: Long): Long = Numeric.lcmOf(value, other)
 
-fun lcm(value: Long, other: Int): Long = Numeric.lcm(value, other.toLong())
+fun lcmOf(value: Long, other: Int): Long = Numeric.lcmOf(value, other)
 
 fun Int.abs(): Int {
     return abs(this)
@@ -107,6 +105,14 @@ fun Double.abs(): Double {
     return abs(this)
 }
 
+fun Double.sinOf(): Double {
+    return Numeric.sinOf(this)
+}
+
+fun Double.cosOf(): Double {
+    return Numeric.cosOf(this)
+}
+
 infix fun Double.minOf(other: Double): Double {
     return min(this, other)
 }
@@ -129,27 +135,27 @@ fun Double.toDecimalPlacesString(scale: Int = 3, places: Int = scale.abs()): Str
 }
 
 @JvmOverloads
-fun Double.closeEnough(value: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
+fun Double.closeEnough(value: Double, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
-fun DoubleArray.closeEnough(value: DoubleArray, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
+fun DoubleArray.closeEnough(value: DoubleArray, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
-fun Array<Double>.closeEnough(value: Array<Double>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
+fun Array<Double>.closeEnough(value: Array<Double>, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
-fun Array<DoubleArray>.closeEnough(value: Array<DoubleArray>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
+fun Array<DoubleArray>.closeEnough(value: Array<DoubleArray>, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
-fun Array<Array<Double>>.closeEnough(value: Array<Array<Double>>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
+fun Array<Array<Double>>.closeEnough(value: Array<Array<Double>>, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
@@ -191,6 +197,12 @@ fun Sequence<Double>.rounded(scale: Int = 3): Sequence<Double> {
 @JvmOverloads
 fun Double.root(root: Int = 2): Double = Numeric.root(this, root)
 
+fun Double.toFinite(): Double = if (isFinite()) this else throw MercenaryFatalExceptiion("invalid value $this")
+
+fun Double.toFiniteOrElse(value: Double): Double = if (isFinite()) this else value
+
+fun Double.toFiniteOrElse(block: () -> Double): Double = if (isFinite()) this else block()
+
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 
 fun toDoubleArrayOf(vararg args: Number): DoubleArray = DoubleArray(args.size) { i -> args[i].toDouble() }
@@ -205,10 +217,6 @@ fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): Array<DoubleA
         (r * cols).let { args.copyOfRange(it, it + cols) }
     }
 }
-
-fun squared(value: Double): Double = (value * value)
-
-fun distance(dx: Double, dy: Double): Double = sqrt((dx * dx) + (dy * dy))
 
 inline infix fun Int.forEach(action: (Int) -> Unit) {
     repeat(this, action)

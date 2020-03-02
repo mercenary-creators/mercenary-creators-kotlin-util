@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.math
 
-class NanoTicker : AbstractTicker(TimeAndDate::nanos) {
-    override fun toString() = toElapsedString()
-}
+import co.mercenary.creators.kotlin.util.HasMapNames
+import co.mercenary.creators.kotlin.util.type.Copyable
+
+interface MathField<T : MathField<T>> : Copyable<T>, Cloneable, HasMapNames

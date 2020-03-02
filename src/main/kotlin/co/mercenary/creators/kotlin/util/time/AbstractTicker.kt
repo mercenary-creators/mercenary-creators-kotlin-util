@@ -16,9 +16,8 @@
 
 package co.mercenary.creators.kotlin.util.time
 
-abstract class AbstractTicker @JvmOverloads constructor(protected val tick: () -> Long = TimeAndDate::mills) : Ticker {
+abstract class AbstractTicker(private val tick: () -> Long) : Ticker {
 
-    @Volatile
     private var time = tick.invoke()
 
     @Synchronized

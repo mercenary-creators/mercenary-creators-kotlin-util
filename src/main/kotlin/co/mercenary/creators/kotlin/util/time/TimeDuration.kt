@@ -392,7 +392,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
         fun parseCharSequence(text: CharSequence): TimeDuration {
             val list = text.toLowerTrim().split(GLOB)
             val size = list.size
-            if ((size == 0).or(size.rem(2) == 1)) {
+            if (size == 0 || size % 2 == 1) {
                 throw MercenaryFatalExceptiion("invalid size $size")
             }
             val data = TimeData()

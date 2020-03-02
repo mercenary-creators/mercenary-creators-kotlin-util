@@ -14,8 +14,21 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.math
 
-class NanoTicker : AbstractTicker(TimeAndDate::nanos) {
-    override fun toString() = toElapsedString()
+data class CartesianCoordinates(override val x: Double, override val y: Double) : MathField<CartesianCoordinates>, Coordinates, Cartesian {
+
+    override fun clone() = copyOf()
+
+    override fun copyOf() = CartesianCoordinates(x, y)
+
+    override fun toString() = toMapNames().toString()
+
+    override fun toMapNames() = mapOf("x" to x, "y" to y)
+
+    override fun toPoint2D() = Point2D(x, y)
+
+    override fun toComplex() = Complex(x, y)
+
+    override fun toPolar2D() = toPolarCoordinates().toPolar2D()
 }

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.concurrent
 
-class NanoTicker : AbstractTicker(TimeAndDate::nanos) {
-    override fun toString() = toElapsedString()
+import reactor.core.scheduler.*
+
+class ParallelScheduler private constructor(proxy: Scheduler) : Scheduler by proxy {
+    @JvmOverloads
+    constructor(name: String, parallelism: Int = Schedulers.DEFAULT_POOL_SIZE, daemon: Boolean = false) : this(Schedulers.newParallel(name, parallelism, daemon))
 }

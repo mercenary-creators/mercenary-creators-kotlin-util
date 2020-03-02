@@ -34,6 +34,10 @@ typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream
 
 typealias EmptyOutputStream = co.mercenary.creators.kotlin.util.io.EmptyOutputStream
 
+typealias Escapers = co.mercenary.creators.kotlin.util.text.Escapers
+
+typealias Formatters = co.mercenary.creators.kotlin.util.text.Formatters
+
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
 val CONTENT_RESOURCE_LOADER: ContentResourceLoader
@@ -135,27 +139,27 @@ fun WritableByteChannel.toOutputStream(): OutputStream = Channels.newOutputStrea
 
 fun OutputStreamSupplier.toOutputStream(): OutputStream = this.getOutputStream()
 
-fun Reader.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline fun Reader.forEachLineIndexed(block: (Int, String) -> Unit) {
     useLines { it.forEachIndexed(block) }
 }
 
-fun URL.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline fun URL.forEachLineIndexed(block: (Int, String) -> Unit) {
     toInputStream().forEachLineIndexed(block)
 }
 
-fun File.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline fun File.forEachLineIndexed(block: (Int, String) -> Unit) {
     toInputStream().forEachLineIndexed(block)
 }
 
-fun Path.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline fun Path.forEachLineIndexed(block: (Int, String) -> Unit) {
     toInputStream().forEachLineIndexed(block)
 }
 
-fun InputStreamSupplier.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline fun InputStreamSupplier.forEachLineIndexed(block: (Int, String) -> Unit) {
     toInputStream().forEachLineIndexed(block)
 }
 
-fun InputStream.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline fun InputStream.forEachLineIndexed(block: (Int, String) -> Unit) {
     reader().forEachLineIndexed(block)
 }
 

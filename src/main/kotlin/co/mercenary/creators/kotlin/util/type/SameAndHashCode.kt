@@ -119,6 +119,9 @@ object SameAndHashCode {
     }
 
     @JvmStatic
+    fun hashOfSystem(value: Any?): Int = System.identityHashCode(value)
+
+    @JvmStatic
     private fun hashOf(hash: AtomicInteger, vararg args: Any?): Int {
         hashOf(*args) {
             hash * 31 + it

@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util;
 
-class NanoTicker : AbstractTicker(TimeAndDate::nanos) {
-    override fun toString() = toElapsedString()
+import java.lang.annotation.*;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.TYPE})
+public @interface IgnoredForSerialize {
+    boolean value() default true;
 }

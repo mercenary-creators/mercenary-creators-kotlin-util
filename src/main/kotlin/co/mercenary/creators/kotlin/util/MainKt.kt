@@ -32,8 +32,6 @@ const val SPACE_STRING = " "
 
 const val NULLS_STRING = "null"
 
-val BREAK_STRING: String = System.lineSeparator()
-
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2020, Mercenary Creators Company."
 
 typealias Inflaters = co.mercenary.creators.kotlin.util.io.Inflaters
@@ -80,6 +78,10 @@ open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : Mercenary
     companion object {
         private const val serialVersionUID = 2L
     }
+}
+
+interface HasMapNames {
+    fun toMapNames(): Map<String, Any?>
 }
 
 fun Class<*>.isKotlinClass(): Boolean {
@@ -251,6 +253,8 @@ fun isEverySameAs(vararg args: Pair<Any?, Any?>) = SameAndHashCode.isEverySameAs
 fun <T : Any?> T.hashOf() = SameAndHashCode.hashOf(this)
 
 fun <T : Any?> T.hashOf(vararg args: Any?) = SameAndHashCode.hashOf(hashOf().toAtomic(), *args)
+
+fun <T : Any?> T.hashOfSystem() = SameAndHashCode.hashOfSystem(this)
 
 open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
     constructor() : this(emptySequence())

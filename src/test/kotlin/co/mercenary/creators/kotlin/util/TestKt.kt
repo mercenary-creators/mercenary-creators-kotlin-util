@@ -26,6 +26,4 @@ typealias KotlinDataTest = co.mercenary.creators.kotlin.util.test.AbstractDataTe
 
 typealias KotlinSecurityTest = co.mercenary.creators.kotlin.util.test.AbstractSecurityTest
 
-typealias Numeric = co.mercenary.creators.kotlin.util.math.Numeric
-
 

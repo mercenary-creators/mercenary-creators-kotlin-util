@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.reactive
+package co.mercenary.creators.kotlin.util.concurrent
 
 import reactor.core.scheduler.*
 

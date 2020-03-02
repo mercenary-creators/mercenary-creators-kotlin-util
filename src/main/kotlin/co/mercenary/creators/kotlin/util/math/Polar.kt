@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.math
 
-class NanoTicker : AbstractTicker(TimeAndDate::nanos) {
-    override fun toString() = toElapsedString()
+interface Polar {
+    val radius: Double
+    val theta: Double
+    operator fun component1(): Double = radius
+    operator fun component2(): Double = theta
 }

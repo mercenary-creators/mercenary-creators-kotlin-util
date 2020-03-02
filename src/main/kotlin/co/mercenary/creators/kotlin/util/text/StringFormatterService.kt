@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.type
+package co.mercenary.creators.kotlin.util.text
 
-import java.lang.annotation.Inherited
-
-@Inherited
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.BINARY)
-annotation class SuppresSerialize
+abstract class StringFormatterService(protected val order: Int) : Comparable<StringFormatterService> {
+    abstract fun toSafeString(data: Any): String
+    abstract fun isValidClass(data: Any): Boolean
+    override operator fun compareTo(other: StringFormatterService): Int {
+        return order.compareTo(other.order)
+    }
+}

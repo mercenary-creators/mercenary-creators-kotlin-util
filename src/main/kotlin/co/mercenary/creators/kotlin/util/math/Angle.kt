@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.reactive
+package co.mercenary.creators.kotlin.util.math
 
-import reactor.core.scheduler.*
-
-class ElasticScheduler private constructor(proxy: Scheduler) : Scheduler by proxy {
-    @JvmOverloads
-    constructor(name: String, live: Int = DEFAULT_TIME_TO_LIVE_SECONDS, daemon: Boolean = false) : this(Schedulers.newElastic(name, live, daemon))
-
-    companion object {
-        const val DEFAULT_TIME_TO_LIVE_SECONDS = 60
-    }
+interface Angle {
+    fun toDegrees(): Double
+    fun toRadians(): Double
+    fun asDegrees(): Degrees = Degrees(toDegrees())
+    fun asRadians(): Radians = Radians(toRadians())
 }

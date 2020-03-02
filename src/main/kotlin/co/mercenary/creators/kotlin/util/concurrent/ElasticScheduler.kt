@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.logging
+package co.mercenary.creators.kotlin.util.concurrent
 
-abstract class LoggingStringFormatter(protected val order: Int) : Comparable<LoggingStringFormatter> {
-    abstract fun toSafeString(data: Any): String
-    abstract fun isValidClass(data: Any): Boolean
-    override operator fun compareTo(other: LoggingStringFormatter): Int {
-        return order.compareTo(other.order)
+import reactor.core.scheduler.*
+
+class ElasticScheduler private constructor(proxy: Scheduler) : Scheduler by proxy {
+    @JvmOverloads
+    constructor(name: String, live: Int = DEFAULT_TIME_TO_LIVE_SECONDS, daemon: Boolean = false) : this(Schedulers.newElastic(name, live, daemon))
+
+    companion object {
+        const val DEFAULT_TIME_TO_LIVE_SECONDS = 60
     }
 }

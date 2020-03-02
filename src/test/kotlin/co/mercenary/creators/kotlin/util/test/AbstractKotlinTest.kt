@@ -30,6 +30,10 @@ abstract class AbstractKotlinTest : Logging() {
         getConfigPropertiesBuilder().invoke()
     }
 
+    protected val code: String by lazy {
+        String(CharArray(16) { it.toChar() })
+    }
+
     protected val printer: (Int, String) -> Unit = { i, s -> info { "%2d : %s".format(i + 1, s) } }
 
     protected val form = TimeAndDate.getThreadLocalDefaultDateFormat()
@@ -50,14 +54,13 @@ abstract class AbstractKotlinTest : Logging() {
 
     @JvmOverloads
     fun measured(loop: Int, logs: (Any?) -> Unit = { info { it } }, call: (Int) -> Unit) {
-        val list = DoubleArray(loop)
+        val list = LongArray(loop)
         loop.forEach {
             val time = TimeAndDate.nanos()
             call(it)
-            list[it] = TimeAndDate.nanos() - time.toDouble()
+            list[it] = TimeAndDate.nanos() - time
         }
-        val time = list.average()
-        logs(TimeAndDate.toElapsedString(time.toLong()))
+        logs(TimeAndDate.toElapsedString(list.average().toLong()))
     }
 
     @JvmOverloads

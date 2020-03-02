@@ -17,7 +17,7 @@
 package co.mercenary.creators.kotlin.util.test.main
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.time.TimeAndDate
+import co.mercenary.creators.kotlin.util.math.*
 import org.junit.jupiter.api.Test
 
 class LogsTest : KotlinTest() {
@@ -29,15 +29,51 @@ class LogsTest : KotlinTest() {
         info { MainData() }
         info { dateOf() }
         info { dateTimeOf() }
+        info { listOf<Any>() }
+        info { listOf(1) }
         info { listOf(1, 2, 3) }
         info { sequenceOf(4, 5, 6) }
         info { toDoubleArrayOf(4, 5, 6) }
-        info { TimeAndDate::nanos }
-        info { mapOf("name" to CREATORS_AUTHOR_INFO, "time" to 56.years) }
+        info { TimeAndDate.nanosOf() }
+        info { mapOf("name" to CREATORS_AUTHOR_INFO, "time" to 56.5.years, "date" to dateOf(), "horz" to "Maël Hörz\n", "size" to 1, "code" to code) }
         info { false }
-        info { false.toAtomic() }
+        info { true.toAtomic() }
         info { 16.toAtomic() }
         info { 1L.toAtomic() }
-        info { toDoubleArrayOf(4, 5, 6).toFlux() }
+        info { Complex(0.0, 1.0) }
+        info { Polar2D(50.0, 45.0) }
+        info { Numeric.toPrimeRoots(553) }
+        warn { dash() }
+        for (i in 1..99 step 3) {
+            info { mapOf("data" to i, "test" to Numeric.isPrimeValue(i), "next" to Numeric.toPrimeAfter(i)) }
+        }
+        warn { dash() }
+        info { Degrees(0.0) }
+        info { Degrees(-0.0) }
+        info { Degrees(360) }
+        info { Degrees(367) }
+        info { Degrees(-360) }
+        info { Degrees(-367) }
+        warn { dash() }
+        info { Degrees(+367).asRadians() }
+        info { Degrees(-367).asRadians() }
+        warn { dash() }
+        info { Degrees(367).asRadians().unaryPlus() }
+        info { Degrees(367).asRadians().unaryMinus() }
+        warn { dash() }
+        info { Degrees(-367).asRadians().unaryPlus() }
+        info { Degrees(-367).asRadians().unaryMinus() }
+        warn { dash() }
+        val bbox = BoundingBox(0, 0, 180, 180)
+        info { bbox }
+        val zero = Point2D(90, 90)
+        info { zero }
+        info { zero in bbox }
+        info { bbox in bbox }
+        info { zero.rotate(Degrees(180)) * 4 }
+        info { zero.hashCode() }
+        info { zero.hashOf() }
+        info { zero.hashOfSystem() }
+        info { null.hashOfSystem() }
     }
 }

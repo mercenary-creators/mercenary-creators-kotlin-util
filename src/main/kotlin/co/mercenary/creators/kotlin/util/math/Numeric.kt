@@ -19,10 +19,102 @@ package co.mercenary.creators.kotlin.util.math
 import co.mercenary.creators.kotlin.util.*
 import org.apache.commons.math3.primes.Primes
 import org.apache.commons.math3.stat.StatUtils
+import org.apache.commons.math3.util.FastMath
 import java.math.RoundingMode
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.*
 
 object Numeric {
+
+    const val DEFAULT_PRECISION_DELTA = 0.0000001
+
+    @JvmStatic
+    fun sinOf(value: Double): Double = FastMath.sin(value)
+
+    @JvmStatic
+    fun cosOf(value: Double): Double = FastMath.cos(value)
+
+    @JvmStatic
+    fun atan2(y: Double, x: Double): Double = FastMath.atan2(y, x)
+
+    @JvmStatic
+    fun toDegrees(radians: Double): Double {
+        return if (radians == 0.0) 0.0 else degreesOf((radians * 180.0) / PI)
+    }
+
+    @JvmStatic
+    fun toRadians(degrees: Double): Double {
+        return if (degrees == 0.0) 0.0 else ((degreesOf(degrees) / 180.0) * PI)
+    }
+
+    @JvmStatic
+    fun degreesOf(degrees: Double): Double {
+        return if (degrees == 0.0) 0.0 else degrees.rem(360.0).let { if (it == 0.0) 0.0 else it }
+    }
+
+    @JvmStatic
+    fun radiansOf(radians: Double): Double {
+        return if (radians == 0.0) 0.0 else toRadians(toDegrees(radians))
+    }
+
+    @JvmStatic
+    fun toCartesianCoordinates(value: Point2D) = CartesianCoordinates(value.x, value.y)
+
+    @JvmStatic
+    fun toCartesianCoordinates(value: Complex) = CartesianCoordinates(value.real, value.imaginary)
+
+    @JvmStatic
+    fun toCartesianCoordinates(value: Polar2D) = toCartesianCoordinates(value.radius, value.theta)
+
+    @JvmStatic
+    fun toCartesianCoordinates(r: Double, t: Double): CartesianCoordinates {
+        if (r.isNegative()) {
+            throw MercenaryFatalExceptiion("invalid radius $r")
+        }
+        return CartesianCoordinates(r * cosOf(t), r * sinOf(t))
+    }
+
+    @JvmStatic
+    fun toCartesianCoordinates(value: Coordinates) = when (value) {
+        is PolarCoordinates -> toCartesianCoordinates(value.radius, value.theta)
+        is CartesianCoordinates -> value
+        else -> throw MercenaryFatalExceptiion("invalid value ${value.javaClass.name}")
+    }
+
+    @JvmStatic
+    fun toPolarCoordinates(value: Point2D) = toPolarCoordinates(value.x, value.y)
+
+    @JvmStatic
+    fun toPolarCoordinates(value: Polar2D) = PolarCoordinates(value.radius, value.theta)
+
+    @JvmStatic
+    fun toPolarCoordinates(value: Complex) = toPolarCoordinates(value.real, value.imaginary)
+
+    @JvmStatic
+    fun toPolarCoordinates(x: Double, y: Double) = PolarCoordinates(distance(x, y), atan2(y, x))
+
+    @JvmStatic
+    fun toPolarCoordinates(value: Coordinates) = when (value) {
+        is PolarCoordinates -> value
+        is CartesianCoordinates -> toPolarCoordinates(value.x, value.y)
+        else -> throw MercenaryFatalExceptiion("invalid value ${value.javaClass.name}")
+    }
+
+    @JvmStatic
+    fun collinear(point: Cartesian, value: Cartesian, other: Cartesian): Boolean {
+        return collinear(point.x, point.y, value.x, value.y, other.x, other.y)
+    }
+
+    @JvmStatic
+    fun collinear(x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double): Boolean {
+        return closeEnough((y1 - y2) * (x1 - x3), (y1 - y3) * (x1 - x2), 1e-9)
+    }
+
+    @JvmStatic
+    fun distance(dx: Double, dy: Double): Double = sqrt((dx * dx) + (dy * dy))
+
+    @JvmStatic
+    fun finiteOf(value: Double): Double = if (value.isFinite()) value else  throw MercenaryFatalExceptiion("invalid value $value")
 
     @JvmStatic
     @JvmOverloads
@@ -152,10 +244,23 @@ object Numeric {
     fun isPrimeValue(value: Int): Boolean = Primes.isPrime(value)
 
     @JvmStatic
-    fun toPrimeAfter(value: Int): Int = Primes.nextPrime(value.coerceAtLeast(1))
+    fun isPrimeValue(value: AtomicInteger): Boolean = isPrimeValue(value.toInt())
+
+    @JvmStatic
+    fun toPrimeAfter(value: Int): Int {
+        val data = value.coerceAtLeast(1)
+        val look = Primes.nextPrime(data)
+        return if (look == data) Primes.nextPrime(look + 1) else look
+    }
+
+    @JvmStatic
+    fun toPrimeAfter(value: AtomicInteger): Int = toPrimeAfter(value.toInt())
 
     @JvmStatic
     fun toPrimeRoots(value: Int): List<Int> = if (value < 2) emptyList() else Primes.primeFactors(value)
+
+    @JvmStatic
+    fun toPrimeRoots(value: AtomicInteger): List<Int> = toPrimeRoots(value.toInt())
 
     @JvmStatic
     fun toDoubleArray(list: IntArray): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
@@ -419,40 +524,64 @@ object Numeric {
     fun powNegative1(value: Int, other: Int): Double = powNegative1(value.toLong() + other)
 
     @JvmStatic
-    fun gcd(value: Int, other: Int): Int = if (other == 0) abs(value) else TailRecursiveFunctions.gcd(value, other)
+    fun gcdOf(value: Int): Int = abs(value)
 
     @JvmStatic
-    fun gcd(value: Long, other: Long): Long = if (other == 0L) abs(value) else TailRecursiveFunctions.gcd(value, other)
+    fun gcdOf(value: Long): Long = abs(value)
 
     @JvmStatic
-    fun gcd(args: IntArray): Int = TailRecursiveFunctions.gcd(args)
+    fun gcdOf(value: Int, other: Int): Int = if (other == 0) abs(value) else TailRecursiveFunctions.gcdOf(value, other)
 
     @JvmStatic
-    fun gcd(args: Iterable<Int>): Int = TailRecursiveFunctions.gcd(args)
+    fun gcdOf(value: Long, other: Long): Long = if (other == 0L) abs(value) else TailRecursiveFunctions.gcdOf(value, other)
 
     @JvmStatic
-    fun gcd(args: Sequence<Int>): Int = TailRecursiveFunctions.gcd(args)
+    fun gcdOf(value: Int, other: Long): Long = gcdOf(value.toLong(), other)
 
     @JvmStatic
-    fun gcd(args: LongArray): Long = TailRecursiveFunctions.gcd(args)
+    fun gcdOf(value: Long, other: Int): Long = gcdOf(value, other.toLong())
 
     @JvmStatic
-    fun gcd(args: Iterable<Long>): Long = TailRecursiveFunctions.gcd(args)
+    fun gcdOf(vararg args: Int): Int = TailRecursiveFunctions.gcdOf(args)
 
     @JvmStatic
-    fun gcd(args: Sequence<Long>): Long = TailRecursiveFunctions.gcd(args)
+    fun gcdOf(args: Iterable<Int>): Int = TailRecursiveFunctions.gcdOf(args)
 
     @JvmStatic
-    fun lcm(value: Int, other: Int): Int = TailRecursiveFunctions.lcm(value, other)
+    fun gcdOf(args: Sequence<Int>): Int = TailRecursiveFunctions.gcdOf(args)
 
     @JvmStatic
-    fun lcm(value: Long, other: Long): Long = TailRecursiveFunctions.lcm(value, other)
+    fun gcdOf(vararg args: Long): Long = TailRecursiveFunctions.gcdOf(args)
 
     @JvmStatic
-    fun lcm(args: IntArray): Int = TailRecursiveFunctions.lcm(args)
+    fun gcdOf(args: Iterable<Long>): Long = TailRecursiveFunctions.gcdOf(args)
 
     @JvmStatic
-    fun lcm(args: LongArray): Long = TailRecursiveFunctions.lcm(args)
+    fun gcdOf(args: Sequence<Long>): Long = TailRecursiveFunctions.gcdOf(args)
+
+    @JvmStatic
+    fun lcmOf(value: Int): Int = abs(value)
+
+    @JvmStatic
+    fun lcmOf(value: Long): Long = abs(value)
+
+    @JvmStatic
+    fun lcmOf(value: Int, other: Int): Int = TailRecursiveFunctions.lcmOf(value, other)
+
+    @JvmStatic
+    fun lcmOf(value: Long, other: Long): Long = TailRecursiveFunctions.lcmOf(value, other)
+
+    @JvmStatic
+    fun lcmOf(value: Int, other: Long): Long = lcmOf(value.toLong(), other)
+
+    @JvmStatic
+    fun lcmOf(value: Long, other: Int): Long = lcmOf(value, other.toLong())
+
+    @JvmStatic
+    fun lcmOf(vararg args: Int): Int = TailRecursiveFunctions.lcmOf(args)
+
+    @JvmStatic
+    fun lcmOf(vararg args: Long): Long = TailRecursiveFunctions.lcmOf(args)
 
     @JvmStatic
     @JvmOverloads
@@ -528,111 +657,111 @@ object Numeric {
 
     private object TailRecursiveFunctions {
 
-        tailrec fun gcd(value: Int, other: Int): Int {
+        tailrec fun gcdOf(value: Int, other: Int): Int {
             if (other == 0) {
                 return abs(value)
             }
-            return gcd(other, value % other)
+            return gcdOf(other, value % other)
         }
 
-        tailrec fun gcd(value: Long, other: Long): Long {
+        tailrec fun gcdOf(value: Long, other: Long): Long {
             if (other == 0L) {
                 return abs(value)
             }
-            return gcd(other, value % other)
+            return gcdOf(other, value % other)
         }
 
-        fun gcd(args: IntArray): Int {
+        fun gcdOf(args: IntArray): Int {
             return when (args.size) {
                 0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(args[0])
-                2 -> gcd(args[0], args[1])
+                2 -> gcdOf(args[0], args[1])
                 else -> args.reduce { x, y ->
-                    gcd(x, y)
+                    gcdOf(x, y)
                 }
             }
         }
 
-        fun gcd(args: Iterable<Int>): Int {
+        fun gcdOf(args: Iterable<Int>): Int {
             val list = args.toList()
             return when (list.size) {
                 0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(list[0])
-                2 -> gcd(list[0], list[1])
+                2 -> gcdOf(list[0], list[1])
                 else -> list.reduce { x, y ->
-                    gcd(x, y)
+                    gcdOf(x, y)
                 }
             }
         }
 
-        fun gcd(args: Sequence<Int>): Int {
+        fun gcdOf(args: Sequence<Int>): Int {
             val list = args.toList()
             return when (list.size) {
                 0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(list[0])
-                2 -> gcd(list[0], list[1])
+                2 -> gcdOf(list[0], list[1])
                 else -> list.reduce { x, y ->
-                    gcd(x, y)
+                    gcdOf(x, y)
                 }
             }
         }
 
-        fun gcd(args: LongArray): Long {
+        fun gcdOf(args: LongArray): Long {
             return when (args.size) {
                 0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(args[0])
-                2 -> gcd(args[0], args[1])
+                2 -> gcdOf(args[0], args[1])
                 else -> args.reduce { x, y ->
-                    gcd(x, y)
+                    gcdOf(x, y)
                 }
             }
         }
 
-        fun gcd(args: Iterable<Long>): Long {
+        fun gcdOf(args: Iterable<Long>): Long {
             val list = args.toList()
             return when (list.size) {
                 0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(list[0])
-                2 -> gcd(list[0], list[1])
+                2 -> gcdOf(list[0], list[1])
                 else -> list.reduce { x, y ->
-                    gcd(x, y)
+                    gcdOf(x, y)
                 }
             }
         }
 
-        fun gcd(args: Sequence<Long>): Long {
+        fun gcdOf(args: Sequence<Long>): Long {
             val list = args.toList()
             return when (list.size) {
                 0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(list[0])
-                2 -> gcd(list[0], list[1])
+                2 -> gcdOf(list[0], list[1])
                 else -> list.reduce { x, y ->
-                    gcd(x, y)
+                    gcdOf(x, y)
                 }
             }
         }
 
-        fun lcm(value: Int, other: Int): Int {
-            return when (val gcd = gcd(value, other)) {
+        fun lcmOf(value: Int, other: Int): Int {
+            return when (val gcd = gcdOf(value, other)) {
                 0 -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
                 else -> (value * other) / gcd
             }
         }
 
-        fun lcm(value: Long, other: Long): Long {
-            return when (val gcd = gcd(value, other)) {
+        fun lcmOf(value: Long, other: Long): Long {
+            return when (val gcd = gcdOf(value, other)) {
                 0L -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
                 else -> (value * other) / gcd
             }
         }
 
-        fun lcm(args: IntArray): Int {
+        fun lcmOf(args: IntArray): Int {
             return when (args.size) {
                 0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(args[0])
-                2 -> lcm(args[0], args[1])
+                2 -> lcmOf(args[0], args[1])
                 else -> args.reduce { x, y ->
-                    when (val gcd = gcd(x, y)) {
+                    when (val gcd = gcdOf(x, y)) {
                         0 -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
                         else -> x * (y / gcd)
                     }
@@ -640,13 +769,13 @@ object Numeric {
             }
         }
 
-        fun lcm(args: LongArray): Long {
+        fun lcmOf(args: LongArray): Long {
             return when (args.size) {
                 0 -> throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
                 1 -> abs(args[0])
-                2 -> lcm(args[0], args[1])
+                2 -> lcmOf(args[0], args[1])
                 else -> args.reduce { x, y ->
-                    when (val gcd = gcd(x, y)) {
+                    when (val gcd = gcdOf(x, y)) {
                         0L -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
                         else -> x * (y / gcd)
                     }

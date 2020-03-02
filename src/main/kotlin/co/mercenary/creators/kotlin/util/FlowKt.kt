@@ -23,11 +23,11 @@ import reactor.core.publisher.*
 import java.util.concurrent.*
 import java.util.stream.*
 
-typealias SingleScheduler = co.mercenary.creators.kotlin.util.reactive.SingleScheduler
+typealias SingleScheduler = co.mercenary.creators.kotlin.util.concurrent.SingleScheduler
 
-typealias ElasticScheduler = co.mercenary.creators.kotlin.util.reactive.ElasticScheduler
+typealias ElasticScheduler = co.mercenary.creators.kotlin.util.concurrent.ElasticScheduler
 
-typealias ParallelScheduler = co.mercenary.creators.kotlin.util.reactive.ParallelScheduler
+typealias ParallelScheduler = co.mercenary.creators.kotlin.util.concurrent.ParallelScheduler
 
 fun <T : Any> Flux<T>.toList(): List<T> = collect(Collectors.toList()).block().orElse { emptyList() }
 
@@ -42,6 +42,8 @@ fun <T : Any> Flux<T>.rated(high: Int, lows: Int): Flux<T> = limitRate(high, low
 fun <T : Any> Flux<T>.cache(time: TimeDuration): Flux<T> = cache(time.duration())
 
 fun <T : Any> Flux<T>.cache(size: Int, time: TimeDuration): Flux<T> = cache(size, time.duration())
+
+fun <T : Any> Mono<T>.cache(time: TimeDuration): Mono<T> = cache(time.duration())
 
 fun <T : Any> T.toMono(): Mono<T> = Mono.just(this)
 

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.time
+package co.mercenary.creators.kotlin.util.math
 
-class NanoTicker : AbstractTicker(TimeAndDate::nanos) {
-    override fun toString() = toElapsedString()
+interface Cartesian {
+    val x: Double
+    val y: Double
+    operator fun component1(): Double = x
+    operator fun component2(): Double = y
 }
