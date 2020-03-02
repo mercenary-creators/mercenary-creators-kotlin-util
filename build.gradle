@@ -60,7 +60,7 @@ task doJavaDocs(type: Javadoc) {
     title = "${getProjectCommonName()}"
     (options as StandardJavadocDocletOptions).with {
         links = getJavaDocLinks()
-        stylesheetFile = project.file('config/javadoc/mercenary.css')
+        //stylesheetFile = project.file('config/javadoc/mercenary.css')
         bottom = "<div><h4 class=\"footer\"><a href=\"${getBuildGITHomeURL()}\" target=\"_blank\">${getProjectCommonName()} - Copyright &copy; 2020, Mercenary Creators Company</a> - <a href=\"${getBuildGITCommitHash()}\" target=\"_blank\">${getBuildModuleVersion()}</a> - <a href=\"mailto:deansjones@gmail.com\">Author: Dean S. Jones</a></h4></div>"
     }
 }
