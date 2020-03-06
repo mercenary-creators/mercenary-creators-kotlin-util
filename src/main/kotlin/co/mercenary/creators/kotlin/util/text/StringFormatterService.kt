@@ -16,6 +16,9 @@
 
 package co.mercenary.creators.kotlin.util.text
 
+import co.mercenary.creators.kotlin.util.IgnoreForSerialize
+
+@IgnoreForSerialize
 abstract class StringFormatterService(protected val order: Int) : Comparable<StringFormatterService> {
     abstract fun toSafeString(data: Any): String
     abstract fun isValidClass(data: Any): Boolean

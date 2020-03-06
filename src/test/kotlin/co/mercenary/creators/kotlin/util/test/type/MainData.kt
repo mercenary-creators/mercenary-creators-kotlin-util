@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util;
+package co.mercenary.creators.kotlin.util.test.type
 
-import java.lang.annotation.*;
+import co.mercenary.creators.kotlin.util.*
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.TYPE})
-public @interface IgnoredForSerialize {
-    boolean value() default true;
+class MainData @JvmOverloads constructor(look: Boolean = false, val rand: Int = Randoms.getInteger(0..100)) : BaseType(look) {
+
+    override fun toMapNames(): Map<String, Any?> {
+        return  mapOf("rand" to rand) + super.toMapNames()
+    }
 }

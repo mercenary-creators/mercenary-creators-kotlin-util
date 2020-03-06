@@ -45,6 +45,6 @@ abstract class AbstractDataTest : AbstractKotlinTest() {
 
     @JvmOverloads
     protected fun date(text: String, args: Long = getTimeStamp()): String {
-        return dets(text, form.get().format(args.toDate()))
+        return dets(text, args.toDate().formatDate())
     }
 }

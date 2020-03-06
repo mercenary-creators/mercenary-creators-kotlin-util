@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test
+package co.mercenary.creators.kotlin.util.test.type
 
-abstract class AbstractKotlinTest : AbstractKotlinTestBase()
+import co.mercenary.creators.kotlin.util.*
+
+@IgnoreForSerialize
+open class BaseType @JvmOverloads constructor(val look: Boolean = true) : HasMapNames {
+
+    override fun toMapNames(): Map<String, Any?> {
+        return mapOf("look" to look)
+    }
+}

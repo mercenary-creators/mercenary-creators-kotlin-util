@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test
+package co.mercenary.creators.kotlin.util
 
-abstract class AbstractKotlinTest : AbstractKotlinTestBase()
+import java.lang.annotation.Inherited
+
+@Inherited
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FIELD, AnnotationTarget.CLASS)
+annotation class IgnoreForSerialize(val value: Boolean = true)

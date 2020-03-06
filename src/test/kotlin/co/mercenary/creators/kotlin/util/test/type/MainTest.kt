@@ -14,6 +14,28 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test
+package co.mercenary.creators.kotlin.util.test.type
 
-abstract class AbstractKotlinTest : AbstractKotlinTestBase()
+import co.mercenary.creators.kotlin.util.*
+import org.junit.jupiter.api.Test
+
+class MainTest : KotlinTest() {
+    @Test
+    fun test() {
+        info { dash() }
+        warn { here() }
+        info { dash() }
+        annotations(MainData::class)
+        info { dash() }
+        annotations(BaseType::class)
+        info { dash() }
+        info { MainData() }
+        info { dash() }
+        info { BaseType() }
+        info { dash() }
+        annotations(MainData())
+        info { dash() }
+        warn { here() }
+        info { dash() }
+    }
+}

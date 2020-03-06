@@ -116,6 +116,7 @@ object Throwables {
             append(StackOverflowError::class)
             append(NullPointerException::class)
             append(MercenaryFatalExceptiion::class)
+            append(MercenaryAssertExceptiion::class)
         }
     }
 }

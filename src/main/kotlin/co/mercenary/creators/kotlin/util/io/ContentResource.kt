@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-interface ContentResource : InputStreamSupplier {
+interface ContentResource : InputStreamSupplier, HasMapNames {
     fun getContentSize(): Long
     fun getContentTime(): Long
     fun getContentPath(): String

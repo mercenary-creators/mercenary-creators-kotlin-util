@@ -18,6 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
+@IgnoreForSerialize
 abstract class AbstractContentResourceBase @JvmOverloads constructor(private val path: String, private val type: String = DEFAULT_CONTENT_TYPE, private val time: Long = 0L) : ContentResource {
 
     private val kind: String by lazy {
@@ -26,6 +27,10 @@ abstract class AbstractContentResourceBase @JvmOverloads constructor(private val
 
     private val desc: String by lazy {
         "${javaClass.name}($kind${getContentPath()}, ${getContentType()}, ${isContentCache()})"
+    }
+
+    override fun toMapNames(): Map<String, Any?> {
+        return mapOf("name" to javaClass.name, "path" to "$kind${getContentPath()}", "type" to getContentType(), "time" to getContentTime().toDate())
     }
 
     override fun getContentPath() = path

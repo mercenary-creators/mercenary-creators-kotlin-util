@@ -35,7 +35,7 @@ class LogsTest : KotlinTest() {
         info { sequenceOf(4, 5, 6) }
         info { toDoubleArrayOf(4, 5, 6) }
         info { TimeAndDate.nanosOf() }
-        info { mapOf("name" to CREATORS_AUTHOR_INFO, "time" to 56.5.years, "date" to dateOf(), "horz" to "Maël Hörz\n", "size" to 1, "code" to code) }
+        info { mapOf("name" to CREATORS_AUTHOR_INFO, "time" to 56.5.years, "date" to dateOf(), "horz" to "Maël Hörz\n", "size" to 1, "code" to String(CharArray(16) { it.toChar() })) }
         info { false }
         info { true.toAtomic() }
         info { 16.toAtomic() }

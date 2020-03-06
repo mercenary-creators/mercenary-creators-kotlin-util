@@ -18,6 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
+@IgnoreForSerialize
 object EmptyContentResource : CachedContentResource {
 
     private val path: String by lazy {
@@ -26,6 +27,10 @@ object EmptyContentResource : CachedContentResource {
 
     private val desc: String by lazy {
         "${javaClass.name}(${getContentPath()}, ${getContentType()}, ${isContentCache()})"
+    }
+
+    override fun toMapNames(): Map<String, Any?> {
+        return mapOf("name" to javaClass.name, "path" to getContentPath(), "type" to getContentType(), "time" to getContentTime().toDate())
     }
 
     override fun toString() = desc

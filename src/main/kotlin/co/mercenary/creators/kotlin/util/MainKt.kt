@@ -80,6 +80,15 @@ open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : Mercenary
     }
 }
 
+open class MercenaryAssertExceptiion(text: String?, root: Throwable?) : MercenaryFatalExceptiion(text, root) {
+    constructor(text: String) : this(text, null)
+    constructor(root: Throwable) : this(root.message, root)
+
+    companion object {
+        private const val serialVersionUID = 2L
+    }
+}
+
 interface HasMapNames {
     fun toMapNames(): Map<String, Any?>
 }
