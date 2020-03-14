@@ -58,63 +58,15 @@ object Numeric {
     }
 
     @JvmStatic
-    fun toCartesianCoordinates(value: Point2D) = CartesianCoordinates(value.x, value.y)
-
-    @JvmStatic
-    fun toCartesianCoordinates(value: Complex) = CartesianCoordinates(value.real, value.imaginary)
-
-    @JvmStatic
-    fun toCartesianCoordinates(value: Polar2D) = toCartesianCoordinates(value.radius, value.theta)
-
-    @JvmStatic
-    fun toCartesianCoordinates(r: Double, t: Double): CartesianCoordinates {
-        if (r.isNegative()) {
-            throw MercenaryFatalExceptiion("invalid radius $r")
-        }
-        return CartesianCoordinates(r * cosOf(t), r * sinOf(t))
-    }
-
-    @JvmStatic
-    fun toCartesianCoordinates(value: Coordinates) = when (value) {
-        is PolarCoordinates -> toCartesianCoordinates(value.radius, value.theta)
-        is CartesianCoordinates -> value
-        else -> throw MercenaryFatalExceptiion("invalid value ${value.javaClass.name}")
-    }
-
-    @JvmStatic
-    fun toPolarCoordinates(value: Point2D) = toPolarCoordinates(value.x, value.y)
-
-    @JvmStatic
-    fun toPolarCoordinates(value: Polar2D) = PolarCoordinates(value.radius, value.theta)
-
-    @JvmStatic
-    fun toPolarCoordinates(value: Complex) = toPolarCoordinates(value.real, value.imaginary)
-
-    @JvmStatic
-    fun toPolarCoordinates(x: Double, y: Double) = PolarCoordinates(distance(x, y), atan2(y, x))
-
-    @JvmStatic
-    fun toPolarCoordinates(value: Coordinates) = when (value) {
-        is PolarCoordinates -> value
-        is CartesianCoordinates -> toPolarCoordinates(value.x, value.y)
-        else -> throw MercenaryFatalExceptiion("invalid value ${value.javaClass.name}")
-    }
-
-    @JvmStatic
-    fun collinear(point: Cartesian, value: Cartesian, other: Cartesian): Boolean {
-        return collinear(point.x, point.y, value.x, value.y, other.x, other.y)
-    }
-
-    @JvmStatic
     fun collinear(x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double): Boolean {
         return closeEnough((y1 - y2) * (x1 - x3), (y1 - y3) * (x1 - x2), 1e-9)
     }
 
     @JvmStatic
-    fun distance(dx: Double, dy: Double): Double = sqrt((dx * dx) + (dy * dy))
+    fun distanceOf(dx: Double, dy: Double): Double = sqrt((dx * dx) + (dy * dy))
 
     @JvmStatic
-    fun finiteOf(value: Double): Double = if (value.isFinite()) value else  throw MercenaryFatalExceptiion("invalid value $value")
+    fun finiteOf(value: Double): Double = if (value.isFinite()) value else throw MercenaryFatalExceptiion("invalid value $value")
 
     @JvmStatic
     @JvmOverloads

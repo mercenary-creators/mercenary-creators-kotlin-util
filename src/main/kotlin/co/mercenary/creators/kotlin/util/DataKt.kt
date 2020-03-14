@@ -195,5 +195,3 @@ fun URI.toContentResource() = URLContentResource(this)
 fun File.toContentResource() = FileContentResource(this)
 
 fun Path.toContentResource() = FileContentResource(this)
-
-fun Int.toByteArrayOutputStream(): ByteArrayOutputStream = ByteArrayOutputStream(this)

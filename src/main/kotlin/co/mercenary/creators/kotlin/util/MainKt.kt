@@ -22,8 +22,6 @@ import co.mercenary.creators.kotlin.util.type.Validated
 import java.util.*
 import java.util.concurrent.atomic.*
 
-const val INDENTS_PLUS = 4
-
 const val IS_NOT_FOUND = -1
 
 const val EMPTY_STRING = ""
@@ -31,6 +29,10 @@ const val EMPTY_STRING = ""
 const val SPACE_STRING = " "
 
 const val NULLS_STRING = "null"
+
+const val DUNNO_STRING = "unknown"
+
+const val KOTLIN_METAS = "kotlin.Metadata"
 
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2020, Mercenary Creators Company."
 
@@ -61,6 +63,8 @@ typealias SameAndHashCode = co.mercenary.creators.kotlin.util.type.SameAndHashCo
 typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
 typealias AtomicHashMap<K, V> = java.util.concurrent.ConcurrentHashMap<K, V>
+
+typealias AtomicDictionary<V> = java.util.concurrent.ConcurrentHashMap<String, V>
 
 open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
     constructor(text: String) : this(text, null)
@@ -94,10 +98,8 @@ interface HasMapNames {
 }
 
 fun Class<*>.isKotlinClass(): Boolean {
-    return declaredAnnotations.any { it.annotationClass.java.name == "kotlin.Metadata" }
+    return declaredAnnotations.any { it.annotationClass.java.name == KOTLIN_METAS }
 }
-
-fun uuid(): String = UUID.randomUUID().toString()
 
 fun getCurrentThreadName(): String = Thread.currentThread().name
 
@@ -196,6 +198,60 @@ fun AtomicLong.decrement(): AtomicLong {
     return this
 }
 
+infix fun AtomicLong.maxOf(value: Int): AtomicLong {
+    if (value > get()) {
+        set(value.toLong())
+    }
+    return this
+}
+
+infix fun AtomicLong.maxOf(value: AtomicInteger): AtomicLong {
+    if (value.get() > get()) {
+        set(value.get().toLong())
+    }
+    return this
+}
+
+infix fun AtomicLong.minOf(value: Long): AtomicLong {
+    if (value < get()) {
+        set(value)
+    }
+    return this
+}
+
+infix fun AtomicLong.minOf(value: AtomicLong): AtomicLong {
+    if (value.get() < get()) {
+        set(value.get())
+    }
+    return this
+}
+infix fun AtomicLong.maxOf(value: Long): AtomicLong {
+    if (value > get()) {
+        set(value)
+    }
+    return this
+}
+
+infix fun AtomicLong.maxOf(value: AtomicLong): AtomicLong {
+    if (value.get() > get()) {
+        set(value.get())
+    }
+    return this
+}
+
+infix fun AtomicLong.minOf(value: Int): AtomicLong {
+    if (value < get()) {
+        set(value.toLong())
+    }
+    return this
+}
+
+infix fun AtomicLong.minOf(value: AtomicInteger): AtomicLong {
+    if (value.get() < get()) {
+        set(value.get().toLong())
+    }
+    return this
+}
 fun Int.toAtomic(): AtomicInteger = AtomicInteger(this)
 
 operator fun AtomicInteger.div(value: Int): AtomicInteger {
@@ -226,6 +282,34 @@ fun AtomicInteger.increment(): AtomicInteger {
 
 fun AtomicInteger.decrement(): AtomicInteger {
     getAndDecrement()
+    return this
+}
+
+infix fun AtomicInteger.maxOf(value: Int): AtomicInteger {
+    if (value > get()) {
+        set(value)
+    }
+    return this
+}
+
+infix fun AtomicInteger.maxOf(value: AtomicInteger): AtomicInteger {
+    if (value.get() > get()) {
+        set(value.get())
+    }
+    return this
+}
+
+infix fun AtomicInteger.minOf(value: Int): AtomicInteger {
+    if (value < get()) {
+        set(value)
+    }
+    return this
+}
+
+infix fun AtomicInteger.minOf(value: AtomicInteger): AtomicInteger {
+    if (value.get() < get()) {
+        set(value.get())
+    }
     return this
 }
 

@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 class CBCDataTest : KotlinSecurityTest() {
     @Test
     fun test() {
-        val rand = Randoms.toRandom()
+        val rand = Randoms.randomOf()
         val pass = getGeneratedPass()
         val salt = getGeneratedSalt()
         info { pass }

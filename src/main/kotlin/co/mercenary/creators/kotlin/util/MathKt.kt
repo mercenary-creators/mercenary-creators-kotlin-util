@@ -18,8 +18,9 @@
 
 package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.math.Numeric
 import kotlin.math.*
+
+typealias Numeric = co.mercenary.creators.kotlin.util.math.Numeric
 
 const val MATH_INVALID_SIZE_ERROR = "invalid size"
 
@@ -73,6 +74,10 @@ fun Int.abs(): Int {
     return abs(this)
 }
 
+fun Int.neg(): Int {
+    return unaryMinus()
+}
+
 infix fun Int.minOf(other: Int): Int {
     return min(this, other)
 }
@@ -83,6 +88,10 @@ infix fun Int.maxOf(other: Int): Int {
 
 fun Long.abs(): Long {
     return abs(this)
+}
+
+fun Long.neg(): Long {
+    return unaryMinus()
 }
 
 infix fun Long.minOf(other: Int): Long {
@@ -103,6 +112,10 @@ infix fun Long.maxOf(other: Long): Long {
 
 fun Double.abs(): Double {
     return abs(this)
+}
+
+fun Double.neg(): Double {
+    return unaryMinus()
 }
 
 fun Double.sinOf(): Double {
@@ -221,3 +234,33 @@ fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): Array<DoubleA
 inline infix fun Int.forEach(action: (Int) -> Unit) {
     repeat(this, action)
 }
+
+@JvmOverloads
+fun Int.toHexString(pads: Int = 0): String = toString(16).padStart(pads.abs().maxOf(0), '0')
+
+@JvmOverloads
+fun Byte.toHexString(pads: Int = 0): String = toString(16).padStart(pads.abs().maxOf(0), '0')
+
+@JvmOverloads
+fun Long.toHexString(pads: Int = 0): String = toString(16).padStart(pads.abs().maxOf(0), '0')
+
+@JvmOverloads
+fun Short.toHexString(pads: Int = 0): String = toString(16).padStart(pads.abs().maxOf(0), '0')
+
+@JvmOverloads
+fun Char.toHexString(pads: Int = 0): String = toInt().toString(16).padStart(pads.abs().maxOf(0), '0')
+
+@JvmOverloads
+fun Int.toBinaryString(pads: Int = Int.SIZE_BITS): String = toString(2).padStart(pads.abs().maxOf(0), '0')
+
+@JvmOverloads
+fun Byte.toBinaryString(pads: Int = Byte.SIZE_BITS): String = toString(2).padStart(pads.abs().maxOf(0), '0')
+
+@JvmOverloads
+fun Long.toBinaryString(pads: Int = Long.SIZE_BITS): String = toString(2).padStart(pads.abs().maxOf(0), '0')
+
+@JvmOverloads
+fun Short.toBinaryString(pads: Int = Short.SIZE_BITS): String = toString(2).padStart(pads.abs().maxOf(0), '0')
+
+@JvmOverloads
+fun Char.toBinaryString(pads: Int = Byte.SIZE_BITS * 2): String = toInt().toString(2).padStart(pads.abs().maxOf(0), '0')

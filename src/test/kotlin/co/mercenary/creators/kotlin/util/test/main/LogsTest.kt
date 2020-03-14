@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.test.main
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.math.*
 import org.junit.jupiter.api.Test
 
 class LogsTest : KotlinTest() {
@@ -40,40 +39,36 @@ class LogsTest : KotlinTest() {
         info { true.toAtomic() }
         info { 16.toAtomic() }
         info { 1L.toAtomic() }
-        info { Complex(0.0, 1.0) }
-        info { Polar2D(50.0, 45.0) }
         info { Numeric.toPrimeRoots(553) }
         warn { dash() }
         for (i in 1..99 step 3) {
             info { mapOf("data" to i, "test" to Numeric.isPrimeValue(i), "next" to Numeric.toPrimeAfter(i)) }
         }
         warn { dash() }
-        info { Degrees(0.0) }
-        info { Degrees(-0.0) }
-        info { Degrees(360) }
-        info { Degrees(367) }
-        info { Degrees(-360) }
-        info { Degrees(-367) }
+        info { CONTENT_RESOURCE_LOADER["test.htm"] }
+        info { CONTENT_RESOURCE_LOADER["http://jsonplaceholder.typicode.com/posts"] }
+        info { 255.toBinaryString() }
+        info { 255.toBinaryString().trim().length }
         warn { dash() }
-        info { Degrees(+367).asRadians() }
-        info { Degrees(-367).asRadians() }
+        info { Numeric.DEFAULT_PRECISION_DELTA.rounded(9) }
+        info { 1e-9.rounded(9) }
+        error { logger.javaClass }
+        error { logger.underlyingLogger.javaClass }
         warn { dash() }
-        info { Degrees(367).asRadians().unaryPlus() }
-        info { Degrees(367).asRadians().unaryMinus() }
-        warn { dash() }
-        info { Degrees(-367).asRadians().unaryPlus() }
-        info { Degrees(-367).asRadians().unaryMinus() }
-        warn { dash() }
-        val bbox = BoundingBox(0, 0, 180, 180)
-        info { bbox }
-        val zero = Point2D(90, 90)
-        info { zero }
-        info { zero in bbox }
-        info { bbox in bbox }
-        info { zero.rotate(Degrees(180)) * 4 }
-        info { zero.hashCode() }
-        info { zero.hashOf() }
-        info { zero.hashOfSystem() }
-        info { null.hashOfSystem() }
+        timed {
+            repeat(100000000) {
+                Escapers.toEscapedString(CREATORS_AUTHOR_INFO, true)
+            }
+        }
+        timed {
+            repeat(100000000) {
+                Escapers.toEscapedString("Maël Hörz\n", true)
+            }
+        }
+        timed {
+            repeat(100000000) {
+                Escapers.toEscapedString(EMPTY_STRING, true)
+            }
+        }
     }
 }

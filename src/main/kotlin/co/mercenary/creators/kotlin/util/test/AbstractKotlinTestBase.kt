@@ -23,8 +23,12 @@ import kotlin.reflect.KClass
 @IgnoreForSerialize
 abstract class AbstractKotlinTestBase : Logging() {
 
+    private val nope = arrayListOf<Class<*>>()
+
     init {
         Encoders
+        addThrowableAsFatal(OutOfMemoryError::class)
+        addThrowableAsFatal(StackOverflowError::class)
     }
 
     private val conf: Properties by lazy {
@@ -39,6 +43,8 @@ abstract class AbstractKotlinTestBase : Logging() {
 
     @JvmOverloads
     fun dash(loop: Int = 64): String = "-".repeat(loop.abs())
+
+    fun uuid(): String = Randoms.uuid()
 
     @JvmOverloads
     fun getConfigProperty(name: String, other: String = EMPTY_STRING): String = conf.getProperty(name, other)
@@ -55,14 +61,39 @@ abstract class AbstractKotlinTestBase : Logging() {
         }
     }
 
+    fun <T : Throwable> addThrowableAsFatal(type: Class<T>) {
+        nope += type
+    }
+
+    fun <T : Throwable> addThrowableAsFatal(type: KClass<T>) {
+        nope += type.java
+    }
+
     fun here(): Map<String, Any?> {
-        val type = javaClass.name
-        Exception().stackTrace.forEach {
-            if (it.className == type) {
-                return mapOf("func" to it.methodName, "type" to type, "file" to it.fileName, "line" to it.lineNumber)
+        val type = javaClass
+        val name = type.name
+        val most = 0.toAtomic().decrement()
+        val mine = type.declaredMethods.map { it.name }
+        val list = ArrayList<MutableMap<String, Any>>()
+        Exception().stackTrace.forEach { item ->
+            if (item.className.startsWith(name)) {
+                if (item.methodName in mine) {
+                    list += mutableMapOf("func" to item.methodName, "type" to name, "file" to item.fileName, "line" to item.lineNumber)
+                }
+                else if (item.methodName == "invoke") {
+                    most.maxOf(item.lineNumber)
+                }
             }
         }
-        return mapOf("type" to type)
+        if (list.isEmpty()) {
+            return mapOf("type" to name)
+        }
+        val line = most.toInt()
+        val maps = list.first()
+        if (line > maps["line"] as Int) {
+            maps["line"] = line
+        }
+        return maps
     }
 
     override fun toString(): String {
@@ -90,9 +121,9 @@ abstract class AbstractKotlinTestBase : Logging() {
     fun annotations(type: Class<*>) {
         if (isLoggingInfoEnabled) {
             info { type.name }
-            type.annotations.forEach {
-                val name = it.annotationClass.java.name
-                if (name != "kotlin.Metadata") {
+            type.annotations.forEach { anno ->
+                val name = anno.annotationClass.java.name
+                if (name != KOTLIN_METAS) {
                     info { name }
                 }
             }
@@ -115,31 +146,47 @@ abstract class AbstractKotlinTestBase : Logging() {
         }
     }
 
-    protected open fun assumeThat(func: () -> Unit): Throwable? {
+    private fun getThrowableOf(func: () -> Unit): Throwable? {
         return try {
             func.invoke()
             null
         }
         catch (oops: Throwable) {
-            if (oops is OutOfMemoryError) {
-                throw oops
-            }
-            if (oops is StackOverflowError) {
-                throw oops
+            nope.forEach { type ->
+                if (type.isInstance(oops)) {
+                    throw oops
+                }
             }
             oops
         }
     }
 
-    protected open fun assumeEach(vararg args: () -> Unit) {
-        if (args.isNotEmpty()) {
-            val list = args.mapNotNull { assumeThat(it) }
+    fun assumeEach(block: AssumeCollector.() -> Unit) {
+        AssumeCollector(block).also { it.invoke() }
+    }
+
+    inner class AssumeCollector(block: AssumeCollector.() -> Unit) {
+
+        private val list = arrayListOf<() -> Unit>()
+
+        init {
+            block(this)
+        }
+
+        fun assumeThat(block: () -> Unit) {
+            list += block
+        }
+
+        operator fun invoke() {
             if (list.isNotEmpty()) {
-                val oops = MercenaryMultipleAssertExceptiion(list)
-                list.forEach {
-                    oops.addSuppressed(it)
+                val look = list.mapNotNull { getThrowableOf(it) }
+                if (look.isNotEmpty()) {
+                    val oops = MercenaryMultipleAssertExceptiion(look)
+                    look.forEach {
+                        oops.addSuppressed(it)
+                    }
+                    throw oops
                 }
-                throw oops
             }
         }
     }

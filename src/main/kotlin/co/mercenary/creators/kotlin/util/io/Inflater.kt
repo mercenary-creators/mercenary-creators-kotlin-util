@@ -18,6 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import java.io.*
+import java.io.ByteArrayOutputStream
 import java.net.*
 import java.nio.channels.*
 import java.nio.file.Path
@@ -28,8 +29,6 @@ interface Inflater {
     fun deflate(data: InputStream, copy: OutputStream): Long
     fun inflate(data: ByteArray): ByteArray = inflate(data.toInputStream())
     fun deflate(data: ByteArray): ByteArray = deflate(data.toInputStream())
-    fun inflate(data: InputStream): ByteArray = DEFAULT_BUFFER_SIZE.toByteArrayOutputStream().also { send -> inflate(data, send) }.toByteArray()
-    fun deflate(data: InputStream): ByteArray = DEFAULT_BUFFER_SIZE.toByteArrayOutputStream().also { send -> deflate(data, send) }.toByteArray()
     fun inflate(data: URL): ByteArray = data.toInputStream().use { read -> inflate(read) }
     fun deflate(data: URL): ByteArray = data.toInputStream().use { read -> deflate(read) }
     fun inflate(data: URI): ByteArray = data.toInputStream().use { read -> inflate(read) }
@@ -114,4 +113,6 @@ interface Inflater {
     fun deflate(data: InputStreamSupplier, copy: OutputStreamSupplier) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
     fun inflate(data: ReadableByteChannel, copy: OutputStreamSupplier) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
     fun deflate(data: ReadableByteChannel, copy: OutputStreamSupplier) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+    fun inflate(data: InputStream): ByteArray = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE).also { send -> inflate(data, send) }.toByteArray()
+    fun deflate(data: InputStream): ByteArray = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE).also { send -> deflate(data, send) }.toByteArray()
 }

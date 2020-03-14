@@ -18,47 +18,68 @@ package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
 import java.security.SecureRandom
+import java.util.*
 import kotlin.random.*
 
 object Randoms {
+
+    private fun SecureRandom.seedTo(seed: Long): SecureRandom {
+        if (seed != 0L) {
+            setSeed(seed)
+        }
+        return this
+    }
 
     private val VALUES: CharArray by lazy {
         getCharArrayValuesInternal()
     }
 
     private val RANDOM: SecureRandom by lazy {
-        toRandom()
+        SecureRandom()
     }
 
-    @JvmStatic
-    fun getRandom() = RANDOM
+    private val KOTLIN: kotlin.random.Random by lazy {
+        RANDOM.asKotlinRandom()
+    }
+
+    private val random: SecureRandom
+        get() = RANDOM
+
+    private val kotlin: kotlin.random.Random
+        get() = KOTLIN
 
     @JvmStatic
-    fun toRandom() = SecureRandom()
+    fun uuid() = UUID.randomUUID().toString()
 
     @JvmStatic
-    fun getInteger() = getRandom().nextInt()
+    fun randomOf() = SecureRandom()
 
     @JvmStatic
-    fun getInteger(bound: Int) = getRandom().nextInt(bound)
+    fun randomOf(seed: Long) = randomOf().seedTo(seed)
 
     @JvmStatic
-    fun getDouble() = getRandom().nextDouble()
+    fun randomOf(seed: ByteArray) = SecureRandom(seed)
 
     @JvmStatic
-    fun getBoolean() = getRandom().nextBoolean()
+    fun getInteger() = random.nextInt()
 
     @JvmStatic
-    fun getLongValue() = getRandom().nextLong()
+    fun getInteger(bound: Int) = random.nextInt(bound)
 
     @JvmStatic
-    fun getGaussian() = getRandom().nextGaussian()
+    fun getDouble() = random.nextDouble()
+
+    @JvmStatic
+    fun getBoolean() = random.nextBoolean()
+
+    @JvmStatic
+    fun getLongValue() = random.nextLong()
 
     @JvmStatic
     fun getByteArray(sized: Int) = getByteArray(ByteArray(sized))
 
     @JvmStatic
-    fun getByteArray(bytes: ByteArray) = getByteArray(getRandom(), bytes)
+    fun getByteArray(bytes: ByteArray) = getByteArray(random, bytes)
 
     @JvmStatic
     fun getByteArray(random: SecureRandom, sized: Int) = getByteArray(random, ByteArray(sized))
@@ -67,28 +88,28 @@ object Randoms {
     fun getByteArray(random: SecureRandom, bytes: ByteArray) = bytes.also { random.nextBytes(it) }
 
     @JvmStatic
-    fun getInteger(range: IntRange) = getRandom().asKotlinRandom().nextInt(range)
+    fun getInteger(range: IntRange) = kotlin.nextInt(range)
 
     @JvmStatic
-    fun getInteger(lower: Int, upper: Int) = getRandom().asKotlinRandom().nextInt(lower, upper)
+    fun getInteger(lower: Int, upper: Int) = kotlin.nextInt(lower, upper)
 
     @JvmStatic
-    fun getLongValue(bound: Long) = getRandom().asKotlinRandom().nextLong(bound)
+    fun getLongValue(bound: Long) = kotlin.nextLong(bound)
 
     @JvmStatic
-    fun getLongValue(range: LongRange) = getRandom().asKotlinRandom().nextLong(range)
+    fun getLongValue(range: LongRange) = kotlin.nextLong(range)
 
     @JvmStatic
-    fun getLongValue(lower: Int, upper: Int) = getRandom().asKotlinRandom().nextLong(lower.toLong(), upper.toLong())
+    fun getLongValue(lower: Int, upper: Int) = kotlin.nextLong(lower.toLong(), upper.toLong())
 
     @JvmStatic
-    fun getLongValue(lower: Long, upper: Long) = getRandom().asKotlinRandom().nextLong(lower, upper)
+    fun getLongValue(lower: Long, upper: Long) = kotlin.nextLong(lower, upper)
 
     @JvmStatic
-    fun getDouble(bound: Double) = getRandom().asKotlinRandom().nextDouble(bound)
+    fun getDouble(bound: Double) = kotlin.nextDouble(bound)
 
     @JvmStatic
-    fun getDouble(lower: Double, upper: Double) = getRandom().asKotlinRandom().nextDouble(lower, upper)
+    fun getDouble(lower: Double, upper: Double) = kotlin.nextDouble(lower, upper)
 
     @JvmStatic
     fun getLongSequence(sized: Int): Sequence<Long> {
@@ -97,7 +118,7 @@ object Randoms {
 
     @JvmStatic
     fun getLongSequence(sized: Long): Sequence<Long> {
-        return MercenarySequence(getRandom().longs(sized).iterator())
+        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.longs(sized).iterator())
     }
 
     @JvmStatic
@@ -107,7 +128,7 @@ object Randoms {
 
     @JvmStatic
     fun getLongSequence(sized: Long, lower: Long, upper: Long): Sequence<Long> {
-        return MercenarySequence(getRandom().longs(sized, lower, upper).iterator())
+        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.longs(sized, lower, upper).iterator())
     }
 
     @JvmStatic
@@ -117,9 +138,8 @@ object Randoms {
 
     @JvmStatic
     fun getIntegerSequence(sized: Long): Sequence<Int> {
-        return MercenarySequence(getRandom().ints(sized).iterator())
+        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.ints(sized).iterator())
     }
-
 
     @JvmStatic
     fun getIntegerSequence(sized: Int, lower: Int, upper: Int): Sequence<Int> {
@@ -128,7 +148,7 @@ object Randoms {
 
     @JvmStatic
     fun getIntegerSequence(sized: Long, lower: Int, upper: Int): Sequence<Int> {
-        return MercenarySequence(getRandom().ints(sized, lower, upper).iterator())
+        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.ints(sized, lower, upper).iterator())
     }
 
     @JvmStatic
@@ -138,9 +158,8 @@ object Randoms {
 
     @JvmStatic
     fun getDoubleSequence(sized: Long): Sequence<Double> {
-        return MercenarySequence(getRandom().doubles(sized).iterator())
+        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.doubles(sized).iterator())
     }
-
 
     @JvmStatic
     fun getDoubleSequence(sized: Int, lower: Double, upper: Double): Sequence<Double> {
@@ -149,38 +168,39 @@ object Randoms {
 
     @JvmStatic
     fun getDoubleSequence(sized: Long, lower: Double, upper: Double): Sequence<Double> {
-        return MercenarySequence(getRandom().doubles(sized, lower, upper).iterator())
+        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.doubles(sized, lower, upper).iterator())
     }
 
     @JvmStatic
-    fun getBits(count: Int) = getRandom().asKotlinRandom().nextBits(count)
+    fun getBits(count: Int) = kotlin.nextBits(count)
 
     @JvmStatic
     fun getString(sized: Int): String = getString(sized, VALUES)
 
     @JvmStatic
-    fun getString(sized: Int, chars: CharArray): String = getCharSequence(sized, chars).toString()
+    fun getString(sized: Int, chars: CharArray): String = getCharSequenceOf(sized, chars).toString()
 
     @JvmStatic
-    fun getString(sized: Int, chars: CharSequence): String = getCharSequence(sized, chars).toString()
+    fun getString(sized: Int, chars: CharSequence): String = getCharSequenceOf(sized, chars).toString()
 
     @JvmStatic
-    fun getCharSequence(sized: Int): CharSequence = getCharSequence(sized, VALUES)
+    fun getCharSequenceOf(sized: Int): CharSequence = getCharSequenceOf(sized, VALUES)
 
     @JvmStatic
-    fun getCharSequence(sized: Int, chars: CharSequence): CharSequence = getCharSequence(sized, chars.toString().toCharArray())
+    fun getCharSequenceOf(sized: Int, chars: CharSequence): CharSequence = getCharSequenceOf(sized, chars.toString().toCharArray())
 
     @JvmStatic
-    fun getCharSequence(sized: Int, chars: CharArray): CharSequence {
+    fun getCharSequenceOf(sized: Int, chars: CharArray): CharSequence {
         if (sized < 1) {
             return EMPTY_STRING
         }
         if (chars.isEmpty()) {
             throw throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
         }
-        return StringBuilder(sized).apply {
+        val rand = random
+        return buildString(sized) {
             repeat(sized) {
-                append(chars[getInteger(chars.size)])
+                append(chars[rand.nextInt(chars.size)])
             }
         }
     }
@@ -193,14 +213,14 @@ object Randoms {
             ('a'..'z').forEach {
                 append(it)
             }
-            for (c in '0'..'9') {
-                append(c)
+            ('0'..'9').forEach {
+                append(it)
             }
-            for (c in 'A'..'Z') {
-                append(c)
+            ('A'..'Z').forEach {
+                append(it)
             }
-            for (c in '0'..'9') {
-                append(c)
+            ('0'..'9').forEach {
+                append(it)
             }
         }.toCharArray()
     }

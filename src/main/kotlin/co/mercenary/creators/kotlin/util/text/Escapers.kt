@@ -20,11 +20,13 @@ object Escapers {
 
     private const val ESCAPE_SLASH = '\\'
 
-    private const val SINGLE_SLASH = '/'
-
     private const val SINGLE_QUOTE = '\''
 
     private const val DOUBLE_QUOTE = '"'
+
+    private val LOOK = BooleanArray(128) { code ->
+        (code in 32..126 && (code >= 93 || code in 48..91 || code == 32 || code in intArrayOf(33, 35, 36, 37, 38, 40, 41, 42, 43, 44, 45, 46)))
+    }
 
     private fun StringBuilder.escape(code: Int) {
         val string = code.toString(16).toUpperCase()
@@ -38,19 +40,44 @@ object Escapers {
     }
 
     @JvmStatic
+    fun isAscii(code: Char): Boolean {
+        val look = code.toInt()
+        if (look < 32 || look > 127) {
+            return false
+        }
+        return LOOK[look]
+    }
+
+    @JvmStatic
+    fun isAscii(string: String): Boolean {
+        if (string.isEmpty()) {
+            return true
+        }
+        for (c in string) {
+            if (!isAscii(c)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    @JvmStatic
     @JvmOverloads
     fun toEscapedString(string: String, quote: Boolean = false): String {
+        if (isAscii(string)) {
+            return if (quote) "\"$string\"" else string
+        }
         val leng = string.length
-        val buff = StringBuilder((leng + 1) * 2)
+        val buff = StringBuilder(leng * 2).also { if (quote) it.append(DOUBLE_QUOTE) }
         for (n in 0 until leng) {
             val c = string[n]
-            if (c in ' '..'z' && (c >= 'a' || c in 'A'..'Z' || c == ' ' || c in '0'..'9')) {
+            if (isAscii(c)) {
                 buff.append(c) // ASCII will be most common, this improves write speed about 5%, FWIW.
                 continue
             }
             val i = c.toInt()
             when {
-                i > 0x7f -> {
+                i > 127 -> {
                     buff.escape(i)
                 }
                 i == 12 -> {
@@ -70,14 +97,13 @@ object Escapers {
                         SINGLE_QUOTE -> buff.append(ESCAPE_SLASH).append(SINGLE_QUOTE)
                         DOUBLE_QUOTE -> buff.append(ESCAPE_SLASH).append(DOUBLE_QUOTE)
                         ESCAPE_SLASH -> buff.append(ESCAPE_SLASH).append(ESCAPE_SLASH)
-                        SINGLE_SLASH -> buff.append(ESCAPE_SLASH).append(SINGLE_SLASH)
                         else -> buff.append(c)
                     }
                 }
             }
         }
         if (quote) {
-            buff.insert(0, DOUBLE_QUOTE).append(DOUBLE_QUOTE)
+            buff.append(DOUBLE_QUOTE)
         }
         return buff.toString()
     }

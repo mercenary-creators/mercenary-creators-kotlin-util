@@ -20,19 +20,19 @@ data class Algorithm(val service: String, val algorithms: List<String>) {
     override fun toString(): String {
         return buildString {
             append("\n{ ")
-                .append( "\"")
+                .append("\"")
                 .append("service")
-                .append( "\"")
+                .append("\"")
                 .append(" : ")
-                .append( "\"")
+                .append("\"")
                 .append(service)
-                .append( "\"")
+                .append("\"")
                 .append(", ")
                 .append("\"")
                 .append("algorithms")
                 .append("\"")
                 .append(" : ")
-                .append(algorithms.joinToString(",\n\t\t", prefix = "\n\t[\n\t\t", postfix = "\n\t]"){
+                .append(algorithms.joinToString(",\n\t\t", prefix = "\n\t[\n\t\t", postfix = "\n\t]") {
                     "\"" + it + "\""
                 })
                 .append("\n}")
