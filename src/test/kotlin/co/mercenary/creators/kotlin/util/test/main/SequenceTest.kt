@@ -35,11 +35,11 @@ class SequenceTest : KotlinTest() {
         list.forEach {
             info { it }
         }
-        list.size.shouldBe(size)
+        list.size shouldBe size
         val ints = sequenceOf(1..16).toList()
         ints.forEach {
             info { it }
         }
-        ints.size.shouldBe(16)
+        ints.size shouldBe 16
     }
 }

@@ -17,6 +17,8 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.logging.LoggingInfoDsl
+import java.io.File
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -36,14 +38,34 @@ abstract class AbstractKotlinTestBase : Logging() {
     }
 
     @IgnoreForSerialize
-    protected val printer: (Int, String) -> Unit = { i, s -> info { "%2d : %s".format(i + 1, s) } }
+    protected val author = CREATORS_AUTHOR_INFO
+
+    @IgnoreForSerialize
+    protected val loader = CONTENT_RESOURCE_LOADER
+
+    @IgnoreForSerialize
+    protected val cached = CACHED_CONTENT_RESOURCE_LOADER
+
+    @JvmOverloads
+    protected open fun getTempFileNamed(name: String = uuid(), suff: String = ".tmp"): File {
+        return getTempFile(name, suff)
+    }
+
+    protected open fun getTempFileNamedPath(name: String, suff: String): String {
+        return getTempFileNamed(name, suff).path
+    }
+
+    @IgnoreForSerialize
+    protected open val printer: (Int, String) -> Unit = { i, s -> info { "%2d : %s".format(i + 1, s) } }
 
     @IgnoreForSerialize
     protected open fun getConfigPropertiesBuilder(): () -> Properties = { Properties() }
 
     @JvmOverloads
+    @AssumptionDsl
     fun dash(loop: Int = 64): String = "-".repeat(loop.abs())
 
+    @AssumptionDsl
     fun uuid(): String = Randoms.uuid()
 
     @JvmOverloads
@@ -61,14 +83,17 @@ abstract class AbstractKotlinTestBase : Logging() {
         }
     }
 
+    @AssumptionDsl
     fun <T : Throwable> addThrowableAsFatal(type: Class<T>) {
         nope += type
     }
 
+    @AssumptionDsl
     fun <T : Throwable> addThrowableAsFatal(type: KClass<T>) {
         nope += type.java
     }
 
+    @AssumptionDsl
     fun here(): Map<String, Any?> {
         val type = javaClass
         val name = type.name
@@ -81,12 +106,15 @@ abstract class AbstractKotlinTestBase : Logging() {
                     list += mutableMapOf("func" to item.methodName, "type" to name, "file" to item.fileName, "line" to item.lineNumber)
                 }
                 else if (item.methodName == "invoke") {
+                    // I'm coming from inside anonymous blocks that are not inlined,
+                    // especially in logging where I am with AssumeEach, assumeThat,
+                    // and AssumeCollector DSL.
                     most.maxOf(item.lineNumber)
                 }
             }
         }
         if (list.isEmpty()) {
-            return mapOf("type" to name)
+            return mapOf("func" to DUNNO_STRING, "type" to name, "file" to DUNNO_STRING, "line" to 0)
         }
         val line = most.toInt()
         val maps = list.first()
@@ -100,6 +128,7 @@ abstract class AbstractKotlinTestBase : Logging() {
         return javaClass.name
     }
 
+    @AssumptionDsl
     fun measured(loop: Int, call: (Int) -> Unit) {
         val list = LongArray(loop)
         loop forEach {
@@ -132,21 +161,24 @@ abstract class AbstractKotlinTestBase : Logging() {
 
     fun String.toLink() = toURL()
 
+    @AssumptionDsl
     protected open fun fail(text: String): Nothing {
         throw MercenaryAssertExceptiion(text)
     }
 
-    protected open fun fail(func: () -> Any?): Nothing {
+    @AssumptionDsl
+    protected open fun fail(@AssumptionDsl func: () -> Any?): Nothing {
         fail(Formatters.toSafeString(func))
     }
 
-    protected open fun assertTrueOf(condition: Boolean, func: () -> Any?) {
+    @AssumptionDsl
+    protected open fun assertTrueOf(condition: Boolean, @AssumptionDsl func: () -> Any?) {
         if (!condition) {
             fail(func)
         }
     }
 
-    private fun getThrowableOf(func: () -> Unit): Throwable? {
+    private fun getThrowableOf(@AssumptionDsl func: () -> Unit): Throwable? {
         return try {
             func.invoke()
             null
@@ -161,11 +193,13 @@ abstract class AbstractKotlinTestBase : Logging() {
         }
     }
 
-    fun assumeEach(block: AssumeCollector.() -> Unit) {
+    @AssumptionDsl
+    fun assumeEach(@AssumptionDsl block: AssumeCollector.() -> Unit) {
         AssumeCollector(block).also { it.invoke() }
     }
 
-    inner class AssumeCollector(block: AssumeCollector.() -> Unit) {
+    @AssumptionDsl
+    inner class AssumeCollector(@AssumptionDsl block: AssumeCollector.() -> Unit) {
 
         private val list = arrayListOf<() -> Unit>()
 
@@ -173,7 +207,8 @@ abstract class AbstractKotlinTestBase : Logging() {
             block(this)
         }
 
-        fun assumeThat(block: () -> Unit) {
+        @AssumptionDsl
+        fun assumeThat(@AssumptionDsl block: () -> Unit) {
             list += block
         }
 
@@ -191,11 +226,41 @@ abstract class AbstractKotlinTestBase : Logging() {
         }
     }
 
-    infix fun <T : Any?> T.shouldBe(value: T) = assertTrueOf(value isSameAs this) {
+    @AssumptionDsl
+    protected infix fun <T : Any?> T.shouldBe(value: T) = assertTrueOf(value isSameAs this) {
         "shouldBe failed"
     }
 
-    infix fun <T : Any?> T.shouldNotBe(value: T) = assertTrueOf(value isNotSameAs this) {
+    @AssumptionDsl
+    protected infix fun <T : Any?> T.shouldNotBe(value: T) = assertTrueOf(value isNotSameAs this) {
         "shouldNotBe failed"
+    }
+
+    @AssumptionDsl
+    protected inline fun <reified T : Throwable> assumeThrows(@AssumptionDsl block: () -> Unit) {
+        try {
+            block.invoke()
+        }
+        catch (cause: Throwable) {
+            assertTrueOf(cause is T) {
+                "assumeThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
+            }
+            return
+        }
+        assertTrueOf(false) {
+            "assumeThrows failed for ${T::class.java.name}"
+        }
+    }
+
+    @AssumptionDsl
+    protected inline fun <reified T : Throwable> assumeNotThrows(@AssumptionDsl block: () -> Unit) {
+        try {
+            block.invoke()
+        }
+        catch (cause: Throwable) {
+            assertTrueOf(cause !is T) {
+                "assumeNotThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
+            }
+        }
     }
 }

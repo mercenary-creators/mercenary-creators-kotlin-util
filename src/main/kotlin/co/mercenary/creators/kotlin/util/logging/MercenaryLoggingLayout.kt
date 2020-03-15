@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import ch.qos.logback.classic.PatternLayout
+import ch.qos.logback.classic.*
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.*
 
@@ -36,17 +36,18 @@ class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
             descr = value
         }
 
-    override fun doLayout(event: ILoggingEvent?): String {
+    override fun doLayout(event: ILoggingEvent): String {
         return if (!isStarted) CoreConstants.EMPTY_STRING else proxy.doLayout(event)
     }
 
-    override fun setContext(context: Context?) {
+    override fun setContext(context: Context) {
         super.setContext(context)
         proxy.context = context
     }
 
     override fun start() {
-        proxy.pattern = "%yellow([%d{\"yyyy-MM-dd HH:mm:ss,SSS z\",\"UTC\"}]) %blue([%level]) %magenta([%c]) %cyan([${description}] -) %m %n"
+        PatternLayout.defaultConverterMap["mercenary"] = MercenaryHighlightingCompositeConverter::class.java.name
+        proxy.pattern = "%yellow([%d{\"yyyy-MM-dd HH:mm:ss,SSS z\",\"UTC\"}]) %blue([%level]) %magenta([%c]) %cyan([${description}] -) %mercenary(%m) %n"
         proxy.start()
         super.start()
     }

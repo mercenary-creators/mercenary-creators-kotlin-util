@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 class InflaterTest : KotlinDataTest() {
     @Test
     fun test() {
-        val data = CONTENT_RESOURCE_LOADER["test.doc"]
+        val data = loader["test.doc"]
         info { data.getContentSize() }
         val make = Inflaters.gzip().deflate(data)
         info { make.size }

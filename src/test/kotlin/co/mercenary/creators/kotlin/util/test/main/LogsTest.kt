@@ -34,7 +34,7 @@ class LogsTest : KotlinTest() {
         info { sequenceOf(4, 5, 6) }
         info { toDoubleArrayOf(4, 5, 6) }
         info { TimeAndDate.nanosOf() }
-        info { mapOf("name" to CREATORS_AUTHOR_INFO, "time" to 56.5.years, "date" to dateOf(), "horz" to "Maël Hörz\n", "size" to 1, "code" to String(CharArray(16) { it.toChar() })) }
+        info { mapOf("name" to author, "time" to 56.5.years, "date" to dateOf(), "horz" to "Maël Hörz\n", "size" to 1, "code" to String(CharArray(16) { it.toChar() })) }
         info { false }
         info { true.toAtomic() }
         info { 16.toAtomic() }
@@ -45,13 +45,11 @@ class LogsTest : KotlinTest() {
             info { mapOf("data" to i, "test" to Numeric.isPrimeValue(i), "next" to Numeric.toPrimeAfter(i)) }
         }
         warn { dash() }
-        info { CONTENT_RESOURCE_LOADER["test.htm"] }
-        info { CONTENT_RESOURCE_LOADER["http://jsonplaceholder.typicode.com/posts"] }
+        info { loader["test.htm"] }
+        info { loader["http://jsonplaceholder.typicode.com/posts"] }
         info { 255.toBinaryString() }
         info { 255.toBinaryString().trim().length }
         warn { dash() }
-        info { Numeric.DEFAULT_PRECISION_DELTA.rounded(9) }
-        info { 1e-9.rounded(9) }
         error { logger.javaClass }
         error { logger.underlyingLogger.javaClass }
         warn { dash() }

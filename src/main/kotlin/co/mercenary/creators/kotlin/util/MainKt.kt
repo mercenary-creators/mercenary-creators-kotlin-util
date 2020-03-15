@@ -67,6 +67,7 @@ typealias AtomicHashMap<K, V> = java.util.concurrent.ConcurrentHashMap<K, V>
 typealias AtomicDictionary<V> = java.util.concurrent.ConcurrentHashMap<String, V>
 
 open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
+    constructor() : this(null, null)
     constructor(text: String) : this(text, null)
     constructor(root: Throwable) : this(root.message, root)
 
@@ -75,7 +76,7 @@ open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeExcepti
     }
 }
 
-open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : MercenaryExceptiion(text, root) {
+open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
     constructor(text: String) : this(text, null)
     constructor(root: Throwable) : this(root.message, root)
 
@@ -84,7 +85,7 @@ open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : Mercenary
     }
 }
 
-open class MercenaryAssertExceptiion(text: String?, root: Throwable?) : MercenaryFatalExceptiion(text, root) {
+open class MercenaryAssertExceptiion(text: String?, root: Throwable?) : AssertionError(text, root) {
     constructor(text: String) : this(text, null)
     constructor(root: Throwable) : this(root.message, root)
 
@@ -225,6 +226,7 @@ infix fun AtomicLong.minOf(value: AtomicLong): AtomicLong {
     }
     return this
 }
+
 infix fun AtomicLong.maxOf(value: Long): AtomicLong {
     if (value > get()) {
         set(value)
@@ -252,6 +254,7 @@ infix fun AtomicLong.minOf(value: AtomicInteger): AtomicLong {
     }
     return this
 }
+
 fun Int.toAtomic(): AtomicInteger = AtomicInteger(this)
 
 operator fun AtomicInteger.div(value: Int): AtomicInteger {
@@ -337,17 +340,18 @@ infix fun AtomicBoolean.xor(value: Boolean): Boolean = get().xor(value)
 
 infix fun AtomicBoolean.xor(value: AtomicBoolean): Boolean = get().xor(value.get())
 
+@AssumptionDsl
 infix fun <T : Any?> T.isSameAs(value: T) = SameAndHashCode.isSameAs(this, value)
 
+@AssumptionDsl
 infix fun <T : Any?> T.isNotSameAs(value: T) = SameAndHashCode.isNotSameAs(this, value)
 
+@AssumptionDsl
 fun isEverySameAs(vararg args: Pair<Any?, Any?>) = SameAndHashCode.isEverySameAs(*args)
 
 fun <T : Any?> T.hashOf() = SameAndHashCode.hashOf(this)
 
 fun <T : Any?> T.hashOf(vararg args: Any?) = SameAndHashCode.hashOf(hashOf().toAtomic(), *args)
-
-fun <T : Any?> T.hashOfSystem() = SameAndHashCode.hashOfSystem(this)
 
 open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
     constructor() : this(emptySequence())

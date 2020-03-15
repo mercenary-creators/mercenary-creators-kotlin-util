@@ -22,13 +22,27 @@ import org.junit.jupiter.api.Test
 class ThrowsTest : KotlinTest() {
     @Test
     fun test() {
-        Throwables.ignored(MercenaryExceptiion::class)
-        Throwables.thrown(MercenaryExceptiion(EMPTY_STRING))
-        try {
-            Throwables.thrown(NullPointerException(EMPTY_STRING))
+        val call = 0.toAtomic()
+        warn { dash() }
+        assumeThrows<NullPointerException> {
+            info { call }
+            call.increment()
+            throw NullPointerException()
         }
-        catch (cause: Throwable) {
-            true.shouldBe(cause is NullPointerException)
+        warn { dash() }
+        assumeThrows<MercenaryExceptiion> {
+            info { call }
+            call.increment()
+            throw MercenaryExceptiion()
         }
+        warn { dash() }
+        assumeNotThrows<MercenaryExceptiion> {
+            info { call }
+            call.increment()
+            throw NullPointerException()
+        }
+        warn { dash() }
+        info { call }
+        call shouldBe 3
     }
 }

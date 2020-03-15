@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test
+package co.mercenary.creators.kotlin.util
 
-abstract class AbstractDataTest : AbstractKotlinTest()
+@DslMarker
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.CLASS)
+annotation class AssumptionDsl

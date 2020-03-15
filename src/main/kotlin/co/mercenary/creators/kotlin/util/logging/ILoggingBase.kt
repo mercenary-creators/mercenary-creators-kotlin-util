@@ -35,6 +35,7 @@ interface ILoggingBase : ILogging {
     override val isLoggingErrorEnabled: Boolean
         get() = logger.isErrorEnabled
 
+    @LoggingInfoDsl
     override fun info(block: () -> Any?) {
         if (isLoggingInfoEnabled) {
             logger.info {
@@ -43,6 +44,7 @@ interface ILoggingBase : ILogging {
         }
     }
 
+    @LoggingInfoDsl
     override fun info(cause: Throwable, block: () -> Any?) {
         if (isLoggingInfoEnabled) {
             logger.info(cause) {
@@ -51,6 +53,7 @@ interface ILoggingBase : ILogging {
         }
     }
 
+    @LoggingInfoDsl
     override fun info(marker: IMarker, block: () -> Any?) {
         if (isLoggingInfoEnabled) {
             logger.info(marker.markerOf()) {
@@ -59,6 +62,7 @@ interface ILoggingBase : ILogging {
         }
     }
 
+    @LoggingInfoDsl
     override fun info(cause: Throwable, marker: IMarker, block: () -> Any?) {
         if (isLoggingInfoEnabled) {
             logger.info(marker.markerOf(), cause) {
@@ -67,6 +71,7 @@ interface ILoggingBase : ILogging {
         }
     }
 
+    @LoggingWarnDsl
     override fun warn(block: () -> Any?) {
         if (isLoggingWarnEnabled) {
             logger.warn {
@@ -75,6 +80,7 @@ interface ILoggingBase : ILogging {
         }
     }
 
+    @LoggingWarnDsl
     override fun warn(cause: Throwable, block: () -> Any?) {
         if (isLoggingWarnEnabled) {
             logger.warn(cause) {
@@ -83,6 +89,7 @@ interface ILoggingBase : ILogging {
         }
     }
 
+    @LoggingWarnDsl
     override fun warn(marker: IMarker, block: () -> Any?) {
         if (isLoggingWarnEnabled) {
             logger.warn(marker.markerOf()) {
@@ -91,6 +98,7 @@ interface ILoggingBase : ILogging {
         }
     }
 
+    @LoggingWarnDsl
     override fun warn(cause: Throwable, marker: IMarker, block: () -> Any?) {
         if (isLoggingWarnEnabled) {
             logger.warn(marker.markerOf(), cause) {

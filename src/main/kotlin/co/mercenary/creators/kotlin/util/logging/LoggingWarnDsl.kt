@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test
+package co.mercenary.creators.kotlin.util.logging
 
-abstract class AbstractDataTest : AbstractKotlinTest()
+@DslMarker
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.BINARY)
+annotation class LoggingWarnDsl
