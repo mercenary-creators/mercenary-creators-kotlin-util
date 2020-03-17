@@ -29,7 +29,7 @@ class LoaderTest : KotlinDataTest() {
         info { loader["test.doc"] }
         info { loader["test.htm"] }
         info { loader["test.htm"].toRelativePath("../test.txt") }
-        info { loader["http://jsonplaceholder.typicode.com/posts"] }
+        warn { loader["http://jsonplaceholder.typicode.com/posts"] }
         val path = getTempFileNamedPath(uuid(), ".json")
         info { loader[path] }
         val temp = getTempFileNamedPath(uuid(), ".yaml")

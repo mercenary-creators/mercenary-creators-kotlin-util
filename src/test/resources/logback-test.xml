@@ -21,7 +21,7 @@
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
             <layout class="co.mercenary.creators.kotlin.util.logging.MercenaryLoggingLayout">
-                <description>9.6.2-SNAPSHOT TEST</description>
+                <description>9.6.3-SNAPSHOT TEST</description>
             </layout>
             <charset>UTF-8</charset>
         </encoder>

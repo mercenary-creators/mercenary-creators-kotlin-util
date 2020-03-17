@@ -16,6 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.IgnoreForSerialize
 import java.io.*
 import java.util.zip.*
 
@@ -24,10 +25,8 @@ object Inflaters {
     @JvmStatic
     fun gzip(): Inflater = GZIPInflater
 
+    @IgnoreForSerialize
     private object GZIPInflater : Inflater {
-
-        override val type: InflaterType
-            get() = InflaterType("GZIP")
 
         override fun inflate(data: InputStream, copy: OutputStream) = GZIPInputStream(NoCloseInputStream(data)).use { gzip ->
             gzip.copyTo(copy).also { copy.flush() }
@@ -40,6 +39,8 @@ object Inflaters {
             buff.size
         }
 
-        override fun toString() = type.name
+        override fun toString() = toMapNames().toString()
+
+        override fun toMapNames() = mapOf("type" to "GZIP")
     }
 }

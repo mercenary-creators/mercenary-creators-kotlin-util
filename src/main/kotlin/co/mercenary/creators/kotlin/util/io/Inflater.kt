@@ -23,8 +23,7 @@ import java.net.*
 import java.nio.channels.*
 import java.nio.file.Path
 
-interface Inflater {
-    val type: InflaterType
+interface Inflater : HasMapNames {
     fun inflate(data: InputStream, copy: OutputStream): Long
     fun deflate(data: InputStream, copy: OutputStream): Long
     fun inflate(data: ByteArray): ByteArray = inflate(data.toInputStream())
