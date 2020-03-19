@@ -27,7 +27,7 @@ class GCMDataTest : KotlinSecurityTest() {
         val salt = getGeneratedSalt()
         info { pass }
         info { salt }
-        val good = isGood(pass)
+        val good = isValid(pass)
         info { good }
         good.shouldBe(true)
         val bits = Randoms.getByteArray(rand, 1024)

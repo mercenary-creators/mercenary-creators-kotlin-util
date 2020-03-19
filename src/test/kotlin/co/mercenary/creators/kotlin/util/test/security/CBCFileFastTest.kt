@@ -26,29 +26,29 @@ class CBCFileFastTest : KotlinSecurityTest() {
         val salt = getGeneratedSalt()
         info { pass }
         info { salt }
-        val good = isGood(pass)
+        val good = isValid(pass)
         info { good }
-        good.shouldBe(true)
+        good shouldBe true
         val temp = getTempFile(uuid(), ".txt")
         val baos = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
         val save = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
         val code = getCopyCipher(pass, salt, CipherAlgorithm.CBC)
-        val data = CACHED_CONTENT_RESOURCE_LOADER["test.txt"]
+        val data = cached["test.txt"]
         repeat(7) {
             baos.reset()
             save.reset()
             code.encrypt(data, baos)
-            code.decrypt(baos.toByteArray().toInputStream(), save)
+            code.decrypt(baos.toByteArray(), save)
         }
         timed {
             code.encrypt(data, temp)
         }
-        data.toByteArray().shouldNotBe(temp.toByteArray())
+        data.toByteArray() shouldNotBe temp.toByteArray()
         val copy = getTempFile(uuid(), ".txt")
         timed {
             code.decrypt(temp, copy)
         }
-        copy.forEachLineIndexed(block = printer)
-        data.toByteArray().shouldBe(copy.toByteArray())
+        copy.forEachLineIndexed(printer)
+        data.toByteArray() shouldBe copy.toByteArray()
     }
 }

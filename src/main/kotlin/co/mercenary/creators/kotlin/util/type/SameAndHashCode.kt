@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.*
 object SameAndHashCode {
 
     @JvmStatic
+    @AssumptionDsl
     fun isEverySameAs(vararg args: Pair<Any?, Any?>): Boolean {
         for ((value, other) in args) {
             if (isNotSameAs(value, other)) {
@@ -35,6 +36,7 @@ object SameAndHashCode {
     }
 
     @JvmStatic
+    @AssumptionDsl
     fun isEverySameAs(args: Iterable<Pair<Any?, Any?>>): Boolean {
         for ((value, other) in args) {
             if (isNotSameAs(value, other)) {
@@ -45,6 +47,7 @@ object SameAndHashCode {
     }
 
     @JvmStatic
+    @AssumptionDsl
     fun isEverySameAs(args: Sequence<Pair<Any?, Any?>>): Boolean {
         for ((value, other) in args) {
             if (isNotSameAs(value, other)) {
@@ -55,6 +58,7 @@ object SameAndHashCode {
     }
 
     @JvmStatic
+    @AssumptionDsl
     fun isSameAs(value: Any?, other: Any?): Boolean {
         if (value === other) {
             return true
@@ -86,6 +90,7 @@ object SameAndHashCode {
     }
 
     @JvmStatic
+    @AssumptionDsl
     fun isNotSameAs(value: Any?, other: Any?): Boolean = !isSameAs(value, other)
 
     @JvmStatic

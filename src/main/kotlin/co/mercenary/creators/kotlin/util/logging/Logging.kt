@@ -16,7 +16,6 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import co.mercenary.creators.kotlin.util.AssumptionDsl
 import mu.*
 
 open class Logging @JvmOverloads constructor(name: String? = null) : KLoggable, ILoggingBase {
@@ -32,6 +31,6 @@ open class Logging @JvmOverloads constructor(name: String? = null) : KLoggable, 
     override val logger: KLogger
         get() = logs
 
-    @AssumptionDsl
+    @LoggingInfoDsl
     inline fun <T> timed(block: () -> T): T = co.mercenary.creators.kotlin.util.timed({ info { it } }, block)
 }

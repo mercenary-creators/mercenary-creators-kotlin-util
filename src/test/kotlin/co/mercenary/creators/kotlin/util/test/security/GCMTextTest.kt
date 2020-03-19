@@ -28,7 +28,7 @@ class GCMTextTest : KotlinSecurityTest() {
         info { name }
         info { pass }
         info { salt }
-        val good = isGood(pass)
+        val good = isValid(pass)
         info { good }
         good.shouldBe(true)
         val code = getTextCipher(pass, salt, CipherAlgorithm.GCM).also {

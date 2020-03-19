@@ -26,7 +26,7 @@ class CBCFileTest : KotlinSecurityTest() {
         val salt = getGeneratedSalt()
         info { pass }
         info { salt }
-        val good = isGood(pass)
+        val good = isValid(pass)
         info { good }
         good.shouldBe(true)
         val temp = getTempFile(uuid(), ".txt")
@@ -38,7 +38,7 @@ class CBCFileTest : KotlinSecurityTest() {
             baos.reset()
             save.reset()
             code.encrypt(data, baos)
-            code.decrypt(baos.toByteArray().toInputStream(), save)
+            code.decrypt(baos.toByteArray(), save)
         }
         timed {
             code.encrypt(data, temp)

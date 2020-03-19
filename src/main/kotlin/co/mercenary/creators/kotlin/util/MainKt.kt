@@ -98,6 +98,7 @@ interface HasMapNames {
     fun toMapNames(): Map<String, Any?>
 }
 
+@AssumptionDsl
 fun Class<*>.isKotlinClass(): Boolean {
     return declaredAnnotations.any { it.annotationClass.java.name == KOTLIN_METAS }
 }

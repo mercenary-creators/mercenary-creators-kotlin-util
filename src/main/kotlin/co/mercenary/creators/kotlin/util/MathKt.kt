@@ -78,6 +78,11 @@ fun Int.neg(): Int {
     return unaryMinus()
 }
 
+@AssumptionDsl
+fun Int.isNegative(): Boolean {
+    return this < 0
+}
+
 infix fun Int.minOf(other: Int): Int {
     return min(this, other)
 }
@@ -92,6 +97,11 @@ fun Long.abs(): Long {
 
 fun Long.neg(): Long {
     return unaryMinus()
+}
+
+@AssumptionDsl
+fun Long.isNegative(): Boolean {
+    return this < 0
 }
 
 infix fun Long.minOf(other: Int): Long {
@@ -138,6 +148,12 @@ fun Double.floor(): Double {
     return floor(this)
 }
 
+@AssumptionDsl
+fun Double.isValid(): Boolean {
+    return isFinite()
+}
+
+@AssumptionDsl
 fun Double.isNegative(): Boolean {
     return sign(this) < 0
 }
@@ -148,26 +164,31 @@ fun Double.toDecimalPlacesString(scale: Int = 3, places: Int = scale.abs()): Str
 }
 
 @JvmOverloads
+@AssumptionDsl
 fun Double.closeEnough(value: Double, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
+@AssumptionDsl
 fun DoubleArray.closeEnough(value: DoubleArray, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
+@AssumptionDsl
 fun Array<Double>.closeEnough(value: Array<Double>, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
+@AssumptionDsl
 fun Array<DoubleArray>.closeEnough(value: Array<DoubleArray>, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
 @JvmOverloads
+@AssumptionDsl
 fun Array<Array<Double>>.closeEnough(value: Array<Array<Double>>, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }

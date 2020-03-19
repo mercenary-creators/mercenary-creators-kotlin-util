@@ -16,23 +16,30 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
+import co.mercenary.creators.kotlin.util.IgnoreForSerialize
+
 interface ILoggingBase : ILogging {
 
     val logger: mu.KLogger
 
     override val isLoggingInfoEnabled: Boolean
+        @IgnoreForSerialize
         get() = logger.isInfoEnabled
 
     override val isLoggingWarnEnabled: Boolean
+        @IgnoreForSerialize
         get() = logger.isWarnEnabled
 
     override val isLoggingTraceEnabled: Boolean
+        @IgnoreForSerialize
         get() = logger.isTraceEnabled
 
     override val isLoggingDebugEnabled: Boolean
+        @IgnoreForSerialize
         get() = logger.isDebugEnabled
 
     override val isLoggingErrorEnabled: Boolean
+        @IgnoreForSerialize
         get() = logger.isErrorEnabled
 
     @LoggingInfoDsl

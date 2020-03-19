@@ -58,6 +58,7 @@ object Numeric {
     }
 
     @JvmStatic
+    @AssumptionDsl
     fun collinear(x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double): Boolean {
         return closeEnough((y1 - y2) * (x1 - x3), (y1 - y3) * (x1 - x2), 1e-9)
     }
@@ -104,6 +105,7 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
+    @AssumptionDsl
     fun closeEnough(value: Double, other: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
         val delta = if (precision.isFinite()) precision.abs() else DEFAULT_PRECISION_DELTA
         return if (value.toBits() != other.toBits()) (abs(value - other) <= delta) else true
@@ -111,6 +113,7 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
+    @AssumptionDsl
     fun closeEnough(v1: Double, v2: Double, o1: Double, o2: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
         val delta = if (precision.isFinite()) precision.abs() else DEFAULT_PRECISION_DELTA
         if (v1.toBits() != v2.toBits()) {
@@ -128,6 +131,7 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
+    @AssumptionDsl
     fun closeEnough(value: DoubleArray, other: DoubleArray, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
         if (value.size != other.size) {
             return false
@@ -147,6 +151,7 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
+    @AssumptionDsl
     fun closeEnough(value: Array<Double>, other: Array<Double>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
         if (value.size != other.size) {
             return false
@@ -166,6 +171,7 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
+    @AssumptionDsl
     fun closeEnough(value: Array<DoubleArray>, other: Array<DoubleArray>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
         if (value.size != other.size) {
             return false
@@ -180,6 +186,7 @@ object Numeric {
 
     @JvmStatic
     @JvmOverloads
+    @AssumptionDsl
     fun closeEnough(value: Array<Array<Double>>, other: Array<Array<Double>>, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
         if (value.size != other.size) {
             return false
@@ -193,9 +200,11 @@ object Numeric {
     }
 
     @JvmStatic
+    @AssumptionDsl
     fun isPrimeValue(value: Int): Boolean = Primes.isPrime(value)
 
     @JvmStatic
+    @AssumptionDsl
     fun isPrimeValue(value: AtomicInteger): Boolean = isPrimeValue(value.toInt())
 
     @JvmStatic

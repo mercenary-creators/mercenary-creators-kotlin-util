@@ -16,9 +16,6 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-import kotlin.math.*
-
-@Suppress("NOTHING_TO_INLINE")
 object Passwords {
 
     const val PART_SIZE = 8
@@ -44,8 +41,8 @@ object Passwords {
     fun salt(loop: Int = THE_LOOPS): CharSequence {
         val hash = Digests.proxy(Digests.sha512())
         val data = Randoms.getByteArray(SALT_SIZE)
-        repeat(getLoopOf(loop)) {
-            hash(data)
+        repeat(loop.getLoopOf()) {
+            hash.invoke(data)
         }
         return Encoders.hex().encode(data)
     }
@@ -53,7 +50,7 @@ object Passwords {
     @JvmStatic
     @JvmOverloads
     fun pass(part: Int = THE_PARTS): CharSequence {
-        val loop = getPartOf(part)
+        val loop = part.getPartOf()
         val buff = StringBuilder((loop * PART_SIZE) + loop + PART_SIZE)
         repeat(loop) {
             buff.append(Randoms.getString(PART_SIZE)).append(SEPARATOR)
@@ -64,7 +61,7 @@ object Passwords {
     @JvmStatic
     @JvmOverloads
     fun good(pass: CharSequence, test: Boolean = true, part: Int = THE_PARTS): Boolean {
-        val loop = getPartOf(part)
+        val loop = part.getPartOf()
         val last = pass.lastIndexOf(SEPARATOR)
         if (last != (((loop * PART_SIZE) + loop) - 1)) {
             return false
@@ -89,7 +86,7 @@ object Passwords {
         return false
     }
 
-    private inline fun getPartOf(part: Int) = min(max(part, MIN_PARTS), MAX_PARTS)
+    private fun Int.getPartOf() = coerceIn(MIN_PARTS, MAX_PARTS)
 
-    private inline fun getLoopOf(loop: Int) = min(max(loop, MIN_LOOPS), MAX_LOOPS)
+    private fun Int.getLoopOf() = coerceIn(MIN_LOOPS, MAX_LOOPS)
 }

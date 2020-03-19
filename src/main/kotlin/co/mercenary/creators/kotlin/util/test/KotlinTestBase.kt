@@ -20,10 +20,11 @@ import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.logging.LoggingInfoDsl
 import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.reflect.KClass
 
 @IgnoreForSerialize
-abstract class AbstractKotlinTestBase : Logging() {
+open class KotlinTestBase : Logging() {
 
     private val nope = arrayListOf<Class<*>>()
 
@@ -128,7 +129,7 @@ abstract class AbstractKotlinTestBase : Logging() {
         return javaClass.name
     }
 
-    @AssumptionDsl
+    @LoggingInfoDsl
     fun measured(loop: Int, call: (Int) -> Unit) {
         val list = LongArray(loop)
         loop forEach {
@@ -139,14 +140,17 @@ abstract class AbstractKotlinTestBase : Logging() {
         info { TimeAndDate.toElapsedString(list.average().toLong()) }
     }
 
+    @LoggingInfoDsl
     fun annotations(data: Any) {
         annotations(data.javaClass)
     }
 
+    @LoggingInfoDsl
     fun annotations(type: KClass<*>) {
         annotations(type.java)
     }
 
+    @LoggingInfoDsl
     fun annotations(type: Class<*>) {
         if (isLoggingInfoEnabled) {
             info { type.name }
@@ -167,18 +171,25 @@ abstract class AbstractKotlinTestBase : Logging() {
     }
 
     @AssumptionDsl
-    protected open fun fail(@AssumptionDsl func: () -> Any?): Nothing {
+    protected open fun fail(func: () -> Any?): Nothing {
         fail(Formatters.toSafeString(func))
     }
 
     @AssumptionDsl
-    protected open fun assertTrueOf(condition: Boolean, @AssumptionDsl func: () -> Any?) {
+    protected open fun assertTrueOf(condition: Boolean, func: () -> Any?) {
         if (!condition) {
             fail(func)
         }
     }
 
-    private fun getThrowableOf(@AssumptionDsl func: () -> Unit): Throwable? {
+    @AssumptionDsl
+    protected open fun assertNotTrueOf(condition: Boolean, func: () -> Any?) {
+        if (condition) {
+            fail(func)
+        }
+    }
+
+    private fun getThrowableOf(func: () -> Unit): Throwable? {
         return try {
             func.invoke()
             null
@@ -194,21 +205,21 @@ abstract class AbstractKotlinTestBase : Logging() {
     }
 
     @AssumptionDsl
-    fun assumeEach(@AssumptionDsl block: AssumeCollector.() -> Unit) {
+    fun assumeEach(block: AssumeCollector.() -> Unit) {
         AssumeCollector(block).also { it.invoke() }
     }
 
     @AssumptionDsl
-    inner class AssumeCollector(@AssumptionDsl block: AssumeCollector.() -> Unit) {
+    inner class AssumeCollector(block: AssumeCollector.() -> Unit) {
 
-        private val list = arrayListOf<() -> Unit>()
+        private val list = ArrayList<() -> Unit>()
 
         init {
             block(this)
         }
 
         @AssumptionDsl
-        fun assumeThat(@AssumptionDsl block: () -> Unit) {
+        fun assumeThat(block: () -> Unit) {
             list += block
         }
 
@@ -237,7 +248,27 @@ abstract class AbstractKotlinTestBase : Logging() {
     }
 
     @AssumptionDsl
-    protected inline fun <reified T : Throwable> assumeThrows(@AssumptionDsl block: () -> Unit) {
+    protected infix fun <T : Any> T.shouldBeIdentity(value: T) = assertTrueOf(value === this) {
+        "shouldBeIdentity failed"
+    }
+
+    @AssumptionDsl
+    protected infix fun <T : Any> T.shouldNotBeIdentity(value: T) = assertNotTrueOf(value === this) {
+        "shouldNotBeIdentity failed"
+    }
+
+    @AssumptionDsl
+    protected fun <T : Any?> T.shouldBeNull() = assertTrueOf(this == null) {
+        "shouldBeNull failed"
+    }
+
+    @AssumptionDsl
+    protected fun <T : Any?> T.shouldNotBeNull() = assertTrueOf(this != null) {
+        "shouldNotBeNull failed"
+    }
+
+    @AssumptionDsl
+    protected inline fun <reified T : Throwable> assumeThrows(block: () -> Unit) {
         try {
             block.invoke()
         }
@@ -247,18 +278,16 @@ abstract class AbstractKotlinTestBase : Logging() {
             }
             return
         }
-        assertTrueOf(false) {
-            "assumeThrows failed for ${T::class.java.name}"
-        }
+        fail("assumeThrows failed for ${T::class.java.name}")
     }
 
     @AssumptionDsl
-    protected inline fun <reified T : Throwable> assumeNotThrows(@AssumptionDsl block: () -> Unit) {
-        try {
+    protected inline fun <reified T : Throwable> assumeNotThrows(block: () -> Unit) {
+         try {
             block.invoke()
         }
         catch (cause: Throwable) {
-            assertTrueOf(cause !is T) {
+            assertNotTrueOf(cause is T) {
                 "assumeNotThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
             }
         }

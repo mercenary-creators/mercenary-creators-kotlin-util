@@ -28,7 +28,8 @@ abstract class AbstractSecurityTest @JvmOverloads constructor(private val text: 
 
     protected open fun getGeneratedSalt(): CharSequence = Passwords.salt()
 
-    protected open fun isGood(pass: CharSequence): Boolean = Passwords.good(pass)
+    @AssumptionDsl
+    protected open fun isValid(pass: CharSequence): Boolean = Passwords.good(pass)
 
     @JvmOverloads
     protected fun getTextCipher(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) = CipherEncryptingText(pass, salt, algorithm)

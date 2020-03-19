@@ -16,4 +16,4 @@
 
 package co.mercenary.creators.kotlin.util.test
 
-abstract class AbstractKotlinTest : AbstractKotlinTestBase()
+abstract class AbstractKotlinTest : KotlinTestBase()

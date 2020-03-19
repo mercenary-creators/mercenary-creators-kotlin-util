@@ -46,6 +46,7 @@ val CONTENT_RESOURCE_LOADER: ContentResourceLoader
 val CACHED_CONTENT_RESOURCE_LOADER: CachedContentResourceLoader
     get() = BaseCachedContentResourceLoader.INSTANCE
 
+@AssumptionDsl
 fun String.isDefaultContentType(): Boolean = toLowerTrim() == DEFAULT_CONTENT_TYPE
 
 @JvmOverloads
@@ -72,6 +73,7 @@ fun getPathNormalizedNoTail(path: String?, tail: Boolean): String {
     return norm
 }
 
+@AssumptionDsl
 fun URL.isFileURL(): Boolean = protocol.toLowerTrim() == IO.TYPE_IS_FILE
 
 @JvmOverloads
@@ -80,24 +82,34 @@ fun URL.toFileOrNull(skip: Boolean = false): File? = IO.toFileOrNull(this, skip)
 @JvmOverloads
 fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): File = createTempFile(prefix, suffix, folder).apply { deleteOnExit() }
 
+@AssumptionDsl
 infix fun File.isSameFile(other: File): Boolean = isSameFile(other.toPath())
 
+@AssumptionDsl
 infix fun File.isSameFile(other: Path): Boolean = toPath().isSameFile(other)
 
+@AssumptionDsl
 infix fun Path.isSameFile(other: File): Boolean = isSameFile(other.toPath())
 
+@AssumptionDsl
 infix fun Path.isSameFile(other: Path): Boolean = Files.isSameFile(this, other)
 
+@AssumptionDsl
 infix fun File.isSameFileAndData(other: File): Boolean = isSameFileAndData(other.toPath())
 
+@AssumptionDsl
 infix fun File.isSameFileAndData(other: Path): Boolean = toPath().isSameFileAndData(other)
 
+@AssumptionDsl
 infix fun Path.isSameFileAndData(other: File): Boolean = isSameFileAndData(other.toPath())
 
+@AssumptionDsl
 infix fun Path.isSameFileAndData(other: Path): Boolean = Files.isSameFile(this, other) || toFile().compareTo(other.toFile()) == 0
 
+@AssumptionDsl
 fun File.isValidToRead(): Boolean = exists() && isFile && canRead() && isDirectory.not()
 
+@AssumptionDsl
 fun Path.isValidToRead(): Boolean = toFile().isValidToRead()
 
 fun URL.toInputStream(): InputStream = when (val data = IO.getInputStream(this)) {
@@ -127,8 +139,10 @@ fun URL.toOutputStream(): OutputStream = when (val data = IO.getOutputStream(thi
     else -> data
 }
 
+@AssumptionDsl
 fun File.isValidToWrite(): Boolean = canWrite() && isDirectory.not()
 
+@AssumptionDsl
 fun Path.isValidToWrite(): Boolean = toFile().isValidToWrite()
 
 fun File.toOutputStream(vararg args: OpenOption): OutputStream = toPath().toOutputStream(*args)
