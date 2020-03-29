@@ -18,6 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
+@IgnoreForSerialize
 class ClassPathContentResource @JvmOverloads constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, private val claz: Class<*>?, private val load: ClassLoader?) : AbstractContentResource(path, type) {
 
     @JvmOverloads
@@ -33,6 +34,8 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
 
     private val resource = IO.getResouce(getContentPath(), claz, load)
 
+    @AssumptionDsl
+    @IgnoreForSerialize
     override fun isContentThere(): Boolean {
         if (resource != null) {
             return IO.isContentThere(resource)
@@ -40,8 +43,10 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
         return false
     }
 
+    @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup = { ClassPathContentResource(IO.getPathRelative(getContentPath(), it), DEFAULT_CONTENT_TYPE, claz, load) }
 
+    @IgnoreForSerialize
     override fun getContentTime(): Long {
         val time = super.getContentTime()
         if (time == 0L) {
@@ -53,6 +58,7 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
         return time
     }
 
+    @IgnoreForSerialize
     override fun getContentSize(): Long {
         if (resource != null) {
             return IO.getContentSize(resource) {
@@ -62,10 +68,13 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
         throw MercenaryExceptiion(getDescription())
     }
 
+    @IgnoreForSerialize
     override fun getContentType() = resolved
 
+    @IgnoreForSerialize
     override fun getContentKind() = IO.PREFIX_CLASS
 
+    @IgnoreForSerialize
     override fun getInputStream() = when (val data = IO.getInputStream(resource)) {
         null -> throw MercenaryExceptiion(getDescription())
         else -> data
@@ -73,6 +82,7 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
 
     override fun toString() = getDescription()
 
+    @AssumptionDsl
     override fun equals(other: Any?) = when (other) {
         is ClassPathContentResource -> this === other || getContentPath() isSameAs other.getContentPath() && claz isSameAs other.claz && load isSameAs other.load
         else -> false

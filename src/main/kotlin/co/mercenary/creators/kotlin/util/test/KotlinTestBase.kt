@@ -20,11 +20,10 @@ import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.logging.LoggingInfoDsl
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.reflect.KClass
 
 @IgnoreForSerialize
-open class KotlinTestBase : Logging() {
+open class KotlinTestBase : Logging(), IKotlinTestBase {
 
     private val nope = arrayListOf<Class<*>>()
 
@@ -39,40 +38,40 @@ open class KotlinTestBase : Logging() {
     }
 
     @IgnoreForSerialize
-    protected val author = CREATORS_AUTHOR_INFO
+    override val author = CREATORS_AUTHOR_INFO
 
     @IgnoreForSerialize
-    protected val loader = CONTENT_RESOURCE_LOADER
+    override val loader = CONTENT_RESOURCE_LOADER
 
     @IgnoreForSerialize
-    protected val cached = CACHED_CONTENT_RESOURCE_LOADER
+    override val cached = CACHED_CONTENT_RESOURCE_LOADER
 
-    @JvmOverloads
-    protected open fun getTempFileNamed(name: String = uuid(), suff: String = ".tmp"): File {
+    @IgnoreForSerialize
+    override val prober = getDefaultContentTypeProbe()
+
+    override fun getTempFileNamed(name: String, suff: String): File {
         return getTempFile(name, suff)
     }
 
-    protected open fun getTempFileNamedPath(name: String, suff: String): String {
+    override fun getTempFileNamedPath(name: String, suff: String): String {
         return getTempFileNamed(name, suff).path
     }
 
     @IgnoreForSerialize
-    protected open val printer: (Int, String) -> Unit = { i, s -> info { "%2d : %s".format(i + 1, s) } }
+    override val printer: (Int, String) -> Unit = { i, s -> info { "%2d : %s".format(i + 1, s) } }
 
     @IgnoreForSerialize
-    protected open fun getConfigPropertiesBuilder(): () -> Properties = { Properties() }
-
-    @JvmOverloads
-    @AssumptionDsl
-    fun dash(loop: Int = 64): String = "-".repeat(loop.abs())
+    override fun getConfigPropertiesBuilder(): () -> Properties = { Properties() }
 
     @AssumptionDsl
-    fun uuid(): String = Randoms.uuid()
+    override fun dash(loop: Int): String = "-".repeat(loop.abs())
 
-    @JvmOverloads
-    fun getConfigProperty(name: String, other: String = EMPTY_STRING): String = conf.getProperty(name, other)
+    @AssumptionDsl
+    override fun uuid(): String = Randoms.uuid()
 
-    fun setConfigProperty(vararg args: Pair<String, Any?>) {
+    override fun getConfigProperty(name: String, other: String): String = conf.getProperty(name, other)
+
+    override fun setConfigProperty(vararg args: Pair<String, Any?>) {
         if (args.isNotEmpty()) {
             val temp = conf
             for ((k, v) in args) {
@@ -85,17 +84,17 @@ open class KotlinTestBase : Logging() {
     }
 
     @AssumptionDsl
-    fun <T : Throwable> addThrowableAsFatal(type: Class<T>) {
+    final override fun <T : Throwable> addThrowableAsFatal(type: Class<T>) {
         nope += type
     }
 
     @AssumptionDsl
-    fun <T : Throwable> addThrowableAsFatal(type: KClass<T>) {
+    final override fun <T : Throwable> addThrowableAsFatal(type: KClass<T>) {
         nope += type.java
     }
 
     @AssumptionDsl
-    fun here(): Map<String, Any?> {
+    override fun here(): Map<String, Any?> {
         val type = javaClass
         val name = type.name
         val most = 0.toAtomic().decrement()
@@ -130,7 +129,7 @@ open class KotlinTestBase : Logging() {
     }
 
     @LoggingInfoDsl
-    fun measured(loop: Int, call: (Int) -> Unit) {
+    override fun measured(loop: Int, call: (Int) -> Unit) {
         val list = LongArray(loop)
         loop forEach {
             val time = TimeAndDate.nanos()
@@ -141,17 +140,17 @@ open class KotlinTestBase : Logging() {
     }
 
     @LoggingInfoDsl
-    fun annotations(data: Any) {
+    override fun annotations(data: Any) {
         annotations(data.javaClass)
     }
 
     @LoggingInfoDsl
-    fun annotations(type: KClass<*>) {
+    override fun annotations(type: KClass<*>) {
         annotations(type.java)
     }
 
     @LoggingInfoDsl
-    fun annotations(type: Class<*>) {
+    override fun annotations(type: Class<*>) {
         if (isLoggingInfoEnabled) {
             info { type.name }
             type.annotations.forEach { anno ->
@@ -163,33 +162,34 @@ open class KotlinTestBase : Logging() {
         }
     }
 
-    fun String.toLink() = toURL()
+    private fun String.toLink() = toURL()
 
     @AssumptionDsl
-    protected open fun fail(text: String): Nothing {
+    override fun fail(text: String): Nothing {
         throw MercenaryAssertExceptiion(text)
     }
 
     @AssumptionDsl
-    protected open fun fail(func: () -> Any?): Nothing {
+    override fun fail(func: () -> Any?): Nothing {
         fail(Formatters.toSafeString(func))
     }
 
     @AssumptionDsl
-    protected open fun assertTrueOf(condition: Boolean, func: () -> Any?) {
+    override fun assertTrueOf(condition: Boolean, func: () -> Any?) {
         if (!condition) {
             fail(func)
         }
     }
 
     @AssumptionDsl
-    protected open fun assertNotTrueOf(condition: Boolean, func: () -> Any?) {
+    override fun assertNotTrueOf(condition: Boolean, func: () -> Any?) {
         if (condition) {
             fail(func)
         }
     }
 
-    private fun getThrowableOf(func: () -> Unit): Throwable? {
+    @AssumptionDsl
+    override fun getThrowableOf(func: () -> Unit): Throwable? {
         return try {
             func.invoke()
             null
@@ -205,7 +205,7 @@ open class KotlinTestBase : Logging() {
     }
 
     @AssumptionDsl
-    fun assumeEach(block: AssumeCollector.() -> Unit) {
+    override fun assumeEach(block: AssumeCollector.() -> Unit) {
         AssumeCollector(block).also { it.invoke() }
     }
 
@@ -238,37 +238,37 @@ open class KotlinTestBase : Logging() {
     }
 
     @AssumptionDsl
-    protected infix fun <T : Any?> T.shouldBe(value: T) = assertTrueOf(value isSameAs this) {
+    override infix fun <T : Any?> T.shouldBe(value: T) = assertTrueOf(value isSameAs this) {
         "shouldBe failed"
     }
 
     @AssumptionDsl
-    protected infix fun <T : Any?> T.shouldNotBe(value: T) = assertTrueOf(value isNotSameAs this) {
+    override infix fun <T : Any?> T.shouldNotBe(value: T) = assertTrueOf(value isNotSameAs this) {
         "shouldNotBe failed"
     }
 
     @AssumptionDsl
-    protected infix fun <T : Any> T.shouldBeIdentity(value: T) = assertTrueOf(value === this) {
+    override infix fun <T : Any> T.shouldBeIdentity(value: T) = assertTrueOf(value === this) {
         "shouldBeIdentity failed"
     }
 
     @AssumptionDsl
-    protected infix fun <T : Any> T.shouldNotBeIdentity(value: T) = assertNotTrueOf(value === this) {
+    override infix fun <T : Any> T.shouldNotBeIdentity(value: T) = assertNotTrueOf(value === this) {
         "shouldNotBeIdentity failed"
     }
 
     @AssumptionDsl
-    protected fun <T : Any?> T.shouldBeNull() = assertTrueOf(this == null) {
+    override fun <T : Any?> T.shouldBeNull() = assertTrueOf(this == null) {
         "shouldBeNull failed"
     }
 
     @AssumptionDsl
-    protected fun <T : Any?> T.shouldNotBeNull() = assertTrueOf(this != null) {
+    override fun <T : Any?> T.shouldNotBeNull() = assertTrueOf(this != null) {
         "shouldNotBeNull failed"
     }
 
     @AssumptionDsl
-    protected inline fun <reified T : Throwable> assumeThrows(block: () -> Unit) {
+    inline fun <reified T : Throwable> assumeThrows(block: () -> Unit) {
         try {
             block.invoke()
         }
@@ -282,8 +282,8 @@ open class KotlinTestBase : Logging() {
     }
 
     @AssumptionDsl
-    protected inline fun <reified T : Throwable> assumeNotThrows(block: () -> Unit) {
-         try {
+    inline fun <reified T : Throwable> assumeNotThrows(block: () -> Unit) {
+        try {
             block.invoke()
         }
         catch (cause: Throwable) {

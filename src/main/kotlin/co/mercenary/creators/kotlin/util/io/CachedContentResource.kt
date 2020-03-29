@@ -16,8 +16,4 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-interface CachedContentResource : ContentResource {
-    override fun isContentThere() = true
-    override fun isContentCache() = true
-    override fun toContentCache() = this
-}
+interface CachedContentResource : ContentResource

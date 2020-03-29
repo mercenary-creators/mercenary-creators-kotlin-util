@@ -19,16 +19,21 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.io.*
 import java.net.*
+import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
-import javax.activation.FileTypeMap
 
-class MimeContentTypeProbe @JvmOverloads constructor(private val maps: FileTypeMap = ContentTypeProbe.getDefaultFileTypeMap()) : ContentTypeProbe {
+@IgnoreForSerialize
+class MimeContentTypeProbe @JvmOverloads constructor(private val maps: ContentFileTypeMap = ContentTypeProbe.getDefaultFileTypeMap()) : ContentTypeProbe {
 
     override fun getContentType(data: ByteArray, type: String): String {
         return IO.getContentType(data, type)
     }
 
     override fun getContentType(data: InputStream, type: String): String {
+        return IO.getContentType(data, type)
+    }
+
+    override fun getContentType(data: ReadableByteChannel, type: String): String {
         return IO.getContentType(data, type)
     }
 
@@ -56,5 +61,6 @@ class MimeContentTypeProbe @JvmOverloads constructor(private val maps: FileTypeM
         return type.toLowerTrim()
     }
 
-    override fun getFileTypeMap(): FileTypeMap = maps
+    @IgnoreForSerialize
+    override fun getFileTypeMap(): ContentFileTypeMap = maps
 }

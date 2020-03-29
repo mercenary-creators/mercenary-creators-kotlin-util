@@ -16,11 +16,12 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import co.mercenary.creators.kotlin.util.AtomicHashMap
+import co.mercenary.creators.kotlin.util.*
 
-open class BaseCachedContentResourceLoader @JvmOverloads constructor(loader: ClassLoader? = null, parent: ContentResourceLoader? = null) : BaseContentResourceLoader(loader, parent), CachedContentResourceLoader {
+@IgnoreForSerialize
+open class BaseCachedContentResourceLoader @JvmOverloads constructor(name: String = EMPTY_STRING, loader: ClassLoader? = null) : BaseContentResourceLoader(name, loader), CachedContentResourceLoader {
 
-    private val maps = AtomicHashMap<String, CachedContentResource>()
+    private val maps = AtomicDictionary<CachedContentResource>()
 
     override operator fun get(path: String): CachedContentResource {
         return maps.computeIfAbsent(path) {
@@ -28,12 +29,31 @@ open class BaseCachedContentResourceLoader @JvmOverloads constructor(loader: Cla
         }
     }
 
+    @AssumptionDsl
+    @IgnoreForSerialize
+    override fun isContentCache() = true
+
     override val keys: MutableSet<String>
+        @IgnoreForSerialize
         get() = maps.keys
 
+    override fun toString() = toMapNames().toString()
+
+    override fun hashCode() = toMapNames().hashCode()
+
+    @AssumptionDsl
+    override fun equals(other: Any?) = when (other) {
+        is BaseCachedContentResourceLoader -> this === other || toMapNames() isSameAs other.toMapNames()
+        else -> false
+    }
+
     companion object {
-        val INSTANCE: CachedContentResourceLoader by lazy {
+
+        private val LAZY: CachedContentResourceLoader by lazy {
             BaseCachedContentResourceLoader()
         }
+
+        @JvmField
+        val INSTANCE = LAZY
     }
 }

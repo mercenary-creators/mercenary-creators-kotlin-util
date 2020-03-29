@@ -16,6 +16,9 @@
 
 package co.mercenary.creators.kotlin.util.type
 
+import co.mercenary.creators.kotlin.util.AssumptionDsl
+
 interface Validated {
+    @AssumptionDsl
     fun isValid(): Boolean
 }

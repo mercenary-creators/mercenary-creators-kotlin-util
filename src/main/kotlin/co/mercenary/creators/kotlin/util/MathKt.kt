@@ -18,6 +18,7 @@
 
 package co.mercenary.creators.kotlin.util
 
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.*
 
 typealias Numeric = co.mercenary.creators.kotlin.util.math.Numeric
@@ -231,11 +232,14 @@ fun Sequence<Double>.rounded(scale: Int = 3): Sequence<Double> {
 @JvmOverloads
 fun Double.root(root: Int = 2): Double = Numeric.root(this, root)
 
-fun Double.toFinite(): Double = if (isFinite()) this else throw MercenaryFatalExceptiion("invalid value $this")
+@AssumptionDsl
+fun Double.toFinite(): Double = if (isValid()) this else throw MercenaryFatalExceptiion("invalid value $this")
 
-fun Double.toFiniteOrElse(value: Double): Double = if (isFinite()) this else value
+@AssumptionDsl
+fun Double.toFiniteOrElse(value: Double): Double = if (isValid()) this else value
 
-fun Double.toFiniteOrElse(block: () -> Double): Double = if (isFinite()) this else block()
+@AssumptionDsl
+fun Double.toFiniteOrElse(block: () -> Double): Double = if (isValid()) this else block()
 
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 
@@ -255,6 +259,12 @@ fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): Array<DoubleA
 inline infix fun Int.forEach(action: (Int) -> Unit) {
     repeat(this, action)
 }
+
+@AssumptionDsl
+fun Int.isPrimeValue(): Boolean = Numeric.isPrimeValue(this)
+
+@AssumptionDsl
+fun AtomicInteger.isPrimeValue(): Boolean = Numeric.isPrimeValue(this)
 
 @JvmOverloads
 fun Int.toHexString(pads: Int = 0): String = toString(16).padStart(pads.abs().maxOf(0), '0')

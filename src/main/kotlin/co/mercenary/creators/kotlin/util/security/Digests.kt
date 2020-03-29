@@ -16,9 +16,13 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import java.nio.ByteBuffer
 import java.security.MessageDigest
 
 object Digests {
+
+    @JvmStatic
+    fun sha256() = getMessageDigest("SHA-256")
 
     @JvmStatic
     fun sha512() = getMessageDigest("SHA-512")
@@ -40,6 +44,32 @@ object Digests {
             if (finish) {
                 digest.reset()
             }
+        }
+
+        fun update(buffer: ByteArray): MessageDigestProxy {
+            digest.update(buffer)
+            return this
+        }
+
+        fun update(buffer: ByteBuffer): MessageDigestProxy {
+            digest.update(buffer)
+            return this
+        }
+
+        fun update(list: List<ByteBuffer>): MessageDigestProxy {
+            list.forEach { buffer ->
+                digest.update(buffer)
+            }
+            return this
+        }
+
+        fun finish(): MessageDigestProxy {
+            digest.reset()
+            return this
+        }
+
+        fun digest(): ByteArray {
+            return digest.digest()
         }
     }
 }

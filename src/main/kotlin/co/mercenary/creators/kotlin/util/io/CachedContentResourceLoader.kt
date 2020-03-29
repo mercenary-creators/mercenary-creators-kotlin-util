@@ -19,6 +19,4 @@ package co.mercenary.creators.kotlin.util.io
 interface CachedContentResourceLoader : ContentResourceLoader {
 
     val keys: MutableSet<String>
-
-    override fun isContentCache() = true
 }

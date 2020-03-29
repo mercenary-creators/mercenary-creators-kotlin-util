@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test
 class ProbeTest : KotlinDataTest() {
     @Test
     fun test() {
-        val look = getDefaultContentTypeProbe()
-        val type = look.getContentType("test.zip")
+        val type = prober.getContentType("test.zip")
         info { type }
         type shouldBe "application/zip"
     }

@@ -18,7 +18,8 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-open class BaseContentResourceLoader @JvmOverloads constructor(private val loader: ClassLoader? = null, private val parent: ContentResourceLoader? = null) : ContentResourceLoader {
+@IgnoreForSerialize
+open class BaseContentResourceLoader @JvmOverloads constructor(private val name: String = EMPTY_STRING, private val loader: ClassLoader? = null) : ContentResourceLoader {
 
     private val list = ArrayList<ContentProtocolResolver>()
 
@@ -55,9 +56,15 @@ open class BaseContentResourceLoader @JvmOverloads constructor(private val loade
         return getContentResourceByPath(path)
     }
 
-    override fun getClassLoader() = loader
+    @IgnoreForSerialize
+    override fun getLoadersName() = toTrimOrElse(name, javaClass.name)
 
-    override fun getParentMaybe() = parent
+    @AssumptionDsl
+    @IgnoreForSerialize
+    override fun isContentCache() = false
+
+    @IgnoreForSerialize
+    override fun getClassLoader() = loader
 
     protected open fun getContentResourceByPath(path: String): ContentResource {
         if (path.startsWith(IO.SINGLE_SLASH)) {
@@ -90,6 +97,7 @@ open class BaseContentResourceLoader @JvmOverloads constructor(private val loade
         }
     }
 
+    @AssumptionDsl
     override operator fun contains(args: ContentProtocolResolver): Boolean {
         if (list.contains(args)) {
             return true
@@ -102,9 +110,25 @@ open class BaseContentResourceLoader @JvmOverloads constructor(private val loade
         return false
     }
 
+    override fun toMapNames() = mapOf("name" to getLoadersName(), "cached" to isContentCache())
+
+    override fun toString() = toMapNames().toString()
+
+    override fun hashCode() = toMapNames().hashCode()
+
+    @AssumptionDsl
+    override fun equals(other: Any?) = when (other) {
+        is BaseContentResourceLoader -> this === other || toMapNames() isSameAs other.toMapNames()
+        else -> false
+    }
+
     companion object {
-        val INSTANCE: ContentResourceLoader by lazy {
+
+        private val LAZY: ContentResourceLoader by lazy {
             BaseContentResourceLoader()
         }
+
+        @JvmField
+        val INSTANCE = LAZY
     }
 }

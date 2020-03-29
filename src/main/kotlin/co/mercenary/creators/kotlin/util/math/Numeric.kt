@@ -107,7 +107,7 @@ object Numeric {
     @JvmOverloads
     @AssumptionDsl
     fun closeEnough(value: Double, other: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
-        val delta = if (precision.isFinite()) precision.abs() else DEFAULT_PRECISION_DELTA
+        val delta = if (precision.isValid()) precision.abs() else DEFAULT_PRECISION_DELTA
         return if (value.toBits() != other.toBits()) (abs(value - other) <= delta) else true
     }
 
@@ -115,7 +115,7 @@ object Numeric {
     @JvmOverloads
     @AssumptionDsl
     fun closeEnough(v1: Double, v2: Double, o1: Double, o2: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
-        val delta = if (precision.isFinite()) precision.abs() else DEFAULT_PRECISION_DELTA
+        val delta = if (precision.isValid()) precision.abs() else DEFAULT_PRECISION_DELTA
         if (v1.toBits() != v2.toBits()) {
             if (abs(v1 - v2) > delta) {
                 return false
@@ -136,7 +136,7 @@ object Numeric {
         if (value.size != other.size) {
             return false
         }
-        val delta = if (precision.isFinite()) precision.abs() else DEFAULT_PRECISION_DELTA
+        val delta = if (precision.isValid()) precision.abs() else DEFAULT_PRECISION_DELTA
         for (i in value.indices) {
             val v = value[i]
             val o = other[i]
@@ -156,7 +156,7 @@ object Numeric {
         if (value.size != other.size) {
             return false
         }
-        val delta = if (precision.isFinite()) precision.abs() else DEFAULT_PRECISION_DELTA
+        val delta = if (precision.isValid()) precision.abs() else DEFAULT_PRECISION_DELTA
         for (i in value.indices) {
             val v = value[i]
             val o = other[i]

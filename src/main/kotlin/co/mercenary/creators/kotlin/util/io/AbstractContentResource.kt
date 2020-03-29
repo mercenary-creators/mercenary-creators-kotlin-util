@@ -18,6 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
+@IgnoreForSerialize
 abstract class AbstractContentResource @JvmOverloads constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = 0L) : AbstractContentResourceBase(path, type, time) {
 
     private val cache: CachedContentResource by lazy {
@@ -37,8 +38,16 @@ abstract class AbstractContentResource @JvmOverloads constructor(path: String, t
         return keep.toLowerTrim()
     }
 
-    override fun isContentCache() = false
+    @IgnoreForSerialize
     override fun toContentCache() = cache
+
+    @AssumptionDsl
+    @IgnoreForSerialize
+    override fun isContentCache() = false
+
+    @IgnoreForSerialize
     override fun getContentData() = getInputStream().toByteArray()
+
+    @IgnoreForSerialize
     override fun getContentSize() = getInputStream().use { it.copyTo(EmptyOutputStream) }
 }

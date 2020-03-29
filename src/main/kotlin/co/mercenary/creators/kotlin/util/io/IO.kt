@@ -20,6 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import org.apache.commons.io.FilenameUtils
 import java.io.*
 import java.net.*
+import java.nio.channels.ReadableByteChannel
 import java.nio.file.Paths
 
 object IO {
@@ -277,6 +278,7 @@ object IO {
     }
 
     @JvmStatic
+    @AssumptionDsl
     fun isContentThere(data: URL): Boolean {
         try {
             if (data.isFileURL()) {
@@ -288,12 +290,7 @@ object IO {
                 if (conn != null) {
                     val code = conn.responseCode
                     conn.disconnect()
-                    if (code == HttpURLConnection.HTTP_OK) {
-                        return true
-                    }
-                    if (code == HttpURLConnection.HTTP_NOT_FOUND) {
-                        return false
-                    }
+                    return (code in HttpURLConnection.HTTP_OK..HttpURLConnection.HTTP_ACCEPTED)
                 }
                 data.openStream().close()
                 return true
@@ -401,6 +398,14 @@ object IO {
 
     @JvmStatic
     fun getContentType(data: ByteArray, type: String): String {
+        if (type.isDefaultContentType()) {
+            return getContentType(data.toInputStream(), type)
+        }
+        return type.toLowerTrim()
+    }
+
+    @JvmStatic
+    fun getContentType(data: ReadableByteChannel, type: String): String {
         if (type.isDefaultContentType()) {
             return getContentType(data.toInputStream(), type)
         }

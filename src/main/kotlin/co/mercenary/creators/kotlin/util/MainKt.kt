@@ -19,6 +19,7 @@
 package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.type.Validated
+import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.atomic.*
 
@@ -109,10 +110,14 @@ fun getProcessors(): Int = Runtime.getRuntime().availableProcessors()
 
 fun toTrimOrNull(data: String?): String? = data?.trim().takeUnless { it.isNullOrEmpty() }
 
-fun toTrimOrElse(data: String?, other: () -> String): String = toTrimOrNull(data) ?: other()
-
 @JvmOverloads
 fun toTrimOrElse(data: String?, other: String = EMPTY_STRING): String = toTrimOrNull(data) ?: other
+
+fun toTrimOrElse(data: String?, other: () -> String): String = toTrimOrNull(data) ?: other.invoke()
+
+fun String.toTrimOr(other: String): String = toTrimOrNull(this) ?: other
+
+fun String.toTrimOr(other: () -> String): String = toTrimOrNull(this) ?: other.invoke()
 
 fun CharSequence.toChecked(): String {
     return if (this.any { it == Char.MIN_VALUE })
@@ -122,6 +127,7 @@ fun CharSequence.toChecked(): String {
 
 fun CharSequence.toLowerTrim(): String = trim().toString().toLowerCase()
 
+@AssumptionDsl
 fun isValid(value: Any?): Boolean = when (value) {
     null -> false
     is Validated -> {
@@ -138,8 +144,9 @@ fun isValid(value: Any?): Boolean = when (value) {
     else -> true
 }
 
+@AssumptionDsl
 inline fun isValid(block: () -> Any?): Boolean = try {
-    isValid(block())
+    isValid(block.invoke())
 }
 catch (cause: Throwable) {
     Throwables.thrown(cause)
@@ -256,6 +263,8 @@ infix fun AtomicLong.minOf(value: AtomicInteger): AtomicLong {
     return this
 }
 
+fun AtomicLong.toBigInteger(): BigInteger = toLong().toBigInteger()
+
 fun Int.toAtomic(): AtomicInteger = AtomicInteger(this)
 
 operator fun AtomicInteger.div(value: Int): AtomicInteger {
@@ -317,29 +326,49 @@ infix fun AtomicInteger.minOf(value: AtomicInteger): AtomicInteger {
     return this
 }
 
+fun AtomicInteger.toBigInteger(): BigInteger = toInt().toBigInteger()
+
+@AssumptionDsl
 fun Boolean.toAtomic() = AtomicBoolean(this)
 
+@AssumptionDsl
 fun AtomicBoolean.toBoolean(): Boolean = get()
 
-operator fun AtomicBoolean.not(): Boolean = get().not()
+@AssumptionDsl
+fun AtomicBoolean.isTrue(): Boolean = toBoolean()
 
-infix fun Boolean.or(value: AtomicBoolean): Boolean = or(value.get())
+@AssumptionDsl
+fun AtomicBoolean.isNotTrue(): Boolean = isTrue().not()
 
-infix fun AtomicBoolean.or(value: Boolean): Boolean = get().or(value)
+@AssumptionDsl
+operator fun AtomicBoolean.not(): Boolean = toBoolean().not()
 
-infix fun AtomicBoolean.or(value: AtomicBoolean): Boolean = get().or(value.get())
+@AssumptionDsl
+infix fun Boolean.or(value: AtomicBoolean): Boolean = or(value.toBoolean())
 
-infix fun Boolean.and(value: AtomicBoolean): Boolean = and(value.get())
+@AssumptionDsl
+infix fun AtomicBoolean.or(value: Boolean): Boolean = toBoolean().or(value)
 
-infix fun AtomicBoolean.and(value: Boolean): Boolean = get().and(value)
+@AssumptionDsl
+infix fun AtomicBoolean.or(value: AtomicBoolean): Boolean = toBoolean().or(value.toBoolean())
 
-infix fun AtomicBoolean.and(value: AtomicBoolean): Boolean = get().and(value.get())
+@AssumptionDsl
+infix fun Boolean.and(value: AtomicBoolean): Boolean = and(value.toBoolean())
 
-infix fun Boolean.xor(value: AtomicBoolean): Boolean = xor(value.get())
+@AssumptionDsl
+infix fun AtomicBoolean.and(value: Boolean): Boolean = toBoolean().and(value)
 
-infix fun AtomicBoolean.xor(value: Boolean): Boolean = get().xor(value)
+@AssumptionDsl
+infix fun AtomicBoolean.and(value: AtomicBoolean): Boolean = toBoolean().and(value.toBoolean())
 
-infix fun AtomicBoolean.xor(value: AtomicBoolean): Boolean = get().xor(value.get())
+@AssumptionDsl
+infix fun Boolean.xor(value: AtomicBoolean): Boolean = xor(value.toBoolean())
+
+@AssumptionDsl
+infix fun AtomicBoolean.xor(value: Boolean): Boolean = toBoolean().xor(value)
+
+@AssumptionDsl
+infix fun AtomicBoolean.xor(value: AtomicBoolean): Boolean = toBoolean().xor(value.toBoolean())
 
 @AssumptionDsl
 infix fun <T : Any?> T.isSameAs(value: T) = SameAndHashCode.isSameAs(this, value)

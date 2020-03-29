@@ -52,16 +52,13 @@ class TimeDuration private constructor(private val time: Duration, private val u
     operator fun div(other: Float): TimeDuration = div(other.toDouble())
 
     operator fun div(other: Double): TimeDuration {
-        if (other.isFinite()) {
-            return when (other) {
-                1.0 -> TimeDuration(time, unit)
-                0.0 -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
-                else -> time.toBigDecimal().div(other.toBigDecimal()).toDuration().let {
-                    TimeDuration(it, less(it, unit))
-                }
+        return when (other.toFinite()) {
+            1.0 -> TimeDuration(time, unit)
+            0.0 -> throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+            else -> time.toBigDecimal().div(other.toBigDecimal()).toDuration().let {
+                TimeDuration(it, less(it, unit))
             }
         }
-        throw MercenaryFatalExceptiion("invalid value $other")
     }
 
     operator fun times(other: Int): TimeDuration = times(other.toDouble())
@@ -73,16 +70,13 @@ class TimeDuration private constructor(private val time: Duration, private val u
     operator fun times(other: Float): TimeDuration = times(other.toDouble())
 
     operator fun times(other: Double): TimeDuration {
-        if (other.isFinite()) {
-            return when (other) {
-                1.0 -> TimeDuration(time, unit)
-                0.0 -> TimeDuration(ZERO, unit)
-                else -> time.toBigDecimal().times(other.toBigDecimal()).toDuration().let {
-                    TimeDuration(it, less(it, unit))
-                }
+        return when (other.toFinite()) {
+            1.0 -> TimeDuration(time, unit)
+            0.0 -> TimeDuration(ZERO, unit)
+            else -> time.toBigDecimal().times(other.toBigDecimal()).toDuration().let {
+                TimeDuration(it, less(it, unit))
             }
         }
-        throw MercenaryFatalExceptiion("invalid value $other")
     }
 
     operator fun unaryPlus() = TimeDuration(time.abs(), unit)
@@ -144,6 +138,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
             }
         }
 
+        @AssumptionDsl
         private fun isEmpty(time: Duration): Boolean {
             return time.isZero.or(time.isNegative)
         }
@@ -403,7 +398,7 @@ class TimeDuration private constructor(private val time: Duration, private val u
         }
 
         private fun secondsOf(time: Double, unit: TimeDurationUnit): TimeDuration {
-            val full = if (time.isFinite()) time.abs() else throw MercenaryFatalExceptiion("invalid time $time")
+            val full = if (time.isValid()) time.abs() else throw MercenaryFatalExceptiion("invalid time $time")
             val part = full.floor()
             if (part >= Long.MAX_VALUE) {
                 throw MercenaryFatalExceptiion("invalid part $part")

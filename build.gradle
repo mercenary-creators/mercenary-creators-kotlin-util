@@ -16,7 +16,7 @@
 
 buildscript {
     ext {
-        set('kotlinVersion', '1.3.70')
+        set('kotlinVersion', '1.3.71')
     }
     repositories {
         mavenCentral()
@@ -46,7 +46,7 @@ targetCompatibility = 1.8
 
 group = 'co.mercenary-creators'
 
-version = '9.6.5-SNAPSHOT'
+version = '9.6.6-SNAPSHOT'
 
 task doJavaDocs(type: Javadoc) {
     source = sourceSets.main.allJava

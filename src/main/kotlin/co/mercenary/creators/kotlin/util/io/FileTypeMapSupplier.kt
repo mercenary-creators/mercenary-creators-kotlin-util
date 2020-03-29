@@ -16,8 +16,6 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import javax.activation.FileTypeMap
-
 interface FileTypeMapSupplier {
-    fun getFileTypeMap(): FileTypeMap
+    fun getFileTypeMap(): ContentFileTypeMap
 }

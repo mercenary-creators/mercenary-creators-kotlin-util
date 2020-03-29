@@ -66,5 +66,9 @@ class LoaderTest : KotlinDataTest() {
         info { cached["test.pdf"].toRelativePath("../test.doc") }
         info { cached.keys }
         cached.keys.size shouldNotBe 0
+        warn { loader["http://jsonplaceholder.typicode.com/posts"].getContentType() }
+        info { ContentMimeType(loader["http://jsonplaceholder.typicode.com/posts"].getContentType()) }
+        info { ContentMimeType() }
+        warn { ContentMimeType(EMPTY_STRING) }
     }
 }

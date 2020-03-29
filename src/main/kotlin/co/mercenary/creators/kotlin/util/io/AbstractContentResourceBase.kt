@@ -33,8 +33,15 @@ abstract class AbstractContentResourceBase @JvmOverloads constructor(private val
         return mapOf("name" to javaClass.name, "path" to "$kind${getContentPath()}", "type" to getContentType(), "time" to getContentTime().toDate())
     }
 
+    @IgnoreForSerialize
     override fun getContentPath() = path
+
+    @IgnoreForSerialize
     override fun getContentTime() = time
+
+    @IgnoreForSerialize
     override fun getDescription() = desc
+
+    @IgnoreForSerialize
     override fun getContentType() = type.toLowerTrim()
 }

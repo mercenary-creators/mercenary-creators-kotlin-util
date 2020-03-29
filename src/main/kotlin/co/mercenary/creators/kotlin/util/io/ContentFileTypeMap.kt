@@ -17,45 +17,55 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.logging.ILogging
-import co.mercenary.creators.kotlin.util.logging.LoggingFactory
-import java.io.*
-import javax.activation.*
+import java.io.File
+import javax.activation.MimetypesFileTypeMap
 
-class ContentFileTypeMap : FileTypeMap() {
+@IgnoreForSerialize
+class ContentFileTypeMap : HasMapNames {
 
-    private val logs: ILogging by lazy {
-        LoggingFactory.logger(ContentFileTypeMap::class)
+    constructor() : this(DEFAULT_FILE, DEFAULT_PROP)
+
+    constructor(file: String, prop: String) {
+        val (name, maps) = read(prop(file, prop))
+        this.name = name
+        this.maps = maps
     }
 
-    private val maps = getInputStream()?.use { MimetypesFileTypeMap(it) } ?: MimetypesFileTypeMap()
+    private val name: String
 
-    private fun getInputStream(): InputStream? {
-        val name = getMimetypesFileName()
-        val data = IO.getInputStream(name)
-        if (data == null) {
-            logs.error {
-                "can't load mime file $name"
-            }
-            if (name != DEFAULT_FILE) {
-                val file = IO.getInputStream(DEFAULT_FILE)
-                if (file == null) {
-                    logs.error {
-                        "can't load mime file $DEFAULT_FILE"
-                    }
-                }
-                return file
-            }
-        }
-        return data
-    }
+    private val maps: MimetypesFileTypeMap
 
-    override fun getContentType(file: File): String = maps.getContentType(file).toLowerTrim()
+    fun getContentType(file: File): String = maps.getContentType(file).toLowerTrim()
 
-    override fun getContentType(name: String): String = maps.getContentType(name).toLowerTrim()
+    fun getContentType(name: String): String = maps.getContentType(name).toLowerTrim()
+
+    override fun toString() = toMapNames().toString()
+
+    override fun toMapNames() = mapOf("name" to name, "type" to javaClass.name)
 
     companion object {
-        private const val DEFAULT_FILE = "MIME-INF/co-mercenary-creators-kotlin-mime.types"
-        private fun getMimetypesFileName(): String = System.getProperty("co.mercenary.creators.kotlin.mime.file", DEFAULT_FILE)
+
+        const val DEFAULT_PROP = "co.mercenary.creators.kotlin.mime.file"
+
+        const val DEFAULT_FILE = "MIME-INF/co-mercenary-creators-kotlin-mime.types"
+
+        private fun String.orElse(text: String) = toTrimOrElse(this, text)
+
+        private fun prop(file: String, prop: String): String {
+            return System.getProperty(prop.orElse(DEFAULT_PROP), file.orElse(DEFAULT_FILE))
+        }
+
+        private fun read(file: String): Pair<String, MimetypesFileTypeMap> {
+            return when (val data = IO.getInputStream(file)) {
+                null -> when (file isNotSameAs DEFAULT_FILE) {
+                    true -> when (val open = IO.getInputStream(DEFAULT_FILE)) {
+                        null -> DUNNO_STRING to MimetypesFileTypeMap()
+                        else -> DEFAULT_FILE to open.use { MimetypesFileTypeMap(it) }
+                    }
+                    else -> DUNNO_STRING to MimetypesFileTypeMap()
+                }
+                else -> file to data.use { MimetypesFileTypeMap(it) }
+            }
+        }
     }
 }

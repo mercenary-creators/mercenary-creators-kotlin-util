@@ -18,20 +18,23 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
+@IgnoreForSerialize
 class ByteArrayContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp(), private val make: ContentResourceLookup? = null, private val kind: String = IO.PREFIX_BYTES) : AbstractCachedContentResource(data, path, type, time) {
 
+    @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup {
         return { make?.invoke(it)?.toContentCache() ?: this }
     }
 
+    @IgnoreForSerialize
     override fun getContentKind() = kind
 
     override fun toString() = getDescription()
 
     override fun equals(other: Any?) = when (other) {
-        is ByteArrayContentResource -> this === other || getContentPath() == other.getContentPath() && save contentEquals other.save
+        is ByteArrayContentResource -> this === other || getContentPath() == other.getContentPath() && isDataSameAs(other)
         else -> false
     }
 
-    override fun hashCode() = getContentPath().hashOf(save)
+    override fun hashCode() = toDataHashOf()
 }

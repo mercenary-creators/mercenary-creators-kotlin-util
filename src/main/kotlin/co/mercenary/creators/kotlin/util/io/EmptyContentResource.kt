@@ -35,25 +35,38 @@ object EmptyContentResource : CachedContentResource {
 
     override fun toString() = desc
 
+    @IgnoreForSerialize
     override fun getContentSize() = 0L
 
+    @IgnoreForSerialize
     override fun getContentTime() = 0L
 
+    @IgnoreForSerialize
     override fun getContentPath() = path
 
+    @IgnoreForSerialize
     override fun getDescription() = desc
 
+    @AssumptionDsl
+    @IgnoreForSerialize
     override fun isContentCache() = true
 
+    @AssumptionDsl
+    @IgnoreForSerialize
     override fun isContentThere() = false
 
+    @IgnoreForSerialize
     override fun getContentData() = ByteArray(0)
 
+    @IgnoreForSerialize
     override fun getInputStream() = EmptyInputStream
 
+    @IgnoreForSerialize
     override fun toContentCache() = EmptyContentResource
 
+    @IgnoreForSerialize
     override fun getContentType() = DEFAULT_CONTENT_TYPE
 
+    @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup = { _ -> EmptyContentResource }
 }

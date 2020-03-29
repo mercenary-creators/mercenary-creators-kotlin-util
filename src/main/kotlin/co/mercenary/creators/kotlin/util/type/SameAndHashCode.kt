@@ -73,13 +73,34 @@ object SameAndHashCode {
             is ShortArray -> if (other is ShortArray) value contentEquals other else false
             is DoubleArray -> if (other is DoubleArray) value contentEquals other else false
             is BooleanArray -> if (other is BooleanArray) value contentEquals other else false
-            is AtomicBoolean -> if (other is Boolean) value.get() == other else if (other is AtomicBoolean) value.get() == other.get() else false
-            is Boolean -> if (other is Boolean) value == other else if (other is AtomicBoolean) value == other.get() else if (other is Validated) value == other.isValid() else false
+            is AtomicBoolean -> if (other is Boolean) value.toBoolean() == other else if (other is AtomicBoolean) value.toBoolean() == other.toBoolean() else false
+            is Boolean -> if (other is Boolean) value == other else if (other is AtomicBoolean) value == other.toBoolean() else false
             is Number -> when (other) {
                 is Number -> when (value) {
-                    is BigDecimal -> if (other is BigDecimal) value == other else if (other is BigInteger) value == other.toBigDecimal() else value == other.toDouble().toBigDecimal()
-                    is BigInteger -> if (other is BigInteger) value == other else if (other is BigDecimal) value == other.toBigInteger() else value == other.toDouble().toBigDecimal().toBigInteger()
-                    else -> value.toDouble().toBits() == other.toDouble().toBits()
+                    is Int -> if (other is Int) value == other else if (other is AtomicInteger) value == other.toInt() else if (other is BigInteger) value.toBigInteger() == other else false
+                    is Byte -> if (other is Byte) value == other else false
+                    is Char -> if (other is Char) value == other else false
+                    is Short -> if (other is Short) value == other else false
+                    is Float -> if (other is Float) value.toBits() == other.toBits() else if (other is BigDecimal) value.toBigDecimal() == other else false
+                    is Double -> if (other is Double) value.toBits() == other.toBits() else if (other is BigDecimal) value.toBigDecimal() == other else false
+                    is Long -> if (other is Long) value == other else if (other is AtomicLong) value == other.toLong() else if (other is BigInteger) value.toBigInteger() == other else false
+                    is BigDecimal -> when(other) {
+                        is Float -> other.toBigDecimal() == value
+                        is Double -> other.toBigDecimal() == value
+                        is BigDecimal -> value == other
+                        else -> false
+                    }
+                    is BigInteger -> when(other) {
+                        is Int -> other.toBigInteger() == value
+                        is Long -> other.toBigInteger() == value
+                        is AtomicLong -> other.toBigInteger() == value
+                        is AtomicInteger -> other.toBigInteger() == value
+                        is BigInteger -> value == other
+                        else -> false
+                    }
+                    is AtomicLong -> if (other is Long) value.toLong() == other else if (other is AtomicLong) value == other else if (other is BigInteger) value.toBigInteger() == other else false
+                    is AtomicInteger -> if (other is Int) value.toInt() == other else if (other is AtomicInteger) value.toInt() == other.toInt() else if (other is BigInteger) value.toBigInteger() == other else false
+                    else -> false
                 }
                 else -> false
             }

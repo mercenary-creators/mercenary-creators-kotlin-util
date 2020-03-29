@@ -53,6 +53,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
         }
     }
 
+    @AssumptionDsl
     override fun isValidClass(data: Any): Boolean {
         return when (data) {
             is String -> true
@@ -113,6 +114,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
         }
     }
 
+    @AssumptionDsl
     private fun quoted(data: Any?): Boolean {
         return when (data) {
             null -> false

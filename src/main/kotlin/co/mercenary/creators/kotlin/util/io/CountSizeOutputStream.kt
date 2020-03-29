@@ -17,8 +17,9 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import java.io.*
+import java.io.OutputStream
 
+@IgnoreForSerialize
 class CountSizeOutputStream(private val proxy: OutputStream) : OutputStream() {
 
     private val count = 0L.toAtomic()
@@ -51,5 +52,6 @@ class CountSizeOutputStream(private val proxy: OutputStream) : OutputStream() {
     }
 
     val size: Long
+        @IgnoreForSerialize
         get() = count.toLong()
 }

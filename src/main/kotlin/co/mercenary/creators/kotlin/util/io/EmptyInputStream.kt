@@ -16,9 +16,11 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.*
 import java.io.InputStream
 
+@IgnoreForSerialize
 object EmptyInputStream : InputStream() {
 
-    override fun read() = -1
+    override fun read() = IS_NOT_FOUND
 }

@@ -20,6 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.File
 import java.nio.file.Path
 
+@IgnoreForSerialize
 class FileContentResource @JvmOverloads constructor(private val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type), OutputContentResource {
 
     @JvmOverloads
@@ -29,17 +30,34 @@ class FileContentResource @JvmOverloads constructor(private val data: File, type
 
     private val kind = IO.PREFIX_FILES
 
+    @IgnoreForSerialize
     override fun getContentKind() = kind
+
+    @IgnoreForSerialize
     override fun getContentType() = type
+
+    @IgnoreForSerialize
     override fun getContentSize() = data.length()
+
+    @IgnoreForSerialize
     override fun getContentTime() = data.lastModified()
+
+    @AssumptionDsl
+    @IgnoreForSerialize
     override fun isContentThere() = data.isValidToRead()
+
+    @IgnoreForSerialize
     override fun getInputStream() = data.toInputStream()
+
+    @IgnoreForSerialize
     override fun getOutputStream() = data.toOutputStream()
+
+    @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup = { data.toRelative(it).toContentResource() }
 
     override fun toString() = getDescription()
 
+    @AssumptionDsl
     override fun equals(other: Any?) = when (other) {
         is FileContentResource -> this === other || data isSameFileAndData other.data
         else -> false

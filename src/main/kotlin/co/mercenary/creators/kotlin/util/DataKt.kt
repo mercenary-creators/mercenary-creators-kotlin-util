@@ -21,6 +21,7 @@ package co.mercenary.creators.kotlin.util
 import co.mercenary.creators.kotlin.util.io.*
 import java.io.*
 import java.net.*
+import java.nio.ByteBuffer
 import java.nio.channels.*
 import java.nio.file.*
 
@@ -121,6 +122,9 @@ fun URI.toInputStream(): InputStream = when (val data = IO.getInputStream(this))
     null -> throw MercenaryExceptiion(toString())
     else -> data
 }
+
+@JvmOverloads
+fun ByteArray.toByteBuffer(copy: Boolean = false): ByteBuffer = if (copy) ByteBuffer.wrap(copyOf()) else ByteBuffer.wrap(this)
 
 fun ByteArray.toInputStream(): InputStream = ByteArrayInputStream(this)
 
