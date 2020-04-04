@@ -65,8 +65,6 @@ typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlg
 
 typealias AtomicHashMap<K, V> = java.util.concurrent.ConcurrentHashMap<K, V>
 
-typealias AtomicDictionary<V> = java.util.concurrent.ConcurrentHashMap<String, V>
-
 open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
     constructor() : this(null, null)
     constructor(text: String) : this(text, null)
@@ -99,9 +97,27 @@ interface HasMapNames {
     fun toMapNames(): Map<String, Any?>
 }
 
+fun java.security.MessageDigest.proxyOf() = Digests.proxyOf(this)
+
 @AssumptionDsl
 fun Class<*>.isKotlinClass(): Boolean {
     return declaredAnnotations.any { it.annotationClass.java.name == KOTLIN_METAS }
+}
+
+fun <K, V> atomicMapOf(): AtomicHashMap<K, V> {
+    return AtomicHashMap()
+}
+
+fun <K, V> atomicMapOf(vararg args: Pair<K, V>): AtomicHashMap<K, V> {
+    return if (args.isNotEmpty()) AtomicHashMap(args.toMap()) else AtomicHashMap()
+}
+
+fun <K, V> atomicMapOf(args: Map<K, V>): AtomicHashMap<K, V> {
+    return if (args.isNotEmpty()) AtomicHashMap(args.toMap()) else AtomicHashMap()
+}
+
+fun <K, V> Map<K, V>.toAtomic(): AtomicHashMap<K, V> {
+    return if (this is AtomicHashMap) this else AtomicHashMap(this)
 }
 
 fun getCurrentThreadName(): String = Thread.currentThread().name
@@ -113,11 +129,11 @@ fun toTrimOrNull(data: String?): String? = data?.trim().takeUnless { it.isNullOr
 @JvmOverloads
 fun toTrimOrElse(data: String?, other: String = EMPTY_STRING): String = toTrimOrNull(data) ?: other
 
-fun toTrimOrElse(data: String?, other: () -> String): String = toTrimOrNull(data) ?: other.invoke()
+inline fun toTrimOrElse(data: String?, other: () -> String): String = toTrimOrNull(data) ?: other.invoke()
 
 fun String.toTrimOr(other: String): String = toTrimOrNull(this) ?: other
 
-fun String.toTrimOr(other: () -> String): String = toTrimOrNull(this) ?: other.invoke()
+inline fun String.toTrimOr(other: () -> String): String = toTrimOrNull(this) ?: other.invoke()
 
 fun CharSequence.toChecked(): String {
     return if (this.any { it == Char.MIN_VALUE })
@@ -126,6 +142,8 @@ fun CharSequence.toChecked(): String {
 }
 
 fun CharSequence.toLowerTrim(): String = trim().toString().toLowerCase()
+
+fun CharSequence.toLowerTrimEnglish(): String = trim().toString().toLowerCase(Locale.ENGLISH)
 
 @AssumptionDsl
 fun isValid(value: Any?): Boolean = when (value) {
@@ -139,8 +157,8 @@ fun isValid(value: Any?): Boolean = when (value) {
             false
         }
     }
-    is Boolean -> value
-    is AtomicBoolean -> value.get()
+    is Boolean -> value.isTrue()
+    is AtomicBoolean -> value.isTrue()
     else -> true
 }
 
@@ -332,6 +350,15 @@ fun AtomicInteger.toBigInteger(): BigInteger = toInt().toBigInteger()
 fun Boolean.toAtomic() = AtomicBoolean(this)
 
 @AssumptionDsl
+fun Boolean.toBoolean(): Boolean = this
+
+@AssumptionDsl
+fun Boolean.isTrue(): Boolean = toBoolean()
+
+@AssumptionDsl
+fun Boolean.isNotTrue(): Boolean = toBoolean().not()
+
+@AssumptionDsl
 fun AtomicBoolean.toBoolean(): Boolean = get()
 
 @AssumptionDsl
@@ -411,12 +438,15 @@ fun Sequence<String>.uniqueTrimmedOf(): List<String> = asIterable().uniqueTrimme
 
 fun Iterable<String>.uniqueTrimmedOf(): List<String> = mapNotNull { toTrimOrNull(it) }.distinct()
 
-inline fun <T : Any> T?.orElse(block: () -> T): T = this ?: block()
+@AssumptionDsl
+inline fun <T : Any> T?.orElse(block: () -> T): T = this ?: block.invoke()
 
+@AssumptionDsl
 inline fun <T> withLoggingContext(args: Pair<String, Any>, block: () -> T): T {
     return mu.withLoggingContext(args.first to args.second.toString(), block)
 }
 
+@AssumptionDsl
 inline fun <T> withLoggingContext(args: Map<String, Any>, block: () -> T): T {
     val hash = LinkedHashMap<String, String>(args.size)
     for ((k, v) in args) {
@@ -425,6 +455,7 @@ inline fun <T> withLoggingContext(args: Map<String, Any>, block: () -> T): T {
     return mu.withLoggingContext(hash, block)
 }
 
+@AssumptionDsl
 inline fun <T> withLoggingContext(vararg args: Pair<String, Any>, block: () -> T): T {
     val hash = LinkedHashMap<String, String>(args.size)
     for ((k, v) in args) {

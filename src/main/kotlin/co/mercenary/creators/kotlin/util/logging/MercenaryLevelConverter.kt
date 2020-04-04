@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.math
+package co.mercenary.creators.kotlin.util.logging
 
-import co.mercenary.creators.kotlin.util.AssumptionDsl
+import ch.qos.logback.classic.pattern.ClassicConverter
+import ch.qos.logback.classic.spi.ILoggingEvent
+import java.util.*
 
-interface CloseEnough<T> {
-    @AssumptionDsl
-    fun closeEnough(value: T, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean
+open class MercenaryLevelConverter : ClassicConverter() {
+    override fun convert(event: ILoggingEvent): String {
+        return event.level.toString().padEnd(5).toUpperCase(Locale.ENGLISH).substring(0, 4)
+    }
 }

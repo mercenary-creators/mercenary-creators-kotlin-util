@@ -22,14 +22,17 @@ import co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
 abstract class AbstractSecurityTest @JvmOverloads constructor(private val text: String = CREATORS_AUTHOR_INFO) : AbstractKotlinTest() {
 
+    @IgnoreForSerialize
     protected open fun getGeneratedText(): String = text
 
-    protected open fun getGeneratedPass(): CharSequence = Passwords.pass()
+    @IgnoreForSerialize
+    protected open fun getGeneratedPass(): CharSequence = Passwords.getGeneratedPass()
 
-    protected open fun getGeneratedSalt(): CharSequence = Passwords.salt()
+    @IgnoreForSerialize
+    protected open fun getGeneratedSalt(): CharSequence = Passwords.getGeneratedSalt()
 
     @AssumptionDsl
-    protected open fun isValid(pass: CharSequence): Boolean = Passwords.good(pass)
+    protected open fun isValid(pass: CharSequence): Boolean = Passwords.isValid(pass)
 
     @JvmOverloads
     protected fun getTextCipher(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) = CipherEncryptingText(pass, salt, algorithm)

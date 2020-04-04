@@ -34,7 +34,7 @@ object Digests {
     fun getMessageDigest(named: String): MessageDigest = MessageDigest.getInstance(named)
 
     @JvmStatic
-    fun proxy(digest: MessageDigest) = MessageDigestProxy(digest)
+    fun proxyOf(digest: MessageDigest) = MessageDigestProxy(digest)
 
     class MessageDigestProxy(private val digest: MessageDigest) {
         operator fun invoke(buffer: ByteArray) = invoke(buffer, buffer, true)

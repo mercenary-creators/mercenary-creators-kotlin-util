@@ -52,7 +52,7 @@ class LogsTest : KotlinTest() {
         warn { dash() }
         error { logger.javaClass }
         error { logger.underlyingLogger.javaClass }
-        warn { dash() }
+        warn { dash() + BREAK_STRING + dash() }
         timed {
             repeat(100000000) {
                 Escapers.toEscapedString(CREATORS_AUTHOR_INFO, true)

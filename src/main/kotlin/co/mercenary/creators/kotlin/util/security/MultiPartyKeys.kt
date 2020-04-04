@@ -20,6 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.io.InputStreamSupplier
 import java.io.*
 import java.net.*
+import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 import java.security.*
 import java.security.spec.X509EncodedKeySpec
@@ -46,7 +47,7 @@ object MultiPartyKeys : HasMapNames {
         return KeyAgreement.getInstance("ECDH").let {
             it.init(pair.private)
             it.doPhase(KeyFactory.getInstance("EC").generatePublic(X509EncodedKeySpec(party)), true)
-            Digests.proxy(Digests.sha256()).update(it.generateSecret()).update(listOf(party.toByteBuffer(), pair.public.encoded.toByteBuffer()).sorted()).digest()
+            Digests.sha256().proxyOf().update(it.generateSecret()).update(listOf(party.toByteBuffer(), pair.public.encoded.toByteBuffer()).sorted()).digest()
         }
     }
 
@@ -71,6 +72,11 @@ object MultiPartyKeys : HasMapNames {
     }
 
     @JvmStatic
+    fun encode(data: ReadableByteChannel): String {
+        return encode(data.toByteArray())
+    }
+
+    @JvmStatic
     fun encode(data: File): String {
         return encode(data.toByteArray())
     }
@@ -87,7 +93,7 @@ object MultiPartyKeys : HasMapNames {
 
     @JvmStatic
     fun encode(data: URI): String {
-        return encode(data.toInputStream())
+        return encode(data.toByteArray())
     }
 
     @JvmStatic

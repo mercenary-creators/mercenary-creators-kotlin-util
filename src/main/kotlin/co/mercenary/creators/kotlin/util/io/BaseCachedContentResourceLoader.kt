@@ -21,7 +21,7 @@ import co.mercenary.creators.kotlin.util.*
 @IgnoreForSerialize
 open class BaseCachedContentResourceLoader @JvmOverloads constructor(name: String = EMPTY_STRING, loader: ClassLoader? = null) : BaseContentResourceLoader(name, loader), CachedContentResourceLoader {
 
-    private val maps = AtomicDictionary<CachedContentResource>()
+    private val maps = AtomicHashMap<String, CachedContentResource>()
 
     override operator fun get(path: String): CachedContentResource {
         return maps.computeIfAbsent(path) {

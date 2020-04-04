@@ -27,14 +27,15 @@ object Encoders {
     }
 
     init {
-        bhex.decode(bhex.encode(EMPTY_STRING.toByteArray(Charsets.UTF_8)))
+        bhex.decode(bhex.encode(CREATORS_AUTHOR_INFO.toByteArray(Charsets.UTF_8)))
     }
 
     @JvmStatic
     fun hex() = bhex
 
     @JvmStatic
-    fun text(base: Encoder<String, ByteArray>): Encoder<String, String> = object : Encoder<String, String> {
+    @JvmOverloads
+    fun text(base: Encoder<String, ByteArray> = hex()): Encoder<String, String> = object : Encoder<String, String> {
         override fun decode(data: String): String = String(base.decode(data), Charsets.UTF_8)
         override fun encode(data: String): String = base.encode(data.toByteArray(Charsets.UTF_8))
     }

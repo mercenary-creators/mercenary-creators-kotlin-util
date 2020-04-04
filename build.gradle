@@ -46,7 +46,7 @@ targetCompatibility = 1.8
 
 group = 'co.mercenary-creators'
 
-version = '9.6.6-SNAPSHOT'
+version = '9.6.7-SNAPSHOT'
 
 task doJavaDocs(type: Javadoc) {
     source = sourceSets.main.allJava
@@ -129,8 +129,8 @@ dependencies {
     compile(group: 'commons-io', name: 'commons-io', version: '2.6')
     compile(group: 'commons-codec', name: 'commons-codec', version: '1.14')
     compile(group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1')
-    compile(group: 'io.projectreactor', name: 'reactor-core', version: '3.3.3.RELEASE')
-    compile(group: 'io.github.microutils', name: 'kotlin-logging', version: '1.7.8')
+    compile(group: 'io.projectreactor', name: 'reactor-core', version: '3.3.4.RELEASE')
+    compile(group: 'io.github.microutils', name: 'kotlin-logging', version: '1.7.9')
     compile(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30')
     compile(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3')
     compile(group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion)
@@ -138,10 +138,10 @@ dependencies {
     testCompile(group: 'junit', name: 'junit', version: '4.12')
     testCompile(group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.30')
     testCompile(group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.30')
-    testCompile(group: 'io.projectreactor', name: 'reactor-test', version: '3.3.3.RELEASE')
+    testCompile(group: 'io.projectreactor', name: 'reactor-test', version: '3.3.4.RELEASE')
     testCompile(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit5', version: kotlinVersion)
-    testCompile(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.0')
-    testRuntime(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.0')
+    testCompile(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.1')
+    testRuntime(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.1')
 }
 
 artifacts {

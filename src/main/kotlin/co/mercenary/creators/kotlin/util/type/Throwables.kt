@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.type
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.logging.ILogging
 import kotlin.reflect.KClass
 
 object Throwables {
@@ -27,7 +28,9 @@ object Throwables {
 
     private val ignored = mutableSetOf<Class<*>>()
 
-    private val logger = LoggingFactory.logger(Throwables::class)
+    private val logger: ILogging by lazy {
+        LoggingFactory.logger(Throwables::class)
+    }
 
     init {
         reset()

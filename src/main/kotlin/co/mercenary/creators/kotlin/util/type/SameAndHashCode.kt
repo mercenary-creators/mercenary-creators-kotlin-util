@@ -17,8 +17,12 @@
 package co.mercenary.creators.kotlin.util.type
 
 import co.mercenary.creators.kotlin.util.*
-import java.io.File
+import co.mercenary.creators.kotlin.util.ByteArrayOutputStream
+import co.mercenary.creators.kotlin.util.io.InputStreamSupplier
+import java.io.*
 import java.math.*
+import java.net.*
+import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 import java.util.concurrent.atomic.*
 
@@ -84,13 +88,13 @@ object SameAndHashCode {
                     is Float -> if (other is Float) value.toBits() == other.toBits() else if (other is BigDecimal) value.toBigDecimal() == other else false
                     is Double -> if (other is Double) value.toBits() == other.toBits() else if (other is BigDecimal) value.toBigDecimal() == other else false
                     is Long -> if (other is Long) value == other else if (other is AtomicLong) value == other.toLong() else if (other is BigInteger) value.toBigInteger() == other else false
-                    is BigDecimal -> when(other) {
+                    is BigDecimal -> when (other) {
                         is Float -> other.toBigDecimal() == value
                         is Double -> other.toBigDecimal() == value
                         is BigDecimal -> value == other
                         else -> false
                     }
-                    is BigInteger -> when(other) {
+                    is BigInteger -> when (other) {
                         is Int -> other.toBigInteger() == value
                         is Long -> other.toBigInteger() == value
                         is AtomicLong -> other.toBigInteger() == value
@@ -104,8 +108,6 @@ object SameAndHashCode {
                 }
                 else -> false
             }
-            is File -> if (other is File) value isSameFileAndData other else if (other is Path) value isSameFileAndData other else false
-            is Path -> if (other is File) value isSameFileAndData other else if (other is Path) value isSameFileAndData other else false
             else -> value == other
         }
     }
@@ -113,6 +115,25 @@ object SameAndHashCode {
     @JvmStatic
     @AssumptionDsl
     fun isNotSameAs(value: Any?, other: Any?): Boolean = !isSameAs(value, other)
+
+    @JvmStatic
+    @AssumptionDsl
+    fun isDataComparableType(value: Any?): Boolean {
+        return when(value) {
+            null -> false
+            is URI -> true
+            is URL -> true
+            is File -> true
+            is Path -> true
+            is Reader -> true
+            is ByteArray -> true
+            is InputStream -> true
+            is InputStreamSupplier -> true
+            is ReadableByteChannel -> true
+            is ByteArrayOutputStream -> true
+            else -> false
+        }
+    }
 
     @JvmStatic
     fun hashOf(vararg args: Any?, accumulator: (Int) -> Unit) {

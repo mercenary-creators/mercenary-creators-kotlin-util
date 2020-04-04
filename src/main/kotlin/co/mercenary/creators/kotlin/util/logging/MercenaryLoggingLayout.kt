@@ -16,17 +16,20 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import ch.qos.logback.classic.*
+import ch.qos.logback.classic.PatternLayout
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.*
+import co.mercenary.creators.kotlin.util.*
 
-class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
+open class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
 
     private val proxy: PatternLayout by lazy {
         PatternLayout()
     }
 
-    private var descr: String = CoreConstants.EMPTY_STRING
+    private val flags = true.toAtomic()
+
+    private var descr: String = EMPTY_STRING
 
     var description: String
         @JvmName("getDescription")
@@ -36,8 +39,16 @@ class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
             descr = value
         }
 
+    var newlines: Boolean
+        @JvmName("getNewlines")
+        get() = flags.toBoolean()
+        @JvmName("setNewlines")
+        set(value) {
+            flags.set(value)
+        }
+
     override fun doLayout(event: ILoggingEvent): String {
-        return if (!isStarted) CoreConstants.EMPTY_STRING else proxy.doLayout(event)
+        return if (!isStarted) EMPTY_STRING else proxy.doLayout(event)
     }
 
     override fun setContext(context: Context) {
@@ -45,9 +56,19 @@ class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
         proxy.context = context
     }
 
+    open fun colorOf(): String {
+        return when (newlines.not()) {
+            true -> MercenaryHighlightingCompositeConverter::class.java.name
+            else -> MercenaryHighlightingBodyCompositeConverter::class.java.name
+        }
+    }
+
+    open fun levelOf(): String = MercenaryLevelConverter::class.java.name
+
     override fun start() {
-        PatternLayout.defaultConverterMap["mercenary"] = MercenaryHighlightingCompositeConverter::class.java.name
-        proxy.pattern = "%yellow([%d{\"yyyy-MM-dd HH:mm:ss,SSS z\",\"UTC\"}]) %blue([%level]) %magenta([%c]) %cyan([${description}] -) %mercenary(%m) %n"
+        PatternLayout.defaultConverterMap["_color_"] = colorOf()
+        PatternLayout.defaultConverterMap["_level_"] = levelOf()
+        proxy.pattern = "%yellow([%d{\"yyyy-MM-dd HH:mm:ss,SSS z\",\"UTC\"}]) %blue([%_level_]) %magenta([%c]) %cyan([${description}] -) %_color_(%m) %n"
         proxy.start()
         super.start()
     }

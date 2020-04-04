@@ -24,7 +24,7 @@ import javax.activation.MimeType
 @IgnoreForSerialize
 class ContentMimeType @JvmOverloads constructor(type: String = DEFAULT_CONTENT_TYPE) : Copyable<ContentMimeType>, Cloneable, HasMapNames {
 
-    private val mime = make(type)
+    private val mime = parse(type)
 
     override fun clone() = copyOf()
 
@@ -43,7 +43,7 @@ class ContentMimeType @JvmOverloads constructor(type: String = DEFAULT_CONTENT_T
     }
 
     @AssumptionDsl
-    fun isMatchOf(other: String): Boolean {
+    infix fun isMatchOf(other: String): Boolean {
         return try {
             mime.match(other)
         }
@@ -57,8 +57,17 @@ class ContentMimeType @JvmOverloads constructor(type: String = DEFAULT_CONTENT_T
     }
 
     @AssumptionDsl
-    fun isMatchOf(other: ContentMimeType): Boolean {
-        return mime.match(other.mime)
+    infix fun isMatchOf(other: ContentMimeType): Boolean {
+        return try {
+            mime.match(other.mime)
+        }
+        catch (cause: Throwable) {
+            logs.error(cause) {
+                other.mime.toString()
+            }
+            Throwables.thrown(cause)
+            false
+        }
     }
 
     companion object {
@@ -67,9 +76,13 @@ class ContentMimeType @JvmOverloads constructor(type: String = DEFAULT_CONTENT_T
             LoggingFactory.logger(ContentMimeType::class)
         }
 
+        private val base = MimeType("application", "octet-stream")
+
+        private val maps = atomicMapOf(DEFAULT_CONTENT_TYPE to base)
+
         @JvmStatic
-        fun make(string: String): MimeType {
-            val type = toTrimOrElse(string, DEFAULT_CONTENT_TYPE)
+        fun parse(string: String): MimeType {
+            val type = string.toTrimOr(DEFAULT_CONTENT_TYPE)
             return try {
                 MimeType(type)
             }
@@ -78,7 +91,7 @@ class ContentMimeType @JvmOverloads constructor(type: String = DEFAULT_CONTENT_T
                     type
                 }
                 Throwables.thrown(cause)
-                MimeType(DEFAULT_CONTENT_TYPE)
+                base
             }
         }
     }

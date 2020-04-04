@@ -47,6 +47,8 @@ val CONTENT_RESOURCE_LOADER: ContentResourceLoader
 val CACHED_CONTENT_RESOURCE_LOADER: CachedContentResourceLoader
     get() = BaseCachedContentResourceLoader.INSTANCE
 
+val BREAK_STRING: String = System.lineSeparator()
+
 @AssumptionDsl
 fun String.isDefaultContentType(): Boolean = toLowerTrim() == DEFAULT_CONTENT_TYPE
 
@@ -190,6 +192,8 @@ fun String.toURL(): URL = URL(this)
 fun String.toFileURL(): URL = IO.toFileURL(this)
 
 fun URL.toByteArray(): ByteArray = toInputStream().toByteArray()
+
+fun URI.toByteArray(): ByteArray = toInputStream().toByteArray()
 
 fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
 

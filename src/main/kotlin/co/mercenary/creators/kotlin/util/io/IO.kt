@@ -332,7 +332,7 @@ object IO {
                 return file.length()
             }
         }
-        return func()
+        return func.invoke()
     }
 
     @JvmStatic
