@@ -16,14 +16,18 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import co.mercenary.creators.kotlin.util.HasMapNames
+import co.mercenary.creators.kotlin.util.*
 
 interface ContentResourceLoader : HasMapNames {
     fun getLoadersName(): String
-    fun isContentCache(): Boolean
     fun getClassLoader(): ClassLoader?
     operator fun get(path: String): ContentResource
     operator fun plusAssign(args: ContentProtocolResolver)
     operator fun minusAssign(args: ContentProtocolResolver)
+
+    @AssumptionDsl
+    fun isContentCache(): Boolean
+
+    @AssumptionDsl
     operator fun contains(args: ContentProtocolResolver): Boolean
 }

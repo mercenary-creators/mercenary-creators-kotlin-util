@@ -94,7 +94,7 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
     }
 
     @AssumptionDsl
-    override fun here(): Map<String, Any?> {
+    override fun here(): Map<String, Any> {
         val type = javaClass
         val name = type.name
         val most = 0.toAtomic().decrement()

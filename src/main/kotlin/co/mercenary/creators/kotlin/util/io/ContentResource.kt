@@ -24,12 +24,16 @@ interface ContentResource : InputStreamSupplier, HasMapNames {
     fun getContentPath(): String
     fun getContentType(): String
     fun getDescription(): String
-    fun isContentThere(): Boolean
-    fun isContentCache(): Boolean
     fun getContentData(): ByteArray
     fun toContentCache(): CachedContentResource
     fun getContentLook(): ContentResourceLookup
     fun getContentKind(): String = EMPTY_STRING
     fun toRelativePath(path: String): ContentResource = getContentLook().invoke(path)
     operator fun get(path: CharSequence): ContentResource = toRelativePath(path.toString())
+
+    @AssumptionDsl
+    fun isContentThere(): Boolean
+
+    @AssumptionDsl
+    fun isContentCache(): Boolean
 }

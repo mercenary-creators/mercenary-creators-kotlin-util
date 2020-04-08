@@ -86,6 +86,12 @@ fun URL.toFileOrNull(skip: Boolean = false): File? = IO.toFileOrNull(this, skip)
 fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): File = createTempFile(prefix, suffix, folder).apply { deleteOnExit() }
 
 @AssumptionDsl
+fun File.isValidToRead(): Boolean = exists() && isFile && canRead() && isDirectory.not()
+
+@AssumptionDsl
+fun Path.isValidToRead(): Boolean = toFile().isValidToRead()
+
+@AssumptionDsl
 infix fun File.isSameFile(other: File): Boolean = isSameFile(other.toPath())
 
 @AssumptionDsl
@@ -108,12 +114,6 @@ infix fun Path.isSameFileAndData(other: File): Boolean = isSameFileAndData(other
 
 @AssumptionDsl
 infix fun Path.isSameFileAndData(other: Path): Boolean = Files.isSameFile(this, other) || toFile().compareTo(other.toFile()) == 0
-
-@AssumptionDsl
-fun File.isValidToRead(): Boolean = exists() && isFile && canRead() && isDirectory.not()
-
-@AssumptionDsl
-fun Path.isValidToRead(): Boolean = toFile().isValidToRead()
 
 fun URL.toInputStream(): InputStream = when (val data = IO.getInputStream(this)) {
     null -> throw MercenaryExceptiion(toString())

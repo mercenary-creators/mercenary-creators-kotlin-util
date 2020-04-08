@@ -239,7 +239,7 @@ fun Double.toFinite(): Double = if (isValid()) this else throw MercenaryFatalExc
 fun Double.toFiniteOrElse(value: Double): Double = if (isValid()) this else value
 
 @AssumptionDsl
-fun Double.toFiniteOrElse(block: () -> Double): Double = if (isValid()) this else block()
+inline fun Double.toFiniteOrElse(block: () -> Double): Double = if (isValid()) this else block.invoke()
 
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 

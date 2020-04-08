@@ -16,11 +16,11 @@
 
 package co.mercenary.creators.kotlin.util.test.type
 
-import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.Randoms
 
 class MainData @JvmOverloads constructor(look: Boolean = false, val rand: Int = Randoms.getInteger(0..100)) : BaseType(look) {
 
     override fun toMapNames(): Map<String, Any?> {
-        return  mapOf("rand" to rand) + super.toMapNames()
+        return mapOf("rand" to rand) + super.toMapNames()
     }
 }

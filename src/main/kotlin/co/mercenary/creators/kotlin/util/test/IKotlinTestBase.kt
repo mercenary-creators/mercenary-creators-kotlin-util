@@ -59,7 +59,7 @@ interface IKotlinTestBase : KLoggable, ILoggingBase {
     fun <T : Throwable> addThrowableAsFatal(type: KClass<T>)
 
     @AssumptionDsl
-    fun here(): Map<String, Any?>
+    fun here(): Map<String, Any>
 
     @LoggingInfoDsl
     fun measured(loop: Int, call: (Int) -> Unit)

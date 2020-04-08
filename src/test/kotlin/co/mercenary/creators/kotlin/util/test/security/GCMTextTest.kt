@@ -30,7 +30,7 @@ class GCMTextTest : KotlinSecurityTest() {
         info { salt }
         val good = isValid(pass)
         info { good }
-        good.shouldBe(true)
+        good shouldBe true
         val code = getTextCipher(pass, salt, CipherAlgorithm.GCM).also {
             it.decrypt(it.encrypt(name))
         }
@@ -42,6 +42,6 @@ class GCMTextTest : KotlinSecurityTest() {
             code.decrypt(data)
         }
         info { back }
-        name.shouldBe(back)
+        name shouldBe back
     }
 }

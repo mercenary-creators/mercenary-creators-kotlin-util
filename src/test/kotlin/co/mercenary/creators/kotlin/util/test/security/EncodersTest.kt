@@ -33,17 +33,17 @@ class EncodersTest : KotlinSecurityTest() {
             code.decode(data)
         }
         info { text }
-        name.shouldBe(text)
+        name shouldBe text
         val temp = timed {
             code.encode(text)
         }
         info { temp }
-        data.shouldBe(temp)
+        data shouldBe temp
         val last = timed {
             code.encode(text)
         }
         info { last }
-        last.shouldBe(temp)
+        last shouldBe temp
         info { Ciphers.getAlgorithms() }
         info { Digests.getAlgorithms() }
         Randoms.getDoubleSequence(10, 5.0, 10.0).forEach {
