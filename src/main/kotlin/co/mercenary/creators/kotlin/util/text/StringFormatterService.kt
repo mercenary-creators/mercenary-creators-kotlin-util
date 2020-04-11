@@ -16,12 +16,13 @@
 
 package co.mercenary.creators.kotlin.util.text
 
-import co.mercenary.creators.kotlin.util.IgnoreForSerialize
+import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
 abstract class StringFormatterService(protected val order: Int) : Comparable<StringFormatterService> {
-    abstract fun toSafeString(data: Any): String
+    @AssumptionDsl
     abstract fun isValidClass(data: Any): Boolean
+    abstract fun toSafeString(data: Any): String
     override operator fun compareTo(other: StringFormatterService): Int {
         return order.compareTo(other.order)
     }

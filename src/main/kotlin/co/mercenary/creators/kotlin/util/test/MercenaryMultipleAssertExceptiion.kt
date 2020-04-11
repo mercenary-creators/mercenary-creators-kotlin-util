@@ -35,12 +35,12 @@ class MercenaryMultipleAssertExceptiion @JvmOverloads constructor(private val li
                 append(SPACE_STRING)
                 append(if (size == 1) "failure" else "failures")
                 append(")")
-                append(EOL)
+                append(BREAK_STRING)
                 val last = size - 1
                 for (oops in list.subList(0, last)) {
                     append(SPACE_STRING)
                     append(make(oops))
-                    append(EOL)
+                    append(BREAK_STRING)
                 }
                 append('\t')
                 append(make(list[last]))
@@ -57,6 +57,5 @@ class MercenaryMultipleAssertExceptiion @JvmOverloads constructor(private val li
 
     companion object {
         private const val serialVersionUID = 2L
-        private val EOL = System.getProperty("line.separator")
     }
 }

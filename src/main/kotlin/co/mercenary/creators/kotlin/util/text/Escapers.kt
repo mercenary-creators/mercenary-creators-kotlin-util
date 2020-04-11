@@ -24,8 +24,10 @@ object Escapers {
 
     private const val DOUBLE_QUOTE = '"'
 
+    private val INTS = intArrayOf(33, 35, 36, 37, 38, 40, 41, 42, 43, 44, 45, 46)
+
     private val LOOK = BooleanArray(128) { code ->
-        (code in 32..126 && (code >= 93 || code in 48..91 || code == 32 || code in intArrayOf(33, 35, 36, 37, 38, 40, 41, 42, 43, 44, 45, 46)))
+        (code in 32..126 && (code >= 93 || code in 48..91 || code == 32 || code in INTS))
     }
 
     private fun StringBuilder.escape(code: Int) {
@@ -40,7 +42,7 @@ object Escapers {
     }
 
     @JvmStatic
-    fun isAscii(code: Char): Boolean {
+    private fun isAscii(code: Char): Boolean {
         val look = code.toInt()
         if (look < 32 || look > 127) {
             return false
@@ -49,7 +51,7 @@ object Escapers {
     }
 
     @JvmStatic
-    fun isAscii(string: String): Boolean {
+    private fun isAscii(string: String): Boolean {
         if (string.isEmpty()) {
             return true
         }

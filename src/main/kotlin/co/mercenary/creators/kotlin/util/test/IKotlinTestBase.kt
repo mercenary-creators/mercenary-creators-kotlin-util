@@ -48,6 +48,9 @@ interface IKotlinTestBase : KLoggable, ILoggingBase {
     @AssumptionDsl
     fun uuid(): String
 
+    @AssumptionDsl
+    fun String.toLink() = toURL()
+
     fun getConfigProperty(name: String, other: String = EMPTY_STRING): String
 
     fun setConfigProperty(vararg args: Pair<String, Any?>)

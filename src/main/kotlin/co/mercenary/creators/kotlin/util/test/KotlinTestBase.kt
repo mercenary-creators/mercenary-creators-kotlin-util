@@ -49,10 +49,12 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
     @IgnoreForSerialize
     override val prober = getDefaultContentTypeProbe()
 
+    @AssumptionDsl
     override fun getTempFileNamed(name: String, suff: String): File {
         return getTempFile(name, suff)
     }
 
+    @AssumptionDsl
     override fun getTempFileNamedPath(name: String, suff: String): String {
         return getTempFileNamed(name, suff).path
     }
@@ -69,8 +71,10 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
     @AssumptionDsl
     override fun uuid(): String = Randoms.uuid()
 
+    @AssumptionDsl
     override fun getConfigProperty(name: String, other: String): String = conf.getProperty(name, other)
 
+    @AssumptionDsl
     override fun setConfigProperty(vararg args: Pair<String, Any?>) {
         if (args.isNotEmpty()) {
             val temp = conf
@@ -161,8 +165,6 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
             }
         }
     }
-
-    private fun String.toLink() = toURL()
 
     @AssumptionDsl
     override fun fail(text: String): Nothing {
