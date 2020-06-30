@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
+import mu.*
 import org.slf4j.*
 import kotlin.reflect.KClass
 
@@ -30,24 +31,29 @@ object LoggingFactory {
     private val open = false.toAtomic()
 
     init {
-        if (open.compareAndSet(false, true)) {
+        if (open.isFalseToTrue()) {
             (LoggerFactory.getILoggerFactory() as ch.qos.logback.classic.LoggerContext).frameworkPackages.add(LoggingFactory::class.java.`package`.name)
         }
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun logger(name: String): ILogging = Logging(name)
 
     @JvmStatic
+    @CreatorsDsl
     fun logger(type: Class<*>): ILogging = logger(type.name)
 
     @JvmStatic
+    @CreatorsDsl
     fun logger(type: KClass<*>): ILogging = logger(type.java)
 
     @JvmStatic
+    @CreatorsDsl
     fun logger(self: Any): ILogging = logger(self.javaClass)
 
     @JvmStatic
+    @CreatorsDsl
     inline fun logger(noinline func: () -> Unit): ILogging {
         val name = func.javaClass.name
         return when {
@@ -58,6 +64,7 @@ object LoggingFactory {
     }
 
     @JvmStatic
+    @CreatorsDsl
     inline fun marker(noinline func: () -> Unit): IMarker {
         val name = func.javaClass.name
         return when {
@@ -67,7 +74,8 @@ object LoggingFactory {
         }
     }
 
-    internal inline fun markerOf(noinline func: () -> Unit): Marker {
+    @CreatorsDsl
+    internal inline fun markerOf(noinline func: () -> Unit): mu.Marker {
         val name = func.javaClass.name
         return when {
             name.contains(KT) -> markerOf(name.substringBefore(KT))
@@ -76,9 +84,23 @@ object LoggingFactory {
         }
     }
 
-    internal fun markerOf(name: String): Marker = MarkerFactory.getMarker(name)
+    @CreatorsDsl
+    internal inline fun markerOf(name: String): mu.Marker = MarkerFactory.getMarker(name)
+
+    @CreatorsDsl
+    internal inline fun Logger.loggerOf(): KLogger = KotlinLogging.logger(this)
+
+    @CreatorsDsl
+    internal fun loggerOf(name: String): KLogger = LoggerFactory.getLogger(name).loggerOf()
+
+    @CreatorsDsl
+    internal fun loggerOf(type: Class<*>): KLogger = LoggerFactory.getLogger(type).loggerOf()
+
+    @CreatorsDsl
+    internal fun loggerOf(type: Any): KLogger = LoggerFactory.getLogger(type.javaClass).loggerOf()
 
     @JvmStatic
+    @CreatorsDsl
     fun toSafeString(func: () -> Any?): String {
         return Formatters.toSafeString(func)
     }

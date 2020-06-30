@@ -16,6 +16,10 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.*
+
 interface FileTypeMapSupplier {
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getFileTypeMap(): ContentFileTypeMap
 }

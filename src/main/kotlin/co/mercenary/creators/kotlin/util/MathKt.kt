@@ -15,11 +15,13 @@
  */
 
 @file:kotlin.jvm.JvmName("MathKt")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package co.mercenary.creators.kotlin.util
 
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.*
+
+typealias NumericMath = Math
 
 typealias Numeric = co.mercenary.creators.kotlin.util.math.Numeric
 
@@ -27,218 +29,389 @@ const val MATH_INVALID_SIZE_ERROR = "invalid size"
 
 const val MATH_ZERO_DIVISOR_ERROR = "can't divide by zero"
 
-fun powNegative1(value: Int): Double = Numeric.powNegative1(value)
+const val MATH_OVERFLOW_FOR_ERROR = "overflow for operation"
 
-fun powNegative1(value: Long): Double = Numeric.powNegative1(value)
+const val DEFAULT_PRECISION_SCALE = Numeric.DEFAULT_PRECISION_SCALE
 
-fun powNegative1(value: Int, other: Int): Double = Numeric.powNegative1(value, other)
+const val DEFAULT_PRECISION_DELTA = Numeric.DEFAULT_PRECISION_DELTA
 
-@JvmOverloads
-fun pow2Round(value: Int, down: Boolean = true): Int = Numeric.pow2Round(value, down)
-
-@JvmOverloads
-fun pow2Round(value: Long, down: Boolean = true): Long = Numeric.pow2Round(value, down)
-
+@CreatorsDsl
 fun gcdOf(vararg args: Int): Int = Numeric.gcdOf(*args)
 
+@CreatorsDsl
 fun gcdOf(vararg args: Long): Long = Numeric.gcdOf(*args)
 
+@CreatorsDsl
 fun gcdOf(value: Int): Int = Numeric.gcdOf(value)
 
+@CreatorsDsl
 fun gcdOf(value: Long): Long = Numeric.gcdOf(value)
 
+@CreatorsDsl
 fun gcdOf(value: Int, other: Int): Int = Numeric.gcdOf(value, other)
 
+@CreatorsDsl
 fun gcdOf(value: Long, other: Long): Long = Numeric.gcdOf(value, other)
 
+@CreatorsDsl
 fun gcdOf(value: Int, other: Long): Long = Numeric.gcdOf(value, other)
 
+@CreatorsDsl
 fun gcdOf(value: Long, other: Int): Long = Numeric.gcdOf(value, other)
 
+@CreatorsDsl
 fun lcmOf(vararg args: Int): Int = Numeric.lcmOf(*args)
 
+@CreatorsDsl
 fun lcmOf(vararg args: Long): Long = Numeric.lcmOf(*args)
 
+@CreatorsDsl
 fun lcmOf(value: Int): Int = Numeric.lcmOf(value)
 
+@CreatorsDsl
 fun lcmOf(value: Long): Long = Numeric.lcmOf(value)
 
+@CreatorsDsl
 fun lcmOf(value: Int, other: Int): Int = Numeric.lcmOf(value, other)
 
+@CreatorsDsl
 fun lcmOf(value: Long, other: Long): Long = Numeric.lcmOf(value, other)
 
+@CreatorsDsl
 fun lcmOf(value: Int, other: Long): Long = Numeric.lcmOf(value, other)
 
+@CreatorsDsl
 fun lcmOf(value: Long, other: Int): Long = Numeric.lcmOf(value, other)
 
-fun Int.abs(): Int {
-    return abs(this)
+@CreatorsDsl
+inline fun Int.abs(): Int {
+    return Numeric.absOf(this)
 }
 
-fun Int.neg(): Int {
-    return unaryMinus()
+@CreatorsDsl
+inline fun Int.neg(): Int {
+    return -this
 }
 
-@AssumptionDsl
-fun Int.isNegative(): Boolean {
+@CreatorsDsl
+inline fun Int.isNegative(): Boolean {
     return this < 0
 }
 
-infix fun Int.minOf(other: Int): Int {
-    return min(this, other)
+@CreatorsDsl
+inline fun Int.isEven(): Boolean {
+    return abs() % 2 == 0
 }
 
-infix fun Int.maxOf(other: Int): Int {
-    return max(this, other)
+@CreatorsDsl
+inline fun Int.isNotEven(): Boolean {
+    return abs() % 2 == 1
 }
 
-fun Long.abs(): Long {
-    return abs(this)
+@CreatorsDsl
+inline infix fun Int.minOf(other: Int): Int {
+    return if (this < other) this else other
 }
 
-fun Long.neg(): Long {
-    return unaryMinus()
+@CreatorsDsl
+inline infix fun Int.maxOf(other: Int): Int {
+    return if (this < other) other else this
 }
 
-@AssumptionDsl
-fun Long.isNegative(): Boolean {
+@CreatorsDsl
+inline fun Int.boxIn(min: Int, max: Int): Int {
+    return coerceIn(min, max)
+}
+
+@CreatorsDsl
+inline fun Int.boxIn(range: ClosedRange<Int>): Int {
+    return coerceIn(range)
+}
+
+@CreatorsDsl
+inline fun Long.abs(): Long {
+    return Numeric.absOf(this)
+}
+
+@CreatorsDsl
+inline fun Long.neg(): Long {
+    return -this
+}
+
+@CreatorsDsl
+inline fun Long.isNegative(): Boolean {
     return this < 0
 }
 
-infix fun Long.minOf(other: Int): Long {
-    return min(this, other.toLong())
+@CreatorsDsl
+inline fun Long.isEven(): Boolean {
+    return abs() % 2 == 0L
 }
 
-infix fun Long.maxOf(other: Int): Long {
-    return max(this, other.toLong())
+@CreatorsDsl
+inline fun Long.isNotEven(): Boolean {
+    return abs() % 2 == 1L
 }
 
-infix fun Long.minOf(other: Long): Long {
-    return min(this, other)
+@CreatorsDsl
+inline infix fun Long.minOf(other: Int): Long {
+    return minOf(other.toLong())
 }
 
-infix fun Long.maxOf(other: Long): Long {
-    return max(this, other)
+@CreatorsDsl
+inline infix fun Long.maxOf(other: Int): Long {
+    return maxOf(other.toLong())
 }
 
-fun Double.abs(): Double {
-    return abs(this)
+@CreatorsDsl
+inline infix fun Long.minOf(other: Long): Long {
+    return if (this < other) this else other
 }
 
-fun Double.neg(): Double {
-    return unaryMinus()
+@CreatorsDsl
+inline infix fun Long.maxOf(other: Long): Long {
+    return if (this < other) other else this
 }
 
-fun Double.sinOf(): Double {
-    return Numeric.sinOf(this)
+@CreatorsDsl
+inline fun Long.boxIn(min: Int, max: Int): Long {
+    return boxIn(min.toLong(), max.toLong())
 }
 
-fun Double.cosOf(): Double {
-    return Numeric.cosOf(this)
+@CreatorsDsl
+inline fun Long.boxIn(min: Long, max: Long): Long {
+    return coerceIn(min, max)
 }
 
-infix fun Double.minOf(other: Double): Double {
-    return min(this, other)
+@CreatorsDsl
+inline fun Long.boxIn(range: ClosedRange<Long>): Long {
+    return coerceIn(range)
 }
 
-infix fun Double.maxOf(other: Double): Double {
-    return max(this, other)
+@CreatorsDsl
+inline fun Double.abs(): Double {
+    return Numeric.absOf(this)
 }
 
-fun Double.floor(): Double {
+@CreatorsDsl
+inline fun Double.neg(): Double {
+    return -this
+}
+
+@CreatorsDsl
+inline infix fun Double.minOf(other: Double): Double {
+    return min(toFinite(), other.toFinite())
+}
+
+@CreatorsDsl
+inline infix fun Double.maxOf(other: Double): Double {
+    return max(toFinite(), other.toFinite())
+}
+
+@CreatorsDsl
+inline fun Double.boxIn(min: Double, max: Double): Double {
+    return toFinite().coerceIn(min.toFinite(), max.toFinite())
+}
+
+@CreatorsDsl
+inline fun Double.boxIn(range: ClosedFloatingPointRange<Double>): Double {
+    return toFinite().coerceIn(range)
+}
+
+@CreatorsDsl
+inline fun Double.ceil(): Double {
+    return ceil(this)
+}
+
+@CreatorsDsl
+inline fun Double.floor(): Double {
     return floor(this)
 }
 
-@AssumptionDsl
-fun Double.isValid(): Boolean {
+@CreatorsDsl
+inline fun Double.truncated(): Double {
+    return if (isValid()) if (isNegative()) ceil() else floor() else 0.0
+}
+
+@CreatorsDsl
+inline fun Float.isValid(): Boolean {
     return isFinite()
 }
 
-@AssumptionDsl
-fun Double.isNegative(): Boolean {
-    return sign(this) < 0
+@CreatorsDsl
+inline fun Double.isValid(): Boolean {
+    return isFinite()
 }
 
-@JvmOverloads
-fun Double.toDecimalPlacesString(scale: Int = 3, places: Int = scale.abs()): String {
+@CreatorsDsl
+inline fun Double.isNegative(): Boolean {
+    return sign < 0
+}
+
+@CreatorsDsl
+inline fun Double.isEven(): Boolean {
+    return truncated().abs() % 2 == 0.0
+}
+
+@CreatorsDsl
+inline fun Double.isNotEven(): Boolean {
+    return truncated().abs() % 2 == 1.0
+}
+
+@CreatorsDsl
+inline fun Int.isValidDivisor(): Boolean {
+    return (this != 0)
+}
+
+@CreatorsDsl
+inline fun Long.isValidDivisor(): Boolean {
+    return (this != 0L)
+}
+
+@CreatorsDsl
+inline fun Double.isValidDivisor(): Boolean {
+    return (toFinite().abs() != 0.0)
+}
+
+@CreatorsDsl
+inline fun Int.toValidDivisor(): Int {
+    return if (isValidDivisor()) this else throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+}
+
+@CreatorsDsl
+inline fun Long.toValidDivisor(): Long {
+    return if (isValidDivisor()) this else throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+}
+
+@CreatorsDsl
+inline fun Double.toValidDivisor(): Double {
+    return if (isValidDivisor()) this else throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+}
+
+@CreatorsDsl
+fun Double.toDecimalPlacesString(scale: Int = Numeric.DEFAULT_PRECISION_SCALE, places: Int = scale.abs()): String {
     return Numeric.toDecimalPlacesString(this, scale, places)
 }
 
-@JvmOverloads
-@AssumptionDsl
+@CreatorsDsl
 fun Double.closeEnough(value: Double, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
-@JvmOverloads
-@AssumptionDsl
+@CreatorsDsl
 fun DoubleArray.closeEnough(value: DoubleArray, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
-@JvmOverloads
-@AssumptionDsl
+@CreatorsDsl
+fun DoubleArray.closeEnough(value: Array<Double>, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
+    return Numeric.closeEnough(this, value, precision)
+}
+
+@CreatorsDsl
+fun Array<Double>.closeEnough(value: DoubleArray, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
+    return Numeric.closeEnough(value, this, precision)
+}
+
+@CreatorsDsl
 fun Array<Double>.closeEnough(value: Array<Double>, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
-@JvmOverloads
-@AssumptionDsl
+@CreatorsDsl
 fun Array<DoubleArray>.closeEnough(value: Array<DoubleArray>, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
-@JvmOverloads
-@AssumptionDsl
+@CreatorsDsl
 fun Array<Array<Double>>.closeEnough(value: Array<Array<Double>>, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean {
     return Numeric.closeEnough(this, value, precision)
 }
 
-@JvmOverloads
-fun Double.rounded(scale: Int = 3): Double {
+@CreatorsDsl
+fun Double.rounded(scale: Int = Numeric.DEFAULT_PRECISION_SCALE): Double {
     return Numeric.rounded(this, scale)
 }
 
-@JvmOverloads
-fun DoubleArray.rounded(scale: Int = 3): DoubleArray {
+@CreatorsDsl
+fun DoubleArray.rounded(scale: Int = Numeric.DEFAULT_PRECISION_SCALE): DoubleArray {
     return Numeric.rounded(this, scale)
 }
 
-@JvmOverloads
-fun Array<Double>.rounded(scale: Int = 3): Array<Double> {
+@CreatorsDsl
+fun Array<Double>.rounded(scale: Int = Numeric.DEFAULT_PRECISION_SCALE): Array<Double> {
     return Numeric.rounded(this, scale)
 }
 
-@JvmOverloads
-fun Array<DoubleArray>.rounded(scale: Int = 3): Array<DoubleArray> {
+@CreatorsDsl
+fun Array<DoubleArray>.rounded(scale: Int = Numeric.DEFAULT_PRECISION_SCALE): Array<DoubleArray> {
     return Numeric.rounded(this, scale)
 }
 
-@JvmOverloads
-fun Array<Array<Double>>.rounded(scale: Int = 3): Array<Array<Double>> {
+@CreatorsDsl
+fun Array<Array<Double>>.rounded(scale: Int = Numeric.DEFAULT_PRECISION_SCALE): Array<Array<Double>> {
     return Numeric.rounded(this, scale)
 }
 
-@JvmOverloads
-fun Iterable<Double>.rounded(scale: Int = 3): Iterable<Double> {
+@CreatorsDsl
+fun Iterable<Double>.rounded(scale: Int = Numeric.DEFAULT_PRECISION_SCALE): Iterable<Double> {
     return Numeric.rounded(this, scale)
 }
 
-@JvmOverloads
-fun Sequence<Double>.rounded(scale: Int = 3): Sequence<Double> {
+@CreatorsDsl
+fun Sequence<Double>.rounded(scale: Int = Numeric.DEFAULT_PRECISION_SCALE): Sequence<Double> {
     return Numeric.rounded(this, scale)
 }
 
-@JvmOverloads
-fun Double.root(root: Int = 2): Double = Numeric.root(this, root)
+@CreatorsDsl
+infix fun Double.rootOf(root: Int): Double {
+    return Numeric.rootOf(this, root)
+}
 
-@AssumptionDsl
-fun Double.toFinite(): Double = if (isValid()) this else throw MercenaryFatalExceptiion("invalid value $this")
+@CreatorsDsl
+infix fun Double.rootOf(root: Long): Double {
+    return Numeric.rootOf(this, root)
+}
 
-@AssumptionDsl
-fun Double.toFiniteOrElse(value: Double): Double = if (isValid()) this else value
+@CreatorsDsl
+infix fun Double.rootOf(root: Double): Double {
+    return Numeric.rootOf(this, root)
+}
 
-@AssumptionDsl
+@CreatorsDsl
+infix fun Int.power(x: Int): Double = toDouble().power(x)
+
+@CreatorsDsl
+infix fun Int.power(x: Long): Double = toDouble().power(x)
+
+@CreatorsDsl
+infix fun Int.power(x: Double): Double = toDouble().power(x)
+
+@CreatorsDsl
+infix fun Long.power(x: Int): Double = toDouble().power(x)
+
+@CreatorsDsl
+infix fun Long.power(x: Long): Double = toDouble().power(x)
+
+@CreatorsDsl
+infix fun Long.power(x: Double): Double = toDouble().power(x)
+
+@CreatorsDsl
+infix fun Double.power(x: Int): Double = Numeric.powerOf(this, x)
+
+@CreatorsDsl
+infix fun Double.power(x: Long): Double = Numeric.powerOf(this, x)
+
+@CreatorsDsl
+infix fun Double.power(x: Double): Double = Numeric.powerOf(this, x)
+
+@CreatorsDsl
+inline fun Double.toFinite(): Double = if (isValid()) this else throw MercenaryFatalExceptiion("invalid value $this")
+
+@CreatorsDsl
+inline fun Double.toFiniteOrElse(value: Double): Double = if (isValid()) this else value
+
+@CreatorsDsl
 inline fun Double.toFiniteOrElse(block: () -> Double): Double = if (isValid()) this else block.invoke()
 
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
@@ -256,42 +429,39 @@ fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): Array<DoubleA
     }
 }
 
+@CreatorsDsl
 inline infix fun Int.forEach(action: (Int) -> Unit) {
-    repeat(this, action)
+    for (index in 0 until this) {
+        action(index)
+    }
 }
 
-@AssumptionDsl
-fun Int.isPrimeValue(): Boolean = Numeric.isPrimeValue(this)
+@CreatorsDsl
+fun Int.toHexString(pads: Int = 0): String = toString(16).padStart(pads.maxOf(0), '0')
 
-@AssumptionDsl
-fun AtomicInteger.isPrimeValue(): Boolean = Numeric.isPrimeValue(this)
+@CreatorsDsl
+fun Byte.toHexString(pads: Int = 0): String = toString(16).padStart(pads.maxOf(0), '0')
 
-@JvmOverloads
-fun Int.toHexString(pads: Int = 0): String = toString(16).padStart(pads.abs().maxOf(0), '0')
+@CreatorsDsl
+fun Long.toHexString(pads: Int = 0): String = toString(16).padStart(pads.maxOf(0), '0')
 
-@JvmOverloads
-fun Byte.toHexString(pads: Int = 0): String = toString(16).padStart(pads.abs().maxOf(0), '0')
+@CreatorsDsl
+fun Short.toHexString(pads: Int = 0): String = toString(16).padStart(pads.maxOf(0), '0')
 
-@JvmOverloads
-fun Long.toHexString(pads: Int = 0): String = toString(16).padStart(pads.abs().maxOf(0), '0')
+@CreatorsDsl
+fun Char.toHexString(pads: Int = 0): String = toInt().toString(16).padStart(pads.maxOf(0), '0')
 
-@JvmOverloads
-fun Short.toHexString(pads: Int = 0): String = toString(16).padStart(pads.abs().maxOf(0), '0')
+@CreatorsDsl
+fun Int.toBinaryString(pads: Int = Int.SIZE_BITS): String = toString(2).padStart(pads.maxOf(0), '0')
 
-@JvmOverloads
-fun Char.toHexString(pads: Int = 0): String = toInt().toString(16).padStart(pads.abs().maxOf(0), '0')
+@CreatorsDsl
+fun Byte.toBinaryString(pads: Int = Byte.SIZE_BITS): String = toString(2).padStart(pads.maxOf(0), '0')
 
-@JvmOverloads
-fun Int.toBinaryString(pads: Int = Int.SIZE_BITS): String = toString(2).padStart(pads.abs().maxOf(0), '0')
+@CreatorsDsl
+fun Long.toBinaryString(pads: Int = Long.SIZE_BITS): String = toString(2).padStart(pads.maxOf(0), '0')
 
-@JvmOverloads
-fun Byte.toBinaryString(pads: Int = Byte.SIZE_BITS): String = toString(2).padStart(pads.abs().maxOf(0), '0')
+@CreatorsDsl
+fun Short.toBinaryString(pads: Int = Short.SIZE_BITS): String = toString(2).padStart(pads.maxOf(0), '0')
 
-@JvmOverloads
-fun Long.toBinaryString(pads: Int = Long.SIZE_BITS): String = toString(2).padStart(pads.abs().maxOf(0), '0')
-
-@JvmOverloads
-fun Short.toBinaryString(pads: Int = Short.SIZE_BITS): String = toString(2).padStart(pads.abs().maxOf(0), '0')
-
-@JvmOverloads
-fun Char.toBinaryString(pads: Int = Byte.SIZE_BITS * 2): String = toInt().toString(2).padStart(pads.abs().maxOf(0), '0')
+@CreatorsDsl
+fun Char.toBinaryString(pads: Int = Byte.SIZE_BITS * 2): String = toInt().toString(2).padStart(pads.maxOf(0), '0')

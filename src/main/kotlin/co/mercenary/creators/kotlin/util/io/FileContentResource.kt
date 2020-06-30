@@ -21,8 +21,9 @@ import java.io.File
 import java.nio.file.Path
 
 @IgnoreForSerialize
-class FileContentResource @JvmOverloads constructor(private val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type), OutputContentResource {
+class FileContentResource @JvmOverloads @CreatorsDsl constructor(private val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type), OutputContentResource {
 
+    @CreatorsDsl
     @JvmOverloads
     constructor(data: Path, type: String = DEFAULT_CONTENT_TYPE) : this(data.toFile(), type)
 
@@ -30,38 +31,45 @@ class FileContentResource @JvmOverloads constructor(private val data: File, type
 
     private val kind = IO.PREFIX_FILES
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentKind() = kind
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentType() = type
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentSize() = data.length()
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentTime() = data.lastModified()
 
-    @AssumptionDsl
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun isContentThere() = data.isValidToRead()
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getInputStream() = data.toInputStream()
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getOutputStream() = data.toOutputStream()
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup = { data.toRelative(it).toContentResource() }
 
-    override fun toString() = getDescription()
-
-    @AssumptionDsl
+    @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
         is FileContentResource -> this === other || data isSameFileAndData other.data
         else -> false
     }
+
+    override fun toString() = getDescription()
 
     override fun hashCode() = data.hashCode()
 }

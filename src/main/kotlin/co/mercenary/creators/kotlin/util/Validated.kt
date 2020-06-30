@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util
 
-import org.apache.commons.io.output.*
-import java.nio.charset.Charset
-
-class StringBuilderOutputStream @JvmOverloads constructor(private val builder: StringBuilder = StringBuilder(DEFAULT_BUFFER_SIZE), charset: Charset = Charsets.UTF_8) : WriterOutputStream(StringBuilderWriter(builder), charset) {
-    fun getBuilder(): StringBuilder = builder
-    override fun toString(): String = getBuilder().toString()
+interface Validated {
+    @CreatorsDsl
+    fun isValid(): Boolean
 }

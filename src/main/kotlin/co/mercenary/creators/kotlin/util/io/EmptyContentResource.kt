@@ -29,44 +29,62 @@ object EmptyContentResource : CachedContentResource {
         "${javaClass.name}(${getContentPath()}, ${getContentType()}, ${isContentCache()})"
     }
 
+    @CreatorsDsl
     override fun toMapNames(): Map<String, Any?> {
         return mapOf("name" to javaClass.name, "path" to getContentPath(), "type" to getContentType(), "time" to getContentTime().toDate())
     }
 
     override fun toString() = desc
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentSize() = 0L
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentTime() = 0L
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentPath() = path
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getDescription() = desc
 
-    @AssumptionDsl
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun getContentKind() = EMPTY_STRING
+
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun isContentCache() = true
 
-    @AssumptionDsl
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun isContentThere() = false
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentData() = ByteArray(0)
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getInputStream() = EmptyInputStream
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun toContentCache() = EmptyContentResource
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentType() = DEFAULT_CONTENT_TYPE
 
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun getContentMime() = ContentMimeType.DEFAULT_CONTENT_MIME_TYPE
+
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup = { _ -> EmptyContentResource }
 }

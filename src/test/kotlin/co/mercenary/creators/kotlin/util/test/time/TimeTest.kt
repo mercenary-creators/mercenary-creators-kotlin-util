@@ -25,46 +25,51 @@ class TimeTest : KotlinTest() {
         info { 0.5.years }
         info { 1.0.years }
         info { 1.5.years }
-        info { dash() }
+        warn { dash() }
         info { 0.5.weeks }
         info { 1.0.weeks }
         info { 1.5.weeks }
-        info { dash() }
+        warn { dash() }
         info { 0.5.days }
         info { 1.0.days }
         info { 1.5.days }
-        info { dash() }
+        warn { dash() }
         info { 0.5.hours }
         info { 1.0.hours }
         info { 1.5.hours }
-        info { dash() }
+        warn { dash() }
         info { 0.5.minutes }
         info { 1.0.minutes }
         info { 1.5.minutes }
-        info { dash() }
+        warn { dash() }
         info { 0.5.seconds }
         info { 1.0.seconds }
         info { 1.5.seconds }
-        info { dash() }
+        warn { dash() }
         info { 1.millisecond / 2 }
-        info { dash() }
+        warn { dash() }
         info { 0.5.milliseconds }
         info { 1.0.milliseconds }
         info { 1.5.milliseconds }
-        info { dash() }
+        warn { dash() }
+        info { 0.5.nanoseconds }
+        info { 1.0.nanoseconds }
+        info { 1.5.nanoseconds }
+        warn { dash() }
         info { 1.year * 0.5 }
         info { 1.year * 1.0 }
         info { 1.year * 1.5 }
-        info { dash() }
+        warn { dash() }
         info { 1.year / 0.5 }
         info { 1.year / 1.0 }
         info { 1.year / 1.5 }
         info { 1.year / 2.0 }
-        info { dash() }
+        warn { dash() }
         val oops = 1.year * IS_NOT_FOUND.toDouble()
         info { oops }
         info { +oops }
         info { -oops }
         info { oops * 2.0 / IS_NOT_FOUND.toDouble() }
+        warn { dash() }
     }
 }

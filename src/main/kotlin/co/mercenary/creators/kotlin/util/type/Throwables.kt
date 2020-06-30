@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.type
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.logging.ILogging
 import kotlin.reflect.KClass
 
 object Throwables {
@@ -37,6 +36,8 @@ object Throwables {
     }
 
     @JvmStatic
+    @CreatorsDsl
+    @Synchronized
     fun thrown(cause: Throwable?) {
         if (cause != null) {
             val type = cause.javaClass
@@ -55,46 +56,60 @@ object Throwables {
     }
 
     @JvmStatic
+    @CreatorsDsl
+    @Synchronized
     @JvmOverloads
     fun <T : Throwable> append(type: Class<T>, mode: Mode = Mode.FAILURE) {
         when (mode) {
             Mode.FAILURE -> failure.add(type)
-            else -> ignored.add(type)
+            Mode.IGNORED -> ignored.add(type)
         }
     }
 
     @JvmStatic
+    @CreatorsDsl
+    @Synchronized
     @JvmOverloads
     fun <T : Throwable> append(type: KClass<T>, mode: Mode = Mode.FAILURE) {
         append(type.java, mode)
     }
 
     @JvmStatic
+    @CreatorsDsl
+    @Synchronized
     fun <T : Throwable> ignored(type: Class<T>) {
         ignored.add(type)
     }
 
     @JvmStatic
+    @CreatorsDsl
+    @Synchronized
     fun <T : Throwable> ignored(type: KClass<T>) {
         ignored(type.java)
     }
 
     @JvmStatic
+    @CreatorsDsl
+    @Synchronized
     @JvmOverloads
     fun <T : Throwable> remove(type: Class<T>, mode: Mode = Mode.FAILURE) {
         when (mode) {
             Mode.FAILURE -> failure.remove(type)
-            else -> ignored.remove(type)
+            Mode.IGNORED -> ignored.remove(type)
         }
     }
 
     @JvmStatic
+    @CreatorsDsl
+    @Synchronized
     @JvmOverloads
     fun <T : Throwable> remove(type: KClass<T>, mode: Mode = Mode.FAILURE) {
         remove(type.java, mode)
     }
 
     @JvmStatic
+    @CreatorsDsl
+    @Synchronized
     fun clear(vararg args: Mode) {
         if (args.isEmpty()) {
             failure.clear()
@@ -104,13 +119,15 @@ object Throwables {
             args.forEach { kind ->
                 when (kind) {
                     Mode.FAILURE -> failure.clear()
-                    else -> ignored.clear()
+                    Mode.IGNORED -> ignored.clear()
                 }
             }
         }
     }
 
     @JvmStatic
+    @CreatorsDsl
+    @Synchronized
     @JvmOverloads
     fun reset(defaults: Boolean = true) {
         clear()

@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.concurrent
+package co.mercenary.creators.kotlin.util
 
-import reactor.core.scheduler.*
-
-class SingleScheduler private constructor(proxy: Scheduler) : Scheduler by proxy {
-    @JvmOverloads
-    constructor(name: String, daemon: Boolean = false) : this(Schedulers.newSingle(name, daemon))
+interface Builder<out T> {
+    @CreatorsDsl
+    fun build(): T
 }

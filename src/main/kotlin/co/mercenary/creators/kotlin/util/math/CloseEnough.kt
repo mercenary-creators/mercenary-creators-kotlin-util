@@ -16,9 +16,9 @@
 
 package co.mercenary.creators.kotlin.util.math
 
-import co.mercenary.creators.kotlin.util.AssumptionDsl
+import co.mercenary.creators.kotlin.util.*
 
 interface CloseEnough<T> {
-    @AssumptionDsl
+    @CreatorsDsl
     fun closeEnough(value: T, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean
 }

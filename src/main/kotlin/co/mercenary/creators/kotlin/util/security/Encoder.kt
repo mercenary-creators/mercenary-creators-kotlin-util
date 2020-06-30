@@ -16,7 +16,11 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.CreatorsDsl
+
 interface Encoder<E, D> {
+    @CreatorsDsl
     fun decode(data: E): D
+    @CreatorsDsl
     fun encode(data: D): E
 }

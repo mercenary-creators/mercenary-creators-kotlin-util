@@ -18,8 +18,19 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-interface CachedContentResourceLoader : ContentResourceLoader {
+interface CachedKeys : Iterable<String>, Clearable {
 
     @CreatorsDsl
-    val keys: CachedKeys
+    val size: Int
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isEmpty(): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isNotEmpty(): Boolean = isEmpty().isNotTrue()
+
+    @CreatorsDsl
+    operator fun contains(data: CharSequence): Boolean
 }

@@ -16,8 +16,17 @@
 
 package co.mercenary.creators.kotlin.util.time
 
+import co.mercenary.creators.kotlin.util.*
+
+@IgnoreForSerialize
 interface Ticker {
+
+    @CreatorsDsl
     fun reset()
+
+    @CreatorsDsl
     fun since(): Long
+
+    @CreatorsDsl
     fun toElapsedString(): String
 }

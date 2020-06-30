@@ -29,19 +29,28 @@ abstract class AbstractContentResourceBase @JvmOverloads constructor(private val
         "${javaClass.name}($kind${getContentPath()}, ${getContentType()}, ${isContentCache()})"
     }
 
+    @CreatorsDsl
     override fun toMapNames(): Map<String, Any?> {
         return mapOf("name" to javaClass.name, "path" to "$kind${getContentPath()}", "type" to getContentType(), "time" to getContentTime().toDate())
     }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentPath() = path
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentTime() = time
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getDescription() = desc
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentType() = type.toLowerTrim()
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun getContentMime() = ContentMimeType(getContentType())
 }

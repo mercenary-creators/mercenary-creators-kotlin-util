@@ -22,8 +22,10 @@ import org.junit.jupiter.api.Test
 class ProbeTest : KotlinDataTest() {
     @Test
     fun test() {
-        val type = prober.getContentType("test.zip")
+        val type = prober["test.zip"]
         info { type }
         type shouldBe "application/zip"
+        warn { loader["http://jsonplaceholder.typicode.com/posts"].getContentMime() }
+        warn { loader["http://jsonplaceholder.typicode.com/todos"].getContentMime().toMapNames().plus("size" to 6) }
     }
 }

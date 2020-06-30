@@ -16,7 +16,14 @@
 
 package co.mercenary.creators.kotlin.util.time
 
+import co.mercenary.creators.kotlin.util.*
+
 interface AverageWindow {
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getAverage(): Double
+
+    @CreatorsDsl
     fun addAverage(delta: Double): Double
 }

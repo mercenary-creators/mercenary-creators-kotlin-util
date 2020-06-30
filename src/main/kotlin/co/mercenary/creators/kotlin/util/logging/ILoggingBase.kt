@@ -16,36 +16,41 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import co.mercenary.creators.kotlin.util.IgnoreForSerialize
+import co.mercenary.creators.kotlin.util.*
 
 interface ILoggingBase : ILogging {
 
-    val logger: mu.KLogger
+    @CreatorsDsl
+    fun loggerOf(): mu.KLogger
 
-    override val isLoggingInfoEnabled: Boolean
-        @IgnoreForSerialize
-        get() = logger.isInfoEnabled
+    @LoggingInfoDsl
+    @IgnoreForSerialize
+    override fun isLoggingInfoEnabled(): Boolean = loggerOf().isInfoEnabled
 
-    override val isLoggingWarnEnabled: Boolean
-        @IgnoreForSerialize
-        get() = logger.isWarnEnabled
+    @LoggingWarnDsl
+    @IgnoreForSerialize
+    override fun isLoggingWarnEnabled(): Boolean = loggerOf().isWarnEnabled
 
-    override val isLoggingTraceEnabled: Boolean
-        @IgnoreForSerialize
-        get() = logger.isTraceEnabled
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isLoggingTraceEnabled(): Boolean = loggerOf().isTraceEnabled
 
-    override val isLoggingDebugEnabled: Boolean
-        @IgnoreForSerialize
-        get() = logger.isDebugEnabled
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isLoggingDebugEnabled(): Boolean = loggerOf().isDebugEnabled
 
-    override val isLoggingErrorEnabled: Boolean
-        @IgnoreForSerialize
-        get() = logger.isErrorEnabled
+    @IgnoreForSerialize
+    override fun isLoggingErrorEnabled(): Boolean = loggerOf().isErrorEnabled
+
+    @IgnoreForSerialize
+    override fun isLoggingFatalEnabled(): Boolean {
+        return isLoggingErrorEnabled() && (isLoggingDebugEnabled() || isLoggingTraceEnabled())
+    }
 
     @LoggingInfoDsl
     override fun info(block: () -> Any?) {
-        if (isLoggingInfoEnabled) {
-            logger.info {
+        if (isLoggingInfoEnabled()) {
+            loggerOf().info {
                 LoggingFactory.toSafeString(block)
             }
         }
@@ -53,8 +58,8 @@ interface ILoggingBase : ILogging {
 
     @LoggingInfoDsl
     override fun info(cause: Throwable, block: () -> Any?) {
-        if (isLoggingInfoEnabled) {
-            logger.info(cause) {
+        if (isLoggingInfoEnabled()) {
+            loggerOf().info(cause) {
                 LoggingFactory.toSafeString(block)
             }
         }
@@ -62,8 +67,8 @@ interface ILoggingBase : ILogging {
 
     @LoggingInfoDsl
     override fun info(marker: IMarker, block: () -> Any?) {
-        if (isLoggingInfoEnabled) {
-            logger.info(marker.markerOf()) {
+        if (isLoggingInfoEnabled()) {
+            loggerOf().info(marker.markerOf()) {
                 LoggingFactory.toSafeString(block)
             }
         }
@@ -71,8 +76,8 @@ interface ILoggingBase : ILogging {
 
     @LoggingInfoDsl
     override fun info(cause: Throwable, marker: IMarker, block: () -> Any?) {
-        if (isLoggingInfoEnabled) {
-            logger.info(marker.markerOf(), cause) {
+        if (isLoggingInfoEnabled()) {
+            loggerOf().info(marker.markerOf(), cause) {
                 LoggingFactory.toSafeString(block)
             }
         }
@@ -80,8 +85,8 @@ interface ILoggingBase : ILogging {
 
     @LoggingWarnDsl
     override fun warn(block: () -> Any?) {
-        if (isLoggingWarnEnabled) {
-            logger.warn {
+        if (isLoggingWarnEnabled()) {
+            loggerOf().warn {
                 LoggingFactory.toSafeString(block)
             }
         }
@@ -89,8 +94,8 @@ interface ILoggingBase : ILogging {
 
     @LoggingWarnDsl
     override fun warn(cause: Throwable, block: () -> Any?) {
-        if (isLoggingWarnEnabled) {
-            logger.warn(cause) {
+        if (isLoggingWarnEnabled()) {
+            loggerOf().warn(cause) {
                 LoggingFactory.toSafeString(block)
             }
         }
@@ -98,8 +103,8 @@ interface ILoggingBase : ILogging {
 
     @LoggingWarnDsl
     override fun warn(marker: IMarker, block: () -> Any?) {
-        if (isLoggingWarnEnabled) {
-            logger.warn(marker.markerOf()) {
+        if (isLoggingWarnEnabled()) {
+            loggerOf().warn(marker.markerOf()) {
                 LoggingFactory.toSafeString(block)
             }
         }
@@ -107,104 +112,144 @@ interface ILoggingBase : ILogging {
 
     @LoggingWarnDsl
     override fun warn(cause: Throwable, marker: IMarker, block: () -> Any?) {
-        if (isLoggingWarnEnabled) {
-            logger.warn(marker.markerOf(), cause) {
+        if (isLoggingWarnEnabled()) {
+            loggerOf().warn(marker.markerOf(), cause) {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
+    @CreatorsDsl
     override fun trace(block: () -> Any?) {
-        if (isLoggingTraceEnabled) {
-            logger.trace {
+        if (isLoggingTraceEnabled()) {
+            loggerOf().trace {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
+    @CreatorsDsl
     override fun trace(cause: Throwable, block: () -> Any?) {
-        if (isLoggingTraceEnabled) {
-            logger.trace(cause) {
+        if (isLoggingTraceEnabled()) {
+            loggerOf().trace(cause) {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
+    @CreatorsDsl
     override fun trace(marker: IMarker, block: () -> Any?) {
-        if (isLoggingTraceEnabled) {
-            logger.trace(marker.markerOf()) {
+        if (isLoggingTraceEnabled()) {
+            loggerOf().trace(marker.markerOf()) {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
+    @CreatorsDsl
     override fun trace(cause: Throwable, marker: IMarker, block: () -> Any?) {
-        if (isLoggingTraceEnabled) {
-            logger.trace(marker.markerOf(), cause) {
+        if (isLoggingTraceEnabled()) {
+            loggerOf().trace(marker.markerOf(), cause) {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
+    @CreatorsDsl
     override fun debug(block: () -> Any?) {
-        if (isLoggingDebugEnabled) {
-            logger.debug {
+        if (isLoggingDebugEnabled()) {
+            loggerOf().debug {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
+    @CreatorsDsl
     override fun debug(cause: Throwable, block: () -> Any?) {
-        if (isLoggingDebugEnabled) {
-            logger.debug(cause) {
+        if (isLoggingDebugEnabled()) {
+            loggerOf().debug(cause) {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
+    @CreatorsDsl
     override fun debug(marker: IMarker, block: () -> Any?) {
-        if (isLoggingDebugEnabled) {
-            logger.debug(marker.markerOf()) {
+        if (isLoggingDebugEnabled()) {
+            loggerOf().debug(marker.markerOf()) {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
+    @CreatorsDsl
     override fun debug(cause: Throwable, marker: IMarker, block: () -> Any?) {
-        if (isLoggingDebugEnabled) {
-            logger.debug(marker.markerOf(), cause) {
+        if (isLoggingDebugEnabled()) {
+            loggerOf().debug(marker.markerOf(), cause) {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
     override fun error(block: () -> Any?) {
-        if (isLoggingErrorEnabled) {
-            logger.error {
+        if (isLoggingErrorEnabled()) {
+            loggerOf().error {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
     override fun error(cause: Throwable, block: () -> Any?) {
-        if (isLoggingErrorEnabled) {
-            logger.error(cause) {
+        if (isLoggingErrorEnabled()) {
+            loggerOf().error(cause) {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
     override fun error(marker: IMarker, block: () -> Any?) {
-        if (isLoggingErrorEnabled) {
-            logger.error(marker.markerOf()) {
+        if (isLoggingErrorEnabled()) {
+            loggerOf().error(marker.markerOf()) {
                 LoggingFactory.toSafeString(block)
             }
         }
     }
 
     override fun error(cause: Throwable, marker: IMarker, block: () -> Any?) {
-        if (isLoggingErrorEnabled) {
-            logger.error(marker.markerOf(), cause) {
+        if (isLoggingErrorEnabled()) {
+            loggerOf().error(marker.markerOf(), cause) {
+                LoggingFactory.toSafeString(block)
+            }
+        }
+    }
+
+    override fun fatal(block: () -> Any?) {
+        if (isLoggingFatalEnabled()) {
+            loggerOf().error {
+                LoggingFactory.toSafeString(block)
+            }
+        }
+    }
+
+    override fun fatal(cause: Throwable, block: () -> Any?) {
+        if (isLoggingFatalEnabled()) {
+            loggerOf().error(cause) {
+                LoggingFactory.toSafeString(block)
+            }
+        }
+    }
+
+    override fun fatal(marker: IMarker, block: () -> Any?) {
+        if (isLoggingFatalEnabled()) {
+            loggerOf().error(marker.markerOf()) {
+                LoggingFactory.toSafeString(block)
+            }
+        }
+    }
+
+    override fun fatal(cause: Throwable, marker: IMarker, block: () -> Any?) {
+        if (isLoggingFatalEnabled()) {
+            loggerOf().error(marker.markerOf(), cause) {
                 LoggingFactory.toSafeString(block)
             }
         }

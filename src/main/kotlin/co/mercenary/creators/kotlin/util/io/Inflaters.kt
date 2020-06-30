@@ -16,22 +16,25 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import co.mercenary.creators.kotlin.util.IgnoreForSerialize
+import co.mercenary.creators.kotlin.util.*
 import java.io.*
 import java.util.zip.*
 
 object Inflaters {
 
     @JvmStatic
+    @CreatorsDsl
     fun gzip(): Inflater = GZIPInflater
 
     @IgnoreForSerialize
     private object GZIPInflater : Inflater {
 
+        @CreatorsDsl
         override fun inflate(data: InputStream, copy: OutputStream) = GZIPInputStream(NoCloseInputStream(data)).use { gzip ->
             gzip.copyTo(copy).also { copy.flush() }
         }
 
+        @CreatorsDsl
         override fun deflate(data: InputStream, copy: OutputStream) = CountSizeOutputStream(copy).let { buff ->
             GZIPOutputStream(NoCloseOutputStream(buff)).use { gzip ->
                 data.copyTo(gzip)

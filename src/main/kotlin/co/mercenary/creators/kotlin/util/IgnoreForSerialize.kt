@@ -16,9 +16,7 @@
 
 package co.mercenary.creators.kotlin.util
 
-import java.lang.annotation.Inherited
-
-@Inherited
+@java.lang.annotation.Inherited
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FIELD, AnnotationTarget.CLASS)
 annotation class IgnoreForSerialize(val value: Boolean = true)

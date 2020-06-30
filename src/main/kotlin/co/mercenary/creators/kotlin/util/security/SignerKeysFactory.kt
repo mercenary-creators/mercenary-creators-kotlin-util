@@ -16,9 +16,16 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.*
 import java.security.*
 
 interface SignerKeysFactory {
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getVerifyKey(): PublicKey
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getSignerKey(): PrivateKey
 }

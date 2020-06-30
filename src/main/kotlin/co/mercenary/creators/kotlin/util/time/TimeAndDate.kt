@@ -29,80 +29,113 @@ object TimeAndDate {
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun dateTimeOf(zone: ZoneId = getDefaultTimeZoneId()): LocalDateTime = LocalDateTime.now(zone)
 
     @JvmStatic
+    @CreatorsDsl
     fun nanos(): Long = System.nanoTime()
 
     @JvmStatic
-    fun nanosOf(): () -> Long = System::nanoTime
+    @CreatorsDsl
+    fun nanosOf(): () -> Long = TimeAndDate::nanos
 
     @JvmStatic
+    @CreatorsDsl
     fun mills(): Long = System.currentTimeMillis()
 
     @JvmStatic
-    fun millsOf(): () -> Long = System::currentTimeMillis
+    @CreatorsDsl
+    fun millsOf(): () -> Long = TimeAndDate::mills
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun getTimeStamp(nano: Boolean = false): Long = if (nano) nanos() else mills()
 
     @JvmStatic
+    @CreatorsDsl
     fun getDefaultTimeZoneId(): ZoneId = ZoneId.of(TIME_DEFAULT_ZONE_STRING)
 
     @JvmStatic
+    @CreatorsDsl
     fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(TIME_DEFAULT_ZONE_STRING)
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun setDefaultTimeZone(zone: TimeZone = getDefaultTimeZone()) {
         TimeZone.setDefault(zone)
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat(TIME_DEFAULT_DATE_FORMAT)
 
     @JvmStatic
+    @CreatorsDsl
     fun getDefaultDateFormat(zone: TimeZone): SimpleDateFormat = getDefaultDateFormat().also { it.timeZone = zone }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun getDefaultDateFormatAndTimeZone(zone: TimeZone = getDefaultTimeZone()): SimpleDateFormat = getDefaultDateFormat(zone)
 
     @JvmStatic
+    @CreatorsDsl
+    @JvmOverloads
+    fun convertTo(date: Date, zone: ZoneId = getDefaultTimeZoneId()): LocalDateTime {
+        return LocalDateTime.ofInstant(date.toInstant(), zone)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    @JvmOverloads
+    fun convertTo(date: LocalDateTime, zone: ZoneId = getDefaultTimeZoneId()): Date {
+        return Date.from(date.atZone(zone).toInstant())
+    }
+
+    @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun formatDate(date: Date, safe: Boolean = true): String {
         return if (safe) getThreadLocalDefaultDateFormat().get().format(date) else getDefaultDateFormatAndTimeZone().format(date)
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun formatDate(date: LocalDateTime, zone: ZoneId = getDefaultTimeZoneId()): String {
         return formatter.withZone(zone).format(date)
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun parseDate(text: CharSequence, safe: Boolean = true): Date {
         return if (safe) getThreadLocalDefaultDateFormat().get().parse(text.toString()) else getDefaultDateFormatAndTimeZone().parse(text.toString())
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun parseDate(text: CharSequence, zone: ZoneId = getDefaultTimeZoneId()): LocalDateTime {
         return LocalDateTime.parse(text, formatter.withZone(zone))
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun getThreadLocalDefaultDateFormat(zone: TimeZone = getDefaultTimeZone()): ThreadLocal<SimpleDateFormat> = ThreadLocal.withInitial { getDefaultDateFormat(zone) }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
-    fun toDecimalPlaces(data: Double, tail: String = EMPTY_STRING, places: Int = 3): String = data.toDecimalPlacesString(places) + tail
+    fun toDecimalPlaces(data: Double, tail: String = EMPTY_STRING, places: Int = Numeric.DEFAULT_PRECISION_SCALE): String = data.toDecimalPlacesString(places) + tail
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun toElapsedString(data: Long, head: String = "elapsed "): String = head + if (data < 1000000L) "$data nanoseconds" else if (data < 1000000000L) toDecimalPlaces(1.0E-6 * data, " milliseconds") else toDecimalPlaces(1.0E-9 * data, " seconds")
 }

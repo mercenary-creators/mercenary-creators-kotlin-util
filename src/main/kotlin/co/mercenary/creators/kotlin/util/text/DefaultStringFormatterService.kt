@@ -23,8 +23,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
 
+    @CreatorsDsl
+    private val deep = ThreadLocal.withInitial { 0L.toAtomic() }
+
+    @CreatorsDsl
     private val safe = { data: Any? -> Formatters.toSafeString { data } }
 
+    @CreatorsDsl
     override fun toSafeString(data: Any): String {
         return when (data) {
             is CharArray -> String(data)
@@ -44,16 +49,16 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
             is Function0<*> -> Formatters.toSafeString(data)
             is Map.Entry<*, *> -> buildString {
                 val (k, v) = data
-                append(Escapers.toEscapedString(safe.invoke(k), quoted(k)))
+                append(escape(k))
                 append(": ")
-                append(Escapers.toEscapedString(safe.invoke(v), quoted(v)))
+                append(escape(v))
             }
             is HasMapNames -> safe.invoke(data.toMapNames())
             else -> data.toString()
         }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun isValidClass(data: Any): Boolean {
         return when (data) {
             is String -> true
@@ -77,10 +82,22 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
             is Function0<*> -> true
             is Map.Entry<*, *> -> true
             is HasMapNames -> true
+            is CharSequence -> true
             else -> false
         }
     }
 
+    @CreatorsDsl
+    private fun escape(data: Any?): String {
+        val flag = quoted(data)
+        deep.toValue().increment()
+        val next = safe.invoke(data)
+        val look = flag.isNotTrue().and(deep.toValue() > 0).isNotTrue()
+        deep.toValue().decrement()
+        return if (look.isTrue()) Escapers.toEscapedString(next, flag.isTrue()) else next
+    }
+
+    @CreatorsDsl
     private fun joinTo(data: List<*>): String {
         return when(val size = data.size) {
             0 -> "[]"
@@ -97,6 +114,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
         }
     }
 
+    @CreatorsDsl
     private fun joinTo(data: Map<*, *>): String {
         val list = data.entries.toList()
         return when(val size = list.size) {
@@ -114,7 +132,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
         }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     private fun quoted(data: Any?): Boolean {
         return when (data) {
             null -> false

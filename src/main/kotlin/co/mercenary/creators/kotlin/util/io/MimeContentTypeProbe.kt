@@ -23,32 +23,40 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 
 @IgnoreForSerialize
-class MimeContentTypeProbe @JvmOverloads constructor(private val maps: ContentFileTypeMap = ContentTypeProbe.getDefaultFileTypeMap()) : ContentTypeProbe {
+class MimeContentTypeProbe @JvmOverloads @CreatorsDsl constructor(private val maps: ContentFileTypeMap = ContentTypeProbe.getDefaultFileTypeMap()) : ContentTypeProbe {
 
+    @CreatorsDsl
     override fun getContentType(data: ByteArray, type: String): String {
         return IO.getContentType(data, type)
     }
 
+    @CreatorsDsl
     override fun getContentType(data: InputStream, type: String): String {
         return IO.getContentType(data, type)
     }
 
+    @CreatorsDsl
     override fun getContentType(data: ReadableByteChannel, type: String): String {
         return IO.getContentType(data, type)
     }
 
+    @CreatorsDsl
     override fun getContentType(data: URI, type: String): String {
         return IO.getContentType(data, type)
     }
 
+    @CreatorsDsl
     override fun getContentType(data: URL, type: String): String {
         return IO.getContentType(data, type)
     }
 
+    @CreatorsDsl
     override fun getContentType(data: File, type: String): String = getContentType(data.name, type)
 
+    @CreatorsDsl
     override fun getContentType(data: Path, type: String): String = getContentType(data.toFile(), type)
 
+    @CreatorsDsl
     override fun getContentType(name: String, type: String): String {
         if (type.isDefaultContentType()) {
             val path = getPathNormalizedOrElse(name)
@@ -61,6 +69,7 @@ class MimeContentTypeProbe @JvmOverloads constructor(private val maps: ContentFi
         return type.toLowerTrim()
     }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getFileTypeMap(): ContentFileTypeMap = maps
 }

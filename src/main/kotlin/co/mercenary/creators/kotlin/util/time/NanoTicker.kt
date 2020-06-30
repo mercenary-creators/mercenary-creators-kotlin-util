@@ -16,6 +16,9 @@
 
 package co.mercenary.creators.kotlin.util.time
 
-class NanoTicker : AbstractTicker(TimeAndDate::nanos) {
+import co.mercenary.creators.kotlin.util.*
+
+@IgnoreForSerialize
+class NanoTicker @CreatorsDsl constructor(): AbstractTicker(TimeAndDate.nanosOf()) {
     override fun toString() = toElapsedString()
 }

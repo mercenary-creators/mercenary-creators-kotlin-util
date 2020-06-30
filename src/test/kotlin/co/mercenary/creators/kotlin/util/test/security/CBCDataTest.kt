@@ -46,22 +46,5 @@ class CBCDataTest : KotlinSecurityTest() {
         bits shouldBe back
         info { bits isSameAs back }
         info { dash() }
-        info { 1..16 isSameAs 1..16 }
-        info { 1..16 isNotSameAs 1..1024 }
-        info { dash() }
-        info { 1.toAtomic() isSameAs 1 }
-        info { 1.toAtomic() isSameAs 1L }
-        info { dash() }
-        info { 1.toAtomic() isSameAs 1.toAtomic() }
-        info { 1.toAtomic() isSameAs 1L.toAtomic() }
-        info { dash() }
-        info { true.toAtomic() isSameAs true }
-        info { true isSameAs true.toAtomic() }
-        info { dash() }
-        info { 1L.toAtomic() isSameAs 1.0 }
-        info { 1.0 isSameAs 1L.toAtomic() }
-        info { dash() }
-        info { 1.0.toBigDecimal() isSameAs 1L.toAtomic() }
-        info { 1.0.toBigDecimal() == 1.0.toBigDecimal() }
     }
 }

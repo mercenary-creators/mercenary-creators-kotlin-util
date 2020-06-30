@@ -16,10 +16,20 @@
 
 package co.mercenary.creators.kotlin.util.time
 
+import co.mercenary.creators.kotlin.util.*
 import java.util.concurrent.TimeUnit
 
 interface TimeWindowMovingAverage : AverageWindow {
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getMomentInTime(): Long
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getWaitTimeUnit(): TimeUnit
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getWindowHandle(): TimeWindowHandle
 }

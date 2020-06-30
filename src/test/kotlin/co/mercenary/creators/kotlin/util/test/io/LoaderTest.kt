@@ -29,15 +29,16 @@ class LoaderTest : KotlinDataTest() {
         info { loader["test.doc"] }
         info { loader["test.htm"] }
         info { loader["test.htm"].toRelativePath("../test.txt") }
-        warn { loader["http://jsonplaceholder.typicode.com/posts"] }
+        info { loader["http://jsonplaceholder.typicode.com/posts"] }
         val path = getTempFileNamedPath(uuid(), ".json")
         info { loader[path] }
         val temp = getTempFileNamedPath(uuid(), ".yaml")
         info { loader[temp] }
         val look = object : ContentProtocolResolver {
+            @CreatorsDsl
             override fun resolve(path: String, load: ContentResourceLoader): ContentResource? {
                 if (load.isContentCache()) {
-                    warn { path }
+                    info { path }
                 }
                 return null
             }
@@ -47,28 +48,28 @@ class LoaderTest : KotlinDataTest() {
         cached += look
         info { look in cached }
         true shouldBe (look in cached)
-        val dara = EmptyContentResource
+        val data = EmptyContentResource
         info { EmptyContentResource }
-        info { dara == EmptyContentResource }
-        info { dara isSameAs EmptyContentResource }
-        dara shouldBe EmptyContentResource
+        info { data == EmptyContentResource }
+        info { data isSameAs EmptyContentResource }
+        data shouldBe EmptyContentResource
         info { loader["http://jsonplaceholder.typicode.com/posts"].toRelativePath("../todos") }
         info { loader["http://jsonplaceholder.typicode.com/todos"]["../posts"] }
         info { dash() }
         info { cached["test.htm"] }
         info { cached["test.htm"].toRelativePath("../test.txt") }
         info { cached["test.txt"].toRelativePath("../test.pdf") }
-        info { cached.keys }
+        error { cached.keys }
         cached.keys.size shouldNotBe 0
         cached.keys.clear()
-        info { cached.keys }
+        error { cached.keys }
         cached.keys.size shouldBe 0
         info { cached["test.pdf"].toRelativePath("../test.doc") }
-        info { cached.keys }
+        error { cached.keys }
         cached.keys.size shouldNotBe 0
-        warn { loader["http://jsonplaceholder.typicode.com/posts"].getContentType() }
+        warn { loader["http://jsonplaceholder.typicode.com/posts"].getContentMime() }
         info { ContentMimeType(loader["http://jsonplaceholder.typicode.com/posts"].getContentType()) }
         info { ContentMimeType() }
-        warn { ContentMimeType(EMPTY_STRING) }
+        info { ContentMimeType(EMPTY_STRING) }
     }
 }

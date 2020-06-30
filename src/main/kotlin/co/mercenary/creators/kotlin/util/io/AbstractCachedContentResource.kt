@@ -19,34 +19,39 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-abstract class AbstractCachedContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractContentResourceBase(path, type, time), CachedContentResource {
+abstract class AbstractCachedContentResource @JvmOverloads @CreatorsDsl constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractContentResourceBase(path, type, time), CachedContentResource {
 
-    private val save = data.copyOf()
+    private val save = data.toByteArray()
 
+    @CreatorsDsl
     @IgnoreForSerialize
-    override fun getContentData() = save.copyOf()
+    override fun getContentData() = save.toByteArray()
 
+    @CreatorsDsl
     @IgnoreForSerialize
-    override fun getInputStream() = save.inputStream()
+    override fun getInputStream() = save.toInputStream()
 
+    @CreatorsDsl
     @IgnoreForSerialize
-    override fun getContentSize() = save.size.toLong()
+    override fun getContentSize() = save.toContentSize()
 
-    @AssumptionDsl
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun isContentThere() = true
 
-    @AssumptionDsl
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun isContentCache() = true
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun toContentCache() = this
 
-    @AssumptionDsl
+    @CreatorsDsl
     @IgnoreForSerialize
     protected fun toDataHashOf(): Int = getContentPath().hashOf(save)
 
-    @AssumptionDsl
+    @CreatorsDsl
+    @IgnoreForSerialize
     protected fun isDataSameAs(data: AbstractCachedContentResource): Boolean = save isSameAs data.save
 }

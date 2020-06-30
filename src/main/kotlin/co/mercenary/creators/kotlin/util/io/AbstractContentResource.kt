@@ -25,6 +25,7 @@ abstract class AbstractContentResource @JvmOverloads constructor(path: String, t
         ByteArrayContentResource(getContentData(), getContentPath(), getContentType(), getContentTime(), getContentLook(), getContentKind())
     }
 
+    @CreatorsDsl
     protected fun resolved(): String {
         val keep = super.getContentType()
         if (keep.isDefaultContentType()) {
@@ -38,16 +39,19 @@ abstract class AbstractContentResource @JvmOverloads constructor(path: String, t
         return keep.toLowerTrim()
     }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun toContentCache() = cache
 
-    @AssumptionDsl
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun isContentCache() = false
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentData() = getInputStream().toByteArray()
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentSize() = getInputStream().use { it.copyTo(EmptyOutputStream) }
 }

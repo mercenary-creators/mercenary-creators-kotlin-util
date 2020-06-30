@@ -15,6 +15,7 @@
  */
 
 @file:kotlin.jvm.JvmName("TimeKt")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package co.mercenary.creators.kotlin.util
 
@@ -32,159 +33,275 @@ typealias TimeDuration = co.mercenary.creators.kotlin.util.time.TimeDuration
 
 typealias TimeDurationUnit = co.mercenary.creators.kotlin.util.time.TimeDurationUnit
 
+@CreatorsDsl
 val Int.day: TimeDuration
     get() = TimeDuration.days(this)
 
+@CreatorsDsl
 val Int.hour: TimeDuration
     get() = TimeDuration.hours(this)
 
+@CreatorsDsl
 val Int.week: TimeDuration
     get() = TimeDuration.weeks(this)
 
+@CreatorsDsl
 val Int.year: TimeDuration
     get() = TimeDuration.years(this)
 
+@CreatorsDsl
 val Int.minute: TimeDuration
     get() = TimeDuration.minutes(this)
 
+@CreatorsDsl
 val Int.second: TimeDuration
     get() = TimeDuration.seconds(this)
 
+@CreatorsDsl
 val Int.millisecond: TimeDuration
     get() = TimeDuration.milliseconds(this)
 
+@CreatorsDsl
 val Int.nanosecond: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
+@CreatorsDsl
 val Int.days: TimeDuration
     get() = TimeDuration.days(this)
 
+@CreatorsDsl
 val Int.hours: TimeDuration
     get() = TimeDuration.hours(this)
 
+@CreatorsDsl
 val Int.weeks: TimeDuration
     get() = TimeDuration.weeks(this)
 
+@CreatorsDsl
 val Int.years: TimeDuration
     get() = TimeDuration.years(this)
 
+@CreatorsDsl
 val Int.minutes: TimeDuration
     get() = TimeDuration.minutes(this)
 
+@CreatorsDsl
 val Int.seconds: TimeDuration
     get() = TimeDuration.seconds(this)
 
+@CreatorsDsl
 val Int.milliseconds: TimeDuration
     get() = TimeDuration.milliseconds(this)
 
+@CreatorsDsl
 val Int.nanoseconds: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
+@CreatorsDsl
 val Long.day: TimeDuration
     get() = TimeDuration.days(this)
 
+@CreatorsDsl
 val Long.hour: TimeDuration
     get() = TimeDuration.hours(this)
 
+@CreatorsDsl
 val Long.week: TimeDuration
     get() = TimeDuration.weeks(this)
 
+@CreatorsDsl
 val Long.year: TimeDuration
     get() = TimeDuration.years(this)
 
+@CreatorsDsl
 val Long.minute: TimeDuration
     get() = TimeDuration.minutes(this)
 
+@CreatorsDsl
 val Long.second: TimeDuration
     get() = TimeDuration.seconds(this)
 
+@CreatorsDsl
 val Long.millisecond: TimeDuration
     get() = TimeDuration.milliseconds(this)
 
+@CreatorsDsl
 val Long.nanosecond: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
+@CreatorsDsl
 val Long.days: TimeDuration
     get() = TimeDuration.days(this)
 
+@CreatorsDsl
 val Long.hours: TimeDuration
     get() = TimeDuration.hours(this)
 
+@CreatorsDsl
 val Long.weeks: TimeDuration
     get() = TimeDuration.weeks(this)
 
+@CreatorsDsl
 val Long.years: TimeDuration
     get() = TimeDuration.years(this)
 
+@CreatorsDsl
 val Long.minutes: TimeDuration
     get() = TimeDuration.minutes(this)
 
+@CreatorsDsl
 val Long.seconds: TimeDuration
     get() = TimeDuration.seconds(this)
 
+@CreatorsDsl
 val Long.milliseconds: TimeDuration
     get() = TimeDuration.milliseconds(this)
 
+@CreatorsDsl
 val Long.nanoseconds: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
+@CreatorsDsl
+val Short.day: TimeDuration
+    get() = TimeDuration.days(this)
+
+@CreatorsDsl
+val Short.hour: TimeDuration
+    get() = TimeDuration.hours(this)
+
+@CreatorsDsl
+val Short.week: TimeDuration
+    get() = TimeDuration.weeks(this)
+
+@CreatorsDsl
+val Short.year: TimeDuration
+    get() = TimeDuration.years(this)
+
+@CreatorsDsl
+val Short.minute: TimeDuration
+    get() = TimeDuration.minutes(this)
+
+@CreatorsDsl
+val Short.second: TimeDuration
+    get() = TimeDuration.seconds(this)
+
+@CreatorsDsl
+val Short.millisecond: TimeDuration
+    get() = TimeDuration.milliseconds(this)
+
+@CreatorsDsl
+val Short.nanosecond: TimeDuration
+    get() = TimeDuration.nanoseconds(this)
+
+@CreatorsDsl
+val Short.days: TimeDuration
+    get() = TimeDuration.days(this)
+
+@CreatorsDsl
+val Short.hours: TimeDuration
+    get() = TimeDuration.hours(this)
+
+@CreatorsDsl
+val Short.weeks: TimeDuration
+    get() = TimeDuration.weeks(this)
+
+@CreatorsDsl
+val Short.years: TimeDuration
+    get() = TimeDuration.years(this)
+
+@CreatorsDsl
+val Short.minutes: TimeDuration
+    get() = TimeDuration.minutes(this)
+
+@CreatorsDsl
+val Short.seconds: TimeDuration
+    get() = TimeDuration.seconds(this)
+
+@CreatorsDsl
+val Short.milliseconds: TimeDuration
+    get() = TimeDuration.milliseconds(this)
+
+@CreatorsDsl
+val Short.nanoseconds: TimeDuration
+    get() = TimeDuration.nanoseconds(this)
+
+@CreatorsDsl
 val Float.days: TimeDuration
     get() = TimeDuration.days(this)
 
+@CreatorsDsl
 val Float.hours: TimeDuration
     get() = TimeDuration.hours(this)
 
+@CreatorsDsl
 val Float.weeks: TimeDuration
     get() = TimeDuration.weeks(this)
 
+@CreatorsDsl
 val Float.years: TimeDuration
     get() = TimeDuration.years(this)
 
+@CreatorsDsl
 val Float.minutes: TimeDuration
     get() = TimeDuration.minutes(this)
 
+@CreatorsDsl
 val Float.seconds: TimeDuration
     get() = TimeDuration.seconds(this)
 
+@CreatorsDsl
 val Float.milliseconds: TimeDuration
     get() = TimeDuration.milliseconds(this)
 
+@CreatorsDsl
 val Float.nanoseconds: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
+@CreatorsDsl
 val Double.days: TimeDuration
     get() = TimeDuration.days(this)
 
+@CreatorsDsl
 val Double.hours: TimeDuration
     get() = TimeDuration.hours(this)
 
+@CreatorsDsl
 val Double.weeks: TimeDuration
     get() = TimeDuration.weeks(this)
 
+@CreatorsDsl
 val Double.years: TimeDuration
     get() = TimeDuration.years(this)
 
+@CreatorsDsl
 val Double.minutes: TimeDuration
     get() = TimeDuration.minutes(this)
 
+@CreatorsDsl
 val Double.seconds: TimeDuration
     get() = TimeDuration.seconds(this)
 
+@CreatorsDsl
 val Double.milliseconds: TimeDuration
     get() = TimeDuration.milliseconds(this)
 
+@CreatorsDsl
 val Double.nanoseconds: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
+@CreatorsDsl
 fun Date?.copyOf(): Date = when (this) {
     null -> Date()
     else -> Date(toLong())
 }
 
+@CreatorsDsl
 fun Date.toLong(): Long = time
 
+@CreatorsDsl
 fun Long.toDate(): Date = Date(this)
 
+@CreatorsDsl
 fun dateOf(): Date = Date()
 
 operator fun Date.plus(value: TimeDuration): Date = Date(toLong() + value.duration().toMillis())
@@ -195,22 +312,29 @@ operator fun LocalDateTime.plus(value: TimeDuration): LocalDateTime = plus(value
 
 operator fun LocalDateTime.minus(value: TimeDuration): LocalDateTime = minus(value.duration())
 
-@JvmOverloads
+@CreatorsDsl
 fun dateTimeOf(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): LocalDateTime = TimeAndDate.dateTimeOf(zone)
 
-@JvmOverloads
+@CreatorsDsl
 fun getTimeStamp(nano: Boolean = false): Long = TimeAndDate.getTimeStamp(nano)
 
-@JvmOverloads
+@CreatorsDsl
+fun Date.convertTo(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): LocalDateTime = TimeAndDate.convertTo(this, zone)
+
+@CreatorsDsl
+fun LocalDateTime.convertTo(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): Date = TimeAndDate.convertTo(this, zone)
+
+@CreatorsDsl
 fun Date.formatDate(safe: Boolean = true): String = TimeAndDate.formatDate(this, safe)
 
-@JvmOverloads
+@CreatorsDsl
 fun LocalDateTime.formatDate(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): String = TimeAndDate.formatDate(this, zone)
 
-@JvmOverloads
-fun CharSequence.parseDate(safe: Boolean = true): Date = TimeAndDate.parseDate(this, safe)
+@CreatorsDsl
+fun CharSequence.parseDate(): Date = TimeAndDate.parseDate(this, true)
 
-@JvmOverloads
-fun CharSequence.parseDateTime(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): LocalDateTime = TimeAndDate.parseDate(this, zone)
+@CreatorsDsl
+fun String.parseDate(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): LocalDateTime = TimeAndDate.parseDate(this, zone)
 
-inline fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
+@CreatorsDsl
+fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }

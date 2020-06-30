@@ -19,21 +19,59 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 interface ContentResource : InputStreamSupplier, HasMapNames {
-    fun getContentSize(): Long
-    fun getContentTime(): Long
-    fun getContentPath(): String
-    fun getContentType(): String
-    fun getDescription(): String
-    fun getContentData(): ByteArray
-    fun toContentCache(): CachedContentResource
-    fun getContentLook(): ContentResourceLookup
-    fun getContentKind(): String = EMPTY_STRING
-    fun toRelativePath(path: String): ContentResource = getContentLook().invoke(path)
-    operator fun get(path: CharSequence): ContentResource = toRelativePath(path.toString())
 
-    @AssumptionDsl
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getContentSize(): Long
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getContentTime(): Long
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getContentPath(): String
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getContentType(): String
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getDescription(): String
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getContentKind(): String
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun isContentThere(): Boolean
 
-    @AssumptionDsl
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun isContentCache(): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getContentData(): ByteArray
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun toContentCache(): CachedContentResource
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getContentLook(): ContentResourceLookup
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getContentMime(): ContentMimeType
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun toRelativePath(path: String): ContentResource = getContentLook().invoke(path)
+
+    @CreatorsDsl
+    operator fun get(path: CharSequence): ContentResource = toRelativePath(path.toString())
 }

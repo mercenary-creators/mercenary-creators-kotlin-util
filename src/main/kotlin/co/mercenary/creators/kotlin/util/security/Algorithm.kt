@@ -17,8 +17,17 @@
 package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
+import java.security.Security
 
 @IgnoreForSerialize
 data class Algorithm(val service: String, val algorithms: List<String>) : HasMapNames {
+
+    @CreatorsDsl
     override fun toMapNames() = mapOf("service" to service, "algorithms" to algorithms)
+
+    companion object {
+        @JvmStatic
+        @CreatorsDsl
+        fun forName(name: String): Algorithm = Algorithm(name, Security.getAlgorithms(name).toList())
+    }
 }

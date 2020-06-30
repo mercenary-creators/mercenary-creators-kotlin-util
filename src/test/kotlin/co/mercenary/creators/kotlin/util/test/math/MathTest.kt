@@ -23,17 +23,60 @@ import kotlin.math.*
 class MathTest : KotlinTest() {
     @Test
     fun test() {
-        val data = 2.5
+        val data = 2.5.neg()
+        val negs = 1.0.neg()
         info { data }
-        info { floor(data) }
-        info { data - floor(data) }
-        info { dash() }
+        info { data.truncated() }
+        info { data.floor() }
+        info { data - data.floor() }
+        warn { dash() }
         info { data }
         info { data.rem(1.0) }
         info { data - data.rem(1.0) }
-        info { dash() }
+        warn { dash() }
         info { sign(data) }
+        info { data.isNegative() }
         info { sign(-data) }
-        info { dash() }
+        info { data.neg().isNegative() }
+        warn { dash() }
+        info { 2.0 power 2 }
+        info { 2.0 power -1 }
+        warn { dash() }
+        info { negs power 2 }
+        info { negs power 3 }
+        info { negs.pow(2) }
+        info { negs.pow(3) }
+        warn { dash() }
+        info { 2.0 power 0 }
+        info { 2.0 power 1 }
+        info { 2.0 power 2 }
+        info { 2.0 power 3 }
+        warn { dash() }
+        var save = 1
+        measured(10) {
+            for (i in 1..10000000) {
+                save = abs(IS_NOT_FOUND)
+            }
+        }
+        warn { dash() }
+        measured(10) {
+            for (i in 1..10000000) {
+                save = abs(1)
+            }
+        }
+        warn { dash() }
+        measured(10) {
+            for (i in 1..10000000) {
+                save = IS_NOT_FOUND.abs()
+            }
+        }
+        warn { dash() }
+        measured(10) {
+            for (i in 1..10000000) {
+                save = 1.abs()
+            }
+        }
+        warn { dash() }
+        save shouldBe 1
     }
 }

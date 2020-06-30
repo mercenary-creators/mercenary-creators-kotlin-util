@@ -16,16 +16,20 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.*
 import javax.crypto.*
 import javax.crypto.spec.*
 
 object SecretKeys {
 
     @JvmStatic
+    @CreatorsDsl
     fun getSecret(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm): SecretKey {
         return SecretKeySpec(SecretKeyFactory.getInstance(algorithm.getCipherSecretKey()).generateSecret(PBEKeySpec(pass.toString().toCharArray(), Encoders.hex().decode(salt.toString()), algorithm.getCipherIteration(), algorithm.getCipherKeyLength())).encoded, algorithm.getCipherAlgorithm())
     }
 
     @JvmStatic
-    fun getAlgorithms() = Algorithms.getAlgorithmForName("SecretKeyFactory")
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getAlgorithms(): Algorithm = Algorithm.forName("SecretKeyFactory")
 }

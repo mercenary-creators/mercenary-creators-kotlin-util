@@ -18,9 +18,12 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import org.apache.commons.io.FilenameUtils
+import org.apache.commons.io.input.ReaderInputStream
+import org.apache.commons.io.output.WriterOutputStream
 import java.io.*
 import java.net.*
 import java.nio.channels.ReadableByteChannel
+import java.nio.charset.Charset
 import java.nio.file.Paths
 
 object IO {
@@ -45,17 +48,21 @@ object IO {
         DefaultContentTypeProbe()
     }
 
+    @CreatorsDsl
     private fun patch(path: String): String = path.trim().let { if (it.contains(DOUBLE_SLASH)) patch(it.replace(DOUBLE_SLASH, SINGLE_SLASH)) else it }
 
     @JvmStatic
+    @CreatorsDsl
     fun getContentTypeProbe() = probe
 
     @JvmStatic
+    @CreatorsDsl
     fun getFileExtension(file: File): String {
         return getPathExtension(file.path)
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getPathNormalized(path: String?): String? {
         val temp = toTrimOrNull(path)
         if (temp != null) {
@@ -77,12 +84,14 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun getPathRelative(path: String, tail: String, root: Boolean = true): String {
         return FilenameUtils.concat(path, tail).orEmpty().let { if (root) it.removePrefix(SINGLE_SLASH) else it }
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getPathExtension(path: String?): String {
         val temp = getPathNormalized(path).orEmpty()
         if ((temp.isNotEmpty()) && (temp.indexOf(EXT_SEPARATOR_CHAR) != IS_NOT_FOUND)) {
@@ -98,11 +107,13 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun toFileURL(path: String): URL {
         return PREFIX_FILES.plus(SINGLE_SLASH).plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).orEmpty().removePrefix(SINGLE_SLASH).trim()).toURL()
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getRelative(data: URL, path: String): URL {
         return when (val file = toFileOrNull(data)) {
             null -> URL(data, getPathRelative(data.path, path).replace("#", "%23"))
@@ -111,11 +122,13 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getRelative(data: File, path: String): File {
         return File(getPathRelative(data.path, path))
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getHeadConnection(data: URL): HttpURLConnection? {
         try {
             val conn = data.openConnection()
@@ -132,7 +145,8 @@ object IO {
     }
 
     @JvmStatic
-    fun getDefaultClassLoader(): ClassLoader? {
+    @CreatorsDsl
+    fun getDefaultClassLoader(): ClassLoader {
         try {
             val load = Thread.currentThread().contextClassLoader
             if (load != null) {
@@ -160,17 +174,18 @@ object IO {
         catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
-        return null
+        return IO.javaClass.classLoader
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun getResouce(path: String, claz: Class<*>? = null, load: ClassLoader? = null): URL? = try {
         when {
             claz != null -> claz.getResource(path)
             load != null -> load.getResource(path)
             else -> when (val data = ClassLoader.getSystemResource(path)) {
-                null -> getDefaultClassLoader()?.getResource(path)
+                null -> getDefaultClassLoader().getResource(path)
                 else -> data
             }
         }
@@ -181,18 +196,18 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
-    fun getInputStream(path: String, claz: Class<*>? = null, load: ClassLoader? = null): InputStream? {
-        try {
-            return getInputStream(getResouce(path, claz, load))
-        }
-        catch (cause: Throwable) {
-            Throwables.thrown(cause)
-        }
-        return null
+    fun getInputStream(path: String, claz: Class<*>? = null, load: ClassLoader? = null): InputStream? = try {
+        getInputStream(getResouce(path, claz, load))
+    }
+    catch (cause: Throwable) {
+        Throwables.thrown(cause)
+        null
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getInputStream(data: URL?): InputStream? {
         if (data == null) {
             return null
@@ -214,6 +229,7 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getInputStream(data: URI?): InputStream? {
         if (data == null) {
             return null
@@ -234,6 +250,21 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
+    @JvmOverloads
+    fun getInputStream(data: Reader, charset: Charset = Charsets.UTF_8): InputStream {
+        return ReaderInputStream(data, charset)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    @JvmOverloads
+    fun getOutputStream(data: Writer, charset: Charset = Charsets.UTF_8): OutputStream {
+        return WriterOutputStream(data, charset)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
     fun getOutputStream(data: URL?): OutputStream? {
         if (data == null) {
             return null
@@ -260,6 +291,28 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
+    fun getOutputStream(data: URI?): OutputStream? {
+        if (data == null) {
+            return null
+        }
+        try {
+            return Paths.get(data).toOutputStream()
+        }
+        catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+        try {
+            return data.toURL().toOutputStream()
+        }
+        catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+        return null
+    }
+
+    @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun toFileOrNull(data: URL, skip: Boolean = false): File? {
         try {
@@ -278,7 +331,7 @@ object IO {
     }
 
     @JvmStatic
-    @AssumptionDsl
+    @CreatorsDsl
     fun isContentThere(data: URL): Boolean {
         try {
             if (data.isFileURL()) {
@@ -303,6 +356,7 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getContentSize(data: URL): Long {
         if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
@@ -325,7 +379,8 @@ object IO {
     }
 
     @JvmStatic
-    fun getContentSize(data: URL, func: () -> Long): Long {
+    @CreatorsDsl
+    inline fun getContentSize(data: URL, func: () -> Long): Long {
         if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
@@ -336,6 +391,7 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getContentTime(data: URL): Long {
         if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
@@ -363,6 +419,7 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getContentType(data: URL, type: String): String {
         if (type.isDefaultContentType()) {
             if (data.isFileURL()) {
@@ -384,6 +441,24 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
+    fun getContentMime(data: URL): ContentMimeType {
+        try {
+            val conn = getHeadConnection(data)
+            if (conn != null) {
+                val send = toTrimOrElse(conn.contentType, DEFAULT_CONTENT_TYPE)
+                conn.disconnect()
+                return if (send.isDefaultContentType()) ContentMimeType.DEFAULT_CONTENT_MIME_TYPE else ContentMimeType(send)
+            }
+        }
+        catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+        return ContentMimeType.DEFAULT_CONTENT_MIME_TYPE
+    }
+
+    @JvmStatic
+    @CreatorsDsl
     fun getContentType(data: URI, type: String): String {
         if (type.isDefaultContentType() && data.isAbsolute) {
             try {
@@ -397,6 +472,7 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getContentType(data: ByteArray, type: String): String {
         if (type.isDefaultContentType()) {
             return getContentType(data.toInputStream(), type)
@@ -405,6 +481,7 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getContentType(data: ReadableByteChannel, type: String): String {
         if (type.isDefaultContentType()) {
             return getContentType(data.toInputStream(), type)
@@ -413,6 +490,7 @@ object IO {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getContentType(data: InputStream, type: String): String {
         if (type.isDefaultContentType() && data.markSupported()) {
             val send = toTrimOrElse(HttpURLConnection.guessContentTypeFromStream(data)).toLowerTrim()

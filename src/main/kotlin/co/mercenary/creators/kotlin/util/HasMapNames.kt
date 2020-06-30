@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.type
+package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.AssumptionDsl
-
-interface Validated {
-    @AssumptionDsl
-    fun isValid(): Boolean
+interface HasMapNames {
+    @CreatorsDsl
+    fun toMapNames(): Map<String, Any?>
 }

@@ -16,14 +16,17 @@
 
 package co.mercenary.creators.kotlin.util.time
 
+import co.mercenary.creators.kotlin.util.*
+
 enum class TimeDurationUnit {
 
     YEARS, WEEKS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, NANOSECONDS;
 
-    private val lows = name.toLowerCase()
+    private val lows = name.toLowerTrimEnglish()
 
-    private val suff = name.toLowerCase().removeSuffix("s")
+    private val tail = name.toLowerTrimEnglish().tail()
 
+    @CreatorsDsl
     fun next(): TimeDurationUnit? = when (this) {
         MILLISECONDS -> NANOSECONDS
         SECONDS -> MILLISECONDS
@@ -35,6 +38,7 @@ enum class TimeDurationUnit {
         else -> null
     }
 
+    @CreatorsDsl
     @JvmOverloads
-    fun toLowerCase(full: Boolean = true) = if (full) lows else suff
+    fun toLowerCase(full: Boolean = true) = if (full) lows else tail
 }

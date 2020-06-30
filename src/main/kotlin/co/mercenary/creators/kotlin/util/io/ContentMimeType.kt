@@ -17,81 +17,165 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.logging.ILogging
-import co.mercenary.creators.kotlin.util.type.Copyable
-import javax.activation.MimeType
 
 @IgnoreForSerialize
-class ContentMimeType @JvmOverloads constructor(type: String = DEFAULT_CONTENT_TYPE) : Copyable<ContentMimeType>, Cloneable, HasMapNames {
+class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBase) : StandardInterfaces<ContentMimeType> {
 
-    private val mime = parse(type)
+    @CreatorsDsl
+    @JvmOverloads
+    constructor(type: String = DEFAULT_CONTENT_TYPE) : this(build(type))
+
+    @CreatorsDsl
+    val base: String
+        @IgnoreForSerialize
+        get() = mime.base
+
+    @CreatorsDsl
+    val type: String
+        @IgnoreForSerialize
+        get() = mime.type
+
+    @CreatorsDsl
+    val part: String
+        @IgnoreForSerialize
+        get() = mime.part
 
     override fun clone() = copyOf()
 
-    override fun copyOf() = ContentMimeType(mime.toString())
+    @CreatorsDsl
+    override fun copyOf() = ContentMimeType(mime.copyOf())
 
-    override fun toString() = mime.baseType.toString()
+    override fun toString() = mime.toString()
 
-    override fun hashCode() = mime.toString().hashCode()
+    override fun hashCode() = mime.hashCode()
 
-    override fun toMapNames() = mapOf("base" to mime.primaryType, "kind" to mime.subType)
+    @CreatorsDsl
+    override fun toMapNames() = mime.toMapNames()
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
-        is ContentMimeType -> this === other || mime.toString() isSameAs other.mime.toString()
+        is ContentMimeType -> this === other || mime == other.mime
         else -> false
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     infix fun isMatchOf(other: String): Boolean {
-        return try {
-            mime.match(other)
-        }
-        catch (cause: Throwable) {
-            logs.error(cause) {
-                other
-            }
-            Throwables.thrown(cause)
-            false
-        }
+        return mime isMatchOf other
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     infix fun isMatchOf(other: ContentMimeType): Boolean {
-        return try {
-            mime.match(other.mime)
-        }
-        catch (cause: Throwable) {
-            logs.error(cause) {
-                other.mime.toString()
-            }
-            Throwables.thrown(cause)
-            false
-        }
+        return mime isMatchOf other.mime
     }
 
     companion object {
 
-        private val logs: ILogging by lazy {
-            LoggingFactory.logger(ContentMimeType::class)
+        @CreatorsDsl
+        val DEFAULT_CONTENT_MIME_TYPE: ContentMimeType by lazy {
+            ContentMimeType(BASE)
         }
 
-        private val base = MimeType("application", "octet-stream")
+        @CreatorsDsl
+        private val BASE = MimeBase()
 
-        private val maps = atomicMapOf(DEFAULT_CONTENT_TYPE to base)
+        @CreatorsDsl
+        private val HASH = atomicMapOf(DEFAULT_CONTENT_TYPE to BASE)
 
         @JvmStatic
-        fun parse(string: String): MimeType {
-            val type = string.toTrimOr(DEFAULT_CONTENT_TYPE)
+        @CreatorsDsl
+        private fun build(type: String): MimeBase {
+            return when (type.isDefaultContentType()) {
+                true -> BASE
+                else -> HASH.computeIfAbsent(type) { name ->
+                    parse(name)
+                }
+            }
+        }
+
+        @JvmStatic
+        @CreatorsDsl
+        private fun parse(type: String): MimeBase {
             return try {
-                MimeType(type)
+                MimeBase(type)
             }
             catch (cause: Throwable) {
-                logs.error(cause) {
-                    type
-                }
                 Throwables.thrown(cause)
-                base
+                BASE
+            }
+        }
+
+        @IgnoreForSerialize
+        private class MimeBase private constructor(private val mime: javax.activation.MimeType) : StandardInterfaces<MimeBase> {
+
+            @CreatorsDsl
+            constructor() : this("application", "octet-stream")
+
+            @CreatorsDsl
+            constructor(type: String) : this(javax.activation.MimeType(type))
+
+            @CreatorsDsl
+            constructor(base: String, part: String) : this(javax.activation.MimeType(base, part))
+
+            private val list = mime.parameters
+
+            private val prop: Map<String, String> by lazy {
+                LinkedHashMap<String, String>(list.size()).also { self ->
+                    list.names.toList().map { name: Any -> name.toString().toLowerTrimEnglish() }.sorted().forEach { name ->
+                        self[name] = list[name]
+                    }
+                }
+            }
+
+            val base: String
+                @IgnoreForSerialize
+                get() = mime.baseType
+
+            val part: String
+                @IgnoreForSerialize
+                get() = mime.subType
+
+            val type: String
+                @IgnoreForSerialize
+                get() = mime.primaryType
+
+            @CreatorsDsl
+            override fun toMapNames(): Map<String, Any?> {
+                return mapOf("type" to type, "part" to part).let {
+                    if (list.isEmpty) it else it.plus("prop" to prop.toMap())
+                }
+            }
+
+            override fun clone() = copyOf()
+
+            @CreatorsDsl
+            override fun copyOf() = MimeBase(toString())
+
+            override fun toString() = mime.toString()
+
+            override fun hashCode() = mime.toString().hashCode()
+
+            @CreatorsDsl
+            override fun equals(other: Any?) = when (other) {
+                is MimeBase -> this === other || toString() isSameAs other.toString()
+                else -> false
+            }
+
+            @CreatorsDsl
+            infix fun isMatchOf(other: String): Boolean = try {
+                mime.match(other)
+            }
+            catch (cause: Throwable) {
+                Throwables.thrown(cause)
+                false
+            }
+
+            @CreatorsDsl
+            infix fun isMatchOf(other: MimeBase): Boolean = try {
+                mime.match(other.mime)
+            }
+            catch (cause: Throwable) {
+                Throwables.thrown(cause)
+                false
             }
         }
     }

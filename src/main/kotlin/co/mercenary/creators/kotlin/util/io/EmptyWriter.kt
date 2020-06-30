@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.type
+package co.mercenary.creators.kotlin.util.io
 
-interface Copyable<out T> {
-    fun copyOf(): T
+import co.mercenary.creators.kotlin.util.IgnoreForSerialize
+import java.io.Writer
+
+@IgnoreForSerialize
+object EmptyWriter : Writer() {
+
+    override fun flush() = Unit
+
+    override fun close() = Unit
+
+    override fun write(cbuf: CharArray, off: Int, len: Int) = Unit
 }

@@ -39,19 +39,14 @@ class LogsTest : KotlinTest() {
         info { true.toAtomic() }
         info { 16.toAtomic() }
         info { 1L.toAtomic() }
-        info { Numeric.toPrimeRoots(553) }
-        warn { dash() }
-        for (i in 1..99 step 3) {
-            info { mapOf("data" to i, "test" to Numeric.isPrimeValue(i), "next" to Numeric.toPrimeAfter(i)) }
-        }
-        warn { dash() }
         info { loader["test.htm"] }
         info { loader["http://jsonplaceholder.typicode.com/posts"] }
         info { 255.toBinaryString() }
-        info { 255.toBinaryString().trim().length }
+        info { 255.toBinaryString().length }
+        info { 255.toBinaryString(0) }
         warn { dash() }
-        error { logger.javaClass }
-        error { logger.underlyingLogger.javaClass }
+        error { loggerOf().javaClass }
+        error { loggerOf().underlyingLogger.javaClass }
         warn { dash() + BREAK_STRING + dash() }
         timed {
             repeat(100000000) {

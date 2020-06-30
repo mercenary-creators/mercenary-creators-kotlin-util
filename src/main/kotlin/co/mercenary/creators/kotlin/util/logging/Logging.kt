@@ -16,21 +16,21 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import mu.*
+import co.mercenary.creators.kotlin.util.*
 
-open class Logging @JvmOverloads constructor(name: String? = null) : KLoggable, ILoggingBase {
+open class Logging @JvmOverloads @CreatorsDsl constructor(name: String? = null) : ILoggingBase {
 
     init {
         LoggingFactory
     }
 
-    private val logs: KLogger by lazy {
-        if (name == null) logger() else logger(name)
+    private val logs: mu.KLogger by lazy {
+        if (name == null) LoggingFactory.loggerOf(this) else LoggingFactory.loggerOf(name)
     }
 
-    override val logger: KLogger
-        get() = logs
+    @CreatorsDsl
+    override fun loggerOf(): mu.KLogger = logs
 
     @LoggingInfoDsl
-    inline fun <T> timed(block: () -> T): T = co.mercenary.creators.kotlin.util.timed({ info { it } }, block)
+    fun <T> timed(block: () -> T): T = timed({ info { it } }, block)
 }

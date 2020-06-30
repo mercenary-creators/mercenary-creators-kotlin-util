@@ -30,13 +30,13 @@ class CBCFileFastTest : KotlinSecurityTest() {
         info { good }
         good shouldBe true
         val temp = getTempFile(uuid(), ".txt")
-        val baos = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
-        val save = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
+        val baos = baos(DEFAULT_BUFFER_SIZE)
+        val save = baos(DEFAULT_BUFFER_SIZE)
         val code = getCopyCipher(pass, salt, CipherAlgorithm.CBC)
         val data = cached["test.txt"]
         repeat(7) {
-            baos.reset()
-            save.reset()
+            baos.clear()
+            save.clear()
             code.encrypt(data, baos)
             code.decrypt(baos.toByteArray(), save)
         }

@@ -20,24 +20,24 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.OutputStream
 
 @IgnoreForSerialize
-class CountSizeOutputStream(private val proxy: OutputStream) : OutputStream() {
+class CountSizeOutputStream @CreatorsDsl constructor(private val proxy: OutputStream) : OutputStream() {
 
-    private val count = 0L.toAtomic()
+    private var count = 0L
 
     override fun write(b: Int) {
-        count.increment()
+        count++
         proxy.write(b)
     }
 
     override fun write(b: ByteArray?) {
         if (b != null) {
-            count + b.size
+            count += b.size
             proxy.write(b)
         }
     }
 
     override fun write(b: ByteArray?, off: Int, len: Int) {
-        count + len
+        count += len
         if (b != null) {
             proxy.write(b, off, len)
         }
@@ -51,7 +51,8 @@ class CountSizeOutputStream(private val proxy: OutputStream) : OutputStream() {
         proxy.close()
     }
 
+    @CreatorsDsl
     val size: Long
         @IgnoreForSerialize
-        get() = count.toLong()
+        get() = count
 }

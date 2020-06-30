@@ -16,7 +16,28 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import java.io.Reader
-import java.nio.charset.Charset
+import co.mercenary.creators.kotlin.util.*
+import java.io.*
 
-class ReaderInputStream @JvmOverloads constructor(reader: Reader, charset: Charset = Charsets.UTF_8) : org.apache.commons.io.input.ReaderInputStream(reader, charset)
+@IgnoreForSerialize
+class NoCloseWriter @JvmOverloads @CreatorsDsl constructor(data: Writer, private val done: Boolean = true) : FilterWriter(data), OpenCloseable {
+
+    private val open = true.toAtomic()
+
+    override fun close() {
+        if (open.isTrueToFalse()) {
+            try {
+                if (done) {
+                    flush()
+                }
+            }
+            catch (cause: Throwable) {
+                Throwables.thrown(cause)
+            }
+        }
+    }
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isOpen() = open.isTrue()
+}

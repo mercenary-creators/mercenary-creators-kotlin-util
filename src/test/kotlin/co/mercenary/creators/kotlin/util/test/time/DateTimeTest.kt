@@ -28,8 +28,11 @@ class DateTimeTest : KotlinTest() {
         info { plus.formatDate() }
         val less = date - 1.year
         info { less.formatDate() }
+        warn { dash() }
         val olds = date - 100.years
         info { olds.formatDate() }
+        info { date.convertTo() - 100.years }
+        warn { dash() }
         val half = date + 0.5.years
         info { half.formatDate() }
         val down = date - 0.5.years

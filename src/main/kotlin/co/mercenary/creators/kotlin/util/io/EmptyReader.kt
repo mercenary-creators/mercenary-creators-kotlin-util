@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util
+package co.mercenary.creators.kotlin.util.io
 
-@DslMarker
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.CLASS)
-annotation class AssumptionDsl
+import co.mercenary.creators.kotlin.util.*
+import java.io.Reader
+
+@IgnoreForSerialize
+object EmptyReader : Reader() {
+
+    override fun close() = Unit
+
+    override fun read(cbuf: CharArray, off: Int, len: Int) = IS_NOT_FOUND
+}

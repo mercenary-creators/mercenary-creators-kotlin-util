@@ -16,9 +16,19 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-interface CheckSum {
+import co.mercenary.creators.kotlin.util.*
+
+interface CheckSum : Clearable {
+
+    @CreatorsDsl
     fun decoder(data: String): Long
+
+    @CreatorsDsl
     fun encoder(data: String): String
+
+    @CreatorsDsl
     fun buffers(data: Long): ByteArray
+
+    @CreatorsDsl
     fun updater(data: ByteArray): Long
 }

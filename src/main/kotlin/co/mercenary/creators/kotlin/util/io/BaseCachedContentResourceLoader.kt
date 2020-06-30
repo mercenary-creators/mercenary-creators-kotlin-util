@@ -19,9 +19,35 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-open class BaseCachedContentResourceLoader @JvmOverloads constructor(name: String = EMPTY_STRING, loader: ClassLoader? = null) : BaseContentResourceLoader(name, loader), CachedContentResourceLoader {
+open class BaseCachedContentResourceLoader @JvmOverloads @CreatorsDsl constructor(name: String = EMPTY_STRING, loader: ClassLoader? = null) : BaseContentResourceLoader(name, loader), CachedContentResourceLoader {
 
-    private val maps = AtomicHashMap<String, CachedContentResource>()
+    private val maps = atomicMapOf<String, CachedContentResource>()
+
+    private val keep = object : CachedKeys {
+
+        @CreatorsDsl
+        private fun keys() = maps.keys
+
+        @CreatorsDsl
+        override fun clear() {
+            keys().clear()
+        }
+
+        @CreatorsDsl
+        override val size: Int
+            @IgnoreForSerialize
+            get() = keys().size
+
+        @CreatorsDsl
+        @IgnoreForSerialize
+        override fun isEmpty() = keys().isEmpty()
+
+        @CreatorsDsl
+        override operator fun iterator() = keys().iterator()
+
+        @CreatorsDsl
+        override operator fun contains(data: CharSequence) = keys().contains(data.toString())
+    }
 
     override operator fun get(path: String): CachedContentResource {
         return maps.computeIfAbsent(path) {
@@ -29,19 +55,20 @@ open class BaseCachedContentResourceLoader @JvmOverloads constructor(name: Strin
         }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun isContentCache() = true
 
-    override val keys: MutableSet<String>
+    @CreatorsDsl
+    override val keys: CachedKeys
         @IgnoreForSerialize
-        get() = maps.keys
+        get() = keep
 
     override fun toString() = toMapNames().toString()
 
     override fun hashCode() = toMapNames().hashCode()
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
         is BaseCachedContentResourceLoader -> this === other || toMapNames() isSameAs other.toMapNames()
         else -> false
@@ -49,11 +76,9 @@ open class BaseCachedContentResourceLoader @JvmOverloads constructor(name: Strin
 
     companion object {
 
-        private val LAZY: CachedContentResourceLoader by lazy {
+        @CreatorsDsl
+        val INSTANCE: CachedContentResourceLoader by lazy {
             BaseCachedContentResourceLoader()
         }
-
-        @JvmField
-        val INSTANCE = LAZY
     }
 }

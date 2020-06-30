@@ -14,6 +14,27 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.security
+package co.mercenary.creators.kotlin.util.io
 
-abstract class CipherEncryptingProxy<T>(proxy: CipherEncrypting<T, T>) : CipherEncrypting<T, T> by proxy
+import co.mercenary.creators.kotlin.util.*
+import java.io.*
+
+@IgnoreForSerialize
+class NoCloseReader @CreatorsDsl constructor(data: Reader) : FilterReader(data), OpenCloseable {
+
+    private val open = true.toAtomic()
+
+    private val logs: ILogging by lazy {
+        LoggingFactory.logger(this)
+    }
+
+    override fun close() {
+        if (open.isTrueToFalse().isNotTrue()) {
+            logs.warn { "closed()" }
+        }
+    }
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isOpen() = open.isTrue()
+}

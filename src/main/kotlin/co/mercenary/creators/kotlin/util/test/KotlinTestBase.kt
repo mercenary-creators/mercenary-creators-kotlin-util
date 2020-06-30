@@ -23,7 +23,10 @@ import java.util.*
 import kotlin.reflect.KClass
 
 @IgnoreForSerialize
-open class KotlinTestBase : Logging(), IKotlinTestBase {
+open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
+
+    @CreatorsDsl
+    constructor() : this(null)
 
     private val nope = arrayListOf<Class<*>>()
 
@@ -37,44 +40,50 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
         getConfigPropertiesBuilder().invoke()
     }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override val author = CREATORS_AUTHOR_INFO
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override val loader = CONTENT_RESOURCE_LOADER
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override val cached = CACHED_CONTENT_RESOURCE_LOADER
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override val prober = getDefaultContentTypeProbe()
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun getTempFileNamed(name: String, suff: String): File {
         return getTempFile(name, suff)
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun getTempFileNamedPath(name: String, suff: String): String {
         return getTempFileNamed(name, suff).path
     }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override val printer: (Int, String) -> Unit = { i, s -> info { "%2d : %s".format(i + 1, s) } }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getConfigPropertiesBuilder(): () -> Properties = { Properties() }
 
-    @AssumptionDsl
-    override fun dash(loop: Int): String = "-".repeat(loop.abs())
+    @CreatorsDsl
+    override fun dash(size: Int): String = "-".repeat(size.maxOf(0))
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun uuid(): String = Randoms.uuid()
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun getConfigProperty(name: String, other: String): String = conf.getProperty(name, other)
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun setConfigProperty(vararg args: Pair<String, Any?>) {
         if (args.isNotEmpty()) {
             val temp = conf
@@ -87,21 +96,21 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
         }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     final override fun <T : Throwable> addThrowableAsFatal(type: Class<T>) {
         nope += type
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     final override fun <T : Throwable> addThrowableAsFatal(type: KClass<T>) {
         nope += type.java
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun here(): Map<String, Any> {
         val type = javaClass
         val name = type.name
-        val most = 0.toAtomic().decrement()
+        val most = IS_NOT_FOUND.toAtomic()
         val mine = type.declaredMethods.map { it.name }
         val list = ArrayList<MutableMap<String, Any>>()
         Exception().stackTrace.forEach { item ->
@@ -125,7 +134,7 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
         if (line > maps["line"] as Int) {
             maps["line"] = line
         }
-        return maps
+        return maps.toMap()
     }
 
     override fun toString(): String {
@@ -133,14 +142,22 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
     }
 
     @LoggingInfoDsl
-    override fun measured(loop: Int, call: (Int) -> Unit) {
-        val list = LongArray(loop)
-        loop forEach {
-            val time = TimeAndDate.nanos()
-            call.invoke(it)
-            list[it] = TimeAndDate.nanos() - time
+    override fun measured(size: Int, call: (Int) -> Unit) {
+        if (size > 0) {
+            val many = size + 4
+            val list = DoubleArray(many)
+            for (loop in 0 until many) {
+                val time = TimeAndDate.nanos()
+                call.invoke(loop)
+                list[loop] = TimeAndDate.nanos() - time.toDouble()
+            }
+            list.sort()
+            val look = list.copyOfRange(2, list.size - 2).average().toLong()
+            info { TimeAndDate.toElapsedString(look) }
         }
-        info { TimeAndDate.toElapsedString(list.average().toLong()) }
+        else {
+            warn { TimeAndDate.toElapsedString(0, "error ") }
+        }
     }
 
     @LoggingInfoDsl
@@ -155,7 +172,7 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
 
     @LoggingInfoDsl
     override fun annotations(type: Class<*>) {
-        if (isLoggingInfoEnabled) {
+        if (isLoggingInfoEnabled()) {
             info { type.name }
             type.annotations.forEach { anno ->
                 val name = anno.annotationClass.java.name
@@ -166,31 +183,31 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
         }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun fail(text: String): Nothing {
         throw MercenaryAssertExceptiion(text)
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun fail(func: () -> Any?): Nothing {
         fail(Formatters.toSafeString(func))
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun assertTrueOf(condition: Boolean, func: () -> Any?) {
         if (!condition) {
             fail(func)
         }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun assertNotTrueOf(condition: Boolean, func: () -> Any?) {
         if (condition) {
             fail(func)
         }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun getThrowableOf(func: () -> Unit): Throwable? {
         return try {
             func.invoke()
@@ -206,12 +223,12 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
         }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun assumeEach(block: AssumeCollector.() -> Unit) {
         AssumeCollector(block).also { it.invoke() }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     inner class AssumeCollector(block: AssumeCollector.() -> Unit) {
 
         private val list = ArrayList<() -> Unit>()
@@ -220,7 +237,7 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
             block(this)
         }
 
-        @AssumptionDsl
+        @CreatorsDsl
         fun assumeThat(block: () -> Unit) {
             list += block
         }
@@ -239,38 +256,48 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
         }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override infix fun <T : Any?> T.shouldBe(value: T) = assertTrueOf(value isSameAs this) {
         "shouldBe failed"
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override infix fun <T : Any?> T.shouldNotBe(value: T) = assertTrueOf(value isNotSameAs this) {
         "shouldNotBe failed"
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
+    override infix fun <T : Any?> T.shouldBeSameContent(value: T) = assertTrueOf(value isContentSameAs this) {
+        "shouldBeSameContent failed"
+    }
+
+    @CreatorsDsl
+    override infix fun <T : Any?> T.shouldNotBeSameContent(value: T) = assertTrueOf(value isContentNotSameAs this) {
+        "shouldNotBeSameContent failed"
+    }
+
+    @CreatorsDsl
     override infix fun <T : Any> T.shouldBeIdentity(value: T) = assertTrueOf(value === this) {
         "shouldBeIdentity failed"
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override infix fun <T : Any> T.shouldNotBeIdentity(value: T) = assertNotTrueOf(value === this) {
         "shouldNotBeIdentity failed"
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun <T : Any?> T.shouldBeNull() = assertTrueOf(this == null) {
         "shouldBeNull failed"
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun <T : Any?> T.shouldNotBeNull() = assertTrueOf(this != null) {
         "shouldNotBeNull failed"
     }
 
-    @AssumptionDsl
-    inline fun <reified T : Throwable> assumeThrows(block: () -> Unit) {
+    @CreatorsDsl
+    inline fun <reified T : Throwable> assumeThrows(noinline block: () -> Unit) {
         try {
             block.invoke()
         }
@@ -283,8 +310,8 @@ open class KotlinTestBase : Logging(), IKotlinTestBase {
         fail("assumeThrows failed for ${T::class.java.name}")
     }
 
-    @AssumptionDsl
-    inline fun <reified T : Throwable> assumeNotThrows(block: () -> Unit) {
+    @CreatorsDsl
+    inline fun <reified T : Throwable> assumeNotThrows(noinline block: () -> Unit) {
         try {
             block.invoke()
         }

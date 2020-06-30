@@ -17,9 +17,9 @@
 package co.mercenary.creators.kotlin.util.type
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.ByteArrayOutputStream
 import co.mercenary.creators.kotlin.util.io.InputStreamSupplier
 import java.io.*
+import java.io.ByteArrayOutputStream
 import java.math.*
 import java.net.*
 import java.nio.channels.ReadableByteChannel
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.*
 object SameAndHashCode {
 
     @JvmStatic
-    @AssumptionDsl
+    @CreatorsDsl
     fun isEverySameAs(vararg args: Pair<Any?, Any?>): Boolean {
         for ((value, other) in args) {
             if (isNotSameAs(value, other)) {
@@ -40,7 +40,7 @@ object SameAndHashCode {
     }
 
     @JvmStatic
-    @AssumptionDsl
+    @CreatorsDsl
     fun isEverySameAs(args: Iterable<Pair<Any?, Any?>>): Boolean {
         for ((value, other) in args) {
             if (isNotSameAs(value, other)) {
@@ -51,7 +51,7 @@ object SameAndHashCode {
     }
 
     @JvmStatic
-    @AssumptionDsl
+    @CreatorsDsl
     fun isEverySameAs(args: Sequence<Pair<Any?, Any?>>): Boolean {
         for ((value, other) in args) {
             if (isNotSameAs(value, other)) {
@@ -62,13 +62,14 @@ object SameAndHashCode {
     }
 
     @JvmStatic
-    @AssumptionDsl
+    @CreatorsDsl
     fun isSameAs(value: Any?, other: Any?): Boolean {
         if (value === other) {
             return true
         }
         return when (value) {
             null -> other == null
+            is String -> if (other is String) value == other else false
             is Array<*> -> if (other is Array<*>) value contentDeepEquals other else false
             is IntArray -> if (other is IntArray) value contentEquals other else false
             is ByteArray -> if (other is ByteArray) value contentEquals other else false
@@ -113,29 +114,76 @@ object SameAndHashCode {
     }
 
     @JvmStatic
-    @AssumptionDsl
+    @CreatorsDsl
     fun isNotSameAs(value: Any?, other: Any?): Boolean = !isSameAs(value, other)
 
     @JvmStatic
-    @AssumptionDsl
-    fun isDataComparableType(value: Any?): Boolean {
-        return when(value) {
-            null -> false
-            is URI -> true
-            is URL -> true
-            is File -> true
-            is Path -> true
-            is Reader -> true
-            is ByteArray -> true
-            is InputStream -> true
-            is InputStreamSupplier -> true
-            is ReadableByteChannel -> true
-            is ByteArrayOutputStream -> true
-            else -> false
+    @CreatorsDsl
+    fun isContentCapable(value: Any?): Boolean = when (value) {
+        null -> false
+        is URI -> true
+        is URL -> true
+        is File -> true
+        is Path -> true
+        is Reader -> true
+        is ByteArray -> true
+        is InputStream -> true
+        is CharSequence -> true
+        is ReadableByteChannel -> true
+        is InputStreamSupplier -> true
+        is ByteArrayOutputStream -> true
+        else -> false
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun isContentSameAs(value: Any?, other: Any?): Boolean {
+        if (value != null && other != null) {
+            if (isContentCapable(value) && isContentCapable(other)) {
+                try {
+                    val v = contentOf(value)
+                    val o = contentOf(other)
+                    if (v.size == o.size) {
+                        for (i in v.indices) {
+                            if (v[i] != o[i]) {
+                                return false
+                            }
+                        }
+                        return true
+                    }
+                }
+                catch (cause: Throwable) {
+                }
+            }
+        }
+        return false
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun isContentNotSameAs(value: Any?, other: Any?): Boolean = !isContentSameAs(value, other)
+
+    @JvmStatic
+    @CreatorsDsl
+    private fun contentOf(value: Any): ByteArray {
+        return when (value) {
+            is URI -> value.toByteArray()
+            is URL -> value.toByteArray()
+            is File -> value.toByteArray()
+            is Path -> value.toByteArray()
+            is Reader -> value.toByteArray()
+            is ByteArray -> value.toByteArray()
+            is InputStream -> value.toByteArray()
+            is CharSequence -> value.asByteArray()
+            is ReadableByteChannel -> value.toByteArray()
+            is InputStreamSupplier -> value.toByteArray()
+            is ByteArrayOutputStream -> value.asByteArray()
+            else -> ByteArray(0)
         }
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun hashOf(vararg args: Any?, accumulator: (Int) -> Unit) {
         args.forEach {
             accumulator(hashOf(it))
@@ -143,6 +191,7 @@ object SameAndHashCode {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun hashOf(value: Any?): Int {
         return when (value) {
             null -> 0
@@ -161,15 +210,17 @@ object SameAndHashCode {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun hashOf(vararg args: Any?): Int {
         return hashOf(1.toAtomic(), *args)
     }
 
     @JvmStatic
+    @CreatorsDsl
     private fun hashOf(hash: AtomicInteger, vararg args: Any?): Int {
         hashOf(*args) {
             hash * 31 + it
         }
-        return hash.get()
+        return hash.toInt()
     }
 }

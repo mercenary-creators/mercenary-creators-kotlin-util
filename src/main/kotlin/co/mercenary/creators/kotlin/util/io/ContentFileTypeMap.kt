@@ -23,8 +23,10 @@ import javax.activation.MimetypesFileTypeMap
 @IgnoreForSerialize
 class ContentFileTypeMap : HasMapNames {
 
+    @CreatorsDsl
     constructor() : this(DEFAULT_FILE, DEFAULT_PROP)
 
+    @CreatorsDsl
     constructor(file: String, prop: String) {
         val (name, maps) = read(prop(file, prop))
         this.name = name
@@ -35,8 +37,10 @@ class ContentFileTypeMap : HasMapNames {
 
     private val maps: MimetypesFileTypeMap
 
+    @CreatorsDsl
     fun getContentType(file: File): String = maps.getContentType(file).toLowerTrim()
 
+    @CreatorsDsl
     fun getContentType(name: String): String = maps.getContentType(name).toLowerTrim()
 
     override fun toString() = toMapNames().toString()
@@ -49,12 +53,12 @@ class ContentFileTypeMap : HasMapNames {
 
         const val DEFAULT_FILE = "MIME-INF/co-mercenary-creators-kotlin-mime.types"
 
-        private fun String.orElse(text: String) = toTrimOrElse(this, text)
-
+        @CreatorsDsl
         private fun prop(file: String, prop: String): String {
-            return System.getProperty(prop.orElse(DEFAULT_PROP), file.orElse(DEFAULT_FILE))
+            return System.getProperty(prop.toTrimOr(DEFAULT_PROP), file.toTrimOr(DEFAULT_FILE))
         }
 
+        @CreatorsDsl
         private fun read(file: String): Pair<String, MimetypesFileTypeMap> {
             return when (val data = IO.getInputStream(file)) {
                 null -> when (file isNotSameAs DEFAULT_FILE) {

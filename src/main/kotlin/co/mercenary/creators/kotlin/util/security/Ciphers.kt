@@ -20,17 +20,18 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.*
-import kotlin.math.max
 
 object Ciphers {
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun text(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<String, String> {
         return text(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun text(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<String, String> {
         val proxy = data(secret, algorithm)
@@ -41,35 +42,42 @@ object Ciphers {
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun data(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<ByteArray, ByteArray> {
         return data(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun data(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<ByteArray, ByteArray> {
         return InternalEncryptingData(algorithm, getCipher(algorithm), getCipher(algorithm), secret, SimpleCipherKeysFactory(algorithm))
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun copy(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherCopyStreams {
         return copy(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun copy(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherCopyStreams {
         return InternalEncryptingCopy(algorithm, getCipher(algorithm), getCipher(algorithm), secret, SimpleCipherKeysFactory(algorithm))
     }
 
     @JvmStatic
-    fun getAlgorithms(): Algorithm = Algorithms.getAlgorithmForName("Cipher")
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getAlgorithms(): Algorithm = Algorithm.forName("Cipher")
 
+    @CreatorsDsl
     private fun getBufferOf(data: InputStream): Int {
         try {
-            return max(data.available(), DEFAULT_BUFFER_SIZE)
+            return data.available().maxOf(DEFAULT_BUFFER_SIZE)
         }
         catch (cause: Throwable) {
             Throwables.thrown(cause)
@@ -77,10 +85,13 @@ object Ciphers {
         return DEFAULT_BUFFER_SIZE
     }
 
+    @CreatorsDsl
     private fun getCipher(algorithm: CipherAlgorithm): Cipher = Cipher.getInstance(algorithm.getCipherTransform())
 
+    @CreatorsDsl
     private fun setCypher(cipher: Cipher, mode: Int, secret: SecretKey, parameter: AlgorithmParameterSpec): Cipher = cipher.also { it.init(mode, secret, parameter) }
 
+    @CreatorsDsl
     private fun getParams(algorithm: CipherAlgorithm, vector: ByteArray): AlgorithmParameterSpec = algorithm.getAlgorithmParams(vector)
 
     private class InternalEncryptingData(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherEncrypting<ByteArray, ByteArray> {
@@ -131,6 +142,7 @@ object Ciphers {
             update()
         }
 
+        @CreatorsDsl
         private fun update() {
             if (obuf != null) {
                 proxy.write(obuf!!)
@@ -138,11 +150,13 @@ object Ciphers {
             }
         }
 
+        @CreatorsDsl
         override fun flush() {
             update()
             proxy.flush()
         }
 
+        @CreatorsDsl
         override fun close() {
             try {
                 obuf = cipher.doFinal()

@@ -16,6 +16,7 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.CreatorsDsl
 import java.security.*
 import java.util.*
 import kotlin.reflect.KClass
@@ -23,6 +24,7 @@ import kotlin.reflect.KClass
 object ServiceLoading {
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun <T : Any> loader(type: Class<T>, load: ClassLoader? = null): ServiceLoader<T> = when (System.getSecurityManager()) {
         null -> build(type, load)
@@ -30,8 +32,11 @@ object ServiceLoading {
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun <T : Any> loader(type: KClass<T>, load: ClassLoader? = null): ServiceLoader<T> = loader(type.java, load)
 
+    @JvmStatic
+    @CreatorsDsl
     private fun <T : Any> build(type: Class<T>, load: ClassLoader?): ServiceLoader<T> = if (load == null) ServiceLoader.load(type) else ServiceLoader.load(type, load)
 }

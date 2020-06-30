@@ -19,10 +19,12 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-open class BaseContentResourceLoader @JvmOverloads constructor(private val name: String = EMPTY_STRING, private val loader: ClassLoader? = null) : ContentResourceLoader {
+open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(private val name: String = EMPTY_STRING, private val loader: ClassLoader? = null) : ContentResourceLoader {
 
+    @CreatorsDsl
     private val list = ArrayList<ContentProtocolResolver>()
 
+    @CreatorsDsl
     override operator fun get(path: String): ContentResource {
         if (list.isNotEmpty()) {
             list.forEach { resolver ->
@@ -56,16 +58,19 @@ open class BaseContentResourceLoader @JvmOverloads constructor(private val name:
         return getContentResourceByPath(path)
     }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getLoadersName() = toTrimOrElse(name, javaClass.name)
 
-    @AssumptionDsl
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun isContentCache() = false
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getClassLoader() = loader
 
+    @CreatorsDsl
     protected open fun getContentResourceByPath(path: String): ContentResource {
         if (path.startsWith(IO.SINGLE_SLASH)) {
             try {
@@ -97,7 +102,7 @@ open class BaseContentResourceLoader @JvmOverloads constructor(private val name:
         }
     }
 
-    @AssumptionDsl
+    @CreatorsDsl
     override operator fun contains(args: ContentProtocolResolver): Boolean {
         if (list.contains(args)) {
             return true
@@ -110,13 +115,14 @@ open class BaseContentResourceLoader @JvmOverloads constructor(private val name:
         return false
     }
 
+    @CreatorsDsl
     override fun toMapNames() = mapOf("name" to getLoadersName(), "cached" to isContentCache())
 
     override fun toString() = toMapNames().toString()
 
     override fun hashCode() = toMapNames().hashCode()
 
-    @AssumptionDsl
+    @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
         is BaseContentResourceLoader -> this === other || toMapNames() isSameAs other.toMapNames()
         else -> false
@@ -124,11 +130,9 @@ open class BaseContentResourceLoader @JvmOverloads constructor(private val name:
 
     companion object {
 
-        private val LAZY: ContentResourceLoader by lazy {
+        @CreatorsDsl
+        val INSTANCE: ContentResourceLoader by lazy {
             BaseContentResourceLoader()
         }
-
-        @JvmField
-        val INSTANCE = LAZY
     }
 }

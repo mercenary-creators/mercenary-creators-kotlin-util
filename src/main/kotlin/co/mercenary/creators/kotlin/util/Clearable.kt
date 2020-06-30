@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.type
+package co.mercenary.creators.kotlin.util
 
-interface Builder<out T> {
-    fun build(): T
+interface Clearable {
+    @CreatorsDsl
+    fun clear()
 }

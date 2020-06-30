@@ -22,6 +22,11 @@ import java.util.*
 
 open class MercenaryLevelConverter : ClassicConverter() {
     override fun convert(event: ILoggingEvent): String {
-        return event.level.toString().padEnd(5).toUpperCase(Locale.ENGLISH).substring(0, 4)
+        val text = event.level.toString().toUpperCase(Locale.ENGLISH)
+        return when {
+            text.length < 4 -> text.padEnd(4)
+            text.length > 4 -> text.substring(0, 4)
+            else -> text
+        }
     }
 }

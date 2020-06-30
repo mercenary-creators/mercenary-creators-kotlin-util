@@ -21,6 +21,7 @@ import co.mercenary.creators.kotlin.util.*
 object Formatters {
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun getFormatterList(load: ClassLoader? = null): List<StringFormatterService> {
         val list = ArrayList<StringFormatterService>()
@@ -40,6 +41,7 @@ object Formatters {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun toSafeString(func: () -> Any?): String {
         return try {
             when (val data = func.invoke()) {

@@ -16,13 +16,18 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import org.slf4j.Marker
+import co.mercenary.creators.kotlin.util.*
 
 interface IMarker {
-    val name: String
-    fun markerOf(): Marker
-    operator fun plus(value: IMarker): IMarker
-    operator fun minus(value: IMarker): IMarker
+
+    @CreatorsDsl
+    fun nameOf(): String
+
+    @CreatorsDsl
+    fun markerOf(): mu.Marker
+
+    operator fun plusAssign(value: IMarker)
+    operator fun minusAssign(value: IMarker)
     operator fun contains(value: String): Boolean
     operator fun contains(value: IMarker): Boolean
 }

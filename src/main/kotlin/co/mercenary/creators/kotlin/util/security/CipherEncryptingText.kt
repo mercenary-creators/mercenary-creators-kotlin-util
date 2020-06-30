@@ -16,9 +16,22 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.*
 import javax.crypto.SecretKey
 
-class CipherEncryptingText @JvmOverloads constructor(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherEncryptingProxy<String>(Ciphers.text(secret, algorithm)) {
+@IgnoreForSerialize
+class CipherEncryptingText @JvmOverloads @CreatorsDsl constructor(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherEncrypting<String, String> {
+
+    @CreatorsDsl
     @JvmOverloads
     constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
+
+    @CreatorsDsl
+    private val proxy = Ciphers.text(secret, algorithm)
+
+    @CreatorsDsl
+    override fun encrypt(data: String): String = proxy.encrypt(data)
+
+    @CreatorsDsl
+    override fun decrypt(data: String): String = proxy.decrypt(data)
 }

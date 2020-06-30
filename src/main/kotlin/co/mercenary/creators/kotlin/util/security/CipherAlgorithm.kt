@@ -16,32 +16,59 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.*
 import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.spec.*
 
 interface CipherAlgorithm {
 
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getFactoryKeysSize(): Int
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getCipherKeyLength(): Int
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getCipherIteration(): Int
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getCipherSecretKey(): String
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getCipherAlgorithm(): String
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getCipherTransform(): String
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getFactoryKeysRand(): SecureRandom
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getAlgorithmParams(vector: ByteArray): AlgorithmParameterSpec
 
     companion object {
 
+        @CreatorsDsl
         val GCM = CipherAlgorithmFactory("AES/GCM/NoPadding") { vector ->
             GCMParameterSpec(128, vector)
         }
 
+        @CreatorsDsl
         val CBC = CipherAlgorithmFactory("AES/CBC/PKCS5Padding") { vector ->
             IvParameterSpec(vector)
         }
 
-        open class CipherAlgorithmFactory @JvmOverloads constructor(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {
+        @IgnoreForSerialize
+        class CipherAlgorithmFactory @JvmOverloads @CreatorsDsl constructor(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {
 
             private val rand: SecureRandom by lazy {
                 SecureRandom()
@@ -54,7 +81,7 @@ interface CipherAlgorithm {
             override fun getCipherAlgorithm() = algo
             override fun getCipherTransform() = tran
             override fun getFactoryKeysRand() = rand
-            override fun getAlgorithmParams(vector: ByteArray) = factory(vector)
+            override fun getAlgorithmParams(vector: ByteArray) = factory.invoke(vector)
         }
     }
 }

@@ -16,7 +16,13 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.*
+
 interface CipherKeysFactory {
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getSize(): Int
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getKeys(): ByteArray
 }

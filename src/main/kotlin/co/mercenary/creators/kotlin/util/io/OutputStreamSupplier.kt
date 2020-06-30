@@ -16,8 +16,11 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.*
 import java.io.OutputStream
 
 interface OutputStreamSupplier {
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getOutputStream(): OutputStream
 }

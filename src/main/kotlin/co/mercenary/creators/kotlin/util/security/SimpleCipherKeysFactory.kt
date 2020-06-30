@@ -16,10 +16,22 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.*
 import java.security.SecureRandom
 
-class SimpleCipherKeysFactory(private val size: Int, private val rand: () -> SecureRandom) : CipherKeysFactory {
+@IgnoreForSerialize
+class SimpleCipherKeysFactory private constructor(private val size: Int, private val rand: () -> SecureRandom) : CipherKeysFactory, HasMapNames {
+
+    @CreatorsDsl
     constructor(cipher: CipherAlgorithm) : this(cipher.getFactoryKeysSize(), cipher::getFactoryKeysRand)
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     override fun getSize(): Int = size
+
+    @CreatorsDsl
+    @IgnoreForSerialize
     override fun getKeys(): ByteArray = Randoms.getByteArray(rand.invoke(), getSize())
+
+    override fun toMapNames() = mapOf("type" to javaClass.name)
 }

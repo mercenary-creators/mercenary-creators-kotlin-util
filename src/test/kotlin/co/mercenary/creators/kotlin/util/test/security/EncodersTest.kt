@@ -46,8 +46,13 @@ class EncodersTest : KotlinSecurityTest() {
         last shouldBe temp
         info { Ciphers.getAlgorithms() }
         info { Digests.getAlgorithms() }
+        info { Randoms.getAlgorithms() }
         Randoms.getDoubleSequence(10, 5.0, 10.0).forEach {
             info { it.toDecimalPlacesString() }
         }
+        warn { Randoms.randomOf().algorithm }
+        warn { Randoms.randomOf().provider.name }
+        warn { Randoms.strongOf().algorithm }
+        warn { Randoms.strongOf().provider.name }
     }
 }

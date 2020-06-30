@@ -18,80 +18,217 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import java.io.*
-import java.io.ByteArrayOutputStream
 import java.net.*
 import java.nio.channels.*
 import java.nio.file.Path
 
 interface Inflater : HasMapNames {
+
+    @CreatorsDsl
     fun inflate(data: InputStream, copy: OutputStream): Long
+
+    @CreatorsDsl
     fun deflate(data: InputStream, copy: OutputStream): Long
+
+    @CreatorsDsl
     fun inflate(data: ByteArray): ByteArray = inflate(data.toInputStream())
+
+    @CreatorsDsl
     fun deflate(data: ByteArray): ByteArray = deflate(data.toInputStream())
+
+    @CreatorsDsl
     fun inflate(data: URL): ByteArray = data.toInputStream().use { read -> inflate(read) }
+
+    @CreatorsDsl
     fun deflate(data: URL): ByteArray = data.toInputStream().use { read -> deflate(read) }
+
+    @CreatorsDsl
     fun inflate(data: URI): ByteArray = data.toInputStream().use { read -> inflate(read) }
+
+    @CreatorsDsl
     fun deflate(data: URI): ByteArray = data.toInputStream().use { read -> deflate(read) }
+
+    @CreatorsDsl
     fun inflate(data: File): ByteArray = data.toInputStream().use { read -> inflate(read) }
+
+    @CreatorsDsl
     fun deflate(data: File): ByteArray = data.toInputStream().use { read -> deflate(read) }
+
+    @CreatorsDsl
     fun inflate(data: Path): ByteArray = data.toInputStream().use { read -> inflate(read) }
+
+    @CreatorsDsl
     fun deflate(data: Path): ByteArray = data.toInputStream().use { read -> deflate(read) }
+
+    @CreatorsDsl
     fun inflate(data: InputStreamSupplier): ByteArray = data.toInputStream().use { read -> inflate(read) }
+
+    @CreatorsDsl
     fun deflate(data: InputStreamSupplier): ByteArray = data.toInputStream().use { read -> deflate(read) }
+
+    @CreatorsDsl
     fun inflate(data: ReadableByteChannel): ByteArray = data.toInputStream().use { read -> inflate(read) }
+
+    @CreatorsDsl
     fun deflate(data: ReadableByteChannel): ByteArray = data.toInputStream().use { read -> deflate(read) }
+
+    @CreatorsDsl
     fun inflate(data: URL, copy: OutputStream) = data.toInputStream().use { read -> inflate(read, copy) }
+
+    @CreatorsDsl
     fun deflate(data: URL, copy: OutputStream) = data.toInputStream().use { read -> deflate(read, copy) }
+
+    @CreatorsDsl
     fun inflate(data: URI, copy: OutputStream) = data.toInputStream().use { read -> inflate(read, copy) }
+
+    @CreatorsDsl
     fun deflate(data: URI, copy: OutputStream) = data.toInputStream().use { read -> deflate(read, copy) }
+
+    @CreatorsDsl
     fun inflate(data: File, copy: OutputStream) = data.toInputStream().use { read -> inflate(read, copy) }
+
+    @CreatorsDsl
     fun deflate(data: File, copy: OutputStream) = data.toInputStream().use { read -> deflate(read, copy) }
+
+    @CreatorsDsl
     fun inflate(data: Path, copy: OutputStream) = data.toInputStream().use { read -> inflate(read, copy) }
+
+    @CreatorsDsl
     fun deflate(data: Path, copy: OutputStream) = data.toInputStream().use { read -> deflate(read, copy) }
+
+    @CreatorsDsl
     fun inflate(data: InputStreamSupplier, copy: OutputStream) = data.toInputStream().use { read -> inflate(read, copy) }
+
+    @CreatorsDsl
     fun deflate(data: InputStreamSupplier, copy: OutputStream) = data.toInputStream().use { read -> deflate(read, copy) }
+
+    @CreatorsDsl
     fun inflate(data: ReadableByteChannel, copy: OutputStream) = data.toInputStream().use { read -> inflate(read, copy) }
+
+    @CreatorsDsl
     fun deflate(data: ReadableByteChannel, copy: OutputStream) = data.toInputStream().use { read -> deflate(read, copy) }
+
+    @CreatorsDsl
     fun inflate(data: URL, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: URL, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: URI, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: URI, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: File, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: File, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: Path, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: Path, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: InputStreamSupplier, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: InputStreamSupplier, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: ReadableByteChannel, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: ReadableByteChannel, copy: URL) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: URL, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: URL, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: URI, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: URI, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: File, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: File, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: Path, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: Path, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: InputStreamSupplier, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: InputStreamSupplier, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: ReadableByteChannel, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: ReadableByteChannel, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: URL, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: URL, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: URI, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: URI, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: File, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: File, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: Path, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: Path, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: InputStreamSupplier, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: InputStreamSupplier, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: ReadableByteChannel, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: ReadableByteChannel, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: URL, copy: WritableByteChannel) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: URL, copy: WritableByteChannel) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: URI, copy: WritableByteChannel) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
+
+    @CreatorsDsl
     fun deflate(data: URI, copy: WritableByteChannel) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
+
+    @CreatorsDsl
     fun inflate(data: File, copy: WritableByteChannel) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
     fun deflate(data: File, copy: WritableByteChannel) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
     fun inflate(data: Path, copy: WritableByteChannel) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
@@ -112,6 +249,10 @@ interface Inflater : HasMapNames {
     fun deflate(data: InputStreamSupplier, copy: OutputStreamSupplier) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
     fun inflate(data: ReadableByteChannel, copy: OutputStreamSupplier) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> inflate(read, send) } }
     fun deflate(data: ReadableByteChannel, copy: OutputStreamSupplier) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
-    fun inflate(data: InputStream): ByteArray = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE).also { send -> inflate(data, send) }.toByteArray()
-    fun deflate(data: InputStream): ByteArray = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE).also { send -> deflate(data, send) }.toByteArray()
+
+    @CreatorsDsl
+    fun inflate(data: InputStream): ByteArray = baos().also { send -> inflate(data, send) }.asByteArray()
+
+    @CreatorsDsl
+    fun deflate(data: InputStream): ByteArray = baos().also { send -> deflate(data, send) }.asByteArray()
 }

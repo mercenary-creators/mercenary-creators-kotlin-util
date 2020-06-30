@@ -44,7 +44,7 @@ open class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
         get() = flags.toBoolean()
         @JvmName("setNewlines")
         set(value) {
-            flags.set(value)
+            flags.set(value.toBoolean())
         }
 
     override fun doLayout(event: ILoggingEvent): String {

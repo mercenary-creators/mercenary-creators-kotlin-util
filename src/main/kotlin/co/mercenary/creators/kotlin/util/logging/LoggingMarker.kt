@@ -16,34 +16,32 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
-import org.slf4j.Marker
-import kotlin.reflect.KClass
+import co.mercenary.creators.kotlin.util.*
 
-class LoggingMarker(private val marker: Marker) : IMarker {
+@IgnoreForSerialize
+class LoggingMarker @CreatorsDsl constructor(private val marker: mu.Marker) : IMarker {
 
+    @CreatorsDsl
     constructor(name: String) : this(LoggingFactory.markerOf(name))
 
+    @CreatorsDsl
     constructor(type: Class<*>) : this(type.name)
 
-    constructor(type: KClass<*>) : this(type.java)
+    @CreatorsDsl
+    constructor(data: Any) : this(data.javaClass)
 
-    constructor(data: Any) : this(data.javaClass.name)
+    @CreatorsDsl
+    override fun nameOf(): String = marker.name
 
-    constructor(func: () -> Unit) : this(LoggingFactory.markerOf(func))
+    @CreatorsDsl
+    override fun markerOf(): mu.Marker = marker
 
-    override val name: String
-        get() = marker.name
-
-    override fun markerOf() = marker
-
-    override operator fun plus(value: IMarker): IMarker {
+    override operator fun plusAssign(value: IMarker) {
         marker.add(value.markerOf())
-        return this
     }
 
-    override operator fun minus(value: IMarker): IMarker {
+    override operator fun minusAssign(value: IMarker) {
         marker.remove(value.markerOf())
-        return this
     }
 
     override operator fun contains(value: String): Boolean {

@@ -23,41 +23,41 @@ class MainTest : KotlinTest() {
     @Test
     fun test() {
         val size = 0.toAtomic()
-        info { dash() }
+        warn { dash() }
         assumeEach {
             assumeThat {
                 info { size }
-                info { dash() }
+                warn { dash() }
                 size.increment()
                 5 shouldBe 5
             }
             assumeThat {
                 info { size }
-                info { dash() }
+                warn { dash() }
                 size.increment()
                 6 shouldNotBe 8
             }
             assumeThat {
                 info { size }
-                info { dash() }
+                warn { dash() }
                 size shouldBe 2
                 size.increment()
             }
             assumeThat {
                 info { size }
-                info { dash() }
+                warn { dash() }
                 size shouldNotBe 2
                 info { here() }
                 oops()
             }
         }
-        info { dash() }
+        warn { dash() }
         info { here() }
         oops()
     }
 
     fun oops() {
-        info { dash() }
+        warn { dash() }
         info { here() }
     }
 }

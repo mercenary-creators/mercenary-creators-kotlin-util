@@ -39,56 +39,48 @@ object Passwords {
     const val THE_LOOPS = 64 * 1024
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun getGeneratedSalt(loop: Int = THE_LOOPS): CharSequence {
         val hash = Digests.sha512().proxyOf()
-        val data = Randoms.getByteArray(SALT_SIZE)
-        repeat(loop.getLoopOf()) {
-            hash.invoke(data)
+        val salt = Randoms.getByteArray(SALT_SIZE)
+        val reps = loop.boxIn(MIN_LOOPS, MAX_LOOPS)
+        for (i in 0 until reps) {
+            hash.digest(salt)
         }
-        return Encoders.hex().encode(data)
+        return Encoders.hex().encode(salt)
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
     fun getGeneratedPass(part: Int = THE_PARTS): CharSequence {
-        val loop = part.getPartOf()
+        val loop = part.boxIn(MIN_PARTS, MAX_PARTS)
         val buff = StringBuilder((loop * PART_SIZE) + loop + PART_SIZE)
-        repeat(loop) {
+        for (i in 0 until loop) {
             buff.append(Randoms.getString(PART_SIZE)).append(SEPARATOR)
         }
         return buff.append(CheckSums.crc32().encoder(buff.toString())).toString()
     }
 
     @JvmStatic
+    @CreatorsDsl
     @JvmOverloads
-    @AssumptionDsl
-    fun isValid(pass: CharSequence, test: Boolean = true, part: Int = THE_PARTS): Boolean {
-        val loop = part.getPartOf()
+    fun isValid(pass: CharSequence, part: Int = THE_PARTS): Boolean {
+        val loop = part.boxIn(MIN_PARTS, MAX_PARTS)
         val last = pass.lastIndexOf(SEPARATOR)
         if (last != (((loop * PART_SIZE) + loop) - 1)) {
             return false
         }
-        if (test && oops(pass.split(SEPARATOR), loop)) {
+        val list = pass.split(SEPARATOR)
+        if (list.size != (loop + 1)) {
             return false
+        }
+        for (i in 0 until loop) {
+            if (list[i].length != PART_SIZE) {
+                return false
+            }
         }
         return pass.endsWith(CheckSums.crc32().encoder(pass.substring(0, last + 1)))
     }
-
-    private fun oops(list: List<String>, loop: Int): Boolean {
-        if (list.size != (loop + 1)) {
-            return true
-        }
-        for (i in 0 until loop) {
-            val buff = list[i]
-            if (buff.length != PART_SIZE) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun Int.getPartOf() = coerceIn(MIN_PARTS, MAX_PARTS)
-
-    private fun Int.getLoopOf() = coerceIn(MIN_LOOPS, MAX_LOOPS)
 }

@@ -29,60 +29,75 @@ class MainTest : KotlinTest() {
         info { time == same }
         info { time.duration() }
         time shouldBe same
-        info { dash() }
+        warn { dash() }
         val plus = 1000.milliseconds + 100.nanoseconds
         info { plus }
         info { plus.unit().toLowerCase() }
-        info { dash() }
+        warn { dash() }
         val half = 1.year / 2
         info { half }
         info { half.unit().toLowerCase() }
-        info { dash() }
+        warn { dash() }
         val oops = 0.days
         info { oops }
-        info { dash() }
+        warn { dash() }
         val date = 366.days
         info { date }
         info { date.unit().toLowerCase() }
-        info { dash() }
+        warn { dash() }
         val data = 100.nanoseconds - 99.nanoseconds
         info { data }
         data shouldBe 1.nanosecond
         data shouldNotBe 99.nanoseconds
-        info { dash() }
+        warn { dash() }
         val test = 1.year + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds + 8.milliseconds + 1.nanosecond
         info { test }
-        info { dash() }
+        warn { dash() }
         measured(10) {
-            for (i in 1..1000000) {
+            if (it.isNegative()) {
+                warn { it }
+            }
+            for (i in 1..100000) {
                 TimeDuration.parseCharSequence("1 second 100 nanoseconds")
             }
         }
-        info { dash() }
+        warn { dash() }
         measured(10) {
-            for (i in 1..1000000) {
+            if (it.isNegative()) {
+                warn { it }
+            }
+            for (i in 1..100000) {
                 TimeDuration.parseCharSequence("3 hours 1 minute")
             }
         }
-        info { dash() }
+        warn { dash() }
         measured(10) {
-            for (i in 1..1000000) {
+            if (it.isNegative()) {
+                warn { it }
+            }
+            for (i in 1..100000) {
                 TimeDuration.parseCharSequence("6 days 3 hours 1 minute")
             }
         }
         val buff = test.toString()
-        info { dash() }
+        warn { dash() }
         measured(10) {
-            for (i in 1..1000000) {
+            if (it.isNegative()) {
+                warn { it }
+            }
+            for (i in 1..100000) {
                 TimeDuration.parseCharSequence(buff)
             }
         }
-        info { dash() }
+        warn { dash() }
         measured(10) {
-            for (i in 1..1000000) {
+            if (it.isNegative()) {
+                warn { it }
+            }
+            for (i in 1..100000) {
                 TimeDuration.parse(buff)
             }
         }
-        info { dash() }
+        warn { dash() }
     }
 }

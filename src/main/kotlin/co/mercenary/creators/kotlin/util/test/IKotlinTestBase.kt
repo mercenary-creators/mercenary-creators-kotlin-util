@@ -19,12 +19,11 @@ package co.mercenary.creators.kotlin.util.test
 import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.io.*
 import co.mercenary.creators.kotlin.util.logging.*
-import mu.KLoggable
 import java.io.File
 import java.util.*
 import kotlin.reflect.KClass
 
-interface IKotlinTestBase : KLoggable, ILoggingBase {
+interface IKotlinTestBase : ILoggingBase {
 
     val author: String
 
@@ -42,30 +41,30 @@ interface IKotlinTestBase : KLoggable, ILoggingBase {
 
     fun getConfigPropertiesBuilder(): () -> Properties
 
-    @AssumptionDsl
-    fun dash(loop: Int = 64): String
+    @CreatorsDsl
+    fun dash(size: Int = 64): String
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun uuid(): String
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun String.toLink() = toURL()
 
     fun getConfigProperty(name: String, other: String = EMPTY_STRING): String
 
     fun setConfigProperty(vararg args: Pair<String, Any?>)
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun <T : Throwable> addThrowableAsFatal(type: Class<T>)
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun <T : Throwable> addThrowableAsFatal(type: KClass<T>)
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun here(): Map<String, Any>
 
     @LoggingInfoDsl
-    fun measured(loop: Int, call: (Int) -> Unit)
+    fun measured(size: Int, call: (Int) -> Unit)
 
     @LoggingInfoDsl
     fun annotations(data: Any)
@@ -76,39 +75,45 @@ interface IKotlinTestBase : KLoggable, ILoggingBase {
     @LoggingInfoDsl
     fun annotations(type: Class<*>)
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun fail(text: String): Nothing
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun fail(func: () -> Any?): Nothing
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun assertTrueOf(condition: Boolean, func: () -> Any?)
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun assertNotTrueOf(condition: Boolean, func: () -> Any?)
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun getThrowableOf(func: () -> Unit): Throwable?
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun assumeEach(block: KotlinTestBase.AssumeCollector.() -> Unit)
 
-    @AssumptionDsl
+    @CreatorsDsl
     infix fun <T : Any?> T.shouldBe(value: T)
 
-    @AssumptionDsl
+    @CreatorsDsl
     infix fun <T : Any?> T.shouldNotBe(value: T)
 
-    @AssumptionDsl
+    @CreatorsDsl
+    infix fun <T : Any?> T.shouldBeSameContent(value: T)
+
+    @CreatorsDsl
+    infix fun <T : Any?> T.shouldNotBeSameContent(value: T)
+
+    @CreatorsDsl
     infix fun <T : Any> T.shouldBeIdentity(value: T)
 
-    @AssumptionDsl
+    @CreatorsDsl
     infix fun <T : Any> T.shouldNotBeIdentity(value: T)
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun <T : Any?> T.shouldBeNull()
 
-    @AssumptionDsl
+    @CreatorsDsl
     fun <T : Any?> T.shouldNotBeNull()
 }

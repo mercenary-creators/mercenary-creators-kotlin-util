@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.concurrent
+package co.mercenary.creators.kotlin.util
 
-import reactor.core.scheduler.*
-
-class ParallelScheduler private constructor(proxy: Scheduler) : Scheduler by proxy {
-    @JvmOverloads
-    constructor(name: String, parallelism: Int = Schedulers.DEFAULT_POOL_SIZE, daemon: Boolean = false) : this(Schedulers.newParallel(name, parallelism, daemon))
-}
+@DslMarker
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.CLASS)
+annotation class CreatorsDsl

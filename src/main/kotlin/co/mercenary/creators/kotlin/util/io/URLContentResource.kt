@@ -20,42 +20,55 @@ import co.mercenary.creators.kotlin.util.*
 import java.net.*
 
 @IgnoreForSerialize
-class URLContentResource @JvmOverloads constructor(private val data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type), OutputContentResource {
+class URLContentResource @JvmOverloads @CreatorsDsl constructor(private val data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type), OutputContentResource {
 
+    @CreatorsDsl
     @JvmOverloads
     constructor(data: URI, type: String = DEFAULT_CONTENT_TYPE) : this(data.toURL(), type)
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentKind() = data.protocol.orEmpty()
 
-    @AssumptionDsl
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun isContentThere() = IO.isContentThere(data)
 
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun getContentMime() = IO.getContentMime(data)
+
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentSize() = IO.getContentSize(data)
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentTime() = IO.getContentTime(data)
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentType() = IO.getContentType(data, type)
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getInputStream() = data.toInputStream()
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getOutputStream() = data.toOutputStream()
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup = { data.toRelative(it).toContentResource() }
 
-    override fun toString() = getDescription()
-
+    @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
         is URLContentResource -> this === other || data isSameAs other.data
         else -> false
     }
 
-    override fun hashCode() = data.hashOf()
+    override fun hashCode() = data.hashCode()
+
+    override fun toString() = getDescription()
 }

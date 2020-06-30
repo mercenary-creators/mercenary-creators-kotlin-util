@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.*
 
-abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window: Long, private val wait: TimeUnit = TimeUnit.MILLISECONDS, unit: TimeUnit = TimeUnit.MILLISECONDS, private val moment: () -> Long = TimeAndDate::mills) : TimeWindowMovingAverage {
+abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constructor(window: Long, private val wait: TimeUnit = TimeUnit.MILLISECONDS, unit: TimeUnit = TimeUnit.MILLISECONDS, private val moment: () -> Long = TimeAndDate::mills) : TimeWindowMovingAverage {
 
     @Volatile
     private var ticker = 0L
@@ -30,12 +30,19 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window:
 
     private val window = wait.convert(max(window, 1L), unit).toDouble()
 
+    @CreatorsDsl
+    @IgnoreForSerialize
     override fun getAverage() = moving
 
+    @CreatorsDsl
+    @IgnoreForSerialize
     override fun getWaitTimeUnit() = wait
 
+    @CreatorsDsl
+    @IgnoreForSerialize
     override fun getMomentInTime() = moment.invoke()
 
+    @CreatorsDsl
     @Synchronized
     override fun addAverage(delta: Double): Double {
         getMomentInTime().also { clock ->
@@ -50,14 +57,16 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window:
 
     override fun toString(): String = TimeAndDate.toDecimalPlaces(getAverage(), " milliseconds")
 
+    @CreatorsDsl
+    @IgnoreForSerialize
     override fun getWindowHandle(): TimeWindowHandle = DefaultTimeWindowHandle(this, getMomentInTime())
 
-    protected open inner class DefaultTimeWindowHandle(private val self: TimeWindowMovingAverage, private val time: Long) : TimeWindowHandle {
+    protected open inner class DefaultTimeWindowHandle @CreatorsDsl constructor(private val self: TimeWindowMovingAverage, private val time: Long) : TimeWindowHandle {
 
         private val open = true.toAtomic()
 
         override fun close() {
-            if (open.compareAndSet(true, false)) {
+            if (open.isTrueToFalse()) {
                 self.getMomentInTime().minus(time).toDouble().also { diff ->
                     self.addAverage(diff).minus(diff).toLong().also {
                         if (it > 0) {
@@ -72,7 +81,5 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads constructor(window:
                 }
             }
         }
-
-        override fun isOpen(): Boolean = open.get()
     }
 }

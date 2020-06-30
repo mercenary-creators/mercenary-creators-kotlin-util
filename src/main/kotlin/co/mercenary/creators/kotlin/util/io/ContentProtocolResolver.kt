@@ -16,6 +16,9 @@
 
 package co.mercenary.creators.kotlin.util.io
 
+import co.mercenary.creators.kotlin.util.CreatorsDsl
+
 interface ContentProtocolResolver {
+    @CreatorsDsl
     fun resolve(path: String, load: ContentResourceLoader): ContentResource?
 }

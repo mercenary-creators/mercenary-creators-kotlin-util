@@ -16,12 +16,15 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.*
 import java.security.*
 
 object Signatures {
 
     @JvmStatic
-    fun getAlgorithms() = Algorithms.getAlgorithmForName("Signature")
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getAlgorithms(): Algorithm = Algorithm.forName("Signature")
 
     @JvmStatic
     fun data(name: String, keys: SignerKeysFactory): Signer<ByteArray, ByteArray> = InternalSigner(name, keys)

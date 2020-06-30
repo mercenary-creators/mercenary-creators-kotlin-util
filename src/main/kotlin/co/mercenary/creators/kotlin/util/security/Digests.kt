@@ -16,58 +16,81 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.*
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 
 object Digests {
 
     @JvmStatic
+    @CreatorsDsl
     fun sha256() = getMessageDigest("SHA-256")
 
     @JvmStatic
+    @CreatorsDsl
     fun sha512() = getMessageDigest("SHA-512")
 
     @JvmStatic
-    fun getAlgorithms() = Algorithms.getAlgorithmForName("MessageDigest")
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getAlgorithms(): Algorithm = Algorithm.forName("MessageDigest")
 
     @JvmStatic
+    @CreatorsDsl
     fun getMessageDigest(named: String): MessageDigest = MessageDigest.getInstance(named)
 
     @JvmStatic
+    @CreatorsDsl
     fun proxyOf(digest: MessageDigest) = MessageDigestProxy(digest)
 
-    class MessageDigestProxy(private val digest: MessageDigest) {
-        operator fun invoke(buffer: ByteArray) = invoke(buffer, buffer, true)
-        operator fun invoke(buffer: ByteArray, target: ByteArray) = invoke(buffer, target, true)
-        operator fun invoke(buffer: ByteArray, target: ByteArray, finish: Boolean) {
-            digest.digest(buffer).copyInto(target)
+    @IgnoreForSerialize
+    class MessageDigestProxy @CreatorsDsl internal constructor(private val digest: MessageDigest) {
+
+        @CreatorsDsl
+        @JvmOverloads
+        fun digest(buffer: ByteArray, target: ByteArray = buffer, finish: Boolean = true): ByteArray {
+            update(buffer).digest().copyInto(target)
             if (finish) {
-                digest.reset()
+                finish()
             }
+            return target
         }
 
+        @CreatorsDsl
         fun update(buffer: ByteArray): MessageDigestProxy {
             digest.update(buffer)
             return this
         }
 
+        @CreatorsDsl
+        fun update(list: List<ByteArray>): MessageDigestProxy {
+            list.forEach { buffer ->
+                update(buffer)
+            }
+            return this
+        }
+
+        @CreatorsDsl
         fun update(buffer: ByteBuffer): MessageDigestProxy {
             digest.update(buffer)
             return this
         }
 
-        fun update(list: List<ByteBuffer>): MessageDigestProxy {
+        @CreatorsDsl
+        fun update(list: Iterable<ByteBuffer>): MessageDigestProxy {
             list.forEach { buffer ->
-                digest.update(buffer)
+                update(buffer)
             }
             return this
         }
 
+        @CreatorsDsl
         fun finish(): MessageDigestProxy {
             digest.reset()
             return this
         }
 
+        @CreatorsDsl
         fun digest(): ByteArray {
             return digest.digest()
         }

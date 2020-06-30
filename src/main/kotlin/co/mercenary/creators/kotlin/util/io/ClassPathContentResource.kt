@@ -19,14 +19,17 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class ClassPathContentResource @JvmOverloads constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, private val claz: Class<*>?, private val load: ClassLoader?) : AbstractContentResource(path, type) {
+class ClassPathContentResource @JvmOverloads @CreatorsDsl constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, private val claz: Class<*>?, private val load: ClassLoader?) : AbstractContentResource(path, type) {
 
+    @CreatorsDsl
     @JvmOverloads
     constructor(path: String, type: String = DEFAULT_CONTENT_TYPE) : this(getPathNormalizedNoTail(path, true), type, null, IO.getDefaultClassLoader())
 
+    @CreatorsDsl
     @JvmOverloads
     constructor(path: String, claz: Class<*>, type: String = DEFAULT_CONTENT_TYPE) : this(getPathNormalizedNoTail(path, false), type, claz, null)
 
+    @CreatorsDsl
     @JvmOverloads
     constructor(path: String, claz: kotlin.reflect.KClass<*>, type: String = DEFAULT_CONTENT_TYPE) : this(path, claz.java, type)
 
@@ -34,7 +37,7 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
 
     private val resource = IO.getResouce(getContentPath(), claz, load)
 
-    @AssumptionDsl
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun isContentThere(): Boolean {
         if (resource != null) {
@@ -43,9 +46,11 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
         return false
     }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup = { ClassPathContentResource(IO.getPathRelative(getContentPath(), it), DEFAULT_CONTENT_TYPE, claz, load) }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentTime(): Long {
         val time = super.getContentTime()
@@ -58,6 +63,7 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
         return time
     }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentSize(): Long {
         if (resource != null) {
@@ -68,25 +74,28 @@ class ClassPathContentResource @JvmOverloads constructor(path: String, type: Str
         throw MercenaryExceptiion(getDescription())
     }
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentType() = resolved
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getContentKind() = IO.PREFIX_CLASS
 
+    @CreatorsDsl
     @IgnoreForSerialize
     override fun getInputStream() = when (val data = IO.getInputStream(resource)) {
         null -> throw MercenaryExceptiion(getDescription())
         else -> data
     }
 
-    override fun toString() = getDescription()
-
-    @AssumptionDsl
+    @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
         is ClassPathContentResource -> this === other || getContentPath() isSameAs other.getContentPath() && claz isSameAs other.claz && load isSameAs other.load
         else -> false
     }
+
+    override fun toString() = getDescription()
 
     override fun hashCode() = getContentPath().hashCode()
 }

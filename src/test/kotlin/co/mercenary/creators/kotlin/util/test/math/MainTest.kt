@@ -28,14 +28,17 @@ class MainTest : KotlinTest() {
         info { data.rounded(7) }
         info { data.toDecimalPlacesString(3) }
         info { data.toDecimalPlacesString(7) }
-        info { (-1.0).pow(-5) }
-        info { (-1.0).pow(-4) }
-        info { powNegative1(-5) }
-        info { powNegative1(-4) }
+        warn { (-1.0).pow(-5) }
+        warn { (-1.0).pow(-4) }
         info { gcdOf(8, 12) }
         info { lcmOf(8, 12) }
         info { gcdOf(8, -6, 12) }
         info { lcmOf(8, 12, 10) }
         info { lcmOf(0, 8) }
+        warn { -1 % 2 }
+        warn { (-1).isEven() }
+        warn { (-2).isEven() }
+        warn { (-1.2).isEven() }
+        warn { (-2.2).isEven() }
     }
 }

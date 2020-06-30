@@ -16,30 +16,87 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
+import co.mercenary.creators.kotlin.util.*
+
 interface ILogging {
-    val isLoggingInfoEnabled: Boolean
-    val isLoggingWarnEnabled: Boolean
-    val isLoggingTraceEnabled: Boolean
-    val isLoggingDebugEnabled: Boolean
-    val isLoggingErrorEnabled: Boolean
+
+    @LoggingInfoDsl
+    @IgnoreForSerialize
+    fun isLoggingInfoEnabled(): Boolean
+
+    @LoggingWarnDsl
+    @IgnoreForSerialize
+    fun isLoggingWarnEnabled(): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isLoggingTraceEnabled(): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isLoggingDebugEnabled(): Boolean
+
+    @IgnoreForSerialize
+    fun isLoggingErrorEnabled(): Boolean
+
+    @IgnoreForSerialize
+    fun isLoggingFatalEnabled(): Boolean
+
+    @LoggingInfoDsl
     fun info(block: () -> Any?)
+
+    @LoggingInfoDsl
     fun info(cause: Throwable, block: () -> Any?)
+
+    @LoggingInfoDsl
     fun info(marker: IMarker, block: () -> Any?)
+
+    @LoggingInfoDsl
     fun info(cause: Throwable, marker: IMarker, block: () -> Any?)
+
+    @LoggingWarnDsl
     fun warn(block: () -> Any?)
+
+    @LoggingWarnDsl
     fun warn(cause: Throwable, block: () -> Any?)
+
+    @LoggingWarnDsl
     fun warn(marker: IMarker, block: () -> Any?)
+
+    @LoggingWarnDsl
     fun warn(cause: Throwable, marker: IMarker, block: () -> Any?)
+
+    @CreatorsDsl
     fun trace(block: () -> Any?)
+
+    @CreatorsDsl
     fun trace(cause: Throwable, block: () -> Any?)
+
+    @CreatorsDsl
     fun trace(marker: IMarker, block: () -> Any?)
+
+    @CreatorsDsl
     fun trace(cause: Throwable, marker: IMarker, block: () -> Any?)
+
+    @CreatorsDsl
     fun debug(block: () -> Any?)
+
+    @CreatorsDsl
     fun debug(cause: Throwable, block: () -> Any?)
+
+    @CreatorsDsl
     fun debug(marker: IMarker, block: () -> Any?)
+
+    @CreatorsDsl
     fun debug(cause: Throwable, marker: IMarker, block: () -> Any?)
+
     fun error(block: () -> Any?)
     fun error(cause: Throwable, block: () -> Any?)
     fun error(marker: IMarker, block: () -> Any?)
     fun error(cause: Throwable, marker: IMarker, block: () -> Any?)
+
+    fun fatal(block: () -> Any?)
+    fun fatal(cause: Throwable, block: () -> Any?)
+    fun fatal(marker: IMarker, block: () -> Any?)
+    fun fatal(cause: Throwable, marker: IMarker, block: () -> Any?)
 }

@@ -16,21 +16,36 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.*
 import java.nio.ByteBuffer
 import java.util.zip.*
 
 object CheckSums {
 
     @JvmStatic
+    @CreatorsDsl
     fun crc32(): CheckSum = CheckSumFactory(CRC32())
 
     @JvmStatic
+    @CreatorsDsl
     fun adl32(): CheckSum = CheckSumFactory(Adler32())
 
-    private class CheckSumFactory(private val factory: Checksum) : CheckSum {
+    @IgnoreForSerialize
+    private class CheckSumFactory @CreatorsDsl constructor(private val factory: Checksum) : CheckSum {
+
+        @CreatorsDsl
+        override fun clear() = factory.reset()
+
+        @CreatorsDsl
         override fun decoder(data: String): Long = updater(data.toByteArray(Charsets.UTF_8))
+
+        @CreatorsDsl
         override fun encoder(data: String): String = Encoders.hex().encode(buffers(decoder(data)))
+
+        @CreatorsDsl
         override fun updater(data: ByteArray): Long = factory.also { it.update(data, 0, data.size) }.value
+
+        @CreatorsDsl
         override fun buffers(data: Long): ByteArray = ByteBuffer.allocate(Int.SIZE_BYTES).putInt((data and 0xffffffffL).toInt()).array()
     }
 }

@@ -38,6 +38,10 @@ object Randoms {
         SecureRandom()
     }
 
+    private val STRONG: SecureRandom by lazy {
+        SecureRandom.getInstanceStrong()
+    }
+
     private val KOTLIN: kotlin.random.Random by lazy {
         RANDOM.asKotlinRandom()
     }
@@ -49,147 +53,200 @@ object Randoms {
         get() = KOTLIN
 
     @JvmStatic
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getAlgorithms(): Algorithm = Algorithm.forName("SecureRandom")
+
+    @JvmStatic
+    @CreatorsDsl
     fun uuid() = UUID.randomUUID().toString()
 
     @JvmStatic
+    @CreatorsDsl
     fun randomOf() = SecureRandom()
 
     @JvmStatic
+    @CreatorsDsl
+    fun strongOf() = STRONG
+
+    @JvmStatic
+    @CreatorsDsl
     fun randomOf(seed: Long) = randomOf().seedTo(seed)
 
     @JvmStatic
+    @CreatorsDsl
     fun randomOf(seed: ByteArray) = SecureRandom(seed)
 
     @JvmStatic
+    @CreatorsDsl
     fun getInteger() = random.nextInt()
 
     @JvmStatic
+    @CreatorsDsl
     fun getInteger(bound: Int) = random.nextInt(bound)
 
     @JvmStatic
+    @CreatorsDsl
     fun getDouble() = random.nextDouble()
 
     @JvmStatic
+    @CreatorsDsl
+    fun getGaussian() = random.nextGaussian()
+
+    @JvmStatic
+    @CreatorsDsl
     fun getBoolean() = random.nextBoolean()
 
     @JvmStatic
+    @CreatorsDsl
     fun getLongValue() = random.nextLong()
 
     @JvmStatic
+    @CreatorsDsl
     fun getByteArray(sized: Int) = getByteArray(ByteArray(sized))
 
     @JvmStatic
+    @CreatorsDsl
     fun getByteArray(bytes: ByteArray) = getByteArray(random, bytes)
 
     @JvmStatic
+    @CreatorsDsl
     fun getByteArray(random: SecureRandom, sized: Int) = getByteArray(random, ByteArray(sized))
 
     @JvmStatic
+    @CreatorsDsl
     fun getByteArray(random: SecureRandom, bytes: ByteArray) = bytes.also { random.nextBytes(it) }
 
     @JvmStatic
+    @CreatorsDsl
     fun getInteger(range: IntRange) = kotlin.nextInt(range)
 
     @JvmStatic
+    @CreatorsDsl
     fun getInteger(lower: Int, upper: Int) = kotlin.nextInt(lower, upper)
 
     @JvmStatic
+    @CreatorsDsl
     fun getLongValue(bound: Long) = kotlin.nextLong(bound)
 
     @JvmStatic
+    @CreatorsDsl
     fun getLongValue(range: LongRange) = kotlin.nextLong(range)
 
     @JvmStatic
+    @CreatorsDsl
     fun getLongValue(lower: Int, upper: Int) = kotlin.nextLong(lower.toLong(), upper.toLong())
 
     @JvmStatic
+    @CreatorsDsl
     fun getLongValue(lower: Long, upper: Long) = kotlin.nextLong(lower, upper)
 
     @JvmStatic
+    @CreatorsDsl
     fun getDouble(bound: Double) = kotlin.nextDouble(bound)
 
     @JvmStatic
+    @CreatorsDsl
     fun getDouble(lower: Double, upper: Double) = kotlin.nextDouble(lower, upper)
 
     @JvmStatic
+    @CreatorsDsl
     fun getLongSequence(sized: Int): Sequence<Long> {
         return getLongSequence(sized.toLong())
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getLongSequence(sized: Long): Sequence<Long> {
         return if (sized < 1L) MercenarySequence() else MercenarySequence(random.longs(sized).iterator())
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getLongSequence(sized: Int, lower: Long, upper: Long): Sequence<Long> {
         return getLongSequence(sized.toLong(), lower, upper)
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getLongSequence(sized: Long, lower: Long, upper: Long): Sequence<Long> {
         return if (sized < 1L) MercenarySequence() else MercenarySequence(random.longs(sized, lower, upper).iterator())
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getIntegerSequence(sized: Int): Sequence<Int> {
         return getIntegerSequence(sized.toLong())
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getIntegerSequence(sized: Long): Sequence<Int> {
         return if (sized < 1L) MercenarySequence() else MercenarySequence(random.ints(sized).iterator())
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getIntegerSequence(sized: Int, lower: Int, upper: Int): Sequence<Int> {
         return getIntegerSequence(sized.toLong(), lower, upper)
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getIntegerSequence(sized: Long, lower: Int, upper: Int): Sequence<Int> {
         return if (sized < 1L) MercenarySequence() else MercenarySequence(random.ints(sized, lower, upper).iterator())
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getDoubleSequence(sized: Int): Sequence<Double> {
         return getDoubleSequence(sized.toLong())
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getDoubleSequence(sized: Long): Sequence<Double> {
         return if (sized < 1L) MercenarySequence() else MercenarySequence(random.doubles(sized).iterator())
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getDoubleSequence(sized: Int, lower: Double, upper: Double): Sequence<Double> {
         return getDoubleSequence(sized.toLong(), lower, upper)
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getDoubleSequence(sized: Long, lower: Double, upper: Double): Sequence<Double> {
         return if (sized < 1L) MercenarySequence() else MercenarySequence(random.doubles(sized, lower, upper).iterator())
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getBits(count: Int) = kotlin.nextBits(count)
 
     @JvmStatic
+    @CreatorsDsl
     fun getString(sized: Int): String = getString(sized, VALUES)
 
     @JvmStatic
+    @CreatorsDsl
     fun getString(sized: Int, chars: CharArray): String = getCharSequenceOf(sized, chars).toString()
 
     @JvmStatic
+    @CreatorsDsl
     fun getString(sized: Int, chars: CharSequence): String = getCharSequenceOf(sized, chars).toString()
 
     @JvmStatic
+    @CreatorsDsl
     fun getCharSequenceOf(sized: Int): CharSequence = getCharSequenceOf(sized, VALUES)
 
     @JvmStatic
+    @CreatorsDsl
     fun getCharSequenceOf(sized: Int, chars: CharSequence): CharSequence = getCharSequenceOf(sized, chars.toString().toCharArray())
 
     @JvmStatic
+    @CreatorsDsl
     fun getCharSequenceOf(sized: Int, chars: CharArray): CharSequence {
         if (sized < 1) {
             return EMPTY_STRING
@@ -206,6 +263,7 @@ object Randoms {
     }
 
     @JvmStatic
+    @CreatorsDsl
     fun getCharArrayValues(): CharArray = VALUES.copyOf()
 
     private fun getCharArrayValuesInternal(): CharArray {

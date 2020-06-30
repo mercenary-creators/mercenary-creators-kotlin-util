@@ -16,7 +16,13 @@
 
 package co.mercenary.creators.kotlin.util.security
 
+import co.mercenary.creators.kotlin.util.CreatorsDsl
+
 interface CipherEncrypting<E, D> {
+
+    @CreatorsDsl
     fun encrypt(data: D): E
+
+    @CreatorsDsl
     fun decrypt(data: E): D
 }

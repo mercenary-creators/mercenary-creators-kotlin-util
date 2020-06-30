@@ -23,21 +23,31 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 
 interface ContentTypeProbe : FileTypeMapSupplier {
-    operator fun get(data: URI): String = getContentType(data)
-    operator fun get(data: URL): String = getContentType(data)
-    operator fun get(data: File): String = getContentType(data)
-    operator fun get(data: Path): String = getContentType(data)
+
     operator fun get(name: String): String = getContentType(name)
-    operator fun get(data: ByteArray): String = getContentType(data)
-    operator fun get(data: InputStream): String = getContentType(data)
-    operator fun get(data: ReadableByteChannel): String = getContentType(data)
+
+    @CreatorsDsl
     fun getContentType(data: URI, type: String = DEFAULT_CONTENT_TYPE): String
+
+    @CreatorsDsl
     fun getContentType(data: URL, type: String = DEFAULT_CONTENT_TYPE): String
+
+    @CreatorsDsl
     fun getContentType(data: File, type: String = DEFAULT_CONTENT_TYPE): String
+
+    @CreatorsDsl
     fun getContentType(data: Path, type: String = DEFAULT_CONTENT_TYPE): String
+
+    @CreatorsDsl
     fun getContentType(name: String, type: String = DEFAULT_CONTENT_TYPE): String
+
+    @CreatorsDsl
     fun getContentType(data: ByteArray, type: String = DEFAULT_CONTENT_TYPE): String
+
+    @CreatorsDsl
     fun getContentType(data: InputStream, type: String = DEFAULT_CONTENT_TYPE): String
+
+    @CreatorsDsl
     fun getContentType(data: ReadableByteChannel, type: String = DEFAULT_CONTENT_TYPE): String
 
     companion object {
@@ -47,6 +57,7 @@ interface ContentTypeProbe : FileTypeMapSupplier {
         }
 
         @JvmStatic
+        @CreatorsDsl
         fun getDefaultFileTypeMap(): DefaultContentFileTypeMap = maps
     }
 }

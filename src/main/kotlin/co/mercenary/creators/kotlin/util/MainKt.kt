@@ -15,10 +15,10 @@
  */
 
 @file:kotlin.jvm.JvmName("MainKt")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.type.Validated
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.atomic.*
@@ -65,9 +65,15 @@ typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlg
 
 typealias AtomicHashMap<K, V> = java.util.concurrent.ConcurrentHashMap<K, V>
 
-open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
+open class MercenaryExceptiion @CreatorsDsl constructor(text: String?, root: Throwable?) : RuntimeException(text, root) {
+
+    @CreatorsDsl
     constructor() : this(null, null)
+
+    @CreatorsDsl
     constructor(text: String) : this(text, null)
+
+    @CreatorsDsl
     constructor(root: Throwable) : this(root.message, root)
 
     companion object {
@@ -75,8 +81,12 @@ open class MercenaryExceptiion(text: String?, root: Throwable?) : RuntimeExcepti
     }
 }
 
-open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : RuntimeException(text, root) {
+open class MercenaryFatalExceptiion @CreatorsDsl constructor(text: String?, root: Throwable?) : RuntimeException(text, root) {
+
+    @CreatorsDsl
     constructor(text: String) : this(text, null)
+
+    @CreatorsDsl
     constructor(root: Throwable) : this(root.message, root)
 
     companion object {
@@ -84,8 +94,12 @@ open class MercenaryFatalExceptiion(text: String?, root: Throwable?) : RuntimeEx
     }
 }
 
-open class MercenaryAssertExceptiion(text: String?, root: Throwable?) : AssertionError(text, root) {
+open class MercenaryAssertExceptiion @CreatorsDsl constructor(text: String?, root: Throwable?) : AssertionError(text, root) {
+
+    @CreatorsDsl
     constructor(text: String) : this(text, null)
+
+    @CreatorsDsl
     constructor(root: Throwable) : this(root.message, root)
 
     companion object {
@@ -93,59 +107,87 @@ open class MercenaryAssertExceptiion(text: String?, root: Throwable?) : Assertio
     }
 }
 
-interface HasMapNames {
-    fun toMapNames(): Map<String, Any?>
-}
-
+@CreatorsDsl
 fun java.security.MessageDigest.proxyOf() = Digests.proxyOf(this)
 
-@AssumptionDsl
+@CreatorsDsl
 fun Class<*>.isKotlinClass(): Boolean {
     return declaredAnnotations.any { it.annotationClass.java.name == KOTLIN_METAS }
 }
 
+@CreatorsDsl
 fun <K, V> atomicMapOf(): AtomicHashMap<K, V> {
     return AtomicHashMap()
 }
 
+@CreatorsDsl
 fun <K, V> atomicMapOf(vararg args: Pair<K, V>): AtomicHashMap<K, V> {
     return if (args.isNotEmpty()) AtomicHashMap(args.toMap()) else AtomicHashMap()
 }
 
+@CreatorsDsl
 fun <K, V> atomicMapOf(args: Map<K, V>): AtomicHashMap<K, V> {
     return if (args.isNotEmpty()) AtomicHashMap(args.toMap()) else AtomicHashMap()
 }
 
+@CreatorsDsl
 fun <K, V> Map<K, V>.toAtomic(): AtomicHashMap<K, V> {
     return if (this is AtomicHashMap) this else AtomicHashMap(this)
 }
 
+@CreatorsDsl
 fun getCurrentThreadName(): String = Thread.currentThread().name
 
+@CreatorsDsl
 fun getProcessors(): Int = Runtime.getRuntime().availableProcessors()
 
+@CreatorsDsl
 fun toTrimOrNull(data: String?): String? = data?.trim().takeUnless { it.isNullOrEmpty() }
 
-@JvmOverloads
+@CreatorsDsl
 fun toTrimOrElse(data: String?, other: String = EMPTY_STRING): String = toTrimOrNull(data) ?: other
 
+@CreatorsDsl
 inline fun toTrimOrElse(data: String?, other: () -> String): String = toTrimOrNull(data) ?: other.invoke()
 
-fun String.toTrimOr(other: String): String = toTrimOrNull(this) ?: other
+@CreatorsDsl
+inline fun String?.toTrimOr(other: String = EMPTY_STRING): String = toTrimOrNull(this) ?: other
 
-inline fun String.toTrimOr(other: () -> String): String = toTrimOrNull(this) ?: other.invoke()
+@CreatorsDsl
+inline fun String?.toTrimOr(other: () -> String): String = toTrimOrNull(this) ?: other.invoke()
 
+@CreatorsDsl
+inline fun String.tail(many: Int = 1): String = dropLast(many)
+
+@CreatorsDsl
 fun CharSequence.toChecked(): String {
     return if (this.any { it == Char.MIN_VALUE })
         throw MercenaryFatalExceptiion("null byte present. there are no known legitimate use cases for such data, but several injection attacks may use it.")
     else toString()
 }
 
+@CreatorsDsl
 fun CharSequence.toLowerTrim(): String = trim().toString().toLowerCase()
 
-fun CharSequence.toLowerTrimEnglish(): String = trim().toString().toLowerCase(Locale.ENGLISH)
+@CreatorsDsl
+fun CharSequence.toLowerTrimEnglish(): String = trim().toLowerCaseEnglish()
 
-@AssumptionDsl
+@CreatorsDsl
+fun CharSequence.toUpperTrimEnglish(): String = trim().toUpperCaseEnglish()
+
+@CreatorsDsl
+fun CharSequence.toLowerCaseEnglish(): String = toString().toLowerCase(Locale.ENGLISH)
+
+@CreatorsDsl
+fun CharSequence.toUpperCaseEnglish(): String = toString().toUpperCase(Locale.ENGLISH)
+
+@CreatorsDsl
+fun <T : Any> T.toThreadLocal(): ThreadLocal<T> = ThreadLocal.withInitial { this }
+
+@CreatorsDsl
+fun <T : Any> ThreadLocal<T>.toValue(): T = get()
+
+@CreatorsDsl
 fun isValid(value: Any?): Boolean = when (value) {
     null -> false
     is Validated -> {
@@ -162,7 +204,7 @@ fun isValid(value: Any?): Boolean = when (value) {
     else -> true
 }
 
-@AssumptionDsl
+@CreatorsDsl
 inline fun isValid(block: () -> Any?): Boolean = try {
     isValid(block.invoke())
 }
@@ -171,10 +213,11 @@ catch (cause: Throwable) {
     false
 }
 
+@CreatorsDsl
 fun Long.toAtomic(): AtomicLong = AtomicLong(this)
 
 operator fun AtomicLong.div(value: Int): AtomicLong {
-    if (value == 0) throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+    value.toValidDivisor()
     updateAndGet { it / value }
     return this
 }
@@ -195,7 +238,7 @@ operator fun AtomicLong.minus(value: Int): AtomicLong {
 }
 
 operator fun AtomicLong.div(value: Long): AtomicLong {
-    if (value == 0L) throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+    value.toValidDivisor()
     updateAndGet { it / value }
     return this
 }
@@ -215,16 +258,29 @@ operator fun AtomicLong.minus(value: Long): AtomicLong {
     return this
 }
 
+@CreatorsDsl
 fun AtomicLong.increment(): AtomicLong {
     getAndIncrement()
     return this
 }
 
+@CreatorsDsl
+operator fun AtomicLong.inc(): AtomicLong {
+    return increment()
+}
+
+@CreatorsDsl
 fun AtomicLong.decrement(): AtomicLong {
     getAndDecrement()
     return this
 }
 
+@CreatorsDsl
+operator fun AtomicLong.dec(): AtomicLong {
+    return decrement()
+}
+
+@CreatorsDsl
 infix fun AtomicLong.maxOf(value: Int): AtomicLong {
     if (value > get()) {
         set(value.toLong())
@@ -232,6 +288,7 @@ infix fun AtomicLong.maxOf(value: Int): AtomicLong {
     return this
 }
 
+@CreatorsDsl
 infix fun AtomicLong.maxOf(value: AtomicInteger): AtomicLong {
     if (value.get() > get()) {
         set(value.get().toLong())
@@ -239,6 +296,7 @@ infix fun AtomicLong.maxOf(value: AtomicInteger): AtomicLong {
     return this
 }
 
+@CreatorsDsl
 infix fun AtomicLong.minOf(value: Long): AtomicLong {
     if (value < get()) {
         set(value)
@@ -246,6 +304,7 @@ infix fun AtomicLong.minOf(value: Long): AtomicLong {
     return this
 }
 
+@CreatorsDsl
 infix fun AtomicLong.minOf(value: AtomicLong): AtomicLong {
     if (value.get() < get()) {
         set(value.get())
@@ -253,6 +312,7 @@ infix fun AtomicLong.minOf(value: AtomicLong): AtomicLong {
     return this
 }
 
+@CreatorsDsl
 infix fun AtomicLong.maxOf(value: Long): AtomicLong {
     if (value > get()) {
         set(value)
@@ -260,6 +320,7 @@ infix fun AtomicLong.maxOf(value: Long): AtomicLong {
     return this
 }
 
+@CreatorsDsl
 infix fun AtomicLong.maxOf(value: AtomicLong): AtomicLong {
     if (value.get() > get()) {
         set(value.get())
@@ -267,6 +328,7 @@ infix fun AtomicLong.maxOf(value: AtomicLong): AtomicLong {
     return this
 }
 
+@CreatorsDsl
 infix fun AtomicLong.minOf(value: Int): AtomicLong {
     if (value < get()) {
         set(value.toLong())
@@ -274,6 +336,7 @@ infix fun AtomicLong.minOf(value: Int): AtomicLong {
     return this
 }
 
+@CreatorsDsl
 infix fun AtomicLong.minOf(value: AtomicInteger): AtomicLong {
     if (value.get() < get()) {
         set(value.get().toLong())
@@ -281,12 +344,37 @@ infix fun AtomicLong.minOf(value: AtomicInteger): AtomicLong {
     return this
 }
 
+operator fun AtomicLong.compareTo(value: Int): Int = get().compareTo(value)
+
+operator fun AtomicLong.compareTo(value: Long): Int = get().compareTo(value)
+
+operator fun AtomicLong.compareTo(value: AtomicLong): Int = get().compareTo(value.toLong())
+
+operator fun AtomicLong.compareTo(value: AtomicInteger): Int = get().compareTo(value.toLong())
+
+@CreatorsDsl
 fun AtomicLong.toBigInteger(): BigInteger = toLong().toBigInteger()
 
+@CreatorsDsl
+fun AtomicLong.isNegative(): Boolean {
+    return get() < 0
+}
+
+@CreatorsDsl
+fun AtomicLong.isEven(): Boolean {
+    return get().isEven()
+}
+
+@CreatorsDsl
+fun AtomicLong.isNotEven(): Boolean {
+    return get().isNotEven()
+}
+
+@CreatorsDsl
 fun Int.toAtomic(): AtomicInteger = AtomicInteger(this)
 
 operator fun AtomicInteger.div(value: Int): AtomicInteger {
-    if (value == 0) throw MercenaryFatalExceptiion(MATH_ZERO_DIVISOR_ERROR)
+    value.toValidDivisor()
     updateAndGet { it / value }
     return this
 }
@@ -306,16 +394,29 @@ operator fun AtomicInteger.minus(value: Int): AtomicInteger {
     return this
 }
 
+@CreatorsDsl
 fun AtomicInteger.increment(): AtomicInteger {
     getAndIncrement()
     return this
 }
 
+@CreatorsDsl
+operator fun AtomicInteger.inc(): AtomicInteger {
+    return increment()
+}
+
+@CreatorsDsl
 fun AtomicInteger.decrement(): AtomicInteger {
     getAndDecrement()
     return this
 }
 
+@CreatorsDsl
+operator fun AtomicInteger.dec(): AtomicInteger {
+    return decrement()
+}
+
+@CreatorsDsl
 infix fun AtomicInteger.maxOf(value: Int): AtomicInteger {
     if (value > get()) {
         set(value)
@@ -323,6 +424,7 @@ infix fun AtomicInteger.maxOf(value: Int): AtomicInteger {
     return this
 }
 
+@CreatorsDsl
 infix fun AtomicInteger.maxOf(value: AtomicInteger): AtomicInteger {
     if (value.get() > get()) {
         set(value.get())
@@ -330,6 +432,7 @@ infix fun AtomicInteger.maxOf(value: AtomicInteger): AtomicInteger {
     return this
 }
 
+@CreatorsDsl
 infix fun AtomicInteger.minOf(value: Int): AtomicInteger {
     if (value < get()) {
         set(value)
@@ -337,6 +440,7 @@ infix fun AtomicInteger.minOf(value: Int): AtomicInteger {
     return this
 }
 
+@CreatorsDsl
 infix fun AtomicInteger.minOf(value: AtomicInteger): AtomicInteger {
     if (value.get() < get()) {
         set(value.get())
@@ -344,70 +448,135 @@ infix fun AtomicInteger.minOf(value: AtomicInteger): AtomicInteger {
     return this
 }
 
+@CreatorsDsl
 fun AtomicInteger.toBigInteger(): BigInteger = toInt().toBigInteger()
 
-@AssumptionDsl
-fun Boolean.toAtomic() = AtomicBoolean(this)
+@CreatorsDsl
+fun AtomicInteger.isNegative(): Boolean {
+    return get().isNegative()
+}
 
-@AssumptionDsl
-fun Boolean.toBoolean(): Boolean = this
+@CreatorsDsl
+fun AtomicInteger.isEven(): Boolean {
+    return get().isEven()
+}
 
-@AssumptionDsl
-fun Boolean.isTrue(): Boolean = toBoolean()
+@CreatorsDsl
+fun AtomicInteger.isNotEven(): Boolean {
+    return get().isNotEven()
+}
 
-@AssumptionDsl
-fun Boolean.isNotTrue(): Boolean = toBoolean().not()
+@CreatorsDsl
+inline fun Boolean.toAtomic() = AtomicBoolean(this)
 
-@AssumptionDsl
-fun AtomicBoolean.toBoolean(): Boolean = get()
+@CreatorsDsl
+inline fun Boolean.isTrue(): Boolean = this
 
-@AssumptionDsl
-fun AtomicBoolean.isTrue(): Boolean = toBoolean()
+@CreatorsDsl
+inline fun Boolean.toBoolean(): Boolean = this
 
-@AssumptionDsl
-fun AtomicBoolean.isNotTrue(): Boolean = isTrue().not()
+@CreatorsDsl
+inline fun Boolean.isNotTrue(): Boolean = toBoolean().not()
 
-@AssumptionDsl
+@CreatorsDsl
+fun AtomicBoolean.copyOf(): AtomicBoolean = toAtomic()
+
+@CreatorsDsl
+fun AtomicBoolean.toAtomic(): AtomicBoolean = toBoolean().toAtomic()
+
+@CreatorsDsl
+inline fun AtomicBoolean.toBoolean(): Boolean = get()
+
+@CreatorsDsl
+inline fun AtomicBoolean.isTrue(): Boolean = toBoolean()
+
+@CreatorsDsl
+inline fun AtomicBoolean.isNotTrue(): Boolean = isTrue().not()
+
+@CreatorsDsl
+fun AtomicBoolean.isTrueToFalse(): Boolean = isUpdateTo(true.toBoolean(), false.toBoolean())
+
+@CreatorsDsl
+fun AtomicBoolean.isFalseToTrue(): Boolean = isUpdateTo(false.toBoolean(), true.toBoolean())
+
+@CreatorsDsl
+fun AtomicBoolean.isUpdateTo(expect: Boolean, update: Boolean): Boolean = compareAndSet(expect, update)
+
+@CreatorsDsl
+fun AtomicBoolean.isUpdateTo(expect: Boolean, update: AtomicBoolean): Boolean = isUpdateTo(expect.toBoolean(), update.toBoolean())
+
+@CreatorsDsl
+fun AtomicBoolean.isUpdateTo(expect: AtomicBoolean, update: Boolean): Boolean = isUpdateTo(expect.toBoolean(), update.toBoolean())
+
+@CreatorsDsl
+fun AtomicBoolean.isUpdateTo(expect: AtomicBoolean, update: AtomicBoolean): Boolean = isUpdateTo(expect.toBoolean(), update.toBoolean())
+
+@CreatorsDsl
+fun AtomicBoolean.toFlip(): AtomicBoolean {
+    val last = isTrue()
+    val next = isNotTrue()
+    isUpdateTo(last, next)
+    return this
+}
+
+@CreatorsDsl
+fun AtomicBoolean.toTrue(): AtomicBoolean {
+    isFalseToTrue()
+    return this
+}
+
+@CreatorsDsl
+fun AtomicBoolean.toNotTrue(): AtomicBoolean {
+    isTrueToFalse()
+    return this
+}
+
+@CreatorsDsl
 operator fun AtomicBoolean.not(): Boolean = toBoolean().not()
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun Boolean.or(value: AtomicBoolean): Boolean = or(value.toBoolean())
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun AtomicBoolean.or(value: Boolean): Boolean = toBoolean().or(value)
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun AtomicBoolean.or(value: AtomicBoolean): Boolean = toBoolean().or(value.toBoolean())
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun Boolean.and(value: AtomicBoolean): Boolean = and(value.toBoolean())
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun AtomicBoolean.and(value: Boolean): Boolean = toBoolean().and(value)
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun AtomicBoolean.and(value: AtomicBoolean): Boolean = toBoolean().and(value.toBoolean())
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun Boolean.xor(value: AtomicBoolean): Boolean = xor(value.toBoolean())
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun AtomicBoolean.xor(value: Boolean): Boolean = toBoolean().xor(value)
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun AtomicBoolean.xor(value: AtomicBoolean): Boolean = toBoolean().xor(value.toBoolean())
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun <T : Any?> T.isSameAs(value: T) = SameAndHashCode.isSameAs(this, value)
 
-@AssumptionDsl
+@CreatorsDsl
 infix fun <T : Any?> T.isNotSameAs(value: T) = SameAndHashCode.isNotSameAs(this, value)
 
-@AssumptionDsl
-fun isEverySameAs(vararg args: Pair<Any?, Any?>) = SameAndHashCode.isEverySameAs(*args)
+@CreatorsDsl
+infix fun <T : Any?> T.isContentSameAs(value: T) = SameAndHashCode.isContentSameAs(this, value)
 
+@CreatorsDsl
+infix fun <T : Any?> T.isContentNotSameAs(value: T) = SameAndHashCode.isContentNotSameAs(this, value)
+
+@CreatorsDsl
 fun <T : Any?> T.hashOf() = SameAndHashCode.hashOf(this)
 
+@CreatorsDsl
 fun <T : Any?> T.hashOf(vararg args: Any?) = SameAndHashCode.hashOf(hashOf().toAtomic(), *args)
 
 open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
@@ -434,19 +603,21 @@ fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(genera
 
 fun <T : Any> sequenceOf(seed: T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
 
+fun <T : Any> sequenceOf(seed: () -> T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
+
 fun Sequence<String>.uniqueTrimmedOf(): List<String> = asIterable().uniqueTrimmedOf()
 
 fun Iterable<String>.uniqueTrimmedOf(): List<String> = mapNotNull { toTrimOrNull(it) }.distinct()
 
-@AssumptionDsl
+@CreatorsDsl
 inline fun <T : Any> T?.orElse(block: () -> T): T = this ?: block.invoke()
 
-@AssumptionDsl
+@CreatorsDsl
 inline fun <T> withLoggingContext(args: Pair<String, Any>, block: () -> T): T {
     return mu.withLoggingContext(args.first to args.second.toString(), block)
 }
 
-@AssumptionDsl
+@CreatorsDsl
 inline fun <T> withLoggingContext(args: Map<String, Any>, block: () -> T): T {
     val hash = LinkedHashMap<String, String>(args.size)
     for ((k, v) in args) {
@@ -455,7 +626,7 @@ inline fun <T> withLoggingContext(args: Map<String, Any>, block: () -> T): T {
     return mu.withLoggingContext(hash, block)
 }
 
-@AssumptionDsl
+@CreatorsDsl
 inline fun <T> withLoggingContext(vararg args: Pair<String, Any>, block: () -> T): T {
     val hash = LinkedHashMap<String, String>(args.size)
     for ((k, v) in args) {
