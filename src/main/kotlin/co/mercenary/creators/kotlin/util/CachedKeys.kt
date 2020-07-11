@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.*
-
-interface CachedContentResourceLoader : ContentResourceLoader {
+interface CachedKeys : Iterable<String> {
 
     @CreatorsDsl
-    val keys: MutableCachedKeys
+    val size: Int
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isEmpty(): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isNotEmpty(): Boolean = isEmpty().isNotTrue()
+
+    @CreatorsDsl
+    operator fun contains(data: CharSequence): Boolean
 }

@@ -251,8 +251,8 @@ interface Inflater : HasMapNames {
     fun deflate(data: ReadableByteChannel, copy: OutputStreamSupplier) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> deflate(read, send) } }
 
     @CreatorsDsl
-    fun inflate(data: InputStream): ByteArray = baos().also { send -> inflate(data, send) }.asByteArray()
+    fun inflate(data: InputStream): ByteArray = baos().also { send -> inflate(data, send) }.getContentData()
 
     @CreatorsDsl
-    fun deflate(data: InputStream): ByteArray = baos().also { send -> deflate(data, send) }.asByteArray()
+    fun deflate(data: InputStream): ByteArray = baos().also { send -> deflate(data, send) }.getContentData()
 }

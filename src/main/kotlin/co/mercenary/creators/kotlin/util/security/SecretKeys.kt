@@ -24,8 +24,38 @@ object SecretKeys {
 
     @JvmStatic
     @CreatorsDsl
+    fun getSecret(pass: CharArray, salt: ByteArray, algorithm: CipherAlgorithm): SecretKey {
+        return SecretKeySpec(SecretKeyFactory.getInstance(algorithm.getCipherSecretKey()).generateSecret(PBEKeySpec(pass.toCharArray(), salt.toByteArray(), algorithm.getCipherIteration(), algorithm.getCipherKeyLength())).encoded, algorithm.getCipherAlgorithm())
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getSecret(pass: ByteArray, salt: ByteArray, algorithm: CipherAlgorithm): SecretKey {
+        return getSecret(pass.toCharArray(), salt.toByteArray(), algorithm)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
     fun getSecret(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm): SecretKey {
-        return SecretKeySpec(SecretKeyFactory.getInstance(algorithm.getCipherSecretKey()).generateSecret(PBEKeySpec(pass.toString().toCharArray(), Encoders.hex().decode(salt.toString()), algorithm.getCipherIteration(), algorithm.getCipherKeyLength())).encoded, algorithm.getCipherAlgorithm())
+        return getSecret(pass.toString().toCharArray(), Encoders.hex().decode(salt.toString()), algorithm)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getSecret(pass: SecureChars, salt: SecureBytes, algorithm: CipherAlgorithm): SecretKey {
+        return getSecret(pass.toCharArray(), salt.toByteArray(), algorithm)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getSecret(pass: SecureChars, salt: SecureChars, algorithm: CipherAlgorithm): SecretKey {
+        return getSecret(pass.toCharArray().toCharSequence(), salt.toCharArray().toCharSequence(), algorithm)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getSecret(pass: SecureBytes, salt: SecureBytes, algorithm: CipherAlgorithm): SecretKey {
+        return getSecret(pass.toByteArray(), salt.toByteArray(), algorithm)
     }
 
     @JvmStatic

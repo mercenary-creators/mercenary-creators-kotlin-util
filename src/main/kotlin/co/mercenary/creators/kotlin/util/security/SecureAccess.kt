@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
+import java.security.*
 
-interface CachedContentResourceLoader : ContentResourceLoader {
+@IgnoreForSerialize
+object SecureAccess {
 
+    @JvmStatic
     @CreatorsDsl
-    val keys: MutableCachedKeys
+    fun <T : Any> priviledgedActionOf(func: () -> T): T {
+        return when (System.getSecurityManager()) {
+            null -> func.invoke()
+            else -> AccessController.doPrivileged(PrivilegedAction { func.invoke() })
+        }
+    }
 }

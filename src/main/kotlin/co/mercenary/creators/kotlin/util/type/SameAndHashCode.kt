@@ -17,7 +17,7 @@
 package co.mercenary.creators.kotlin.util.type
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.io.InputStreamSupplier
+import co.mercenary.creators.kotlin.util.io.*
 import java.io.*
 import java.io.ByteArrayOutputStream
 import java.math.*
@@ -25,6 +25,7 @@ import java.net.*
 import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 import java.util.concurrent.atomic.*
+import kotlin.reflect.KClass
 
 object SameAndHashCode {
 
@@ -129,6 +130,7 @@ object SameAndHashCode {
         is ByteArray -> true
         is InputStream -> true
         is CharSequence -> true
+        is ContentResource -> true
         is ReadableByteChannel -> true
         is InputStreamSupplier -> true
         is ByteArrayOutputStream -> true
@@ -174,10 +176,11 @@ object SameAndHashCode {
             is Reader -> value.toByteArray()
             is ByteArray -> value.toByteArray()
             is InputStream -> value.toByteArray()
-            is CharSequence -> value.asByteArray()
+            is CharSequence -> value.getContentData()
+            is ContentResource -> value.getContentData()
             is ReadableByteChannel -> value.toByteArray()
             is InputStreamSupplier -> value.toByteArray()
-            is ByteArrayOutputStream -> value.asByteArray()
+            is ByteArrayOutputStream -> value.getContentData()
             else -> ByteArray(0)
         }
     }
@@ -217,10 +220,30 @@ object SameAndHashCode {
 
     @JvmStatic
     @CreatorsDsl
+    fun idenOf(value: Any?): Int {
+        return when (value) {
+            null -> 0
+            else -> System.identityHashCode(value)
+        }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
     private fun hashOf(hash: AtomicInteger, vararg args: Any?): Int {
         hashOf(*args) {
             hash * 31 + it
         }
         return hash.toInt()
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun nameOf(value: Any?): String {
+        return when (value) {
+            null -> NULLS_STRING
+            is Class<*> -> value.name
+            is KClass<*> -> value.java.name
+            else -> value.javaClass.name
+        }
     }
 }

@@ -24,16 +24,12 @@ object Formatters {
     @CreatorsDsl
     @JvmOverloads
     fun getFormatterList(load: ClassLoader? = null): List<StringFormatterService> {
-        val list = ArrayList<StringFormatterService>()
-        try {
-            val look = ServiceLoading.loader(StringFormatterService::class, load)
-            look.forEach {
-                list += it
-            }
+        return try {
+            ServiceLoading.loaderOf(StringFormatterService::class, load).sorted().reversed()
         }
         catch (cause: Throwable) {
+            listOf()
         }
-        return list.sorted().reversed()
     }
 
     private val list: List<StringFormatterService> by lazy {

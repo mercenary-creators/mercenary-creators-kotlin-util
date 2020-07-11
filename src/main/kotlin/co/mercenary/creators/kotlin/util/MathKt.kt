@@ -414,14 +414,18 @@ inline fun Double.toFiniteOrElse(value: Double): Double = if (isValid()) this el
 @CreatorsDsl
 inline fun Double.toFiniteOrElse(block: () -> Double): Double = if (isValid()) this else block.invoke()
 
+@CreatorsDsl
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 
+@CreatorsDsl
 fun toDoubleArrayOf(vararg args: Number): DoubleArray = DoubleArray(args.size) { i -> args[i].toDouble() }
 
+@CreatorsDsl
 fun toArrayOfDoubleArray(cols: Int, args: DoubleArray): Array<DoubleArray> {
     return if (cols < 1) throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR) else toArrayOfDoubleArray(args.size / cols, cols, args)
 }
 
+@CreatorsDsl
 fun toArrayOfDoubleArray(rows: Int, cols: Int, args: DoubleArray): Array<DoubleArray> {
     return if (args.size != (rows * cols)) throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
     else Array(rows) { r ->

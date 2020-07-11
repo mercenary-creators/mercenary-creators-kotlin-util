@@ -23,6 +23,7 @@ import kotlin.random.*
 
 object Randoms {
 
+    @CreatorsDsl
     private fun SecureRandom.seedTo(seed: Long): SecureRandom {
         if (seed != 0L) {
             setSeed(seed)
@@ -223,6 +224,30 @@ object Randoms {
 
     @JvmStatic
     @CreatorsDsl
+    fun getIntegerArray(sized: Int): IntArray {
+        return if (sized < 1) IntArray(0) else IntArray(sized) { getInteger(sized) }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getIntegerArray(sized: Int, range: IntRange): IntArray {
+        return if (sized < 1) IntArray(0) else IntArray(sized) { getInteger(range) }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getIntegerArray(sized: Int, lower: Int, upper: Int): IntArray {
+        return if (sized < 1) IntArray(0) else IntArray(sized) { getInteger(lower, upper) }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun <T> shuffled(list: Iterable<T>): List<T> {
+        return list.shuffled(random)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
     fun getBits(count: Int) = kotlin.nextBits(count)
 
     @JvmStatic
@@ -266,6 +291,8 @@ object Randoms {
     @CreatorsDsl
     fun getCharArrayValues(): CharArray = VALUES.copyOf()
 
+    @JvmStatic
+    @CreatorsDsl
     private fun getCharArrayValuesInternal(): CharArray {
         return buildString(72) {
             ('a'..'z').forEach {

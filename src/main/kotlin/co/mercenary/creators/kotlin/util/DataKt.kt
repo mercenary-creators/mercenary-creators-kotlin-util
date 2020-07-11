@@ -22,7 +22,7 @@ package co.mercenary.creators.kotlin.util
 import co.mercenary.creators.kotlin.util.io.*
 import java.io.*
 import java.net.*
-import java.nio.ByteBuffer
+import java.nio.*
 import java.nio.channels.*
 import java.nio.charset.Charset
 import java.nio.file.*
@@ -41,6 +41,7 @@ typealias Escapers = co.mercenary.creators.kotlin.util.text.Escapers
 
 typealias Formatters = co.mercenary.creators.kotlin.util.text.Formatters
 
+@CreatorsDsl
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
 val CONTENT_RESOURCE_LOADER: ContentResourceLoader
@@ -144,6 +145,12 @@ fun URI.toInputStream(): InputStream = when (val data = IO.getInputStream(this))
 
 @CreatorsDsl
 fun ByteArray.toByteBuffer(copy: Boolean = false): ByteBuffer = ByteBuffer.wrap(toByteArray(copy))
+
+@CreatorsDsl
+fun CharArray.toCharBuffer(copy: Boolean = false): CharBuffer = CharBuffer.wrap(toCharArray(copy))
+
+@CreatorsDsl
+fun CharSequence.toCharBuffer(beg: Int = 0, end: Int = length): CharBuffer = CharBuffer.wrap(toString(), beg, end)
 
 @CreatorsDsl
 fun ByteArray.toInputStream(copy: Boolean = false): InputStream = ByteArrayInputStream(toByteArray(copy))
@@ -271,19 +278,31 @@ fun InputStreamSupplier.toByteArray(): ByteArray = when (this) {
 }
 
 @CreatorsDsl
-fun ByteArrayOutputStream.asByteArray(): ByteArray = toByteArray()
+fun ByteArrayOutputStream.getContentData(): ByteArray = toByteArray()
 
 @CreatorsDsl
 fun ByteArrayOutputStream.clear(): Unit = reset()
 
 @CreatorsDsl
-fun CharSequence.asByteArray(charset: Charset = Charsets.UTF_8): ByteArray = toString().toByteArray(charset)
+fun CharSequence.getContentData(charset: Charset = Charsets.UTF_8): ByteArray = toString().toByteArray(charset)
 
 @CreatorsDsl
 fun ByteArray.toByteArray(copy: Boolean = true): ByteArray = if (copy) copyOf() else this
 
 @CreatorsDsl
 fun ByteArray.toContentSize(): Long = size.toLong()
+
+@CreatorsDsl
+fun CharArray.toCharArray(copy: Boolean = true): CharArray = if (copy) copyOf() else this
+
+@CreatorsDsl
+fun CharArray.toCharSequence(copy: Boolean = true): CharSequence = StringBuilder(size).append(toCharArray(copy))
+
+@CreatorsDsl
+fun IntArray.toIntArray(copy: Boolean = true): IntArray = if (copy) copyOf() else this
+
+@CreatorsDsl
+fun Int.toIntArray(zero: Boolean = false): IntArray = if (this < 1) IntArray(0) else if (zero) IntArray(this) else IntArray(this) { it }
 
 @CreatorsDsl
 fun URL.toContentResource() = URLContentResource(this)

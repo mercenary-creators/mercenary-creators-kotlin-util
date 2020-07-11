@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.*
-
-interface CachedContentResourceLoader : ContentResourceLoader {
-
-    @CreatorsDsl
-    val keys: MutableCachedKeys
-}
+interface MutableCachedKeys : CachedKeys, Clearable

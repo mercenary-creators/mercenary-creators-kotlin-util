@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
 
-interface CachedKeys : Iterable<String>, Clearable {
+interface SecureChars {
 
     @CreatorsDsl
     val size: Int
@@ -29,8 +29,9 @@ interface CachedKeys : Iterable<String>, Clearable {
 
     @CreatorsDsl
     @IgnoreForSerialize
-    fun isNotEmpty(): Boolean = isEmpty().isNotTrue()
+    fun isNotEmpty(): Boolean
 
     @CreatorsDsl
-    operator fun contains(data: CharSequence): Boolean
+    @IgnoreForSerialize
+    fun toCharArray(flip: Boolean = true): CharArray
 }

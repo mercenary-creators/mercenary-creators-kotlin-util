@@ -54,5 +54,23 @@ class EncodersTest : KotlinSecurityTest() {
         warn { Randoms.randomOf().provider.name }
         warn { Randoms.strongOf().algorithm }
         warn { Randoms.strongOf().provider.name }
+        val buff = "DEAN".toCharArray()
+        val rand = Randoms.randomOf()
+        val list = (buff.indices)
+        info { list }
+        info { list.shuffled(rand) }
+        info { list.shuffled(rand).shuffled(rand) }
+        info { list }
+        warn { dash() }
+        val dean = "DEAN JONES".toSecureString()
+        info { dean }
+        info { dean.hashCode() }
+        info { dean.toString() }
+        info { dean.toCharArray() }
+        info { dean.toCharArray(false) }
+        val look = 4.toIntArray()
+        warn { dash() }
+        warn { look }
+        warn { look.asIterable().shuffled() }
     }
 }

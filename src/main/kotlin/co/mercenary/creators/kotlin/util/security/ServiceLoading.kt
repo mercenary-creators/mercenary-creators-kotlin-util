@@ -16,27 +16,29 @@
 
 package co.mercenary.creators.kotlin.util.security
 
-import co.mercenary.creators.kotlin.util.CreatorsDsl
-import java.security.*
+import co.mercenary.creators.kotlin.util.*
 import java.util.*
 import kotlin.reflect.KClass
 
+@IgnoreForSerialize
 object ServiceLoading {
 
     @JvmStatic
     @CreatorsDsl
     @JvmOverloads
-    fun <T : Any> loader(type: Class<T>, load: ClassLoader? = null): ServiceLoader<T> = when (System.getSecurityManager()) {
-        null -> build(type, load)
-        else -> AccessController.doPrivileged(PrivilegedAction { build(type, load) })
+    fun <T : Any> loaderOf(type: Class<T>, load: ClassLoader? = null): ServiceLoader<T> = SecureAccess.priviledgedActionOf {
+        serviceOf(type, load)
     }
 
     @JvmStatic
     @CreatorsDsl
     @JvmOverloads
-    fun <T : Any> loader(type: KClass<T>, load: ClassLoader? = null): ServiceLoader<T> = loader(type.java, load)
+    fun <T : Any> loaderOf(type: KClass<T>, load: ClassLoader? = null): ServiceLoader<T> = loaderOf(type.java, load)
 
     @JvmStatic
     @CreatorsDsl
-    private fun <T : Any> build(type: Class<T>, load: ClassLoader?): ServiceLoader<T> = if (load == null) ServiceLoader.load(type) else ServiceLoader.load(type, load)
+    private fun <T : Any> serviceOf(type: Class<T>, load: ClassLoader?): ServiceLoader<T> = when (load) {
+        null -> ServiceLoader.load(type)
+        else -> ServiceLoader.load(type, load)
+    }
 }

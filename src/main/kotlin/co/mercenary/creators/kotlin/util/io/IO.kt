@@ -87,15 +87,15 @@ object IO {
     @CreatorsDsl
     @JvmOverloads
     fun getPathRelative(path: String, tail: String, root: Boolean = true): String {
-        return FilenameUtils.concat(path, tail).orEmpty().let { if (root) it.removePrefix(SINGLE_SLASH) else it }
+        return FilenameUtils.concat(path, tail).orElse().let { if (root) it.removePrefix(SINGLE_SLASH) else it }
     }
 
     @JvmStatic
     @CreatorsDsl
     fun getPathExtension(path: String?): String {
-        val temp = getPathNormalized(path).orEmpty()
+        val temp = getPathNormalized(path).orElse()
         if ((temp.isNotEmpty()) && (temp.indexOf(EXT_SEPARATOR_CHAR) != IS_NOT_FOUND)) {
-            val last = toTrimOrNull(FilenameUtils.getExtension(temp)).orEmpty()
+            val last = toTrimOrNull(FilenameUtils.getExtension(temp)).orElse()
             if (last.isNotEmpty()) {
                 if (last.startsWith(EXT_SEPARATOR_CHAR)) {
                     return last
@@ -109,7 +109,7 @@ object IO {
     @JvmStatic
     @CreatorsDsl
     fun toFileURL(path: String): URL {
-        return PREFIX_FILES.plus(SINGLE_SLASH).plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).orEmpty().removePrefix(SINGLE_SLASH).trim()).toURL()
+        return PREFIX_FILES.plus(SINGLE_SLASH).plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).orElse().removePrefix(SINGLE_SLASH).trim()).toURL()
     }
 
     @JvmStatic

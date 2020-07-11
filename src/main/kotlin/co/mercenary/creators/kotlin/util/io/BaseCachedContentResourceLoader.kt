@@ -23,7 +23,7 @@ open class BaseCachedContentResourceLoader @JvmOverloads @CreatorsDsl constructo
 
     private val maps = atomicMapOf<String, CachedContentResource>()
 
-    private val keep = object : CachedKeys {
+    private val keep = object : MutableCachedKeys {
 
         @CreatorsDsl
         private fun keys() = maps.keys
@@ -60,7 +60,7 @@ open class BaseCachedContentResourceLoader @JvmOverloads @CreatorsDsl constructo
     override fun isContentCache() = true
 
     @CreatorsDsl
-    override val keys: CachedKeys
+    override val keys: MutableCachedKeys
         @IgnoreForSerialize
         get() = keep
 

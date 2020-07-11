@@ -14,12 +14,24 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
 
-interface CachedContentResourceLoader : ContentResourceLoader {
+interface SecureBytes {
 
     @CreatorsDsl
-    val keys: MutableCachedKeys
+    val size: Int
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isEmpty(): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isNotEmpty(): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun toByteArray(flip: Boolean = true): ByteArray
 }

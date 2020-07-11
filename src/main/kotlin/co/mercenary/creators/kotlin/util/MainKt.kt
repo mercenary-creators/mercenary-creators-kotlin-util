@@ -19,12 +19,14 @@
 
 package co.mercenary.creators.kotlin.util
 
+import co.mercenary.creators.kotlin.util.security.SecureByteArray
 import java.math.BigInteger
+import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.atomic.*
 
 const val IS_NOT_FOUND = -1
-
+@CreatorsDsl
 const val EMPTY_STRING = ""
 
 const val SPACE_STRING = " "
@@ -54,6 +56,8 @@ typealias Ciphers = co.mercenary.creators.kotlin.util.security.Ciphers
 typealias Digests = co.mercenary.creators.kotlin.util.security.Digests
 
 typealias Encoders = co.mercenary.creators.kotlin.util.security.Encoders
+
+typealias SecureString = co.mercenary.creators.kotlin.util.security.SecureString
 
 typealias ServiceLoading = co.mercenary.creators.kotlin.util.security.ServiceLoading
 
@@ -167,6 +171,21 @@ fun CharSequence.toChecked(): String {
 }
 
 @CreatorsDsl
+fun CharArray.toSecureString(copy: Boolean = true): SecureString = SecureString(toCharArray(copy))
+
+@CreatorsDsl
+fun CharSequence.toSecureString(): SecureString = SecureString(toString())
+
+@CreatorsDsl
+fun ByteArray.toSecureByteArray(copy: Boolean = true): SecureByteArray = SecureByteArray(toByteArray(copy))
+
+@CreatorsDsl
+fun ByteArray.toCharArray(charset: Charset = Charsets.UTF_8, copy: Boolean = true): CharArray = toByteArray(copy).toString(charset).toCharArray()
+
+@CreatorsDsl
+fun CharSequence.toSecureByteArray(): SecureByteArray = SecureByteArray(toString())
+
+@CreatorsDsl
 fun CharSequence.toLowerTrim(): String = trim().toString().toLowerCase()
 
 @CreatorsDsl
@@ -180,9 +199,6 @@ fun CharSequence.toLowerCaseEnglish(): String = toString().toLowerCase(Locale.EN
 
 @CreatorsDsl
 fun CharSequence.toUpperCaseEnglish(): String = toString().toUpperCase(Locale.ENGLISH)
-
-@CreatorsDsl
-fun <T : Any> T.toThreadLocal(): ThreadLocal<T> = ThreadLocal.withInitial { this }
 
 @CreatorsDsl
 fun <T : Any> ThreadLocal<T>.toValue(): T = get()
@@ -579,38 +595,74 @@ fun <T : Any?> T.hashOf() = SameAndHashCode.hashOf(this)
 @CreatorsDsl
 fun <T : Any?> T.hashOf(vararg args: Any?) = SameAndHashCode.hashOf(hashOf().toAtomic(), *args)
 
-open class MercenarySequence<out T>(protected val iterator: Iterator<T>) : Sequence<T> {
-    constructor() : this(emptySequence())
-    constructor(source: Iterable<T>) : this(source.iterator())
-    constructor(source: Sequence<T>) : this(source.iterator())
+@CreatorsDsl
+fun <T : Any?> T.idenOf() = SameAndHashCode.idenOf(this)
 
-    override operator fun iterator() = iterator
+@CreatorsDsl
+fun <V> dictOf(vararg args: Pair<String, V>): Map<String, V> = mapOf(*args)
+
+@CreatorsDsl
+fun <T : Any?> T.nameOf(tail: String = EMPTY_STRING): String = SameAndHashCode.nameOf(this).plus(tail)
+
+open class MercenarySequence<out T> @CreatorsDsl constructor(protected val iterator: Iterator<T>) : Sequence<T> {
+
+    @CreatorsDsl
+    override operator fun iterator(): Iterator<T> = iterator
+
+    @CreatorsDsl
+    constructor() : this(listOf())
+
+    @CreatorsDsl
+    constructor(vararg source: T) : this(source.iterator())
+
+    @CreatorsDsl
+    constructor(source: Iterable<T>) : this(source.iterator())
+
+    @CreatorsDsl
+    constructor(source: Sequence<T>) : this(source.iterator())
 }
 
+@CreatorsDsl
 fun <T> sequenceOf(): Sequence<T> = MercenarySequence()
 
-fun <T> sequenceOf(vararg args: T): Sequence<T> = MercenarySequence(args.iterator())
+@CreatorsDsl
+fun <T> sequenceOf(vararg args: T): Sequence<T> = MercenarySequence(*args)
 
+@CreatorsDsl
 fun sequenceOf(args: IntProgression): Sequence<Int> = MercenarySequence(args)
 
+@CreatorsDsl
 fun sequenceOf(args: LongProgression): Sequence<Long> = MercenarySequence(args)
 
+@CreatorsDsl
 fun sequenceOf(args: CharProgression): Sequence<Char> = MercenarySequence(args)
 
-fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = MercenarySequence(iterator())
+@CreatorsDsl
+fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = MercenarySequence(this)
 
+@CreatorsDsl
 fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(generateSequence(next))
 
+@CreatorsDsl
 fun <T : Any> sequenceOf(seed: T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
 
+@CreatorsDsl
 fun <T : Any> sequenceOf(seed: () -> T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
 
+@CreatorsDsl
 fun Sequence<String>.uniqueTrimmedOf(): List<String> = asIterable().uniqueTrimmedOf()
 
+@CreatorsDsl
 fun Iterable<String>.uniqueTrimmedOf(): List<String> = mapNotNull { toTrimOrNull(it) }.distinct()
 
 @CreatorsDsl
 inline fun <T : Any> T?.orElse(block: () -> T): T = this ?: block.invoke()
+
+@CreatorsDsl
+inline fun <T : Any> T?.orElse(value: T): T = this ?: value
+
+@CreatorsDsl
+inline fun String?.orElse(value: String = EMPTY_STRING): String = this ?: value
 
 @CreatorsDsl
 inline fun <T> withLoggingContext(args: Pair<String, Any>, block: () -> T): T {
