@@ -39,8 +39,24 @@ interface ILogging {
     @IgnoreForSerialize
     fun isLoggingErrorEnabled(): Boolean
 
+    @LoggingInfoDsl
     @IgnoreForSerialize
-    fun isLoggingFatalEnabled(): Boolean
+    fun isLoggingInfoEnabled(marker: IMarker): Boolean
+
+    @LoggingWarnDsl
+    @IgnoreForSerialize
+    fun isLoggingWarnEnabled(marker: IMarker): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isLoggingTraceEnabled(marker: IMarker): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isLoggingDebugEnabled(marker: IMarker): Boolean
+
+    @IgnoreForSerialize
+    fun isLoggingErrorEnabled(marker: IMarker): Boolean
 
     @LoggingInfoDsl
     fun info(block: () -> Any?)
@@ -94,9 +110,4 @@ interface ILogging {
     fun error(cause: Throwable, block: () -> Any?)
     fun error(marker: IMarker, block: () -> Any?)
     fun error(cause: Throwable, marker: IMarker, block: () -> Any?)
-
-    fun fatal(block: () -> Any?)
-    fun fatal(cause: Throwable, block: () -> Any?)
-    fun fatal(marker: IMarker, block: () -> Any?)
-    fun fatal(cause: Throwable, marker: IMarker, block: () -> Any?)
 }

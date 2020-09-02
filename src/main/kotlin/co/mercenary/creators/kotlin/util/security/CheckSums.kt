@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
-import java.nio.ByteBuffer
 import java.util.zip.*
 
 object CheckSums {
@@ -37,7 +36,7 @@ object CheckSums {
         override fun clear() = factory.reset()
 
         @CreatorsDsl
-        override fun decoder(data: String): Long = updater(data.toByteArray(Charsets.UTF_8))
+        override fun decoder(data: String): Long = updater(data.getContentData())
 
         @CreatorsDsl
         override fun encoder(data: String): String = Encoders.hex().encode(buffers(decoder(data)))
@@ -46,6 +45,6 @@ object CheckSums {
         override fun updater(data: ByteArray): Long = factory.also { it.update(data, 0, data.size) }.value
 
         @CreatorsDsl
-        override fun buffers(data: Long): ByteArray = ByteBuffer.allocate(Int.SIZE_BYTES).putInt((data and 0xffffffffL).toInt()).array()
+        override fun buffers(data: Long): ByteArray = getByteBuffer(Int.SIZE_BYTES).putInt(data.toMasked()).toByteArray()
     }
 }

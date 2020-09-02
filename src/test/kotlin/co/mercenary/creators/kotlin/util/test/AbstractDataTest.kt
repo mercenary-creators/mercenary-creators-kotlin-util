@@ -16,4 +16,18 @@
 
 package co.mercenary.creators.kotlin.util.test
 
-abstract class AbstractDataTest : AbstractKotlinTest()
+import co.mercenary.creators.kotlin.util.*
+import java.io.File
+
+@IgnoreForSerialize
+abstract class AbstractDataTest : AbstractKotlinTest() {
+
+    @CreatorsDsl
+    fun file(name: String) = File(name)
+
+    @CreatorsDsl
+    fun File.data(data: ByteArray): ByteArray {
+        inputStream().use { it.read(data) }
+        return data
+    }
+}

@@ -415,83 +415,57 @@ object Numeric {
 
     @JvmStatic
     @CreatorsDsl
-    fun powerOf(value: Double, mult: Int): Double {
-        val data = value.toFinite()
-        if (data == -1.0) {
-            return if (mult.isEven()) 1.0 else -1.0
-        }
-        return when (mult) {
-            0 -> 1.0
-            1 -> data
-            2 -> data * data
-            else -> data.pow(mult.toDouble())
-        }
+    fun powerOf(data: Double, mult: Int): Double {
+        return powerOf(data, mult.toDouble())
     }
 
     @JvmStatic
     @CreatorsDsl
-    fun powerOf(value: Double, mult: Long): Double {
-        val data = value.toFinite()
-        if (data == -1.0) {
-            return if (mult.isEven()) 1.0 else -1.0
-        }
-        return when (mult) {
-            0L -> 1.0
-            1L -> data
-            2L -> data * data
-            else -> data.pow(mult.toDouble())
-        }
+    fun powerOf(data: Double, mult: Long): Double {
+        return powerOf(data, mult.toDouble())
     }
 
     @JvmStatic
     @CreatorsDsl
-    fun powerOf(value: Double, mult: Double): Double {
-        val data = value.toFinite()
-        if (data == -1.0) {
-            return if (mult.isEven()) 1.0 else -1.0
+    fun powerOf(data: Double, mult: Double): Double {
+        if (data.isValid() && mult.isValid()) {
+            if (data == -1.0) {
+                return if (mult.isEven()) 1.0 else -1.0
+            }
+            return when (mult) {
+                0.0 -> 1.0
+                1.0 -> data
+                2.0 -> data * data
+                else -> data.pow(mult)
+            }
         }
-        return when (mult.toFinite()) {
-            0.0 -> 1.0
-            1.0 -> data
-            2.0 -> data * data
-            else -> data.pow(mult)
-        }
+        return Double.NaN
     }
 
     @JvmStatic
     @CreatorsDsl
-    fun rootOf(value: Double, root: Int): Double {
-        val data = value.toFinite()
-        return when (root) {
-            0 -> 1.0
-            1 -> data
-            2 -> sqrtOf(data)
-            else -> powerOf(data, -root)
-        }
+    fun rootOf(data: Double, root: Int): Double {
+        return rootOf(data, root.toDouble())
     }
 
     @JvmStatic
     @CreatorsDsl
-    fun rootOf(value: Double, root: Long): Double {
-        val data = value.toFinite()
-        return when (root) {
-            0L -> 1.0
-            1L -> data
-            2L -> sqrtOf(data)
-            else -> powerOf(data, -root)
-        }
+    fun rootOf(data: Double, root: Long): Double {
+        return rootOf(data, root.toDouble())
     }
 
     @JvmStatic
     @CreatorsDsl
-    fun rootOf(value: Double, root: Double): Double {
-        val data = value.toFinite()
-        return when (root.toFinite()) {
-            0.0 -> 1.0
-            1.0 -> data
-            2.0 -> sqrtOf(data)
-            else -> powerOf(data, -root)
+    fun rootOf(data: Double, root: Double): Double {
+        if (data.isValid() && root.isValid() && data.isNegative().isNotTrue()) {
+            return when (root) {
+                0.0 -> 1.0
+                1.0 -> data
+                2.0 -> sqrtOf(data)
+                else -> powerOf(data, 1.0 / root)
+            }
         }
+        return Double.NaN
     }
 
     @JvmStatic

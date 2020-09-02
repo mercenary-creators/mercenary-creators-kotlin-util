@@ -19,20 +19,42 @@ package co.mercenary.creators.kotlin.util.logging
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.pattern.color.*
+import co.mercenary.creators.kotlin.util.*
 
+@IgnoreForSerialize
 open class MercenaryHighlightingCompositeConverter : ForegroundCompositeConverterBase<ILoggingEvent>() {
+
+    @CreatorsDsl
     override fun getForegroundColorCode(event: ILoggingEvent): String {
         return when (event.level.toInt()) {
-            Level.INFO_INT -> ANSIConstants.BOLD + ANSIConstants.DEFAULT_FG
-            Level.WARN_INT -> ANSIConstants.BOLD + ANSIConstants.YELLOW_FG
-            Level.ERROR_INT -> ANSIConstants.BOLD + ANSIConstants.RED_FG
-            else -> ANSIConstants.DEFAULT_FG
+            Level.INFO_INT -> INFOC
+            Level.WARN_INT -> WARNC
+            Level.ERROR_INT -> OOPSC
+            else -> OTHER
         }
     }
 
     companion object {
+
+        @CreatorsDsl
         const val CLOSE = ANSIConstants.ESC_END
+
+        @CreatorsDsl
         const val START = ANSIConstants.ESC_START
-        const val RESET = START + "0;" + ANSIConstants.DEFAULT_FG + CLOSE
+
+        @CreatorsDsl
+        const val OTHER = ANSIConstants.DEFAULT_FG
+
+        @CreatorsDsl
+        const val OOPSC = ANSIConstants.BOLD + ANSIConstants.RED_FG
+
+        @CreatorsDsl
+        const val WARNC = ANSIConstants.BOLD + ANSIConstants.YELLOW_FG
+
+        @CreatorsDsl
+        const val INFOC = ANSIConstants.BOLD + ANSIConstants.DEFAULT_FG
+
+        @CreatorsDsl
+        const val RESET = START + "0;" + OTHER + CLOSE
     }
 }

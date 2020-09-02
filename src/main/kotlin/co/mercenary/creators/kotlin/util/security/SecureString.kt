@@ -39,8 +39,10 @@ class SecureString @CreatorsDsl constructor(data: CharArray) : SecureChars, Stan
     @CreatorsDsl
     constructor(data: Sequence<Char>) : this(data.toList().toCharArray())
 
+    @CreatorsDsl
     private val swap = swapof(data)
 
+    @CreatorsDsl
     private val buff = recode(data, swap, true)
 
     @CreatorsDsl
@@ -64,7 +66,7 @@ class SecureString @CreatorsDsl constructor(data: CharArray) : SecureChars, Stan
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun toMapNames() = dictOf("size" to buff.size, "type" to nameOf())
+    override fun toMapNames() = dictOf("size" to size, "type" to nameOf())
 
     @CreatorsDsl
     override fun clone() = copyOf()

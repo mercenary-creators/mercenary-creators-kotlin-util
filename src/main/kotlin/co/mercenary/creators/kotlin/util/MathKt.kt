@@ -19,11 +19,18 @@
 
 package co.mercenary.creators.kotlin.util
 
+import java.math.BigDecimal
 import kotlin.math.*
 
 typealias NumericMath = Math
 
 typealias Numeric = co.mercenary.creators.kotlin.util.math.Numeric
+
+@CreatorsDsl
+const val POSITIVE_ONE = 1.0
+
+@CreatorsDsl
+const val NEGATIVE_ONE = -1.0
 
 const val MATH_INVALID_SIZE_ERROR = "invalid size"
 
@@ -200,12 +207,12 @@ inline fun Double.neg(): Double {
 
 @CreatorsDsl
 inline infix fun Double.minOf(other: Double): Double {
-    return min(toFinite(), other.toFinite())
+    return toFinite().coerceAtMost(other.toFinite())
 }
 
 @CreatorsDsl
 inline infix fun Double.maxOf(other: Double): Double {
-    return max(toFinite(), other.toFinite())
+    return toFinite().coerceAtLeast(other.toFinite())
 }
 
 @CreatorsDsl
@@ -219,18 +226,18 @@ inline fun Double.boxIn(range: ClosedFloatingPointRange<Double>): Double {
 }
 
 @CreatorsDsl
-inline fun Double.ceil(): Double {
-    return ceil(this)
+inline fun Double.ceilOf(): Double {
+    return ceil(toFinite())
 }
 
 @CreatorsDsl
-inline fun Double.floor(): Double {
-    return floor(this)
+inline fun Double.floorOf(): Double {
+    return floor(toFinite())
 }
 
 @CreatorsDsl
 inline fun Double.truncated(): Double {
-    return if (isValid()) if (isNegative()) ceil() else floor() else 0.0
+    return if (isValid()) if (isPositive()) floorOf() else ceilOf() else 0.0
 }
 
 @CreatorsDsl
@@ -246,6 +253,11 @@ inline fun Double.isValid(): Boolean {
 @CreatorsDsl
 inline fun Double.isNegative(): Boolean {
     return sign < 0
+}
+
+@CreatorsDsl
+inline fun Double.isPositive(): Boolean {
+    return this > 0
 }
 
 @CreatorsDsl
@@ -415,6 +427,9 @@ inline fun Double.toFiniteOrElse(value: Double): Double = if (isValid()) this el
 inline fun Double.toFiniteOrElse(block: () -> Double): Double = if (isValid()) this else block.invoke()
 
 @CreatorsDsl
+fun Long.toMasked(): Int = (this and 0xffffffffL).toInt()
+
+@CreatorsDsl
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 
 @CreatorsDsl
@@ -441,6 +456,21 @@ inline infix fun Int.forEach(action: (Int) -> Unit) {
 }
 
 @CreatorsDsl
+inline operator fun BigDecimal.div(value: Double): BigDecimal = div(value.toBigDecimal())
+
+@CreatorsDsl
+inline operator fun BigDecimal.rem(value: Double): BigDecimal = rem(value.toBigDecimal())
+
+@CreatorsDsl
+inline operator fun BigDecimal.plus(value: Double): BigDecimal = plus(value.toBigDecimal())
+
+@CreatorsDsl
+inline operator fun BigDecimal.minus(value: Double): BigDecimal = minus(value.toBigDecimal())
+
+@CreatorsDsl
+inline operator fun BigDecimal.times(value: Double): BigDecimal = times(value.toBigDecimal())
+
+@CreatorsDsl
 fun Int.toHexString(pads: Int = 0): String = toString(16).padStart(pads.maxOf(0), '0')
 
 @CreatorsDsl
@@ -454,6 +484,21 @@ fun Short.toHexString(pads: Int = 0): String = toString(16).padStart(pads.maxOf(
 
 @CreatorsDsl
 fun Char.toHexString(pads: Int = 0): String = toInt().toString(16).padStart(pads.maxOf(0), '0')
+
+@CreatorsDsl
+fun Int.toDecString(pads: Int = 0): String = toString(10).padStart(pads.maxOf(0), '0')
+
+@CreatorsDsl
+fun Byte.toDecString(pads: Int = 0): String = toString(10).padStart(pads.maxOf(0), '0')
+
+@CreatorsDsl
+fun Long.toDecString(pads: Int = 0): String = toString(10).padStart(pads.maxOf(0), '0')
+
+@CreatorsDsl
+fun Short.toDecString(pads: Int = 0): String = toString(10).padStart(pads.maxOf(0), '0')
+
+@CreatorsDsl
+fun Char.toDecString(pads: Int = 0): String = toInt().toString(10).padStart(pads.maxOf(0), '0')
 
 @CreatorsDsl
 fun Int.toBinaryString(pads: Int = Int.SIZE_BITS): String = toString(2).padStart(pads.maxOf(0), '0')

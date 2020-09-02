@@ -20,10 +20,34 @@ import co.mercenary.creators.kotlin.util.*
 
 enum class TimeDurationUnit {
 
-    YEARS, WEEKS, DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, NANOSECONDS;
+    @CreatorsDsl
+    YEARS,
 
+    @CreatorsDsl
+    WEEKS,
+
+    @CreatorsDsl
+    DAYS,
+
+    @CreatorsDsl
+    HOURS,
+
+    @CreatorsDsl
+    MINUTES,
+
+    @CreatorsDsl
+    SECONDS,
+
+    @CreatorsDsl
+    MILLISECONDS,
+
+    @CreatorsDsl
+    NANOSECONDS;
+
+    @CreatorsDsl
     private val lows = name.toLowerTrimEnglish()
 
+    @CreatorsDsl
     private val tail = name.toLowerTrimEnglish().tail()
 
     @CreatorsDsl

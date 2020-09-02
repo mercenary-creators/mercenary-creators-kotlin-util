@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test.main
+package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.*
-
-data class MainData @CreatorsDsl constructor(val rand: Int = Randoms.getInteger(0..100))
+interface IsNamed {
+    @CreatorsDsl
+    fun nameOf(): String
+}

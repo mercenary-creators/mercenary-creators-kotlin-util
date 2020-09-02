@@ -18,16 +18,13 @@ package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
 
-interface IMarker {
-
-    @CreatorsDsl
-    fun nameOf(): String
+interface IMarker : IsNamed {
 
     @CreatorsDsl
     fun markerOf(): mu.Marker
 
     operator fun plusAssign(value: IMarker)
     operator fun minusAssign(value: IMarker)
-    operator fun contains(value: String): Boolean
     operator fun contains(value: IMarker): Boolean
+    operator fun contains(value: CharSequence): Boolean
 }

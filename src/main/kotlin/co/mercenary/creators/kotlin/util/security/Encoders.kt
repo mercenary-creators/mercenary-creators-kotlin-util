@@ -17,19 +17,28 @@
 package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
-
-import javax.xml.bind.DatatypeConverter.*
+import javax.xml.bind.DatatypeConverter
 
 object Encoders {
 
+    @CreatorsDsl
+    private fun String.convert(): ByteArray = DatatypeConverter.parseHexBinary(toLowerTrim())
+
+    @CreatorsDsl
+    private fun ByteArray.convert(): String = DatatypeConverter.printHexBinary(toByteArray()).toLowerTrim()
+
     private val bhex = object : Encoder<String, ByteArray> {
-        override fun decode(data: String): ByteArray = parseHexBinary(data.toLowerTrim())
-        override fun encode(data: ByteArray): String = printHexBinary(data).toLowerTrim()
+
+        @CreatorsDsl
+        override fun decode(data: String): ByteArray = data.convert()
+
+        @CreatorsDsl
+        override fun encode(data: ByteArray): String = data.convert()
     }
 
     init {
         64 forEach {
-            bhex.decode(bhex.encode(CREATORS_AUTHOR_INFO.toByteArray(Charsets.UTF_8)))
+            bhex.decode(bhex.encode(CREATORS_AUTHOR_INFO.getContentData()))
         }
     }
 
@@ -41,7 +50,11 @@ object Encoders {
     @CreatorsDsl
     @JvmOverloads
     fun text(base: Encoder<String, ByteArray> = hex()): Encoder<String, String> = object : Encoder<String, String> {
-        override fun decode(data: String): String = base.decode(data).toString(Charsets.UTF_8)
-        override fun encode(data: String): String = base.encode(data.toByteArray(Charsets.UTF_8))
+
+        @CreatorsDsl
+        override fun decode(data: String): String = base.decode(data).getContentText()
+
+        @CreatorsDsl
+        override fun encode(data: String): String = base.encode(data.getContentData())
     }
 }

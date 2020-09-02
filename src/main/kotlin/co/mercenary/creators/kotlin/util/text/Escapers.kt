@@ -20,26 +20,37 @@ import co.mercenary.creators.kotlin.util.*
 
 object Escapers {
 
+    @CreatorsDsl
     private const val ASCII_MINVAL = 32
 
+    @CreatorsDsl
     private const val ASCII_MAXVAL = 127
 
+    @CreatorsDsl
     private const val ESCAPE_SLASH = '\\'
 
+    @CreatorsDsl
     private const val SINGLE_QUOTE = '\''
 
+    @CreatorsDsl
     private const val DOUBLE_QUOTE = '"'
 
+    @CreatorsDsl
     private const val ASCII_BSCHAR = '\b'
 
+    @CreatorsDsl
     private const val ASCII_NLCHAR = '\n'
 
+    @CreatorsDsl
     private const val ASCII_VTCHAR = '\t'
 
+    @CreatorsDsl
     private const val ASCII_CRCHAR = '\r'
 
+    @CreatorsDsl
     private const val ASCII_FFCHAR = 12.toChar()
 
+    @CreatorsDsl
     private val ASCII_TABLE: BooleanArray by lazy {
         BooleanArray(128) { code ->
             (code in 32..126 && (code >= 93 || code in 48..91 || code in 32..33 || code in 35..38 || code in 40..46))
@@ -47,26 +58,29 @@ object Escapers {
     }
 
     @CreatorsDsl
+    private fun Char.toCode(): Int = toInt()
+
+    @CreatorsDsl
     private fun StringBuilder.escape(code: Int): StringBuilder {
-        return code.toString(16).toUpperCase().let { buff ->
+        return code.toHexString().toUpperCaseEnglish().let { buff ->
             when ((4 - buff.length).boxIn(0, 3)) {
-                0 -> append("\\u")
-                1 -> append("\\u0")
-                2 -> append("\\u00")
-                3 -> append("\\u000")
+                0 -> add("\\u")
+                1 -> add("\\u0")
+                2 -> add("\\u00")
+                3 -> add("\\u000")
             }
-            append(buff)
+            add(buff)
         }
     }
 
     @CreatorsDsl
     private fun StringBuilder.encode(code: Char): StringBuilder {
-        return append(ESCAPE_SLASH).append(code)
+        return add(ESCAPE_SLASH, code)
     }
 
     @CreatorsDsl
     private fun StringBuilder.quoted(code: Boolean): StringBuilder {
-        return if (code) append(DOUBLE_QUOTE) else this
+        return if (code) add(DOUBLE_QUOTE) else this
     }
 
     @JvmStatic
@@ -78,16 +92,15 @@ object Escapers {
     @JvmStatic
     @CreatorsDsl
     fun isAscii(code: Char): Boolean {
-        return isAscii(code.toInt())
+        return isAscii(code.toCode())
     }
 
     @JvmStatic
     @CreatorsDsl
     fun isAscii(string: String): Boolean {
-        val leng = string.length
-        if (leng > 0) {
-            for (loop in 0 until leng) {
-                if (!isAscii(string[loop].toInt())) {
+        if (string.isNotEmpty()) {
+            for (char in string) {
+                if (isAscii(char.toCode()).isNotTrue()) {
                     return false
                 }
             }
@@ -102,39 +115,33 @@ object Escapers {
         if (isAscii(string)) {
             return if (quoted) "\"$string\"" else string
         }
-        val leng = string.length
-        val buff = StringBuilder(leng * 2).quoted(quoted)
-        for (loop in 0 until leng) {
-            val code = string[loop]
-            if (isAscii(code)) {
-                buff.append(code) // ASCII will be most common, this improves write speed about 5%, FWIW.
-                continue
-            }
-            val ints = code.toInt()
-            when {
-                ints > ASCII_MAXVAL -> {
-                    buff.escape(ints)
+        return stringOf(string.length * 2) {
+            quoted(quoted)
+            for (char in string) {
+                val code = char.toCode()
+                if (isAscii(code).isTrue()) {
+                    add(char)
+                    continue
                 }
-                ints < ASCII_MINVAL -> {
-                    when (code) {
-                        ASCII_BSCHAR -> buff.encode('b')
-                        ASCII_NLCHAR -> buff.encode('n')
-                        ASCII_VTCHAR -> buff.encode('t')
-                        ASCII_CRCHAR -> buff.encode('r')
-                        ASCII_FFCHAR -> buff.encode('f')
-                        else -> buff.escape(ints)
+                when {
+                    code > ASCII_MAXVAL -> escape(code)
+                    code < ASCII_MINVAL -> when (char) {
+                        ASCII_BSCHAR -> encode('b')
+                        ASCII_NLCHAR -> encode('n')
+                        ASCII_VTCHAR -> encode('t')
+                        ASCII_CRCHAR -> encode('r')
+                        ASCII_FFCHAR -> encode('f')
+                        else -> escape(code)
                     }
-                }
-                else -> {
-                    when (code) {
-                        SINGLE_QUOTE -> buff.encode(SINGLE_QUOTE)
-                        DOUBLE_QUOTE -> buff.encode(DOUBLE_QUOTE)
-                        ESCAPE_SLASH -> buff.encode(ESCAPE_SLASH)
-                        else -> buff.append(code)
+                    else -> when (char) {
+                        SINGLE_QUOTE -> encode(SINGLE_QUOTE)
+                        DOUBLE_QUOTE -> encode(DOUBLE_QUOTE)
+                        ESCAPE_SLASH -> encode(ESCAPE_SLASH)
+                        else -> add(char)
                     }
                 }
             }
+            quoted(quoted)
         }
-        return buff.quoted(quoted).toString()
     }
 }

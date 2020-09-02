@@ -23,7 +23,7 @@ open class MercenaryHighlightingBodyCompositeConverter : MercenaryHighlightingCo
 
     override fun transform(event: ILoggingEvent, data: String?): String {
         val color = getForegroundColorCode(event)
-        return buildString {
+        return stringOf {
             when {
                 data == null -> {
                     append(START, color, CLOSE, NULLS_STRING, RESET)

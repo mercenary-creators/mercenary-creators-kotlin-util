@@ -44,14 +44,14 @@ object Digests {
     fun proxyOf(digest: MessageDigest) = MessageDigestProxy(digest)
 
     @IgnoreForSerialize
-    class MessageDigestProxy @CreatorsDsl internal constructor(private val digest: MessageDigest) {
+    class MessageDigestProxy @CreatorsDsl internal constructor(private val digest: MessageDigest): Clearable {
 
         @CreatorsDsl
         @JvmOverloads
         fun digest(buffer: ByteArray, target: ByteArray = buffer, finish: Boolean = true): ByteArray {
             update(buffer).digest().copyInto(target)
             if (finish) {
-                finish()
+                clear()
             }
             return target
         }
@@ -86,13 +86,18 @@ object Digests {
 
         @CreatorsDsl
         fun finish(): MessageDigestProxy {
-            digest.reset()
+            clear()
             return this
         }
 
         @CreatorsDsl
         fun digest(): ByteArray {
             return digest.digest()
+        }
+
+        @CreatorsDsl
+        override fun clear() {
+            digest.reset()
         }
     }
 }

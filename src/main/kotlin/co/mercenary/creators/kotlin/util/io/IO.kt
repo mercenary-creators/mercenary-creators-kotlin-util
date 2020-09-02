@@ -317,7 +317,7 @@ object IO {
     fun toFileOrNull(data: URL, skip: Boolean = false): File? {
         try {
             if (skip || data.isFileURL()) {
-                val path = getPathNormalized(data.file).orEmpty()
+                val path = getPathNormalized(data.file).orElse()
                 if (path.isNotEmpty()) {
                     return File(path)
                 }
@@ -423,7 +423,7 @@ object IO {
     fun getContentType(data: URL, type: String): String {
         if (type.isDefaultContentType()) {
             if (data.isFileURL()) {
-                val path = getPathNormalized(data.file).orEmpty()
+                val path = getPathNormalized(data.file).orElse()
                 if (path.isNotEmpty()) {
                     return getContentTypeProbe().getContentType(path, type)
                 }

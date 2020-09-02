@@ -33,5 +33,5 @@ class SimpleCipherKeysFactory private constructor(private val size: Int, private
     @IgnoreForSerialize
     override fun getKeys(): ByteArray = Randoms.getByteArray(rand.invoke(), getSize())
 
-    override fun toMapNames() = mapOf("type" to javaClass.name)
+    override fun toMapNames() = dictOf("type" to javaClass.name)
 }

@@ -48,7 +48,7 @@ open class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
         }
 
     override fun doLayout(event: ILoggingEvent): String {
-        return if (!isStarted) EMPTY_STRING else proxy.doLayout(event)
+        return if (isStarted.isNotTrue()) EMPTY_STRING else proxy.doLayout(event)
     }
 
     override fun setContext(context: Context) {
@@ -56,13 +56,15 @@ open class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
         proxy.context = context
     }
 
+    @CreatorsDsl
     open fun colorOf(): String {
-        return when (newlines.not()) {
+        return when (newlines.isNotTrue()) {
             true -> MercenaryHighlightingCompositeConverter::class.java.name
             else -> MercenaryHighlightingBodyCompositeConverter::class.java.name
         }
     }
 
+    @CreatorsDsl
     open fun levelOf(): String = MercenaryLevelConverter::class.java.name
 
     override fun start() {

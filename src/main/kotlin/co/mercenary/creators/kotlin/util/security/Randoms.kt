@@ -80,6 +80,7 @@ object Randoms {
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     fun getInteger() = random.nextInt()
 
     @JvmStatic
@@ -88,18 +89,22 @@ object Randoms {
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     fun getDouble() = random.nextDouble()
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     fun getGaussian() = random.nextGaussian()
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     fun getBoolean() = random.nextBoolean()
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     fun getLongValue() = random.nextLong()
 
     @JvmStatic
@@ -289,10 +294,12 @@ object Randoms {
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     fun getCharArrayValues(): CharArray = VALUES.copyOf()
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     private fun getCharArrayValuesInternal(): CharArray {
         return buildString(72) {
             ('a'..'z').forEach {

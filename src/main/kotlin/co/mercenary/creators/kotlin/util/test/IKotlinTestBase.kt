@@ -35,14 +35,22 @@ interface IKotlinTestBase : ILoggingBase {
 
     val printer: (Int, String) -> Unit
 
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getTempFileNamed(name: String = uuid(), suff: String = ".tmp"): File
 
+    @CreatorsDsl
     fun getTempFileNamedPath(name: String, suff: String): String
 
+    @CreatorsDsl
+    @IgnoreForSerialize
     fun getConfigPropertiesBuilder(): () -> Properties
 
     @CreatorsDsl
     fun dash(size: Int = 64): String
+
+    @LoggingWarnDsl
+    fun dashes(size: Int = 64)
 
     @CreatorsDsl
     fun uuid(): String
@@ -50,9 +58,14 @@ interface IKotlinTestBase : ILoggingBase {
     @CreatorsDsl
     fun String.toLink() = toURL()
 
+    @CreatorsDsl
     fun getConfigProperty(name: String, other: String = EMPTY_STRING): String
 
-    fun setConfigProperty(vararg args: Pair<String, Any?>)
+    @CreatorsDsl
+    fun setConfigProperties(vararg args: Pair<String, Any?>)
+
+    @CreatorsDsl
+    fun setConfigProperties(args: Map<String, Any?>)
 
     @CreatorsDsl
     fun <T : Throwable> addThrowableAsFatal(type: Class<T>)
@@ -91,7 +104,7 @@ interface IKotlinTestBase : ILoggingBase {
     fun getThrowableOf(func: () -> Unit): Throwable?
 
     @CreatorsDsl
-    fun assumeEach(block: KotlinTestBase.AssumeCollector.() -> Unit)
+    fun assumeEach(block: IAssumeCollector.() -> Unit)
 
     @CreatorsDsl
     infix fun <T : Any?> T.shouldBe(value: T)

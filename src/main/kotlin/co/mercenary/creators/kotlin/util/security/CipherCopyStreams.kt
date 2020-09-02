@@ -24,8 +24,10 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 
 interface CipherCopyStreams {
+
     @CreatorsDsl
     fun encrypt(data: InputStream, copy: OutputStream)
+
     @CreatorsDsl
     fun decrypt(data: InputStream, copy: OutputStream)
     fun encrypt(data: URL, copy: OutputStream) = data.toInputStream().use { read -> encrypt(read, copy) }

@@ -14,8 +14,22 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test.main
+package co.mercenary.creators.kotlin.util.test.math
 
 import co.mercenary.creators.kotlin.util.*
+import org.junit.jupiter.api.Test
 
-data class MainData @CreatorsDsl constructor(val rand: Int = Randoms.getInteger(0..100))
+class RootTest : KotlinTest() {
+    @Test
+    fun test() {
+        warn { dash() }
+        info { 9.0 rootOf 2 }
+        info { 8.0 rootOf 3 }
+        info { 8.0 rootOf 3.0.neg() }
+        warn { dash() }
+        info { 9.0.neg() rootOf 2 }
+        info { 8.0.neg() rootOf 3 }
+        info { 8.0.neg() rootOf 3.0.neg() }
+        warn { dash() }
+    }
+}

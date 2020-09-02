@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
+import kotlin.reflect.KClass
 
 @IgnoreForSerialize
 class LoggingMarker @CreatorsDsl constructor(private val marker: mu.Marker) : IMarker {
@@ -29,6 +30,9 @@ class LoggingMarker @CreatorsDsl constructor(private val marker: mu.Marker) : IM
 
     @CreatorsDsl
     constructor(data: Any) : this(data.javaClass)
+
+    @CreatorsDsl
+    constructor(type: KClass<*>) : this(type.java)
 
     @CreatorsDsl
     override fun nameOf(): String = marker.name
@@ -44,8 +48,8 @@ class LoggingMarker @CreatorsDsl constructor(private val marker: mu.Marker) : IM
         marker.remove(value.markerOf())
     }
 
-    override operator fun contains(value: String): Boolean {
-        return marker.contains(value)
+    override operator fun contains(value: CharSequence): Boolean {
+        return marker.contains(value.toString())
     }
 
     override operator fun contains(value: IMarker): Boolean {

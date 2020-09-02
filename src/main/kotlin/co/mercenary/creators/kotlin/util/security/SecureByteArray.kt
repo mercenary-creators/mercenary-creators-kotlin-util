@@ -64,7 +64,7 @@ class SecureByteArray @CreatorsDsl constructor(data: ByteArray) : SecureBytes, S
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun toMapNames() = dictOf("size" to buff.size, "type" to nameOf())
+    override fun toMapNames() = dictOf("size" to size, "type" to nameOf())
 
     @CreatorsDsl
     override fun clone() = copyOf()

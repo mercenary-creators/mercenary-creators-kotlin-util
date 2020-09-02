@@ -25,18 +25,25 @@ import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.atomic.*
 
+@CreatorsDsl
 const val IS_NOT_FOUND = -1
+
 @CreatorsDsl
 const val EMPTY_STRING = ""
 
+@CreatorsDsl
 const val SPACE_STRING = " "
 
+@CreatorsDsl
 const val NULLS_STRING = "null"
 
+@CreatorsDsl
 const val DUNNO_STRING = "unknown"
 
+@CreatorsDsl
 const val KOTLIN_METAS = "kotlin.Metadata"
 
+@CreatorsDsl
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2020, Mercenary Creators Company."
 
 typealias Inflaters = co.mercenary.creators.kotlin.util.io.Inflaters
@@ -69,6 +76,8 @@ typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlg
 
 typealias AtomicHashMap<K, V> = java.util.concurrent.ConcurrentHashMap<K, V>
 
+typealias LRUCacheMap<K, V> = co.mercenary.creators.kotlin.util.collection.LRUCacheMap<K,V>
+
 open class MercenaryExceptiion @CreatorsDsl constructor(text: String?, root: Throwable?) : RuntimeException(text, root) {
 
     @CreatorsDsl
@@ -81,6 +90,7 @@ open class MercenaryExceptiion @CreatorsDsl constructor(text: String?, root: Thr
     constructor(root: Throwable) : this(root.message, root)
 
     companion object {
+
         private const val serialVersionUID = 2L
     }
 }
@@ -94,6 +104,7 @@ open class MercenaryFatalExceptiion @CreatorsDsl constructor(text: String?, root
     constructor(root: Throwable) : this(root.message, root)
 
     companion object {
+
         private const val serialVersionUID = 2L
     }
 }
@@ -107,6 +118,7 @@ open class MercenaryAssertExceptiion @CreatorsDsl constructor(text: String?, roo
     constructor(root: Throwable) : this(root.message, root)
 
     companion object {
+
         private const val serialVersionUID = 2L
     }
 }
@@ -140,10 +152,15 @@ fun <K, V> Map<K, V>.toAtomic(): AtomicHashMap<K, V> {
 }
 
 @CreatorsDsl
+fun <E> List<E>.whenNotEmpty(block: (List<E>) -> Unit) {
+    if (isNotEmpty()) block(this)
+}
+
+@CreatorsDsl
 fun getCurrentThreadName(): String = Thread.currentThread().name
 
 @CreatorsDsl
-fun getProcessors(): Int = Runtime.getRuntime().availableProcessors()
+inline fun getProcessors(): Int = Runtime.getRuntime().availableProcessors()
 
 @CreatorsDsl
 fun toTrimOrNull(data: String?): String? = data?.trim().takeUnless { it.isNullOrEmpty() }
@@ -161,11 +178,22 @@ inline fun String?.toTrimOr(other: String = EMPTY_STRING): String = toTrimOrNull
 inline fun String?.toTrimOr(other: () -> String): String = toTrimOrNull(this) ?: other.invoke()
 
 @CreatorsDsl
-inline fun String.tail(many: Int = 1): String = dropLast(many)
+inline fun String.head(many: Int = 1): String = if (many >= 0) drop(many) else this
+
+@CreatorsDsl
+inline fun String.tail(many: Int = 1): String = if (many >= 0) dropLast(many) else this
+
+@CreatorsDsl
+fun String.center(many: Int, trim: Boolean = true): String {
+    return if (many <= 0) this else (if (trim) trim() else this).let { it.padStart((it.length + many) / 2).padEnd(many) }
+}
+
+@CreatorsDsl
+inline fun String.braced(): String = "(${toString()})"
 
 @CreatorsDsl
 fun CharSequence.toChecked(): String {
-    return if (this.any { it == Char.MIN_VALUE })
+    return if (any { it == Char.MIN_VALUE })
         throw MercenaryFatalExceptiion("null byte present. there are no known legitimate use cases for such data, but several injection attacks may use it.")
     else toString()
 }
@@ -201,6 +229,16 @@ fun CharSequence.toLowerCaseEnglish(): String = toString().toLowerCase(Locale.EN
 fun CharSequence.toUpperCaseEnglish(): String = toString().toUpperCase(Locale.ENGLISH)
 
 @CreatorsDsl
+fun <T, R : Any> List<T>.whenNotNull(block: (T) -> R?): List<R> {
+    if (size != 0) {
+        val data = ArrayList<R>(size)
+        mapNotNullTo(data, block)
+        return data.toList()
+    }
+    return listOf()
+}
+
+@CreatorsDsl
 fun <T : Any> ThreadLocal<T>.toValue(): T = get()
 
 @CreatorsDsl
@@ -231,6 +269,12 @@ catch (cause: Throwable) {
 
 @CreatorsDsl
 fun Long.toAtomic(): AtomicLong = AtomicLong(this)
+
+@CreatorsDsl
+fun AtomicLong.toAtomic(): AtomicLong = toLong().toAtomic()
+
+@CreatorsDsl
+fun AtomicLong.copyOf(): AtomicLong = toAtomic()
 
 operator fun AtomicLong.div(value: Int): AtomicLong {
     value.toValidDivisor()
@@ -360,12 +404,16 @@ infix fun AtomicLong.minOf(value: AtomicInteger): AtomicLong {
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicLong.compareTo(value: Int): Int = get().compareTo(value)
 
+@CreatorsDsl
 operator fun AtomicLong.compareTo(value: Long): Int = get().compareTo(value)
 
+@CreatorsDsl
 operator fun AtomicLong.compareTo(value: AtomicLong): Int = get().compareTo(value.toLong())
 
+@CreatorsDsl
 operator fun AtomicLong.compareTo(value: AtomicInteger): Int = get().compareTo(value.toLong())
 
 @CreatorsDsl
@@ -389,22 +437,32 @@ fun AtomicLong.isNotEven(): Boolean {
 @CreatorsDsl
 fun Int.toAtomic(): AtomicInteger = AtomicInteger(this)
 
+@CreatorsDsl
+fun AtomicInteger.toAtomic(): AtomicInteger = toInt().toAtomic()
+
+@CreatorsDsl
+fun AtomicInteger.copyOf(): AtomicInteger = toAtomic()
+
+@CreatorsDsl
 operator fun AtomicInteger.div(value: Int): AtomicInteger {
     value.toValidDivisor()
     updateAndGet { it / value }
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicInteger.times(value: Int): AtomicInteger {
     updateAndGet { it * value }
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicInteger.plus(value: Int): AtomicInteger {
     updateAndGet { it + value }
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicInteger.minus(value: Int): AtomicInteger {
     updateAndGet { it - value }
     return this
@@ -481,6 +539,12 @@ fun AtomicInteger.isEven(): Boolean {
 fun AtomicInteger.isNotEven(): Boolean {
     return get().isNotEven()
 }
+
+@CreatorsDsl
+operator fun AtomicInteger.compareTo(value: Int): Int = get().compareTo(value)
+
+@CreatorsDsl
+operator fun AtomicInteger.compareTo(value: AtomicInteger): Int = get().compareTo(value.get())
 
 @CreatorsDsl
 inline fun Boolean.toAtomic() = AtomicBoolean(this)
@@ -602,7 +666,25 @@ fun <T : Any?> T.idenOf() = SameAndHashCode.idenOf(this)
 fun <V> dictOf(vararg args: Pair<String, V>): Map<String, V> = mapOf(*args)
 
 @CreatorsDsl
-fun <T : Any?> T.nameOf(tail: String = EMPTY_STRING): String = SameAndHashCode.nameOf(this).plus(tail)
+fun <V> dictOfMutable(vararg args: Pair<String, V>): MutableMap<String, V> = mutableMapOf(*args)
+
+@CreatorsDsl
+inline fun stringOf(action: StringBuilder.() -> Unit): String = StringBuilder().apply(action).toString()
+
+@CreatorsDsl
+inline fun stringOf(size: Int, action: StringBuilder.() -> Unit): String = StringBuilder(size).apply(action).toString()
+
+@CreatorsDsl
+inline fun stringOf(data: String, action: StringBuilder.() -> Unit): String = StringBuilder(data).apply(action).toString()
+
+@CreatorsDsl
+inline fun stringOf(data: CharSequence, action: StringBuilder.() -> Unit): String = StringBuilder(data).apply(action).toString()
+
+@CreatorsDsl
+fun StringBuilder.add(vararg args: Any?): StringBuilder = append(*args)
+
+@CreatorsDsl
+fun <T : Any?> T.nameOf(): String = SameAndHashCode.nameOf(this)
 
 open class MercenarySequence<out T> @CreatorsDsl constructor(protected val iterator: Iterator<T>) : Sequence<T> {
 

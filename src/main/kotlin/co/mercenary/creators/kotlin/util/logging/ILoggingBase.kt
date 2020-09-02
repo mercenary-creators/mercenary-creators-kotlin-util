@@ -42,10 +42,24 @@ interface ILoggingBase : ILogging {
     @IgnoreForSerialize
     override fun isLoggingErrorEnabled(): Boolean = loggerOf().isErrorEnabled
 
+    @LoggingInfoDsl
     @IgnoreForSerialize
-    override fun isLoggingFatalEnabled(): Boolean {
-        return isLoggingErrorEnabled() && (isLoggingDebugEnabled() || isLoggingTraceEnabled())
-    }
+    override fun isLoggingInfoEnabled(marker: IMarker): Boolean = loggerOf().isInfoEnabled(marker.markerOf())
+
+    @LoggingWarnDsl
+    @IgnoreForSerialize
+    override fun isLoggingWarnEnabled(marker: IMarker): Boolean = loggerOf().isWarnEnabled(marker.markerOf())
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isLoggingTraceEnabled(marker: IMarker): Boolean = loggerOf().isTraceEnabled(marker.markerOf())
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isLoggingDebugEnabled(marker: IMarker): Boolean = loggerOf().isDebugEnabled(marker.markerOf())
+
+    @IgnoreForSerialize
+    override fun isLoggingErrorEnabled(marker: IMarker): Boolean = loggerOf().isErrorEnabled(marker.markerOf())
 
     @LoggingInfoDsl
     override fun info(block: () -> Any?) {
@@ -217,38 +231,6 @@ interface ILoggingBase : ILogging {
 
     override fun error(cause: Throwable, marker: IMarker, block: () -> Any?) {
         if (isLoggingErrorEnabled()) {
-            loggerOf().error(marker.markerOf(), cause) {
-                LoggingFactory.toSafeString(block)
-            }
-        }
-    }
-
-    override fun fatal(block: () -> Any?) {
-        if (isLoggingFatalEnabled()) {
-            loggerOf().error {
-                LoggingFactory.toSafeString(block)
-            }
-        }
-    }
-
-    override fun fatal(cause: Throwable, block: () -> Any?) {
-        if (isLoggingFatalEnabled()) {
-            loggerOf().error(cause) {
-                LoggingFactory.toSafeString(block)
-            }
-        }
-    }
-
-    override fun fatal(marker: IMarker, block: () -> Any?) {
-        if (isLoggingFatalEnabled()) {
-            loggerOf().error(marker.markerOf()) {
-                LoggingFactory.toSafeString(block)
-            }
-        }
-    }
-
-    override fun fatal(cause: Throwable, marker: IMarker, block: () -> Any?) {
-        if (isLoggingFatalEnabled()) {
             loggerOf().error(marker.markerOf(), cause) {
                 LoggingFactory.toSafeString(block)
             }

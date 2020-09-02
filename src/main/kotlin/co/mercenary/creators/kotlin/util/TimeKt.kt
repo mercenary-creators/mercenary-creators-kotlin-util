@@ -23,8 +23,10 @@ import co.mercenary.creators.kotlin.util.time.NanoTicker
 import java.time.*
 import java.util.*
 
+@CreatorsDsl
 const val TIME_DEFAULT_ZONE_STRING = "UTC"
 
+@CreatorsDsl
 const val TIME_DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss,SSS z"
 
 typealias TimeAndDate = co.mercenary.creators.kotlin.util.time.TimeAndDate

@@ -32,5 +32,7 @@ class InflaterTest : KotlinDataTest() {
         val file = getTempFileNamed()
         info { Inflaters.gzip().deflate(data, file) }
         info { Inflaters.gzip().inflate(file, EmptyOutputStream) }
+        val list = file("/dev/random").data(ByteArray(DEFAULT_BUFFER_SIZE))
+        warn { list.toByteArray() }
     }
 }

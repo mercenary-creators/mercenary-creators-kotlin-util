@@ -100,7 +100,7 @@ object TimeAndDate {
     @CreatorsDsl
     @JvmOverloads
     fun formatDate(date: Date, safe: Boolean = true): String {
-        return if (safe) getThreadLocalDefaultDateFormat().get().format(date) else getDefaultDateFormatAndTimeZone().format(date)
+        return if (safe) getThreadLocalDefaultDateFormat().toValue().format(date) else getDefaultDateFormatAndTimeZone().format(date)
     }
 
     @JvmStatic
@@ -114,7 +114,7 @@ object TimeAndDate {
     @CreatorsDsl
     @JvmOverloads
     fun parseDate(text: CharSequence, safe: Boolean = true): Date {
-        return if (safe) getThreadLocalDefaultDateFormat().get().parse(text.toString()) else getDefaultDateFormatAndTimeZone().parse(text.toString())
+        return if (safe) getThreadLocalDefaultDateFormat().toValue().parse(text.toString()) else getDefaultDateFormatAndTimeZone().parse(text.toString())
     }
 
     @JvmStatic

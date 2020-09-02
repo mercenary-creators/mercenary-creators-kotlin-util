@@ -36,8 +36,8 @@ object Ciphers {
     fun text(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<String, String> {
         val proxy = data(secret, algorithm)
         return object : CipherEncrypting<String, String> {
-            override fun decrypt(data: String) = String(proxy.decrypt(Encoders.hex().decode(data)), Charsets.UTF_8)
-            override fun encrypt(data: String) = Encoders.hex().encode(proxy.encrypt(data.toByteArray(Charsets.UTF_8)))
+            override fun decrypt(data: String) = proxy.decrypt(Encoders.hex().decode(data)).getContentText()
+            override fun encrypt(data: String) = Encoders.hex().encode(proxy.encrypt(data.getContentData()))
         }
     }
 
@@ -76,13 +76,12 @@ object Ciphers {
 
     @CreatorsDsl
     private fun getBufferOf(data: InputStream): Int {
-        try {
-            return data.available().maxOf(DEFAULT_BUFFER_SIZE)
+        return try {
+            data.available().maxOf(DEFAULT_BUFFER_SIZE)
         }
         catch (cause: Throwable) {
-            Throwables.thrown(cause)
+            DEFAULT_BUFFER_SIZE
         }
-        return DEFAULT_BUFFER_SIZE
     }
 
     @CreatorsDsl
@@ -94,19 +93,22 @@ object Ciphers {
     @CreatorsDsl
     private fun getParams(algorithm: CipherAlgorithm, vector: ByteArray): AlgorithmParameterSpec = algorithm.getAlgorithmParams(vector)
 
-    private class InternalEncryptingData(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherEncrypting<ByteArray, ByteArray> {
+    private class InternalEncryptingData @CreatorsDsl constructor(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherEncrypting<ByteArray, ByteArray> {
 
+        @CreatorsDsl
         override fun encrypt(data: ByteArray): ByteArray = synchronized(encrypt) {
             factory.getKeys().let { vector -> vector + setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(data) }
         }
 
+        @CreatorsDsl
         override fun decrypt(data: ByteArray): ByteArray = synchronized(decrypt) {
             data.copyOfRange(0, factory.getSize()).let { vector -> setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(data.copyOfRange(vector.size, data.size)) }
         }
     }
 
-    private class InternalEncryptingCopy(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherCopyStreams {
+    private class InternalEncryptingCopy @CreatorsDsl constructor(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherCopyStreams {
 
+        @CreatorsDsl
         override fun encrypt(data: InputStream, copy: OutputStream) = synchronized(encrypt) {
             val buffer = getBufferOf(data)
             val vector = factory.getKeys().also { copy.write(it) }
@@ -115,6 +117,7 @@ object Ciphers {
             output.close()
         }
 
+        @CreatorsDsl
         override fun decrypt(data: InputStream, copy: OutputStream) = synchronized(decrypt) {
             val buffer = getBufferOf(data)
             val vector = ByteArray(factory.getSize()).also { data.read(it) }
@@ -124,7 +127,7 @@ object Ciphers {
         }
     }
 
-    private class FastCipherOutputStream(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream() {
+    private class FastCipherOutputStream @CreatorsDsl constructor(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream() {
         private var obuf: ByteArray? = null
         private val sbuf: ByteArray = ByteArray(1)
         override fun write(b: Int) {
@@ -158,12 +161,11 @@ object Ciphers {
 
         @CreatorsDsl
         override fun close() {
-            try {
-                obuf = cipher.doFinal()
+            obuf = try {
+                cipher.doFinal()
             }
             catch (cause: Throwable) {
-                obuf = null
-                Throwables.thrown(cause)
+                null
             }
             flush()
         }

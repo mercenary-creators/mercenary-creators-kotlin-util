@@ -22,6 +22,7 @@ import java.io.*
 import java.io.ByteArrayOutputStream
 import java.math.*
 import java.net.*
+import java.nio.ByteBuffer
 import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 import java.util.concurrent.atomic.*
@@ -128,6 +129,7 @@ object SameAndHashCode {
         is Path -> true
         is Reader -> true
         is ByteArray -> true
+        is ByteBuffer -> true
         is InputStream -> true
         is CharSequence -> true
         is ContentResource -> true
@@ -175,13 +177,14 @@ object SameAndHashCode {
             is Path -> value.toByteArray()
             is Reader -> value.toByteArray()
             is ByteArray -> value.toByteArray()
+            is ByteBuffer -> value.toByteArray()
             is InputStream -> value.toByteArray()
             is CharSequence -> value.getContentData()
             is ContentResource -> value.getContentData()
             is ReadableByteChannel -> value.toByteArray()
             is InputStreamSupplier -> value.toByteArray()
             is ByteArrayOutputStream -> value.getContentData()
-            else -> ByteArray(0)
+            else -> EMPTY_BYTE_ARRAY
         }
     }
 

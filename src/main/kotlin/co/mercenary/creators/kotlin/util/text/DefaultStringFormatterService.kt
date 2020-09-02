@@ -32,7 +32,8 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
     @CreatorsDsl
     override fun toSafeString(data: Any): String {
         return when (data) {
-            is CharArray -> String(data)
+            is String -> data
+            is CharArray -> data.getContentText(false)
             is ByteArray -> Encoders.hex().encode(data)
             is Map<*, *> -> joinTo(data.toMap())
             is Array<*> -> joinTo(data.toList())
@@ -47,11 +48,9 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
             is Date -> data.formatDate()
             is LocalDateTime -> data.formatDate()
             is Function0<*> -> Formatters.toSafeString(data)
-            is Map.Entry<*, *> -> buildString {
+            is Map.Entry<*, *> -> stringOf {
                 val (k, v) = data
-                append(escape(k))
-                append(": ")
-                append(escape(v))
+                add(escape(k), ": ", escape(v))
             }
             is HasMapNames -> safe.invoke(data.toMapNames())
             else -> data.toString()
@@ -102,14 +101,15 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
         return when(val size = data.size) {
             0 -> "[]"
             else -> {
-                val buff = StringBuilder("[")
-                for (i in 0 until size) {
-                    if (i > 0) {
-                        buff.append(", ")
+                stringOf("[") {
+                    for (i in 0 until size) {
+                        if (i > 0) {
+                            add(", ")
+                        }
+                        add(safe.invoke(data[i]))
                     }
-                    buff.append(safe.invoke(data[i]))
+                    add("]")
                 }
-                buff.append("]").toString()
             }
         }
     }
@@ -120,14 +120,15 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
         return when(val size = list.size) {
             0 -> "{}"
             else -> {
-                val buff = StringBuilder("{")
-                for (i in 0 until size) {
-                    if (i > 0) {
-                        buff.append(", ")
+                stringOf("{") {
+                    for (i in 0 until size) {
+                        if (i > 0) {
+                            add(", ")
+                        }
+                        add(safe.invoke(list[i]))
                     }
-                    buff.append(safe.invoke(list[i]))
+                    add("}")
                 }
-                buff.append("}").toString()
             }
         }
     }

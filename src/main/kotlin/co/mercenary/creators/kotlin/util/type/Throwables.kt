@@ -23,9 +23,9 @@ object Throwables {
 
     enum class Mode { FAILURE, IGNORED }
 
-    private val failure = mutableSetOf<Class<*>>()
+    private val failure = LinkedHashSet<Class<*>>()
 
-    private val ignored = mutableSetOf<Class<*>>()
+    private val ignored = LinkedHashSet<Class<*>>()
 
     private val logger: ILogging by lazy {
         LoggingFactory.logger(Throwables::class)
@@ -37,7 +37,6 @@ object Throwables {
 
     @JvmStatic
     @CreatorsDsl
-    @Synchronized
     fun thrown(cause: Throwable?) {
         if (cause != null) {
             val type = cause.javaClass
@@ -47,7 +46,7 @@ object Throwables {
                 }
             }
             else if (type in failure) {
-                logger.debug {
+                logger.error {
                     "${type.name}(${cause.message}) FAILURE."
                 }
                 throw cause
@@ -68,7 +67,6 @@ object Throwables {
 
     @JvmStatic
     @CreatorsDsl
-    @Synchronized
     @JvmOverloads
     fun <T : Throwable> append(type: KClass<T>, mode: Mode = Mode.FAILURE) {
         append(type.java, mode)
@@ -76,16 +74,14 @@ object Throwables {
 
     @JvmStatic
     @CreatorsDsl
-    @Synchronized
     fun <T : Throwable> ignored(type: Class<T>) {
-        ignored.add(type)
+        append(type, Mode.IGNORED)
     }
 
     @JvmStatic
     @CreatorsDsl
-    @Synchronized
     fun <T : Throwable> ignored(type: KClass<T>) {
-        ignored(type.java)
+        append(type.java, Mode.IGNORED)
     }
 
     @JvmStatic
@@ -101,7 +97,6 @@ object Throwables {
 
     @JvmStatic
     @CreatorsDsl
-    @Synchronized
     @JvmOverloads
     fun <T : Throwable> remove(type: KClass<T>, mode: Mode = Mode.FAILURE) {
         remove(type.java, mode)

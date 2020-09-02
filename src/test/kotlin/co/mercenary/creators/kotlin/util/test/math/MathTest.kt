@@ -21,23 +21,32 @@ import org.junit.jupiter.api.Test
 import kotlin.math.*
 
 class MathTest : KotlinTest() {
+
     @Test
     fun test() {
         val data = 2.5.neg()
         val negs = 1.0.neg()
         info { data }
+        warn { dash() }
         info { data.truncated() }
-        info { data.floor() }
-        info { data - data.floor() }
+        warn { dash() }
+        info { data.floorOf() }
+        warn { dash() }
+        info { data - data.floorOf() }
         warn { dash() }
         info { data }
+        warn { dash() }
         info { data.rem(1.0) }
+        warn { dash() }
         info { data - data.rem(1.0) }
         warn { dash() }
         info { sign(data) }
         info { data.isNegative() }
         info { sign(-data) }
         info { data.neg().isNegative() }
+        warn { dash() }
+        info { 2.0.pow(2) }
+        info { 2.0.pow(-1) }
         warn { dash() }
         info { 2.0 power 2 }
         info { 2.0 power -1 }
@@ -51,6 +60,10 @@ class MathTest : KotlinTest() {
         info { 2.0 power 1 }
         info { 2.0 power 2 }
         info { 2.0 power 3 }
+        warn { dash() }
+        info { 9.0 rootOf 2 }
+        info { 8.0 rootOf 3 }
+        info { 8.0 rootOf 3.0.neg() }
         warn { dash() }
         var save = 1
         measured(10) {

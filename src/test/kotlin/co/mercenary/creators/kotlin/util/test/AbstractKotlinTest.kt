@@ -16,4 +16,17 @@
 
 package co.mercenary.creators.kotlin.util.test
 
-abstract class AbstractKotlinTest : KotlinTestBase()
+import co.mercenary.creators.kotlin.util.CreatorsDsl
+import co.mercenary.creators.kotlin.util.logging.LoggingWarnDsl
+
+abstract class AbstractKotlinTest : KotlinTestBase() {
+
+    @CreatorsDsl
+    @JvmOverloads
+    fun single(negs: Boolean = false): Double = if (negs) -1.0 else 1.0
+
+    @LoggingWarnDsl
+    fun dashes() {
+        warn { dash() }
+    }
+}

@@ -17,7 +17,8 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.logging.LoggingInfoDsl
+import co.mercenary.creators.kotlin.util.Logging
+import co.mercenary.creators.kotlin.util.logging.*
 import java.io.File
 import java.util.*
 import kotlin.reflect.KClass
@@ -28,7 +29,7 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
     @CreatorsDsl
     constructor() : this(null)
 
-    private val nope = arrayListOf<Class<*>>()
+    private val nope = ArrayList<Class<*>>()
 
     init {
         Encoders
@@ -84,7 +85,12 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
     override fun getConfigProperty(name: String, other: String): String = conf.getProperty(name, other)
 
     @CreatorsDsl
-    override fun setConfigProperty(vararg args: Pair<String, Any?>) {
+    override fun setConfigProperties(vararg args: Pair<String, Any?>) {
+        setConfigProperties(args.toMap())
+    }
+
+    @CreatorsDsl
+    override fun setConfigProperties(args: Map<String, Any?>) {
         if (args.isNotEmpty()) {
             val temp = conf
             for ((k, v) in args) {
@@ -116,7 +122,7 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
         Exception().stackTrace.forEach { item ->
             if (item.className.startsWith(name)) {
                 if (item.methodName in mine) {
-                    list += mutableMapOf("func" to item.methodName, "type" to name, "file" to item.fileName, "line" to item.lineNumber)
+                    list += dictOfMutable("func" to item.methodName, "type" to name, "file" to item.fileName, "line" to item.lineNumber)
                 }
                 else if (item.methodName == "invoke") {
                     // I'm coming from inside anonymous blocks that are not inlined,
@@ -127,7 +133,7 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
             }
         }
         if (list.isEmpty()) {
-            return mapOf("func" to DUNNO_STRING, "type" to name, "file" to DUNNO_STRING, "line" to 0)
+            return dictOf("func" to DUNNO_STRING, "type" to name, "file" to DUNNO_STRING, "line" to 0)
         }
         val line = most.toInt()
         val maps = list.first()
@@ -139,6 +145,11 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
 
     override fun toString(): String {
         return javaClass.name
+    }
+
+    @LoggingWarnDsl
+    override fun dashes(size: Int) {
+        warn { dash(size) }
     }
 
     @LoggingInfoDsl
@@ -224,12 +235,12 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
     }
 
     @CreatorsDsl
-    override fun assumeEach(block: AssumeCollector.() -> Unit) {
+    override fun assumeEach(block: IAssumeCollector.() -> Unit) {
         AssumeCollector(block).also { it.invoke() }
     }
 
-    @CreatorsDsl
-    inner class AssumeCollector(block: AssumeCollector.() -> Unit) {
+    @IgnoreForSerialize
+    inner class AssumeCollector @CreatorsDsl constructor(block: AssumeCollector.() -> Unit) : IAssumeCollector {
 
         private val list = ArrayList<() -> Unit>()
 
@@ -238,21 +249,18 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
         }
 
         @CreatorsDsl
-        fun assumeThat(block: () -> Unit) {
+        override fun assumeThat(block: () -> Unit) {
             list += block
         }
 
-        operator fun invoke() {
-            if (list.isNotEmpty()) {
-                val look = list.mapNotNull { getThrowableOf(it) }
-                if (look.isNotEmpty()) {
-                    val oops = MercenaryMultipleAssertExceptiion(look)
-                    look.forEach {
-                        oops.addSuppressed(it)
-                    }
-                    throw oops
-                }
-            }
+        @CreatorsDsl
+        override fun clear() {
+            list.clear()
+        }
+
+        @CreatorsDsl
+        operator fun invoke() = list.whenNotNull { func -> getThrowableOf(func) }.whenNotEmpty { look ->
+            throw MercenaryMultipleAssertExceptiion(look).suppress()
         }
     }
 
