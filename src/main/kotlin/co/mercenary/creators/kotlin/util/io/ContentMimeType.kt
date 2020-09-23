@@ -140,18 +140,21 @@ class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBas
 
             @CreatorsDsl
             override fun toMapNames(): Map<String, Any?> {
-                return mapOf("type" to type, "part" to part).let {
+                return dictOf("type" to type, "part" to part).let {
                     if (list.isEmpty) it else it.plus("prop" to prop.toMap())
                 }
             }
 
+            @CreatorsDsl
             override fun clone() = copyOf()
 
             @CreatorsDsl
             override fun copyOf() = MimeBase(toString())
 
+            @CreatorsDsl
             override fun toString() = mime.toString()
 
+            @CreatorsDsl
             override fun hashCode() = mime.toString().hashCode()
 
             @CreatorsDsl

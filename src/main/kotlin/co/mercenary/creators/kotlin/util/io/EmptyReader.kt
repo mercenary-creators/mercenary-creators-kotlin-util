@@ -19,10 +19,9 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.io.Reader
 
+@CreatorsDsl
 @IgnoreForSerialize
 object EmptyReader : Reader() {
-
     override fun close() = Unit
-
     override fun read(cbuf: CharArray, off: Int, len: Int) = IS_NOT_FOUND
 }

@@ -63,10 +63,67 @@ val EMPTY_BYTE_ARRAY = ByteArray(0)
 val EMPTY_CHAR_ARRAY = CharArray(0)
 
 @CreatorsDsl
+inline fun getStandardInput(): InputStream = System.`in`
+
+@CreatorsDsl
+inline fun getStandardOutut(): PrintStream = System.out
+
+@CreatorsDsl
+inline fun getStandardError(): PrintStream = System.err
+
+@CreatorsDsl
+inline fun <T : Clearable, R> T.finishOn(block: (T) -> R): R {
+    try {
+        return block(this)
+    }
+    catch (cause: Throwable) {
+        Throwables.thrown(cause)
+        throw cause
+    }
+    finally {
+        try {
+            clear()
+        }
+        catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+    }
+}
+
+@CreatorsDsl
+inline fun <T : Resetable, R> T.finishOn(block: (T) -> R): R {
+    try {
+        return block(this)
+    }
+    catch (cause: Throwable) {
+        Throwables.thrown(cause)
+        throw cause
+    }
+    finally {
+        try {
+            reset()
+        }
+        catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+    }
+}
+
+@CreatorsDsl
+inline fun <T : Closeable, R> T.finishOn(block: (T) -> R): R {
+    try {
+        return use(block)
+    }
+    catch (cause: Throwable) {
+        Throwables.thrown(cause)
+        throw cause
+    }
+}
+
+@CreatorsDsl
 inline fun String.isDefaultContentType(): Boolean = toLowerTrimEnglish() == DEFAULT_CONTENT_TYPE
 
 @CreatorsDsl
-@JvmOverloads
 fun String.toCommonContentType(type: String = DEFAULT_CONTENT_TYPE): String = when (IO.getPathExtension(this).toLowerTrimEnglish()) {
     ".json" -> "application/json"
     ".java" -> "text/x-java-source"
@@ -81,7 +138,6 @@ fun String.toCommonContentType(type: String = DEFAULT_CONTENT_TYPE): String = wh
 inline fun getDefaultContentTypeProbe(): ContentTypeProbe = IO.getContentTypeProbe()
 
 @CreatorsDsl
-@JvmOverloads
 fun getPathNormalizedOrElse(path: String?, other: String = EMPTY_STRING): String = toTrimOrElse(IO.getPathNormalized(path), other)
 
 @CreatorsDsl
@@ -97,16 +153,14 @@ fun getPathNormalizedNoTail(path: String?, tail: Boolean): String {
 inline fun URL.isFileURL(): Boolean = protocol.toLowerTrimEnglish() == IO.TYPE_IS_FILE
 
 @CreatorsDsl
-@JvmOverloads
 fun URL.toFileOrNull(skip: Boolean = false): File? = IO.toFileOrNull(this, skip)
 
 @CreatorsDsl
-@JvmOverloads
 fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): File = createTempFile(prefix, suffix, folder).apply { deleteOnExit() }
 
 @CreatorsDsl
-@JvmOverloads
-fun baos(size: Int = DEFAULT_BUFFER_SIZE): ByteArrayOutputStream = ByteArrayOutputStream(size)
+@Suppress("FunctionName")
+inline fun BytesOutputStream(size: Int = DEFAULT_BUFFER_SIZE) = ByteArrayOutputStream(size.maxOf(0))
 
 @CreatorsDsl
 inline fun File.isValidToRead(): Boolean = isDirectory.isNotTrue() && canRead()
@@ -151,22 +205,21 @@ fun URI.toInputStream(): InputStream = when (val data = IO.getInputStream(this))
 }
 
 @CreatorsDsl
-@JvmOverloads
 fun ByteArray.toByteBuffer(copy: Boolean = false): ByteBuffer = ByteBuffer.wrap(toByteArray(copy))
 
 @CreatorsDsl
-@JvmOverloads
 fun CharArray.toCharBuffer(copy: Boolean = false): CharBuffer = CharBuffer.wrap(toCharArray(copy))
 
 @CreatorsDsl
 inline fun getByteBuffer(size: Int): ByteBuffer = ByteBuffer.allocate(size.maxOf(0))
 
 @CreatorsDsl
-@JvmOverloads
 fun CharSequence.toCharBuffer(beg: Int = 0, end: Int = length): CharBuffer = CharBuffer.wrap(toString(), beg, end)
 
 @CreatorsDsl
-@JvmOverloads
+fun CharSequence.getCharArray(copy: Boolean = false): CharArray = toString().toCharArray().toCharArray(copy)
+
+@CreatorsDsl
 fun ByteArray.toInputStream(copy: Boolean = false): InputStream = ByteArrayInputStream(toByteArray(copy))
 
 @CreatorsDsl
@@ -182,11 +235,9 @@ inline fun ReadableByteChannel.toInputStream(): InputStream = Channels.newInputS
 inline fun InputStreamSupplier.toInputStream(): InputStream = getInputStream()
 
 @CreatorsDsl
-@JvmOverloads
 fun Reader.toInputStream(charset: Charset = Charsets.UTF_8): InputStream = IO.getInputStream(this, charset)
 
 @CreatorsDsl
-@JvmOverloads
 fun Writer.toOutputStream(charset: Charset = Charsets.UTF_8): OutputStream = IO.getOutputStream(this, charset)
 
 @CreatorsDsl
@@ -220,42 +271,42 @@ inline fun WritableByteChannel.toOutputStream(): OutputStream = Channels.newOutp
 inline fun OutputStreamSupplier.toOutputStream(): OutputStream = getOutputStream()
 
 @CreatorsDsl
-inline fun Reader.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline infix fun Reader.forEachLineIndexed(block: (Int, String) -> Unit) {
     buffered().forEachLineIndexed(block)
 }
 
 @CreatorsDsl
-inline fun BufferedReader.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline infix fun BufferedReader.forEachLineIndexed(block: (Int, String) -> Unit) {
     useLines { it.forEachIndexed(block) }
 }
 
 @CreatorsDsl
-inline fun URL.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline infix fun URL.forEachLineIndexed(block: (Int, String) -> Unit) {
     toInputStream().forEachLineIndexed(block)
 }
 
 @CreatorsDsl
-inline fun URI.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline infix fun URI.forEachLineIndexed(block: (Int, String) -> Unit) {
     toInputStream().forEachLineIndexed(block)
 }
 
 @CreatorsDsl
-inline fun File.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline infix fun File.forEachLineIndexed(block: (Int, String) -> Unit) {
     toInputStream().forEachLineIndexed(block)
 }
 
 @CreatorsDsl
-inline fun Path.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline infix fun Path.forEachLineIndexed(block: (Int, String) -> Unit) {
     toInputStream().forEachLineIndexed(block)
 }
 
 @CreatorsDsl
-inline fun InputStreamSupplier.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline infix fun InputStreamSupplier.forEachLineIndexed(block: (Int, String) -> Unit) {
     toInputStream().forEachLineIndexed(block)
 }
 
 @CreatorsDsl
-inline fun InputStream.forEachLineIndexed(block: (Int, String) -> Unit) {
+inline infix fun InputStream.forEachLineIndexed(block: (Int, String) -> Unit) {
     reader().buffered().useLines { it.forEachIndexed(block) }
 }
 
@@ -278,7 +329,7 @@ fun URL.toByteArray(): ByteArray = toInputStream().toByteArray()
 fun URI.toByteArray(): ByteArray = toInputStream().toByteArray()
 
 @CreatorsDsl
-fun InputStream.toByteArray(): ByteArray = use { it.readBytes() }
+fun InputStream.toByteArray(): ByteArray = finishOn { it.readBytes() }
 
 @CreatorsDsl
 fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
@@ -287,7 +338,6 @@ fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
 fun Path.toByteArray(): ByteArray = toInputStream().toByteArray()
 
 @CreatorsDsl
-@JvmOverloads
 fun Reader.toByteArray(charset: Charset = Charsets.UTF_8): ByteArray = toInputStream(charset).toByteArray()
 
 @CreatorsDsl
@@ -306,19 +356,15 @@ inline fun ByteArrayOutputStream.getContentData(): ByteArray = toByteArray()
 inline fun ByteArrayOutputStream.clear(): Unit = reset()
 
 @CreatorsDsl
-@JvmOverloads
 fun ByteArray.getContentText(copy: Boolean = false, charset: Charset = Charsets.UTF_8): String = toByteArray(copy).toString(charset)
 
 @CreatorsDsl
-@JvmOverloads
 fun CharSequence.getContentData(charset: Charset = Charsets.UTF_8): ByteArray = toString().toByteArray(charset)
 
 @CreatorsDsl
-@JvmOverloads
 fun ByteArray.toByteArray(copy: Boolean = true): ByteArray = if (copy) copyOf() else this
 
 @CreatorsDsl
-@JvmOverloads
 fun ByteBuffer.toByteArray(copy: Boolean = false): ByteArray {
     return if (hasArray()) array().toByteArray(copy) else EMPTY_BYTE_ARRAY.toByteArray(copy)
 }
@@ -327,23 +373,18 @@ fun ByteBuffer.toByteArray(copy: Boolean = false): ByteArray {
 inline fun ByteArray.toContentSize(): Long = size.toLong()
 
 @CreatorsDsl
-@JvmOverloads
 fun CharArray.toCharArray(copy: Boolean = true): CharArray = if (copy) copyOf() else this
 
 @CreatorsDsl
-@JvmOverloads
 fun CharArray.toCharSequence(copy: Boolean = true): CharSequence = if (isEmpty()) EMPTY_STRING else toCharArray(copy).concatToString()
 
 @CreatorsDsl
-@JvmOverloads
 fun CharArray.getContentText(copy: Boolean = true): String = toCharSequence(copy).toString()
 
 @CreatorsDsl
-@JvmOverloads
 fun IntArray.toIntArray(copy: Boolean = true): IntArray = (if (isEmpty()) EMPTY_INTS_ARRAY else this).let { if (copy) it.copyOf() else it }
 
 @CreatorsDsl
-@JvmOverloads
 fun Int.toIntArray(zero: Boolean = false): IntArray = if (this < 1) EMPTY_INTS_ARRAY else if (zero) IntArray(this) else IntArray(this) { it }
 
 @CreatorsDsl

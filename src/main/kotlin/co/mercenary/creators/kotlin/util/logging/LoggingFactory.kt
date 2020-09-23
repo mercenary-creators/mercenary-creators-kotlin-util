@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
@@ -21,20 +23,61 @@ import mu.*
 import org.slf4j.*
 import kotlin.reflect.KClass
 
-@Suppress("NOTHING_TO_INLINE")
-object LoggingFactory {
+@IgnoreForSerialize
+object LoggingFactory : HasMapNames {
 
+    @CreatorsDsl
+    @IgnoreForSerialize
     const val KE = "$"
 
+    @CreatorsDsl
+    @IgnoreForSerialize
     const val KT = "Kt$"
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    const val ROOT_LOGGER_NAME = Logger.ROOT_LOGGER_NAME
 
     private val open = false.toAtomic()
 
+    @CreatorsDsl
+    private val auto = LoggingConfig.isAutoStart()
+
+    @CreatorsDsl
+    private val stop = LoggingConfig.isAutoClose()
+
+    @CreatorsDsl
+    private val list = LoggingConfig.getIgnoring()
+
     init {
         if (open.isFalseToTrue()) {
-            (LoggerFactory.getILoggerFactory() as ch.qos.logback.classic.LoggerContext).frameworkPackages.add(LoggingFactory::class.java.`package`.name)
+            context().frameworkPackages += list
+            if (auto.isTrue()) {
+                start()
+            }
         }
     }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun start(): Boolean {
+        if (isStarted().isNotTrue()) {
+            context().start()
+            return true
+        }
+        return false
+    }
+
+    @CreatorsDsl
+    override fun toString() = nameOf()
+
+    @CreatorsDsl
+    override fun toMapNames() = dictOf("type" to nameOf(), "open" to open.isTrue(), "started" to isStarted(), "conf" to dictOf("list" to list, "auto" to auto, "stop" to stop))
+
+    @JvmStatic
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isStarted(): Boolean = context().isStarted
 
     @JvmStatic
     @CreatorsDsl
@@ -55,7 +98,7 @@ object LoggingFactory {
     @JvmStatic
     @CreatorsDsl
     inline fun logger(noinline func: () -> Unit): ILogging {
-        val name = func.javaClass.name
+        val name = func.nameOf()
         return when {
             name.contains(KT) -> logger(name.substringBefore(KT))
             name.contains(KE) -> logger(name.substringBefore(KE))
@@ -66,7 +109,7 @@ object LoggingFactory {
     @JvmStatic
     @CreatorsDsl
     inline fun marker(noinline func: () -> Unit): IMarker {
-        val name = func.javaClass.name
+        val name = func.nameOf()
         return when {
             name.contains(KT) -> LoggingMarker(name.substringBefore(KT))
             name.contains(KE) -> LoggingMarker(name.substringBefore(KE))
@@ -76,7 +119,7 @@ object LoggingFactory {
 
     @CreatorsDsl
     internal inline fun markerOf(noinline func: () -> Unit): mu.Marker {
-        val name = func.javaClass.name
+        val name = func.nameOf()
         return when {
             name.contains(KT) -> markerOf(name.substringBefore(KT))
             name.contains(KE) -> markerOf(name.substringBefore(KE))
@@ -98,6 +141,109 @@ object LoggingFactory {
 
     @CreatorsDsl
     internal fun loggerOf(type: Any): KLogger = LoggerFactory.getLogger(type.javaClass).loggerOf()
+
+    @CreatorsDsl
+    internal fun context() = LoggerFactory.getILoggerFactory() as ch.qos.logback.classic.LoggerContext
+
+    @CreatorsDsl
+    internal fun classic(name: CharSequence) = when (name.toUpperCaseEnglish() == ROOT_LOGGER_NAME) {
+        true -> context().getLogger(ROOT_LOGGER_NAME)
+        else -> context().exists(name.toString())
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getLevel() = getLevel(ROOT_LOGGER_NAME)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getLevel(type: KLogger) = getLevel(type.name)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getLevel(type: Class<*>) = getLevel(type.name)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getLevel(type: KClass<*>) = getLevel(type.java)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getLevel(name: CharSequence): LoggingLevel {
+        return when (val classic = classic(name).level) {
+            null -> getLevel(ROOT_LOGGER_NAME)
+            else -> LoggingLevel.from(classic)
+        }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun setLevel(level: LoggingLevel) = setLevel(ROOT_LOGGER_NAME, level)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun setLevel(type: KLogger, level: LoggingLevel) = setLevel(type.name, level)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun setLevel(type: Class<*>, level: LoggingLevel) = setLevel(type.name, level)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun setLevel(type: KClass<*>, level: LoggingLevel) = setLevel(type.java, level)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun setLevel(name: CharSequence, level: LoggingLevel) {
+        classic(name).level = level.toLevel()
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun withLevel(using: LoggingLevel, block: () -> Unit) {
+        withLevel(ROOT_LOGGER_NAME, using, block)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun withLevel(type: Class<*>, using: LoggingLevel, block: () -> Unit) {
+        withLevel(type.name, using, block)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun withLevel(type: KClass<*>, using: LoggingLevel, block: () -> Unit) {
+        withLevel(type.java, using, block)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun withLevel(type: KLogger, using: LoggingLevel, block: () -> Unit) {
+        withLevel(type.name, using, block)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun withLevel(name: CharSequence, using: LoggingLevel, block: () -> Unit) {
+        with(classic(name.whenRoot())) {
+            val saved = level
+            level = using.toLevel()
+            try {
+                block()
+            }
+            catch (cause: Throwable) {
+                Throwables.thrown(cause)
+                throw cause
+            }
+            finally {
+                level = saved
+            }
+        }
+    }
+
+    @CreatorsDsl
+    private fun CharSequence.whenRoot(): CharSequence = if (toUpperCaseEnglish() == ROOT_LOGGER_NAME) ROOT_LOGGER_NAME else this
 
     @JvmStatic
     @CreatorsDsl

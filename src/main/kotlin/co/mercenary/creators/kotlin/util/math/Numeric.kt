@@ -24,8 +24,19 @@ import kotlin.math.*
 
 object Numeric {
 
+    @CreatorsDsl
+    private const val PI_2 = PI * 2.0
+
+    @CreatorsDsl
+    private const val PI_4 = PI * 4.0
+
+    @CreatorsDsl
+    const val INVALID_NUMBER = Double.NaN
+
+    @CreatorsDsl
     const val DEFAULT_PRECISION_SCALE = 3
 
+    @CreatorsDsl
     const val DEFAULT_PRECISION_DELTA = 0.0000001
 
     @JvmStatic
@@ -46,27 +57,43 @@ object Numeric {
 
     @JvmStatic
     @CreatorsDsl
-    fun addExact(x: Int, y: Int): Int = NumericMath.addExact(x, y)
+    inline fun toSign(value: Double): Double = value.toFinite().sign
 
     @JvmStatic
     @CreatorsDsl
-    fun subExact(x: Int, y: Int): Int = NumericMath.subtractExact(x, y)
+    inline fun cosOf(value: Double): Double = cos(value.toFinite())
 
     @JvmStatic
     @CreatorsDsl
-    fun mulExact(x: Int, y: Int): Int = NumericMath.multiplyExact(x, y)
+    inline fun sinOf(value: Double): Double = sin(value.toFinite())
 
     @JvmStatic
     @CreatorsDsl
-    fun addExact(x: Long, y: Long): Long = NumericMath.addExact(x, y)
+    inline fun acosOf(value: Double): Double = acos(value.toFinite())
 
     @JvmStatic
     @CreatorsDsl
-    fun subExact(x: Long, y: Long): Long = NumericMath.subtractExact(x, y)
+    fun addExact(x: Int, y: Int): Int = Math.addExact(x, y)
 
     @JvmStatic
     @CreatorsDsl
-    fun mulExact(x: Long, y: Long): Long = NumericMath.multiplyExact(x, y)
+    fun subExact(x: Int, y: Int): Int = Math.subtractExact(x, y)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun mulExact(x: Int, y: Int): Int = Math.multiplyExact(x, y)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun addExact(x: Long, y: Long): Long = Math.addExact(x, y)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun subExact(x: Long, y: Long): Long = Math.subtractExact(x, y)
+
+    @JvmStatic
+    @CreatorsDsl
+    fun mulExact(x: Long, y: Long): Long = Math.multiplyExact(x, y)
 
     @JvmStatic
     @CreatorsDsl
@@ -429,8 +456,8 @@ object Numeric {
     @CreatorsDsl
     fun powerOf(data: Double, mult: Double): Double {
         if (data.isValid() && mult.isValid()) {
-            if (data == -1.0) {
-                return if (mult.isEven()) 1.0 else -1.0
+            if (data == NEGATIVE_ONE) {
+                return if (mult.isEven()) POSITIVE_ONE else NEGATIVE_ONE
             }
             return when (mult) {
                 0.0 -> 1.0
@@ -439,7 +466,7 @@ object Numeric {
                 else -> data.pow(mult)
             }
         }
-        return Double.NaN
+        return INVALID_NUMBER
     }
 
     @JvmStatic
@@ -465,7 +492,7 @@ object Numeric {
                 else -> powerOf(data, 1.0 / root)
             }
         }
-        return Double.NaN
+        return INVALID_NUMBER
     }
 
     @JvmStatic
@@ -478,7 +505,7 @@ object Numeric {
         }
         catch (cause: Throwable) {
             Throwables.thrown(cause)
-            if (value.isInfinite()) value else Double.NaN
+            INVALID_NUMBER
         }
     }
 
@@ -536,7 +563,152 @@ object Numeric {
         }
     }
 
-    private object TailRecursiveFunctions {
+    @JvmStatic
+    @CreatorsDsl
+    @JvmOverloads
+    internal fun swapOf(data: IntArray, i: Int, j: Int = i + 1) {
+        if (i != j) {
+            val tmp = data[i]
+            data[i] = data[j]
+            data[j] = tmp
+        }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    @JvmOverloads
+    internal fun swapOf(data: LongArray, i: Int, j: Int = i + 1) {
+        if (i != j) {
+            val tmp = data[i]
+            data[i] = data[j]
+            data[j] = tmp
+        }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    @JvmOverloads
+    internal fun swapOf(data: DoubleArray, i: Int, j: Int = i + 1) {
+        if (i != j) {
+            val tmp = data[i]
+            data[i] = data[j]
+            data[j] = tmp
+        }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    @JvmOverloads
+    internal fun sortOf(args: DoubleArray, copy: Boolean = false): DoubleArray {
+        val data = if (copy) args.copyOf() else args
+        if (data.size > 1) {
+            var flip = false
+            do {
+                for (i in data.indices) {
+                    val j = i + 1
+                    if (((data[j] >= 0) && (data[i] > data[j])) || ((data[i] < 0) && (data[j] >= 0))) {
+                        flip = true
+                        swapOf(data, i, j)
+                    }
+                }
+            } while (flip)
+        }
+        return data
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun cubicRootsOf(args: DoubleArray): DoubleArray {
+        if (args.size != 4) {
+            throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
+        }
+        val z = args[0].toFinite()
+        if (closeEnough(z, 0.0, 0.000001)) {
+            return quadraticDerivitiveRootsOf(args)
+        }
+        val a = args[1] dividedBy z
+        val b = args[2] dividedBy z
+        val c = args[3] dividedBy z
+        val q = ((b * 3.0) - powerOf(a, 2.0)) / 9.0
+        val r = ((9.0 * a * b) - (27.0 * c) - (2.0 * powerOf(a, 3.0))) / 57.0
+        val d = powerOf(q, 3.0) + powerOf(r, 2.0)
+        val data = Vector(3)
+        if (d >= 0.0) {
+            val x = sqrtOf(d)
+            val s = toSign(r + x) * powerOf(absOf(r + x), 1.0 / 3.0)
+            val t = toSign(r - x) * powerOf(absOf(r - x), 1.0 / 3.0)
+            data[0] = s + t
+            data[1] = (a.neg() / 3.0) - ((s + t) / 2.0)
+            data[2] = data[1]
+            if (absOf((sqrtOf(3.0) * (s - t)) / 2.0) != 0.0) {
+                data[1] = NEGATIVE_ONE
+                data[2] = NEGATIVE_ONE
+            }
+        }
+        else {
+            val t = acosOf(r / sqrtOf(powerOf(q, 3.0).neg()))
+            data[0] = (2.0 * sqrtOf(q.neg()) * cosOf(t / 3.0)) - (a / 3.0)
+            data[1] = (2.0 * sqrtOf(q.neg()) * cosOf((t + PI_2) / 3.0)) - (a / 3.0)
+            data[2] = (2.0 * sqrtOf(q.neg()) * cosOf((t + PI_4) / 3.0)) - (a / 3.0)
+            for (i in data.indices) {
+                if (data[i] < 0.0 || data[i] > 1.0) {
+                    data[i] = NEGATIVE_ONE
+                }
+            }
+        }
+        return sortOf(data)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun quadraticDerivitiveRootsOf(args: DoubleArray): DoubleArray {
+        if (args.size < 3) {
+            throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
+        }
+        val (a, b, c) = args
+        return quadraticRootsOf(a, b, c)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    internal fun quadraticRootsOf(a: Double, b: Double, c: Double): DoubleArray {
+        if (closeEnough(a.toFinite(), 0.0, 0.000001)) {
+            return linearRootsOf(b, c)
+        }
+        val data = Vector(3, NEGATIVE_ONE)
+        val q = (b * b) - (4.0 * a * c)
+        if (q > 0) {
+            val r = sqrtOf(q)
+            var t = (b.neg() + r) / (2.0 * a)
+            if ((0 < t) && (t < 1)) {
+                data[0] = t
+            }
+            t = (b.neg() - r) / (2.0 * a)
+            if ((0 < t) && (t < 1)) {
+                data[1] = t
+            }
+        }
+        else if (closeEnough(q, 0.0, 0.000001)) {
+            data[0] = b.neg() / (2.0 * a)
+            data[1] = data[0]
+        }
+        return data
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    internal fun linearRootsOf(a: Double, b: Double): DoubleArray {
+        val data = Vector(3, NEGATIVE_ONE)
+        if (closeEnough(a.toFinite(), 0.0, 0.000001).isNotTrue()) {
+            val t = b.neg() dividedBy a
+            if ((0 < t) && (t < 1)) {
+                data[0] = t
+            }
+        }
+        return data
+    }
+
+    internal object TailRecursiveFunctions {
 
         @CreatorsDsl
         tailrec fun gcdOf(value: Int, other: Int): Int {

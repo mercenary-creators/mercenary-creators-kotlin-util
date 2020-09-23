@@ -24,6 +24,7 @@ class NoCloseOutputStream @JvmOverloads @CreatorsDsl constructor(data: OutputStr
 
     private val open = true.toAtomic()
 
+    @CreatorsDsl
     override fun close() {
         if (open.isTrueToFalse()) {
             try {

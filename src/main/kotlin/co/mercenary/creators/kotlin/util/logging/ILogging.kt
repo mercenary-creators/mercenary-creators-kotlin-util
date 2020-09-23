@@ -40,25 +40,6 @@ interface ILogging {
     fun isLoggingErrorEnabled(): Boolean
 
     @LoggingInfoDsl
-    @IgnoreForSerialize
-    fun isLoggingInfoEnabled(marker: IMarker): Boolean
-
-    @LoggingWarnDsl
-    @IgnoreForSerialize
-    fun isLoggingWarnEnabled(marker: IMarker): Boolean
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isLoggingTraceEnabled(marker: IMarker): Boolean
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isLoggingDebugEnabled(marker: IMarker): Boolean
-
-    @IgnoreForSerialize
-    fun isLoggingErrorEnabled(marker: IMarker): Boolean
-
-    @LoggingInfoDsl
     fun info(block: () -> Any?)
 
     @LoggingInfoDsl

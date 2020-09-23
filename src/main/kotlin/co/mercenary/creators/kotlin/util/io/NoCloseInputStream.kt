@@ -24,13 +24,10 @@ class NoCloseInputStream @CreatorsDsl constructor(data: InputStream) : FilterInp
 
     private val open = true.toAtomic()
 
-    private val logs: ILogging by lazy {
-        LoggingFactory.logger(this)
-    }
-
+    @CreatorsDsl
     override fun close() {
         if (open.isTrueToFalse().isNotTrue()) {
-            logs.warn { "closed()" }
+            logsOf<NoCloseInputStream>().warn { "closed()" }
         }
     }
 

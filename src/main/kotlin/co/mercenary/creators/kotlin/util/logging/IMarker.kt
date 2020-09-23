@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
 
-interface IMarker : IsNamed {
+interface IMarker : HasNameString {
 
     @CreatorsDsl
     fun markerOf(): mu.Marker

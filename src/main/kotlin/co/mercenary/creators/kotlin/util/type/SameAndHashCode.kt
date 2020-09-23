@@ -72,14 +72,15 @@ object SameAndHashCode {
         return when (value) {
             null -> other == null
             is String -> if (other is String) value == other else false
-            is Array<*> -> if (other is Array<*>) value contentDeepEquals other else false
-            is IntArray -> if (other is IntArray) value contentEquals other else false
-            is ByteArray -> if (other is ByteArray) value contentEquals other else false
-            is CharArray -> if (other is CharArray) value contentEquals other else false
-            is LongArray -> if (other is LongArray) value contentEquals other else false
-            is ShortArray -> if (other is ShortArray) value contentEquals other else false
-            is DoubleArray -> if (other is DoubleArray) value contentEquals other else false
-            is BooleanArray -> if (other is BooleanArray) value contentEquals other else false
+            is Array<*> -> if (other is Array<*>) value isSameArrayAs other else false
+            is IntArray -> if (other is IntArray) value isSameArrayAs other else false
+            is ByteArray -> if (other is ByteArray) value isSameArrayAs other else false
+            is CharArray -> if (other is CharArray) value isSameArrayAs other else false
+            is LongArray -> if (other is LongArray) value isSameArrayAs other else false
+            is ShortArray -> if (other is ShortArray) value isSameArrayAs other else false
+            is FloatArray -> if (other is FloatArray) value isSameArrayAs other else false
+            is DoubleArray -> if (other is DoubleArray) value isSameArrayAs other else false
+            is BooleanArray -> if (other is BooleanArray) value isSameArrayAs other else false
             is AtomicBoolean -> if (other is Boolean) value.toBoolean() == other else if (other is AtomicBoolean) value.toBoolean() == other.toBoolean() else false
             is Boolean -> if (other is Boolean) value == other else if (other is AtomicBoolean) value == other.toBoolean() else false
             is Number -> when (other) {

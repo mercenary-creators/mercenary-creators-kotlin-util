@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.*
-
-interface OpenCloseable : AutoCloseable {
+interface HasNameString {
     @CreatorsDsl
-    @IgnoreForSerialize
-    fun isOpen(): Boolean
+    fun nameOf(): String
 }

@@ -19,9 +19,9 @@ package co.mercenary.creators.kotlin.util.test.type
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-open class BaseType @JvmOverloads constructor(val look: Boolean = true) : HasMapNames {
-
+open class BaseType @JvmOverloads @CreatorsDsl constructor(val look: Boolean = true) : HasMapNames {
+    @CreatorsDsl
     override fun toMapNames(): Map<String, Any?> {
-        return mapOf("look" to look)
+        return dictOf("look" to look)
     }
 }

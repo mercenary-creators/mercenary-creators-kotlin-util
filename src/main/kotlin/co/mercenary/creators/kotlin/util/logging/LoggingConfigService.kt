@@ -14,16 +14,38 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.security
+package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-interface CipherEncrypting<E, D> {
+abstract class LoggingConfigService(protected val order: Int) : Comparable<LoggingConfigService> {
 
     @CreatorsDsl
-    fun encrypt(data: D): E
+    @IgnoreForSerialize
+    abstract fun isAutoStart(): Boolean
 
     @CreatorsDsl
-    fun decrypt(data: E): D
+    @IgnoreForSerialize
+    abstract fun isAutoClose(): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    abstract fun getIgnoring(): List<String>
+
+    @CreatorsDsl
+    override operator fun compareTo(other: LoggingConfigService): Int {
+        return order.compareTo(other.order)
+    }
+
+    companion object {
+
+        @JvmStatic
+        @CreatorsDsl
+        fun toList(args: String) = listOf(args)
+
+        @JvmStatic
+        @CreatorsDsl
+        fun toList(vararg args: String) = listOf(*args)
+    }
 }

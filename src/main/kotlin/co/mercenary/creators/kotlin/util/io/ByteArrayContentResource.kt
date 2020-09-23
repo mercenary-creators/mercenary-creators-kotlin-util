@@ -31,11 +31,9 @@ class ByteArrayContentResource @JvmOverloads @CreatorsDsl constructor(data: Byte
     @IgnoreForSerialize
     override fun getContentKind() = kind
 
-    override fun toString() = getDescription()
-
     @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
-        is ByteArrayContentResource -> this === other || getContentPath() isSameAs other.getContentPath() && isDataSameAs(other)
+        is ByteArrayContentResource -> this === other || isPathSameAs(other) && isDataSameAs(other)
         else -> false
     }
 

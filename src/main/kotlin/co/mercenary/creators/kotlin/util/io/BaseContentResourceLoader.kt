@@ -116,10 +116,12 @@ open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(priv
     }
 
     @CreatorsDsl
-    override fun toMapNames() = mapOf("name" to getLoadersName(), "cached" to isContentCache())
+    override fun toMapNames() = dictOf("name" to getLoadersName(), "cached" to isContentCache())
 
+    @CreatorsDsl
     override fun toString() = toMapNames().toString()
 
+    @CreatorsDsl
     override fun hashCode() = toMapNames().hashCode()
 
     @CreatorsDsl

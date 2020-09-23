@@ -55,12 +55,14 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constr
         return getAverage()
     }
 
+    @CreatorsDsl
     override fun toString(): String = TimeAndDate.toDecimalPlaces(getAverage(), " milliseconds")
 
     @CreatorsDsl
     @IgnoreForSerialize
     override fun getWindowHandle(): TimeWindowHandle = DefaultTimeWindowHandle(this, getMomentInTime())
 
+    @IgnoreForSerialize
     protected open inner class DefaultTimeWindowHandle @CreatorsDsl constructor(private val self: TimeWindowMovingAverage, private val time: Long) : TimeWindowHandle {
 
         private val open = true.toAtomic()

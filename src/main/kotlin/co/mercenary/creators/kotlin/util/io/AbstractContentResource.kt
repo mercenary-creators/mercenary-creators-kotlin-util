@@ -40,7 +40,6 @@ abstract class AbstractContentResource @JvmOverloads constructor(path: String, t
     }
 
     @CreatorsDsl
-    @IgnoreForSerialize
     override fun toContentCache() = cache
 
     @CreatorsDsl

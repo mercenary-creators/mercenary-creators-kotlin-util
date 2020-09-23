@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface IsNamed {
+interface SafeForLogging {
     @CreatorsDsl
-    fun nameOf(): String
+    fun toSafeString(): String = toString()
 }

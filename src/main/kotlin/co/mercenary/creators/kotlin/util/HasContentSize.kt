@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.*
-import java.io.OutputStream
-
-@CreatorsDsl
-@IgnoreForSerialize
-object EmptyOutputStream : OutputStream() {
-    override fun write(b: Int) = Unit
-    override fun write(b: ByteArray) = Unit
-    override fun write(b: ByteArray, off: Int, len: Int) = Unit
+interface HasContentSize {
+    @CreatorsDsl
+    fun getContentSize(): Long
 }

@@ -18,6 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
+@CreatorsDsl
 @IgnoreForSerialize
 object EmptyContentResource : CachedContentResource {
 
@@ -31,10 +32,11 @@ object EmptyContentResource : CachedContentResource {
 
     @CreatorsDsl
     override fun toMapNames(): Map<String, Any?> {
-        return mapOf("name" to javaClass.name, "path" to getContentPath(), "type" to getContentType(), "time" to getContentTime().toDate())
+        return dictOf("name" to javaClass.name, "path" to getContentPath(), "type" to getContentType(), "time" to getContentTime().toDate())
     }
 
-    override fun toString() = desc
+    @CreatorsDsl
+    override fun toString() = getDescription()
 
     @CreatorsDsl
     @IgnoreForSerialize
@@ -66,7 +68,7 @@ object EmptyContentResource : CachedContentResource {
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun getContentData() = ByteArray(0)
+    override fun getContentData() = EMPTY_BYTE_ARRAY
 
     @CreatorsDsl
     @IgnoreForSerialize

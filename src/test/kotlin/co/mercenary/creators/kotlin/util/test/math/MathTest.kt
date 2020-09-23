@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test
 import kotlin.math.*
 
 class MathTest : KotlinTest() {
-
     @Test
     fun test() {
         val data = 2.5.neg()

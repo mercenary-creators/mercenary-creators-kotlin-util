@@ -306,12 +306,16 @@ fun Long.toDate(): Date = Date(this)
 @CreatorsDsl
 fun dateOf(): Date = Date()
 
+@CreatorsDsl
 operator fun Date.plus(value: TimeDuration): Date = Date(toLong() + value.duration().toMillis())
 
+@CreatorsDsl
 operator fun Date.minus(value: TimeDuration): Date = Date(toLong() - value.duration().toMillis())
 
+@CreatorsDsl
 operator fun LocalDateTime.plus(value: TimeDuration): LocalDateTime = plus(value.duration())
 
+@CreatorsDsl
 operator fun LocalDateTime.minus(value: TimeDuration): LocalDateTime = minus(value.duration())
 
 @CreatorsDsl

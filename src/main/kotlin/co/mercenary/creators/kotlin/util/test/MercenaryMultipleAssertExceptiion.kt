@@ -85,10 +85,10 @@ class MercenaryMultipleAssertExceptiion @CreatorsDsl constructor(private val arg
             return when (val size = list.size) {
                 0 -> mess
                 else -> stringOf {
-                    append(mess).append(SPACE_STRING).append("(").append(size).append(SPACE_STRING)
-                    append(if (size == 1) "failure" else "failures")
-                    append(")")
-                    append(feed())
+                    add(mess).add(SPACE_STRING).add("(").add(size).add(SPACE_STRING)
+                    add(if (size == 1) "failure" else "failures")
+                    add(")")
+                    add(feed())
                     val last = size - 1
                     for (oops in list.subList(0, last)) {
                         add(SPACE_STRING, make(oops), feed())

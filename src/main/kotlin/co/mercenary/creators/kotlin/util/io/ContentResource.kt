@@ -18,11 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-interface ContentResource : InputStreamSupplier, HasMapNames {
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun getContentSize(): Long
+interface ContentResource : InputStreamSupplier, HasMapNames, HasContentSize {
 
     @CreatorsDsl
     @IgnoreForSerialize
@@ -57,7 +53,6 @@ interface ContentResource : InputStreamSupplier, HasMapNames {
     fun getContentData(): ByteArray
 
     @CreatorsDsl
-    @IgnoreForSerialize
     fun toContentCache(): CachedContentResource
 
     @CreatorsDsl
@@ -69,9 +64,7 @@ interface ContentResource : InputStreamSupplier, HasMapNames {
     fun getContentMime(): ContentMimeType
 
     @CreatorsDsl
-    @IgnoreForSerialize
     fun toRelativePath(path: String): ContentResource = getContentLook().invoke(path)
 
-    @CreatorsDsl
     operator fun get(path: CharSequence): ContentResource = toRelativePath(path.toString())
 }

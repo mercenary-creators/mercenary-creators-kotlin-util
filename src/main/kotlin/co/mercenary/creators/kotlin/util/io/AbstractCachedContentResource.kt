@@ -45,14 +45,14 @@ abstract class AbstractCachedContentResource @JvmOverloads constructor(data: Byt
     override fun isContentCache() = true
 
     @CreatorsDsl
-    @IgnoreForSerialize
     override fun toContentCache() = this
 
     @CreatorsDsl
-    @IgnoreForSerialize
-    protected fun toDataHashOf(): Int = getContentPath().hashOf(save)
+    protected fun toDataHashOf() = getContentPath().hashOf(save)
 
     @CreatorsDsl
-    @IgnoreForSerialize
-    protected fun isDataSameAs(data: AbstractCachedContentResource): Boolean = save isSameAs data.save
+    protected fun isDataSameAs(data: AbstractCachedContentResource) = save isSameArrayAs data.save
+
+    @CreatorsDsl
+    protected fun isPathSameAs(data: AbstractCachedContentResource) = getContentPath() == data.getContentPath()
 }

@@ -40,26 +40,33 @@ class LoggingMarker @CreatorsDsl constructor(private val marker: mu.Marker) : IM
     @CreatorsDsl
     override fun markerOf(): mu.Marker = marker
 
+    @CreatorsDsl
     override operator fun plusAssign(value: IMarker) {
         marker.add(value.markerOf())
     }
 
+    @CreatorsDsl
     override operator fun minusAssign(value: IMarker) {
         marker.remove(value.markerOf())
     }
 
+    @CreatorsDsl
     override operator fun contains(value: CharSequence): Boolean {
         return marker.contains(value.toString())
     }
 
+    @CreatorsDsl
     override operator fun contains(value: IMarker): Boolean {
         return marker.contains(value.markerOf())
     }
 
+    @CreatorsDsl
     override fun toString() = marker.toString()
 
+    @CreatorsDsl
     override fun hashCode() = marker.hashCode()
 
+    @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
         is LoggingMarker -> this === other || marker == other.marker
         else -> false

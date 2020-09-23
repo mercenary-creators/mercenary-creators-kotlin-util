@@ -24,6 +24,7 @@ class NoCloseWriter @JvmOverloads @CreatorsDsl constructor(data: Writer, private
 
     private val open = true.toAtomic()
 
+    @CreatorsDsl
     override fun close() {
         if (open.isTrueToFalse()) {
             try {

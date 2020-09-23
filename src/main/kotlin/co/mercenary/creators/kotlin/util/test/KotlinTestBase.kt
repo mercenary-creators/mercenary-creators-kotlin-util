@@ -17,8 +17,9 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.Logging
 import co.mercenary.creators.kotlin.util.logging.*
+import co.mercenary.creators.kotlin.util.logging.Logging
+import mu.KLogger
 import java.io.File
 import java.util.*
 import kotlin.reflect.KClass
@@ -143,9 +144,8 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
         return maps.toMap()
     }
 
-    override fun toString(): String {
-        return javaClass.name
-    }
+    @CreatorsDsl
+    override fun toString() = nameOf()
 
     @LoggingWarnDsl
     override fun dashes(size: Int) {
@@ -302,6 +302,11 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
     @CreatorsDsl
     override fun <T : Any?> T.shouldNotBeNull() = assertTrueOf(this != null) {
         "shouldNotBeNull failed"
+    }
+
+    @CreatorsDsl
+    override fun loggerOf(): KLogger {
+        return super.loggerOf()
     }
 
     @CreatorsDsl

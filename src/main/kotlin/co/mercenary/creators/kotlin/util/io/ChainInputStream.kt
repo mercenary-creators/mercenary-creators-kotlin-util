@@ -17,10 +17,28 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import java.io.OutputStream
+import java.io.*
 
 @IgnoreForSerialize
-class CountSizeOutputStream @JvmOverloads @CreatorsDsl constructor(proxy: OutputStream, flush: Boolean = false) : AbstractCountSizeOutputStream(proxy, flush) {
+class ChainInputStream @CreatorsDsl constructor(head: InputStream, next: InputStream) : SequenceInputStream(head, next), OpenCloseable, HasMapNames {
+
+    private val open = true.toAtomic()
+
+    @CreatorsDsl
+    override fun close() {
+        if (open.isTrueToFalse()) {
+            try {
+                super.close()
+            }
+            catch (cause: Throwable) {
+                Throwables.thrown(cause)
+            }
+        }
+    }
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isOpen() = open.isTrue()
 
     @CreatorsDsl
     override fun toString() = nameOf()
@@ -30,7 +48,10 @@ class CountSizeOutputStream @JvmOverloads @CreatorsDsl constructor(proxy: Output
 
     @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
-        is CountSizeOutputStream -> this === other
+        is ChainInputStream -> this === other
         else -> false
     }
+
+    @CreatorsDsl
+    override fun toMapNames() = dictOf("name" to nameOf(), "open" to isOpen())
 }

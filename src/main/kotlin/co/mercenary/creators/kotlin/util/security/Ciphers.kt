@@ -93,6 +93,7 @@ object Ciphers {
     @CreatorsDsl
     private fun getParams(algorithm: CipherAlgorithm, vector: ByteArray): AlgorithmParameterSpec = algorithm.getAlgorithmParams(vector)
 
+    @IgnoreForSerialize
     private class InternalEncryptingData @CreatorsDsl constructor(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherEncrypting<ByteArray, ByteArray> {
 
         @CreatorsDsl
@@ -106,6 +107,7 @@ object Ciphers {
         }
     }
 
+    @IgnoreForSerialize
     private class InternalEncryptingCopy @CreatorsDsl constructor(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherCopyStreams {
 
         @CreatorsDsl

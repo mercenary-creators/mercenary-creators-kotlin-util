@@ -31,5 +31,7 @@ class RootTest : KotlinTest() {
         info { 8.0.neg() rootOf 3 }
         info { 8.0.neg() rootOf 3.0.neg() }
         warn { dash() }
+        info { Double.NaN.toBigDecimal() }
+        warn { dash() }
     }
 }

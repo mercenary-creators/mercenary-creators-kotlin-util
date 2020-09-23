@@ -26,6 +26,7 @@ object Inflaters {
     @CreatorsDsl
     fun gzip(): Inflater = GZIPInflater
 
+    @CreatorsDsl
     @IgnoreForSerialize
     private object GZIPInflater : Inflater {
 
@@ -39,11 +40,13 @@ object Inflaters {
             GZIPOutputStream(NoCloseOutputStream(buff)).use { gzip ->
                 data.copyTo(gzip)
             }
-            buff.size
+            buff.getContentSize()
         }
 
+        @CreatorsDsl
         override fun toString() = toMapNames().toString()
 
-        override fun toMapNames() = mapOf("type" to "GZIP")
+        @CreatorsDsl
+        override fun toMapNames() = dictOf("type" to "GZIP")
     }
 }

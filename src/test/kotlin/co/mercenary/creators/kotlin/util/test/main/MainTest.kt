@@ -17,35 +17,52 @@
 package co.mercenary.creators.kotlin.util.test.main
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.logging.LoggingFactory
 import org.junit.jupiter.api.Test
 
 class MainTest : KotlinTest() {
     @Test
     fun test() {
+        warn { loggerOf().name }
+        warn { loggerOf().getLevel() }
+        loggerOf().withLevel(LoggingLevel.DEBUG) {
+            warn { loggerOf().getLevel() }
+            dashes()
+            debug { 6.toBinaryString() }
+            dashes()
+        }
+        warn { loggerOf().getLevel() }
+        dashes()
+        debug { 6.toBinaryString() }
+        LoggingFactory.withLevel(LoggingLevel.TRACE) {
+            trace { loggerOf().getLevel() }
+        }
+        dashes()
+        error { LoggingFactory }
         val size = 0.toAtomic()
-        warn { dash() }
+        dashes()
         assumeEach {
             assumeThat {
                 info { size }
-                warn { dash() }
+                dashes()
                 size.increment()
                 5 shouldBe 5
             }
             assumeThat {
                 info { size }
-                warn { dash() }
+                dashes()
                 size.increment()
                 6 shouldNotBe 8
             }
             assumeThat {
                 info { size }
-                warn { dash() }
+                dashes()
                 size shouldBe 2
                 size.increment()
             }
             assumeThat {
                 info { size }
-                warn { dash() }
+                dashes()
                 size shouldNotBe 2
                 info { here() }
                 oops()
@@ -57,7 +74,7 @@ class MainTest : KotlinTest() {
     }
 
     fun oops() {
-        warn { dash() }
-        info { here() }
+        dashes()
+        warn { here() }
     }
 }

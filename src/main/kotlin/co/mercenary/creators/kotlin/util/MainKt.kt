@@ -56,6 +56,8 @@ typealias LoggingFactory = co.mercenary.creators.kotlin.util.logging.LoggingFact
 
 typealias LoggingMarker = co.mercenary.creators.kotlin.util.logging.LoggingMarker
 
+typealias LoggingLevel = co.mercenary.creators.kotlin.util.logging.LoggingLevel
+
 typealias Randoms = co.mercenary.creators.kotlin.util.security.Randoms
 
 typealias Ciphers = co.mercenary.creators.kotlin.util.security.Ciphers
@@ -76,7 +78,7 @@ typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlg
 
 typealias AtomicHashMap<K, V> = java.util.concurrent.ConcurrentHashMap<K, V>
 
-typealias LRUCacheMap<K, V> = co.mercenary.creators.kotlin.util.collection.LRUCacheMap<K,V>
+typealias LRUCacheMap<K, V> = co.mercenary.creators.kotlin.util.collection.LRUCacheMap<K, V>
 
 open class MercenaryExceptiion @CreatorsDsl constructor(text: String?, root: Throwable?) : RuntimeException(text, root) {
 
@@ -184,12 +186,9 @@ inline fun String.head(many: Int = 1): String = if (many >= 0) drop(many) else t
 inline fun String.tail(many: Int = 1): String = if (many >= 0) dropLast(many) else this
 
 @CreatorsDsl
-fun String.center(many: Int, trim: Boolean = true): String {
-    return if (many <= 0) this else (if (trim) trim() else this).let { it.padStart((it.length + many) / 2).padEnd(many) }
+fun String.center(many: Int, pads: Char = ' ', trim: Boolean = true): String {
+    return if (many <= 0) this else (if (trim) trim() else this).let { it.padStart((it.length + many) / 2, pads).padEnd(many, pads) }
 }
-
-@CreatorsDsl
-inline fun String.braced(): String = "(${toString()})"
 
 @CreatorsDsl
 fun CharSequence.toChecked(): String {
@@ -217,6 +216,9 @@ fun CharSequence.toSecureByteArray(): SecureByteArray = SecureByteArray(toString
 fun CharSequence.toLowerTrim(): String = trim().toString().toLowerCase()
 
 @CreatorsDsl
+fun CharSequence.toUpperTrim(): String = trim().toString().toUpperCase()
+
+@CreatorsDsl
 fun CharSequence.toLowerTrimEnglish(): String = trim().toLowerCaseEnglish()
 
 @CreatorsDsl
@@ -230,12 +232,10 @@ fun CharSequence.toUpperCaseEnglish(): String = toString().toUpperCase(Locale.EN
 
 @CreatorsDsl
 fun <T, R : Any> List<T>.whenNotNull(block: (T) -> R?): List<R> {
-    if (size != 0) {
-        val data = ArrayList<R>(size)
-        mapNotNullTo(data, block)
-        return data.toList()
+    return when (isEmpty()) {
+        true -> listOf()
+        else -> mapNotNull(block).toList()
     }
-    return listOf()
 }
 
 @CreatorsDsl
@@ -276,43 +276,51 @@ fun AtomicLong.toAtomic(): AtomicLong = toLong().toAtomic()
 @CreatorsDsl
 fun AtomicLong.copyOf(): AtomicLong = toAtomic()
 
+@CreatorsDsl
 operator fun AtomicLong.div(value: Int): AtomicLong {
     value.toValidDivisor()
     updateAndGet { it / value }
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicLong.times(value: Int): AtomicLong {
     updateAndGet { it * value }
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicLong.plus(value: Int): AtomicLong {
     updateAndGet { it + value }
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicLong.minus(value: Int): AtomicLong {
     updateAndGet { it - value }
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicLong.div(value: Long): AtomicLong {
     value.toValidDivisor()
     updateAndGet { it / value }
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicLong.times(value: Long): AtomicLong {
     updateAndGet { it * value }
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicLong.plus(value: Long): AtomicLong {
     updateAndGet { it + value }
     return this
 }
 
+@CreatorsDsl
 operator fun AtomicLong.minus(value: Long): AtomicLong {
     updateAndGet { it - value }
     return this
@@ -681,12 +689,81 @@ inline fun stringOf(data: String, action: StringBuilder.() -> Unit): String = St
 inline fun stringOf(data: CharSequence, action: StringBuilder.() -> Unit): String = StringBuilder(data).apply(action).toString()
 
 @CreatorsDsl
-fun StringBuilder.add(vararg args: Any?): StringBuilder = append(*args)
+inline fun StringBuilder.add(data: Int): StringBuilder = append(data)
+
+@CreatorsDsl
+inline fun StringBuilder.add(data: Char): StringBuilder = append(data)
+
+@CreatorsDsl
+inline fun StringBuilder.add(data: Long): StringBuilder = append(data)
+
+@CreatorsDsl
+fun StringBuilder.add(data: IntProgression): StringBuilder {
+    if (data.isEmpty().isNotTrue()) {
+        data.forEach {
+            append(it)
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+fun StringBuilder.add(data: CharProgression): StringBuilder {
+    if (data.isEmpty().isNotTrue()) {
+        data.forEach {
+            append(it)
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+fun StringBuilder.add(data: LongProgression): StringBuilder {
+    if (data.isEmpty().isNotTrue()) {
+        data.forEach {
+            append(it)
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+inline fun StringBuilder.add(vararg args: Any?): StringBuilder = append(*args)
+
+@CreatorsDsl
+inline fun StringBuilder.add(vararg args: String?): StringBuilder = append(*args)
 
 @CreatorsDsl
 fun <T : Any?> T.nameOf(): String = SameAndHashCode.nameOf(this)
 
-open class MercenarySequence<out T> @CreatorsDsl constructor(protected val iterator: Iterator<T>) : Sequence<T> {
+@CreatorsDsl
+infix fun Array<*>.isSameArrayAs(args: Array<*>): Boolean = size == args.size && this contentDeepEquals args
+
+@CreatorsDsl
+infix fun IntArray.isSameArrayAs(args: IntArray): Boolean = size == args.size && this contentEquals args
+
+@CreatorsDsl
+infix fun ByteArray.isSameArrayAs(args: ByteArray): Boolean = size == args.size && this contentEquals args
+
+@CreatorsDsl
+infix fun CharArray.isSameArrayAs(args: CharArray): Boolean = size == args.size && this contentEquals args
+
+@CreatorsDsl
+infix fun LongArray.isSameArrayAs(args: LongArray): Boolean = size == args.size && this contentEquals args
+
+@CreatorsDsl
+infix fun ShortArray.isSameArrayAs(args: ShortArray): Boolean = size == args.size && this contentEquals args
+
+@CreatorsDsl
+infix fun FloatArray.isSameArrayAs(args: FloatArray): Boolean = size == args.size && this contentEquals args
+
+@CreatorsDsl
+infix fun DoubleArray.isSameArrayAs(args: DoubleArray): Boolean = size == args.size && this contentEquals args
+
+@CreatorsDsl
+infix fun BooleanArray.isSameArrayAs(args: BooleanArray): Boolean = size == args.size && this contentEquals args
+
+open class MercenarySequence<out T> @CreatorsDsl constructor(private val iterator: Iterator<T>) : Sequence<T> {
 
     @CreatorsDsl
     override operator fun iterator(): Iterator<T> = iterator
@@ -723,6 +800,9 @@ fun sequenceOf(args: CharProgression): Sequence<Char> = MercenarySequence(args)
 fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = MercenarySequence(this)
 
 @CreatorsDsl
+fun <T : Any> Iterator<T>.toSequence(): Sequence<T> = MercenarySequence(this)
+
+@CreatorsDsl
 fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(generateSequence(next))
 
 @CreatorsDsl
@@ -745,6 +825,20 @@ inline fun <T : Any> T?.orElse(value: T): T = this ?: value
 
 @CreatorsDsl
 inline fun String?.orElse(value: String = EMPTY_STRING): String = this ?: value
+
+@CreatorsDsl
+inline fun <reified T : Any> logsOf(): ILogging = LoggingFactory.logger(T::class)
+
+@CreatorsDsl
+fun mu.KLogger.getLevel(): LoggingLevel = LoggingFactory.getLevel(this)
+
+@CreatorsDsl
+fun mu.KLogger.setLevel(level: LoggingLevel) = LoggingFactory.setLevel(this, level)
+
+@CreatorsDsl
+fun mu.KLogger.withLevel(level: LoggingLevel, block: () -> Unit) {
+    LoggingFactory.withLevel(this, level, block)
+}
 
 @CreatorsDsl
 inline fun <T> withLoggingContext(args: Pair<String, Any>, block: () -> T): T {

@@ -24,13 +24,10 @@ class NoCloseReader @CreatorsDsl constructor(data: Reader) : FilterReader(data),
 
     private val open = true.toAtomic()
 
-    private val logs: ILogging by lazy {
-        LoggingFactory.logger(this)
-    }
-
+    @CreatorsDsl
     override fun close() {
         if (open.isTrueToFalse().isNotTrue()) {
-            logs.warn { "closed()" }
+            logsOf<NoCloseReader>().warn { "closed()" }
         }
     }
 

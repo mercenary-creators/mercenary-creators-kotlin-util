@@ -22,8 +22,6 @@ package co.mercenary.creators.kotlin.util
 import java.math.BigDecimal
 import kotlin.math.*
 
-typealias NumericMath = Math
-
 typealias Numeric = co.mercenary.creators.kotlin.util.math.Numeric
 
 @CreatorsDsl
@@ -32,15 +30,14 @@ const val POSITIVE_ONE = 1.0
 @CreatorsDsl
 const val NEGATIVE_ONE = -1.0
 
+@CreatorsDsl
 const val MATH_INVALID_SIZE_ERROR = "invalid size"
 
+@CreatorsDsl
 const val MATH_ZERO_DIVISOR_ERROR = "can't divide by zero"
 
+@CreatorsDsl
 const val MATH_OVERFLOW_FOR_ERROR = "overflow for operation"
-
-const val DEFAULT_PRECISION_SCALE = Numeric.DEFAULT_PRECISION_SCALE
-
-const val DEFAULT_PRECISION_DELTA = Numeric.DEFAULT_PRECISION_DELTA
 
 @CreatorsDsl
 fun gcdOf(vararg args: Int): Int = Numeric.gcdOf(*args)
@@ -418,6 +415,15 @@ infix fun Double.power(x: Long): Double = Numeric.powerOf(this, x)
 infix fun Double.power(x: Double): Double = Numeric.powerOf(this, x)
 
 @CreatorsDsl
+inline infix fun Double.dividedBy(x: Int): Double = toFinite() / x.toValidDivisor()
+
+@CreatorsDsl
+inline infix fun Double.dividedBy(x: Long): Double = toFinite() / x.toValidDivisor()
+
+@CreatorsDsl
+inline infix fun Double.dividedBy(x: Double): Double = toFinite() / x.toValidDivisor()
+
+@CreatorsDsl
 inline fun Double.toFinite(): Double = if (isValid()) this else throw MercenaryFatalExceptiion("invalid value $this")
 
 @CreatorsDsl
@@ -434,6 +440,22 @@ fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 
 @CreatorsDsl
 fun toDoubleArrayOf(vararg args: Number): DoubleArray = DoubleArray(args.size) { i -> args[i].toDouble() }
+
+@CreatorsDsl
+@Suppress("FunctionName")
+inline fun Vector(size: Int = 0): DoubleArray = DoubleArray(size)
+
+@CreatorsDsl
+@Suppress("FunctionName")
+inline fun Vector(size: Int, value: Double): DoubleArray = DoubleArray(size) { value }
+
+@CreatorsDsl
+@Suppress("FunctionName")
+inline fun Vector(size: Int, block: (Int) -> Double): DoubleArray = DoubleArray(size) { i -> block(i) }
+
+@CreatorsDsl
+@Suppress("FunctionName")
+inline fun Vector(vararg args: Double): DoubleArray = toDoubleArrayOf(*args)
 
 @CreatorsDsl
 fun toArrayOfDoubleArray(cols: Int, args: DoubleArray): Array<DoubleArray> {
@@ -483,7 +505,7 @@ fun Long.toHexString(pads: Int = 0): String = toString(16).padStart(pads.maxOf(0
 fun Short.toHexString(pads: Int = 0): String = toString(16).padStart(pads.maxOf(0), '0')
 
 @CreatorsDsl
-fun Char.toHexString(pads: Int = 0): String = toInt().toString(16).padStart(pads.maxOf(0), '0')
+fun Char.toHexString(pads: Int = 0): String = toInt().toHexString(pads)
 
 @CreatorsDsl
 fun Int.toDecString(pads: Int = 0): String = toString(10).padStart(pads.maxOf(0), '0')
@@ -498,7 +520,7 @@ fun Long.toDecString(pads: Int = 0): String = toString(10).padStart(pads.maxOf(0
 fun Short.toDecString(pads: Int = 0): String = toString(10).padStart(pads.maxOf(0), '0')
 
 @CreatorsDsl
-fun Char.toDecString(pads: Int = 0): String = toInt().toString(10).padStart(pads.maxOf(0), '0')
+fun Char.toDecString(pads: Int = 0): String = toInt().toDecString(pads)
 
 @CreatorsDsl
 fun Int.toBinaryString(pads: Int = Int.SIZE_BITS): String = toString(2).padStart(pads.maxOf(0), '0')
@@ -513,4 +535,4 @@ fun Long.toBinaryString(pads: Int = Long.SIZE_BITS): String = toString(2).padSta
 fun Short.toBinaryString(pads: Int = Short.SIZE_BITS): String = toString(2).padStart(pads.maxOf(0), '0')
 
 @CreatorsDsl
-fun Char.toBinaryString(pads: Int = Byte.SIZE_BITS * 2): String = toInt().toString(2).padStart(pads.maxOf(0), '0')
+fun Char.toBinaryString(pads: Int = Char.SIZE_BITS): String = toInt().toBinaryString(pads)

@@ -21,6 +21,7 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
+@IgnoreForSerialize
 class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
 
     @CreatorsDsl
@@ -53,6 +54,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
                 add(escape(k), ": ", escape(v))
             }
             is HasMapNames -> safe.invoke(data.toMapNames())
+            is SafeForLogging -> data.toSafeString()
             else -> data.toString()
         }
     }
@@ -82,6 +84,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
             is Map.Entry<*, *> -> true
             is HasMapNames -> true
             is CharSequence -> true
+            is SafeForLogging -> true
             else -> false
         }
     }

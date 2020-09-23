@@ -69,7 +69,9 @@ class FileContentResource @JvmOverloads @CreatorsDsl constructor(private val dat
         else -> false
     }
 
-    override fun toString() = getDescription()
-
+    @CreatorsDsl
     override fun hashCode() = data.hashCode()
+
+    @CreatorsDsl
+    override fun toString() = getDescription()
 }

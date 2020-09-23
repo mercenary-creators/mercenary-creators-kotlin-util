@@ -19,12 +19,15 @@ package co.mercenary.creators.kotlin.util.type
 import co.mercenary.creators.kotlin.util.*
 import kotlin.reflect.KClass
 
+@IgnoreForSerialize
 object Throwables {
 
     enum class Mode { FAILURE, IGNORED }
 
+    @CreatorsDsl
     private val failure = LinkedHashSet<Class<*>>()
 
+    @CreatorsDsl
     private val ignored = LinkedHashSet<Class<*>>()
 
     private val logger: ILogging by lazy {
@@ -37,7 +40,7 @@ object Throwables {
 
     @JvmStatic
     @CreatorsDsl
-    fun thrown(cause: Throwable?) {
+    infix fun thrown(cause: Throwable?) {
         if (cause != null) {
             val type = cause.javaClass
             if (type in ignored) {

@@ -19,10 +19,18 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.io.OutputStream
 
-@CreatorsDsl
 @IgnoreForSerialize
-object EmptyOutputStream : OutputStream() {
-    override fun write(b: Int) = Unit
-    override fun write(b: ByteArray) = Unit
-    override fun write(b: ByteArray, off: Int, len: Int) = Unit
+class SplitOutputStream @JvmOverloads @CreatorsDsl constructor(head: OutputStream, next: OutputStream, flush: Boolean = false) : AbstractCountSizeOutputStream(org.apache.commons.io.output.TeeOutputStream(head, next), flush) {
+
+    @CreatorsDsl
+    override fun toString() = nameOf()
+
+    @CreatorsDsl
+    override fun hashCode() = idenOf()
+
+    @CreatorsDsl
+    override fun equals(other: Any?) = when (other) {
+        is SplitOutputStream -> this === other
+        else -> false
+    }
 }

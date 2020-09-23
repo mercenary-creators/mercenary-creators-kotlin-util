@@ -53,7 +53,7 @@ class SequenceTest : KotlinDataTest() {
             warn { dash() }
         }
         maps.computeIfAbsent("author") { name ->
-            warn { name.center(16).braced() }
+            warn { name.center(16) }
             author
         }
         info { maps.size }

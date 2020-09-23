@@ -16,15 +16,13 @@
 
 package co.mercenary.creators.kotlin.util.io
 
-import co.mercenary.creators.kotlin.util.IgnoreForSerialize
+import co.mercenary.creators.kotlin.util.*
 import java.io.Writer
 
+@CreatorsDsl
 @IgnoreForSerialize
 object EmptyWriter : Writer() {
-
     override fun flush() = Unit
-
     override fun close() = Unit
-
     override fun write(cbuf: CharArray, off: Int, len: Int) = Unit
 }

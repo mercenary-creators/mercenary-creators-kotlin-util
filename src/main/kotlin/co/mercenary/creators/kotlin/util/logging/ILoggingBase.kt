@@ -43,25 +43,6 @@ interface ILoggingBase : ILogging {
     override fun isLoggingErrorEnabled(): Boolean = loggerOf().isErrorEnabled
 
     @LoggingInfoDsl
-    @IgnoreForSerialize
-    override fun isLoggingInfoEnabled(marker: IMarker): Boolean = loggerOf().isInfoEnabled(marker.markerOf())
-
-    @LoggingWarnDsl
-    @IgnoreForSerialize
-    override fun isLoggingWarnEnabled(marker: IMarker): Boolean = loggerOf().isWarnEnabled(marker.markerOf())
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isLoggingTraceEnabled(marker: IMarker): Boolean = loggerOf().isTraceEnabled(marker.markerOf())
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isLoggingDebugEnabled(marker: IMarker): Boolean = loggerOf().isDebugEnabled(marker.markerOf())
-
-    @IgnoreForSerialize
-    override fun isLoggingErrorEnabled(marker: IMarker): Boolean = loggerOf().isErrorEnabled(marker.markerOf())
-
-    @LoggingInfoDsl
     override fun info(block: () -> Any?) {
         if (isLoggingInfoEnabled()) {
             loggerOf().info {

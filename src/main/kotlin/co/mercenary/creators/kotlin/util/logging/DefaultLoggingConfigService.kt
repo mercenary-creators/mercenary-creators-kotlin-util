@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
-import java.io.OutputStream
 
-@CreatorsDsl
 @IgnoreForSerialize
-object EmptyOutputStream : OutputStream() {
-    override fun write(b: Int) = Unit
-    override fun write(b: ByteArray) = Unit
-    override fun write(b: ByteArray, off: Int, len: Int) = Unit
+class DefaultLoggingConfigService : LoggingConfigService(Int.MIN_VALUE) {
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isAutoStart() = true
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isAutoClose() = true.isNotTrue()
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun getIgnoring() = toList("co.mercenary.creators.kotlin.util.logging")
 }

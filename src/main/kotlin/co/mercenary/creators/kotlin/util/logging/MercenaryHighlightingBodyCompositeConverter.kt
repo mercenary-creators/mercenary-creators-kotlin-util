@@ -20,23 +20,23 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import co.mercenary.creators.kotlin.util.*
 
 open class MercenaryHighlightingBodyCompositeConverter : MercenaryHighlightingCompositeConverter() {
-
+    @CreatorsDsl
     override fun transform(event: ILoggingEvent, data: String?): String {
         val color = getForegroundColorCode(event)
         return stringOf {
             when {
                 data == null -> {
-                    append(START, color, CLOSE, NULLS_STRING, RESET)
+                    add(START, color, CLOSE, NULLS_STRING, RESET)
                 }
                 data.contains(BREAK_STRING) -> {
                     val list = data.split(BREAK_STRING)
                     val last = list.size.minus(1)
                     list.forEachIndexed { line, text ->
-                        append(START, color, CLOSE, text, if (line < last) BREAK_STRING else EMPTY_STRING, RESET)
+                        add(START, color, CLOSE, text, if (line < last) BREAK_STRING else EMPTY_STRING, RESET)
                     }
                 }
                 else -> {
-                    append(START, color, CLOSE, data, RESET)
+                    add(START, color, CLOSE, data, RESET)
                 }
             }
         }

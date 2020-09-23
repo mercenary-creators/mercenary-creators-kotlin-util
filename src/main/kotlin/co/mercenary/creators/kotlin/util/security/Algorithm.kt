@@ -26,6 +26,7 @@ data class Algorithm @CreatorsDsl constructor(val service: String, val algorithm
     override fun toMapNames() = dictOf("service" to service, "algorithms" to algorithms)
 
     companion object {
+
         @JvmStatic
         @CreatorsDsl
         fun forName(name: String): Algorithm = Algorithm(name, Security.getAlgorithms(name).toList())

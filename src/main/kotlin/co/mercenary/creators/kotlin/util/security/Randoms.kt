@@ -230,19 +230,19 @@ object Randoms {
     @JvmStatic
     @CreatorsDsl
     fun getIntegerArray(sized: Int): IntArray {
-        return if (sized < 1) IntArray(0) else IntArray(sized) { getInteger(sized) }
+        return if (sized < 1) EMPTY_INTS_ARRAY else IntArray(sized) { getInteger(sized) }
     }
 
     @JvmStatic
     @CreatorsDsl
     fun getIntegerArray(sized: Int, range: IntRange): IntArray {
-        return if (sized < 1) IntArray(0) else IntArray(sized) { getInteger(range) }
+        return if (sized < 1) EMPTY_INTS_ARRAY else IntArray(sized) { getInteger(range) }
     }
 
     @JvmStatic
     @CreatorsDsl
     fun getIntegerArray(sized: Int, lower: Int, upper: Int): IntArray {
-        return if (sized < 1) IntArray(0) else IntArray(sized) { getInteger(lower, upper) }
+        return if (sized < 1) EMPTY_INTS_ARRAY else IntArray(sized) { getInteger(lower, upper) }
     }
 
     @JvmStatic
@@ -273,7 +273,7 @@ object Randoms {
 
     @JvmStatic
     @CreatorsDsl
-    fun getCharSequenceOf(sized: Int, chars: CharSequence): CharSequence = getCharSequenceOf(sized, chars.toString().toCharArray())
+    fun getCharSequenceOf(sized: Int, chars: CharSequence): CharSequence = getCharSequenceOf(sized, chars.getCharArray())
 
     @JvmStatic
     @CreatorsDsl
@@ -284,10 +284,9 @@ object Randoms {
         if (chars.isEmpty()) {
             throw throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
         }
-        val rand = random
-        return buildString(sized) {
-            repeat(sized) {
-                append(chars[rand.nextInt(chars.size)])
+        return stringOf(sized) {
+            sized.forEach {
+                add(chars[getInteger(chars.size)])
             }
         }
     }
@@ -300,20 +299,9 @@ object Randoms {
     @JvmStatic
     @CreatorsDsl
     @IgnoreForSerialize
-    private fun getCharArrayValuesInternal(): CharArray {
-        return buildString(72) {
-            ('a'..'z').forEach {
-                append(it)
-            }
-            ('0'..'9').forEach {
-                append(it)
-            }
-            ('A'..'Z').forEach {
-                append(it)
-            }
-            ('0'..'9').forEach {
-                append(it)
-            }
-        }.toCharArray()
+    internal fun getCharArrayValuesInternal(): CharArray {
+        return stringOf(72) {
+            add('a'..'z').add('0'..'9').add('A'..'Z').add('0'..'9')
+        }.getCharArray()
     }
 }

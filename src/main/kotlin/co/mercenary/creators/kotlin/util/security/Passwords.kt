@@ -58,9 +58,9 @@ object Passwords {
         val loop = part.boxIn(MIN_PARTS, MAX_PARTS)
         val buff = StringBuilder((loop * PART_SIZE) + loop + PART_SIZE)
         for (i in 0 until loop) {
-            buff.add(Randoms.getString(PART_SIZE)).append(SEPARATOR)
+            buff.add(Randoms.getString(PART_SIZE)).add(SEPARATOR)
         }
-        return buff.append(CheckSums.crc32().encoder(buff.toString())).toString()
+        return buff.add(CheckSums.crc32().encoder(buff.toString())).toString()
     }
 
     @JvmStatic

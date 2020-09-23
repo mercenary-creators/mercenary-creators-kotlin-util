@@ -31,8 +31,11 @@ abstract class AbstractContentResourceBase @JvmOverloads constructor(private val
 
     @CreatorsDsl
     override fun toMapNames(): Map<String, Any?> {
-        return mapOf("name" to javaClass.name, "path" to "$kind${getContentPath()}", "type" to getContentType(), "time" to getContentTime().toDate())
+        return dictOf("name" to javaClass.name, "path" to "$kind${getContentPath()}", "type" to getContentType(), "time" to getContentTime().toDate())
     }
+
+    @CreatorsDsl
+    override fun toString() = getDescription()
 
     @CreatorsDsl
     @IgnoreForSerialize

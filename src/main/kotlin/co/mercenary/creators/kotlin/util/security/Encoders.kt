@@ -25,8 +25,9 @@ object Encoders {
     private fun String.convert(): ByteArray = DatatypeConverter.parseHexBinary(toLowerTrim())
 
     @CreatorsDsl
-    private fun ByteArray.convert(): String = DatatypeConverter.printHexBinary(toByteArray()).toLowerTrim()
+    private fun ByteArray.convert(): String = DatatypeConverter.printHexBinary(this).toLowerTrim()
 
+    @CreatorsDsl
     private val bhex = object : Encoder<String, ByteArray> {
 
         @CreatorsDsl

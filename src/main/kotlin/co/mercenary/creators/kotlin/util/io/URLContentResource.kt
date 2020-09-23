@@ -68,7 +68,9 @@ class URLContentResource @JvmOverloads @CreatorsDsl constructor(private val data
         else -> false
     }
 
+    @CreatorsDsl
     override fun hashCode() = data.hashCode()
 
+    @CreatorsDsl
     override fun toString() = getDescription()
 }
