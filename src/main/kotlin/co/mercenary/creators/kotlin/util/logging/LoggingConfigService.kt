@@ -23,11 +23,11 @@ abstract class LoggingConfigService(protected val order: Int) : Comparable<Loggi
 
     @CreatorsDsl
     @IgnoreForSerialize
-    abstract fun isAutoStart(): Boolean
+    open fun isAutoStart(): Boolean = true
 
     @CreatorsDsl
     @IgnoreForSerialize
-    abstract fun isAutoClose(): Boolean
+    open fun isAutoClose(): Boolean = false
 
     @CreatorsDsl
     @IgnoreForSerialize
@@ -42,10 +42,10 @@ abstract class LoggingConfigService(protected val order: Int) : Comparable<Loggi
 
         @JvmStatic
         @CreatorsDsl
-        fun toList(args: String) = listOf(args)
+        fun toIgnoring(args: String) = listOf(args).uniqueTrimmedOf()
 
         @JvmStatic
         @CreatorsDsl
-        fun toList(vararg args: String) = listOf(*args)
+        fun toIgnoring(vararg args: String) = listOf(*args).uniqueTrimmedOf()
     }
 }

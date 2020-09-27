@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.logging.LoggingWarnDsl
 import java.io.File
 
 @IgnoreForSerialize
@@ -24,6 +25,20 @@ abstract class AbstractDataTest : AbstractKotlinTest() {
 
     @CreatorsDsl
     fun file(name: String) = File(name)
+
+    @LoggingWarnDsl
+    fun look(file: File) {
+        dashes()
+        warn { file.path }
+        warn { file.exists() }
+        warn { file.isValidToRead() }
+        warn { file.isValidToWrite() }
+        warn { file.length() }
+        val (d, f) = dateOf() to file.lastModified().toDate()
+        warn { f }
+        warn { d }
+        dashes()
+    }
 
     @CreatorsDsl
     fun File.data(data: ByteArray): ByteArray {

@@ -18,9 +18,22 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import java.io.*
+import java.util.*
 
 @IgnoreForSerialize
-class ChainInputStream @CreatorsDsl constructor(head: InputStream, next: InputStream) : SequenceInputStream(head, next), OpenCloseable, HasMapNames {
+class ChainInputStream @CreatorsDsl constructor(args: Enumeration<InputStream>) : SequenceInputStream(args), OpenCloseable, HasMapNames {
+
+    @CreatorsDsl
+    constructor(args: Iterator<InputStream>) : this(args.toEnumeration())
+
+    @CreatorsDsl
+    constructor(args: Iterable<InputStream>) : this(args.toEnumeration())
+
+    @CreatorsDsl
+    constructor(args: Sequence<InputStream>) : this(args.toEnumeration())
+
+    @CreatorsDsl
+    constructor(head: InputStream, next: InputStream, vararg more: InputStream) : this(iteratorOf(head, next, *more))
 
     private val open = true.toAtomic()
 

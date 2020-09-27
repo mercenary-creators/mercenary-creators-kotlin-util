@@ -26,12 +26,14 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.charset.Charset
 import java.nio.file.Paths
 
-object IO {
+@IgnoreForSerialize
+object IO : HasMapNames {
 
     const val EXT_SEPARATOR_CHAR = '.'
     const val SINGLE_PREFIX_CHAR = '~'
     const val COL_SEPARATOR_CHAR = ','
     const val UNX_SEPARATOR_CHAR = '/'
+    const val WIN_SEPARATOR_CHAR = '\\'
     const val SINGLE_TILDE = SINGLE_PREFIX_CHAR.toString()
     const val SINGLE_SLASH = UNX_SEPARATOR_CHAR.toString()
     const val DOUBLE_SLASH = SINGLE_SLASH + SINGLE_SLASH
@@ -43,6 +45,8 @@ object IO {
     const val PREFIX_FILES = "file:"
     const val PREFIX_BYTES = "data:"
     const val PREFIX_CLASS = "classpath:"
+    private val SYSTEM_SEPARATOR_CHAR = File.separatorChar
+    private val OTHERS_SEPARATOR_CHAR = if (isSystemWindows()) UNX_SEPARATOR_CHAR else WIN_SEPARATOR_CHAR
 
     private val probe: ContentTypeProbe by lazy {
         DefaultContentTypeProbe()
@@ -53,7 +57,18 @@ object IO {
 
     @JvmStatic
     @CreatorsDsl
-    fun getContentTypeProbe() = probe
+    @IgnoreForSerialize
+    fun getContentTypeProbe(): ContentTypeProbe = probe
+
+    @JvmStatic
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isSystemWindows(): Boolean = SYSTEM_SEPARATOR_CHAR == WIN_SEPARATOR_CHAR
+
+    @JvmStatic
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun isSystemUnixLike(): Boolean = SYSTEM_SEPARATOR_CHAR != WIN_SEPARATOR_CHAR
 
     @JvmStatic
     @CreatorsDsl
@@ -146,6 +161,7 @@ object IO {
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     fun getDefaultClassLoader(): ClassLoader {
         try {
             val load = Thread.currentThread().contextClassLoader
@@ -500,4 +516,7 @@ object IO {
         }
         return type.toLowerTrim()
     }
+
+    @CreatorsDsl
+    override fun toMapNames() = dictOf("name" to nameOf(), "unix" to isSystemUnixLike())
 }

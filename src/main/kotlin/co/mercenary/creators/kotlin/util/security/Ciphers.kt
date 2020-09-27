@@ -129,7 +129,7 @@ object Ciphers {
         }
     }
 
-    private class FastCipherOutputStream @CreatorsDsl constructor(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream() {
+    private class FastCipherOutputStream @CreatorsDsl constructor(private val proxy: BufferedOutputStream, private val cipher: Cipher) : OutputStream() {
         private var obuf: ByteArray? = null
         private val sbuf: ByteArray = ByteArray(1)
         override fun write(b: Int) {

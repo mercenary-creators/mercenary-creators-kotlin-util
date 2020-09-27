@@ -27,12 +27,12 @@ object EmptyContentResource : CachedContentResource {
     }
 
     private val desc: String by lazy {
-        "${javaClass.name}(${getContentPath()}, ${getContentType()}, ${isContentCache()})"
+        "${nameOf()}(${getContentPath()}, ${getContentType()}, ${isContentCache()})"
     }
 
     @CreatorsDsl
     override fun toMapNames(): Map<String, Any?> {
-        return dictOf("name" to javaClass.name, "path" to getContentPath(), "type" to getContentType(), "time" to getContentTime().toDate())
+        return dictOf("name" to nameOf(), "path" to getContentPath(), "type" to getContentType(), "time" to getContentTime().toDate())
     }
 
     @CreatorsDsl
@@ -44,7 +44,7 @@ object EmptyContentResource : CachedContentResource {
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun getContentTime() = 0L
+    override fun getContentTime() = TimeAndDate.getTimeStamp()
 
     @CreatorsDsl
     @IgnoreForSerialize
@@ -64,7 +64,7 @@ object EmptyContentResource : CachedContentResource {
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun isContentThere() = false
+    override fun isContentThere() = true
 
     @CreatorsDsl
     @IgnoreForSerialize

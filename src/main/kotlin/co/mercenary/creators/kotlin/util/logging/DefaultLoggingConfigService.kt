@@ -23,13 +23,5 @@ class DefaultLoggingConfigService : LoggingConfigService(Int.MIN_VALUE) {
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun isAutoStart() = true
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isAutoClose() = true.isNotTrue()
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun getIgnoring() = toList("co.mercenary.creators.kotlin.util.logging")
+    override fun getIgnoring() = toIgnoring(packageNameOf<ILogging>())
 }

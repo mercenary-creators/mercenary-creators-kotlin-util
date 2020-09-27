@@ -24,6 +24,7 @@ import java.math.BigInteger
 import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.atomic.*
+import kotlin.reflect.KClass
 
 @CreatorsDsl
 const val IS_NOT_FOUND = -1
@@ -132,6 +133,15 @@ fun java.security.MessageDigest.proxyOf() = Digests.proxyOf(this)
 fun Class<*>.isKotlinClass(): Boolean {
     return declaredAnnotations.any { it.annotationClass.java.name == KOTLIN_METAS }
 }
+
+@CreatorsDsl
+fun Class<*>.toPackageName(): String = this.`package`.name
+
+@CreatorsDsl
+fun KClass<*>.toPackageName(): String = java.`package`.name
+
+@CreatorsDsl
+inline fun <reified T : Any> packageNameOf(): String = T::class.java.`package`.name
 
 @CreatorsDsl
 fun <K, V> atomicMapOf(): AtomicHashMap<K, V> {
@@ -812,10 +822,25 @@ fun <T : Any> sequenceOf(seed: T?, next: (T) -> T?): Sequence<T> = MercenarySequ
 fun <T : Any> sequenceOf(seed: () -> T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
 
 @CreatorsDsl
+inline fun <T : Any> iteratorOf(vararg args: T): Iterator<T> = args.iterator()
+
+@CreatorsDsl
 fun Sequence<String>.uniqueTrimmedOf(): List<String> = asIterable().uniqueTrimmedOf()
 
 @CreatorsDsl
 fun Iterable<String>.uniqueTrimmedOf(): List<String> = mapNotNull { toTrimOrNull(it) }.distinct()
+
+@CreatorsDsl
+fun <T : Any> Iterator<T>.toEnumeration(): Enumeration<T> = object : Enumeration<T> {
+    override fun nextElement(): T = next()
+    override fun hasMoreElements(): Boolean = hasNext()
+}
+
+@CreatorsDsl
+inline fun <T : Any> Iterable<T>.toEnumeration(): Enumeration<T> = iterator().toEnumeration()
+
+@CreatorsDsl
+inline fun <T : Any> Sequence<T>.toEnumeration(): Enumeration<T> = iterator().toEnumeration()
 
 @CreatorsDsl
 inline fun <T : Any> T?.orElse(block: () -> T): T = this ?: block.invoke()

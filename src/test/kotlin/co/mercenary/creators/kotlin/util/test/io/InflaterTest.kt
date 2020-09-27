@@ -32,7 +32,10 @@ class InflaterTest : KotlinDataTest() {
         val file = getTempFileNamed()
         info { Inflaters.gzip().deflate(data, file) }
         info { Inflaters.gzip().inflate(file, EmptyOutputStream) }
-        val list = file("/dev/random").data(ByteArray(DEFAULT_BUFFER_SIZE))
+        val rand = file("/dev/random")
+        look(rand)
+        val list = rand.data(ByteArray(DEFAULT_BUFFER_SIZE))
         warn { list.toByteArray() }
+        look(file("/dev/null"))
     }
 }

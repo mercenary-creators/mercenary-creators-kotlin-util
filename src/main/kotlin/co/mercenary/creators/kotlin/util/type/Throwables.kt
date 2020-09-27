@@ -40,7 +40,7 @@ object Throwables {
 
     @JvmStatic
     @CreatorsDsl
-    infix fun thrown(cause: Throwable?) {
+    fun thrown(cause: Throwable?) {
         if (cause != null) {
             val type = cause.javaClass
             if (type in ignored) {

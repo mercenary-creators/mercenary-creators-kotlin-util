@@ -253,7 +253,7 @@ fun URI.toOutputStream(): OutputStream = when (val data = IO.getOutputStream(thi
 }
 
 @CreatorsDsl
-inline fun File.isValidToWrite(): Boolean = canWrite() && isDirectory.isNotTrue()
+inline fun File.isValidToWrite(): Boolean = isDirectory.isNotTrue() && canWrite()
 
 @CreatorsDsl
 inline fun Path.isValidToWrite(): Boolean = toFile().isValidToWrite()
