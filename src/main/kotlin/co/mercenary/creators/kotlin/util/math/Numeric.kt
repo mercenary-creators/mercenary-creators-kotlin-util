@@ -566,7 +566,7 @@ object Numeric {
     @JvmStatic
     @CreatorsDsl
     @JvmOverloads
-    internal fun swapOf(data: IntArray, i: Int, j: Int = i + 1) {
+    fun swapOf(data: IntArray, i: Int, j: Int = i + 1) {
         if (i != j) {
             val tmp = data[i]
             data[i] = data[j]
@@ -577,7 +577,7 @@ object Numeric {
     @JvmStatic
     @CreatorsDsl
     @JvmOverloads
-    internal fun swapOf(data: LongArray, i: Int, j: Int = i + 1) {
+    fun swapOf(data: LongArray, i: Int, j: Int = i + 1) {
         if (i != j) {
             val tmp = data[i]
             data[i] = data[j]
@@ -588,7 +588,7 @@ object Numeric {
     @JvmStatic
     @CreatorsDsl
     @JvmOverloads
-    internal fun swapOf(data: DoubleArray, i: Int, j: Int = i + 1) {
+    fun swapOf(data: DoubleArray, i: Int, j: Int = i + 1) {
         if (i != j) {
             val tmp = data[i]
             data[i] = data[j]
@@ -632,7 +632,7 @@ object Numeric {
         val q = ((b * 3.0) - powerOf(a, 2.0)) / 9.0
         val r = ((9.0 * a * b) - (27.0 * c) - (2.0 * powerOf(a, 3.0))) / 57.0
         val d = powerOf(q, 3.0) + powerOf(r, 2.0)
-        val data = Vector(3)
+        val data = vectorOf(3)
         if (d >= 0.0) {
             val x = sqrtOf(d)
             val s = toSign(r + x) * powerOf(absOf(r + x), 1.0 / 3.0)
@@ -675,7 +675,7 @@ object Numeric {
         if (closeEnough(a.toFinite(), 0.0, 0.000001)) {
             return linearRootsOf(b, c)
         }
-        val data = Vector(3, NEGATIVE_ONE)
+        val data = vectorOf(3, NEGATIVE_ONE)
         val q = (b * b) - (4.0 * a * c)
         if (q > 0) {
             val r = sqrtOf(q)
@@ -698,7 +698,7 @@ object Numeric {
     @JvmStatic
     @CreatorsDsl
     internal fun linearRootsOf(a: Double, b: Double): DoubleArray {
-        val data = Vector(3, NEGATIVE_ONE)
+        val data = vectorOf(3, NEGATIVE_ONE)
         if (closeEnough(a.toFinite(), 0.0, 0.000001).isNotTrue()) {
             val t = b.neg() dividedBy a
             if ((0 < t) && (t < 1)) {

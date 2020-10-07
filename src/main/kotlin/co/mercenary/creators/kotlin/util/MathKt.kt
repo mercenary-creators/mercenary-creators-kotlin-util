@@ -442,20 +442,13 @@ fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
 fun toDoubleArrayOf(vararg args: Number): DoubleArray = DoubleArray(args.size) { i -> args[i].toDouble() }
 
 @CreatorsDsl
-@Suppress("FunctionName")
-inline fun Vector(size: Int = 0): DoubleArray = DoubleArray(size)
+inline fun vectorOf(size: Int = 0): DoubleArray = DoubleArray(size)
 
 @CreatorsDsl
-@Suppress("FunctionName")
-inline fun Vector(size: Int, value: Double): DoubleArray = DoubleArray(size) { value }
+inline fun vectorOf(size: Int, value: Double): DoubleArray = DoubleArray(size) { value }
 
 @CreatorsDsl
-@Suppress("FunctionName")
-inline fun Vector(size: Int, block: (Int) -> Double): DoubleArray = DoubleArray(size) { i -> block(i) }
-
-@CreatorsDsl
-@Suppress("FunctionName")
-inline fun Vector(vararg args: Double): DoubleArray = toDoubleArrayOf(*args)
+inline fun vectorOf(size: Int, block: (Int) -> Double): DoubleArray = DoubleArray(size) { i -> block(i) }
 
 @CreatorsDsl
 fun toArrayOfDoubleArray(cols: Int, args: DoubleArray): Array<DoubleArray> {

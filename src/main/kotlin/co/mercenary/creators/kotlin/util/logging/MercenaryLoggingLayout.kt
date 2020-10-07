@@ -59,13 +59,13 @@ open class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
     @CreatorsDsl
     open fun colorOf(): String {
         return when (newlines.isNotTrue()) {
-            true -> MercenaryHighlightingCompositeConverter::class.java.name
-            else -> MercenaryHighlightingBodyCompositeConverter::class.java.name
+            true -> MercenaryHighlightingCompositeConverter::class.nameOf()
+            else -> MercenaryHighlightingBodyCompositeConverter::class.nameOf()
         }
     }
 
     @CreatorsDsl
-    open fun levelOf(): String = MercenaryLevelConverter::class.java.name
+    open fun levelOf(): String = MercenaryLevelConverter::class.nameOf()
 
     override fun start() {
         PatternLayout.defaultConverterMap["_color_"] = colorOf()
