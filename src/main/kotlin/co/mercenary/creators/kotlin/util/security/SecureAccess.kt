@@ -22,6 +22,25 @@ import java.security.*
 @IgnoreForSerialize
 object SecureAccess {
 
+    private val open = false.toAtomic()
+
+    private val list = ArrayList<() -> Unit>(2)
+
+    @JvmStatic
+    @CreatorsDsl
+    @Synchronized
+    private fun doExit() {
+        if (list.isNotEmpty()) {
+            list.reversed().also { list.clear() }.forEach {
+                try {
+                    it.invoke()
+                }
+                catch (cause: Throwable) {
+                }
+            }
+        }
+    }
+
     @JvmStatic
     @CreatorsDsl
     fun <T : Any> priviledgedActionOf(func: () -> T): T {
@@ -29,5 +48,19 @@ object SecureAccess {
             null -> func.invoke()
             else -> AccessController.doPrivileged(PrivilegedAction { func.invoke() })
         }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    @Synchronized
+    fun onExitOfProcess(func: () -> Unit) {
+        if (open.isFalseToTrue()) {
+            object : Thread() {
+                override fun run() {
+                    doExit()
+                }
+            }.also { Runtime.getRuntime().addShutdownHook(it) }
+        }
+        list += func
     }
 }

@@ -18,7 +18,11 @@ package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
 
-interface IMarker : HasNameString {
+interface IMarker {
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getName(): String
 
     @CreatorsDsl
     fun markerOf(): mu.Marker

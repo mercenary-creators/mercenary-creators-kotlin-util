@@ -19,7 +19,15 @@ package co.mercenary.creators.kotlin.util.logging
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class DefaultLoggingConfigService : LoggingConfigService(Int.MIN_VALUE) {
+open class DefaultLoggingConfigService : LoggingConfigService(Int.MIN_VALUE) {
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isAutoStart() = true
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isAutoClose() = true
 
     @CreatorsDsl
     @IgnoreForSerialize

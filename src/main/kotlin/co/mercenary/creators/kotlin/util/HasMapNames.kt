@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface HasMapNames {
+fun interface HasMapNames {
     @CreatorsDsl
     fun toMapNames(): Map<String, Any?>
 }

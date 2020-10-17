@@ -86,14 +86,6 @@ class SecureByteArray @CreatorsDsl constructor(data: ByteArray) : SecureBytes, S
 
     companion object {
 
-        @CreatorsDsl
-        @IgnoreForSerialize
-        private val EMPTY_SWAP_ARRAY = IntArray(0)
-
-        @CreatorsDsl
-        @IgnoreForSerialize
-        private val EMPTY_BYTE_ARRAY = ByteArray(0)
-
         @JvmStatic
         @CreatorsDsl
         fun random(size: Int): SecureByteArray {
@@ -103,7 +95,7 @@ class SecureByteArray @CreatorsDsl constructor(data: ByteArray) : SecureBytes, S
         @JvmStatic
         @CreatorsDsl
         private fun swapof(data: ByteArray): IntArray {
-            return if (data.size < 2) EMPTY_SWAP_ARRAY else Randoms.shuffled(data.indices).toIntArray()
+            return if (data.size < 2) EMPTY_INTS_ARRAY else Randoms.shuffled(data.indices).toIntArray()
         }
 
         @JvmStatic
@@ -111,7 +103,7 @@ class SecureByteArray @CreatorsDsl constructor(data: ByteArray) : SecureBytes, S
         private fun recode(data: ByteArray, swap: IntArray, init: Boolean = false): ByteArray {
             return when (val size = data.size) {
                 0 -> EMPTY_BYTE_ARRAY
-                1 -> ByteArray(1) { data[0] }
+                1 -> data.toByteArray()
                 else -> when (init.isTrue()) {
                     true -> ByteArray(size) { iter -> data[swap[iter]] }
                     else -> data.toByteArray().also { self ->

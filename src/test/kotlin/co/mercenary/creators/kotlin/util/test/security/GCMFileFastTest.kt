@@ -30,16 +30,9 @@ class GCMFileFastTest : KotlinSecurityTest() {
         info { good }
         good shouldBe true
         val temp = getTempFile(uuid(), ".txt")
-        val baos = BytesOutputStream(DEFAULT_BUFFER_SIZE)
-        val save = BytesOutputStream(DEFAULT_BUFFER_SIZE)
         val code = getCopyCipher(pass, salt, CipherAlgorithm.GCM)
-        val data = cached["test.txt"]
-        7 forEach {
-            baos.clear()
-            save.clear()
-            code.encrypt(data, baos)
-            code.decrypt(baos.getContentData(), save)
-        }
+        val data = cached["data.txt"]
+        code warmup data
         timed {
             code.encrypt(data, temp)
         }

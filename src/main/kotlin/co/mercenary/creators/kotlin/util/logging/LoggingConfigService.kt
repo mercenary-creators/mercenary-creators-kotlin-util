@@ -23,7 +23,7 @@ abstract class LoggingConfigService(protected val order: Int) : Comparable<Loggi
 
     @CreatorsDsl
     @IgnoreForSerialize
-    open fun isAutoStart(): Boolean = true
+    open fun isAutoStart(): Boolean = false
 
     @CreatorsDsl
     @IgnoreForSerialize

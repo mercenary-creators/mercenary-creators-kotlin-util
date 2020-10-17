@@ -17,10 +17,30 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.io.ContentResource
 import co.mercenary.creators.kotlin.util.security.*
 import co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
 abstract class AbstractSecurityTest @JvmOverloads constructor(private val text: String = CREATORS_AUTHOR_INFO) : AbstractKotlinTest() {
+
+    @CreatorsDsl
+    protected open val rounds: Int
+        @IgnoreForSerialize
+        get() = 4
+
+    @CreatorsDsl
+    protected infix fun CipherEncryptingCopy.warmup(data: ContentResource) {
+        if (rounds > 0) {
+            val baos = BytesOutputStream()
+            val save = BytesOutputStream()
+            rounds forEach {
+                baos.clear()
+                save.clear()
+                encrypt(data, baos)
+                decrypt(baos.getContentData(), save)
+            }
+        }
+    }
 
     @CreatorsDsl
     @IgnoreForSerialize

@@ -24,7 +24,7 @@ buildscript {
     }
     dependencies {
         classpath(group: 'org.ajoberstar', name: 'grgit', version: '1.7.2')
-        classpath(group: 'org.owasp', name: 'dependency-check-gradle', version: '5.3.2')
+        classpath(group: 'org.owasp', name: 'dependency-check-gradle', version: '6.0.2')
         classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: kotlinVersion)
     }
 }
@@ -138,8 +138,8 @@ dependencies {
     testCompile(group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.30')
     testCompile(group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.30')
     testCompile(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit5', version: kotlinVersion)
-    testCompile(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2')
-    testRuntime(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2')
+    testCompile(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.0')
+    testRuntime(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.0')
 }
 
 artifacts {

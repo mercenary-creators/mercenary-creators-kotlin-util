@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface Copyable<out T> {
+fun interface Copyable<out T> {
     @CreatorsDsl
     fun copyOf(): T
 }

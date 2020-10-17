@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface Resetable {
+fun interface Resetable {
     @CreatorsDsl
     fun reset()
 }

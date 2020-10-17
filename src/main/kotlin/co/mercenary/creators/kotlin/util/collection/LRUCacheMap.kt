@@ -49,7 +49,7 @@ class LRUCacheMap<K, V> @JvmOverloads @CreatorsDsl constructor(private val thres
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun isEmpty(): Boolean = size == 0
+    override fun isEmpty(): Boolean = super.isEmpty()
 
     @CreatorsDsl
     @IgnoreForSerialize
@@ -62,7 +62,7 @@ class LRUCacheMap<K, V> @JvmOverloads @CreatorsDsl constructor(private val thres
     override fun copyOf() = LRUCacheMap(this)
 
     @CreatorsDsl
-    override fun hashCode() = idenOf()
+    override fun hashCode() = super.hashCode()
 
     @CreatorsDsl
     override fun toString() = super.toString()

@@ -39,10 +39,8 @@ class SecureString @CreatorsDsl constructor(data: CharArray) : SecureChars, Stan
     @CreatorsDsl
     constructor(data: Sequence<Char>) : this(data.toList().toCharArray())
 
-    @CreatorsDsl
     private val swap = swapof(data)
 
-    @CreatorsDsl
     private val buff = recode(data, swap, true)
 
     @CreatorsDsl
@@ -88,18 +86,10 @@ class SecureString @CreatorsDsl constructor(data: CharArray) : SecureChars, Stan
 
     companion object {
 
-        @CreatorsDsl
-        @IgnoreForSerialize
-        private val EMPTY_SWAP_ARRAY = IntArray(0)
-
-        @CreatorsDsl
-        @IgnoreForSerialize
-        private val EMPTY_CHAR_ARRAY = CharArray(0)
-
         @JvmStatic
         @CreatorsDsl
         private fun swapof(data: CharArray): IntArray {
-            return if (data.size < 2) EMPTY_SWAP_ARRAY else Randoms.shuffled(data.indices).toIntArray()
+            return if (data.size < 2) EMPTY_INTS_ARRAY else Randoms.shuffled(data.indices).toIntArray()
         }
 
         @JvmStatic

@@ -20,6 +20,8 @@ import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
 class GCMFileTest : KotlinSecurityTest() {
+    override val rounds: Int
+        get() = 0
     @Test
     fun test() {
         val pass = getGeneratedPass()
@@ -30,20 +32,13 @@ class GCMFileTest : KotlinSecurityTest() {
         info { good }
         good shouldBe true
         val temp = getTempFile(uuid(), ".txt")
-        val baos = BytesOutputStream(DEFAULT_BUFFER_SIZE)
-        val save = BytesOutputStream(DEFAULT_BUFFER_SIZE)
         val code = getCopyCipher(pass, salt, CipherAlgorithm.GCM)
-        val data = loader["test.txt"]
-        7 forEach {
-            baos.clear()
-            save.clear()
-            code.encrypt(data, baos)
-            code.decrypt(baos.getContentData(), save)
-        }
+        val data = loader["data.txt"]
+        code warmup data
         timed {
             code.encrypt(data, temp)
         }
-        data.toByteArray() shouldNotBe temp.toByteArray()
+        data.toByteArray() shouldNotBeSameContent  temp.toByteArray()
         val copy = getTempFile(uuid(), ".txt")
         timed {
             code.decrypt(temp, copy)

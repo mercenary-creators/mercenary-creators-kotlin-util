@@ -35,7 +35,7 @@ object Throwables {
     }
 
     init {
-        reset()
+        defaults()
     }
 
     @JvmStatic
@@ -55,6 +55,42 @@ object Throwables {
                 throw cause
             }
         }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun <T : Throwable> isFailure(type: Class<T>): Boolean {
+        return type in failure
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun <T : Throwable> isFailure(type: KClass<T>): Boolean {
+        return isFailure(type.java)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun isFailure(cause: Throwable): Boolean {
+        return isFailure(cause.javaClass)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun <T : Throwable> isIgnored(type: Class<T>): Boolean {
+        return type in ignored
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun <T : Throwable> isIgnored(type: KClass<T>): Boolean {
+        return isIgnored(type.java)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun isIgnored(cause: Throwable): Boolean {
+        return isIgnored(cause.javaClass)
     }
 
     @JvmStatic
@@ -130,11 +166,17 @@ object Throwables {
     fun reset(defaults: Boolean = true) {
         clear()
         if (defaults) {
-            append(OutOfMemoryError::class)
-            append(StackOverflowError::class)
-            append(NullPointerException::class)
-            append(MercenaryFatalExceptiion::class)
-            append(MercenaryAssertExceptiion::class)
+            defaults()
         }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    private fun defaults() {
+        append(OutOfMemoryError::class)
+        append(StackOverflowError::class)
+        append(NullPointerException::class)
+        append(MercenaryFatalExceptiion::class)
+        append(MercenaryAssertExceptiion::class)
     }
 }

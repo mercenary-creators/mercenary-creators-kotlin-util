@@ -21,7 +21,8 @@ import java.io.*
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.*
 
-object Ciphers {
+@IgnoreForSerialize
+object Ciphers : HasMapNames {
 
     @JvmStatic
     @CreatorsDsl
@@ -75,9 +76,15 @@ object Ciphers {
     fun getAlgorithms(): Algorithm = Algorithm.forName("Cipher")
 
     @CreatorsDsl
+    override fun toString() = nameOf()
+
+    @CreatorsDsl
+    override fun toMapNames() = dictOf("type" to nameOf(), "ciphers" to getAlgorithms())
+
+    @CreatorsDsl
     private fun getBufferOf(data: InputStream): Int {
         return try {
-            data.available().maxOf(DEFAULT_BUFFER_SIZE)
+            data.available().maxOf(DEFAULT_BUFFER_SIZE).minOf(DEFAULT_BUFFER_SIZE * 4)
         }
         catch (cause: Throwable) {
             DEFAULT_BUFFER_SIZE
@@ -114,8 +121,8 @@ object Ciphers {
         override fun encrypt(data: InputStream, copy: OutputStream) = synchronized(encrypt) {
             val buffer = getBufferOf(data)
             val vector = factory.getKeys().also { copy.write(it) }
-            val output = FastCipherOutputStream(copy.buffered(buffer), setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)))
-            data.copyTo(output)
+            val output = FastCipherOutputStream(copy, setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)))
+            data.copyTo(output, buffer)
             output.close()
         }
 
@@ -123,15 +130,19 @@ object Ciphers {
         override fun decrypt(data: InputStream, copy: OutputStream) = synchronized(decrypt) {
             val buffer = getBufferOf(data)
             val vector = ByteArray(factory.getSize()).also { data.read(it) }
-            val output = FastCipherOutputStream(copy.buffered(buffer), setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)))
-            data.copyTo(output)
+            val output = FastCipherOutputStream(copy, setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)))
+            data.copyTo(output, buffer)
             output.close()
         }
     }
 
-    private class FastCipherOutputStream @CreatorsDsl constructor(private val proxy: BufferedOutputStream, private val cipher: Cipher) : OutputStream() {
+    @IgnoreForSerialize
+    private class FastCipherOutputStream @CreatorsDsl constructor(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream() {
+
         private var obuf: ByteArray? = null
+
         private val sbuf: ByteArray = ByteArray(1)
+
         override fun write(b: Int) {
             sbuf[0] = b.toByte()
             obuf = cipher.update(sbuf, 0, 1)

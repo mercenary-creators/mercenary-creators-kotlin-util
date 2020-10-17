@@ -20,6 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
 class SequenceTest : KotlinDataTest() {
+
     @Test
     fun test() {
         val size = 10

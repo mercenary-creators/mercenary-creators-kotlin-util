@@ -19,7 +19,7 @@
 
 package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.security.SecureByteArray
+import co.mercenary.creators.kotlin.util.security.*
 import java.math.BigInteger
 import java.nio.charset.Charset
 import java.util.*
@@ -128,6 +128,11 @@ open class MercenaryAssertExceptiion @CreatorsDsl constructor(text: String?, roo
 
 @CreatorsDsl
 fun java.security.MessageDigest.proxyOf() = Digests.proxyOf(this)
+
+@CreatorsDsl
+fun onExitOfProcess(func: () -> Unit) {
+    SecureAccess.onExitOfProcess(func)
+}
 
 @CreatorsDsl
 fun Class<*>.isKotlinClass(): Boolean {

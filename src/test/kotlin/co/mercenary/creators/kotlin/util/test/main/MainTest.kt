@@ -17,12 +17,12 @@
 package co.mercenary.creators.kotlin.util.test.main
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.logging.LoggingFactory
 import org.junit.jupiter.api.Test
 
 class MainTest : KotlinTest() {
     @Test
     fun test() {
+        onExitOfProcess { getStandardError().echo(uuid()).newline() }
         warn { loggerOf().name }
         warn { loggerOf().getLevel() }
         loggerOf().withLevel(LoggingLevel.DEBUG) {

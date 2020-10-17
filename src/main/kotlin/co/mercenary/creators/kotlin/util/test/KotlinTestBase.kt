@@ -156,7 +156,7 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
     override fun measured(size: Int, call: (Int) -> Unit) {
         if (size > 0) {
             val many = size + 4
-            val list = DoubleArray(many)
+            val list = vectorOf(many)
             for (loop in 0 until many) {
                 val time = TimeAndDate.nanos()
                 call.invoke(loop)

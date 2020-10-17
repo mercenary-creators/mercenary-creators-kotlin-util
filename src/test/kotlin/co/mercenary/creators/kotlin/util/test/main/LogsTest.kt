@@ -63,6 +63,5 @@ class LogsTest : KotlinTest() {
                 Escapers.toEscapedString(EMPTY_STRING, true)
             }
         }
-
     }
 }

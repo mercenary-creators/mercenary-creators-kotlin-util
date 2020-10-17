@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface HasContentSize {
+fun interface HasContentSize {
     @CreatorsDsl
     fun getContentSize(): Long
 }

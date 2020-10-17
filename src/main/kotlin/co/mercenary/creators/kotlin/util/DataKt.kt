@@ -35,6 +35,8 @@ typealias ContentResourceLookup = (String) -> ContentResource
 
 typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream
 
+typealias BytesOutputStream = co.mercenary.creators.kotlin.util.io.BytesOutputStream
+
 typealias EmptyOutputStream = co.mercenary.creators.kotlin.util.io.EmptyOutputStream
 
 typealias Escapers = co.mercenary.creators.kotlin.util.text.Escapers
@@ -50,8 +52,8 @@ val CONTENT_RESOURCE_LOADER: ContentResourceLoader
 val CACHED_CONTENT_RESOURCE_LOADER: CachedContentResourceLoader
     get() = BaseCachedContentResourceLoader.INSTANCE
 
-val BREAK_STRING: String
-    get() = System.lineSeparator()
+@CreatorsDsl
+val BREAK_STRING: String = System.lineSeparator()
 
 @CreatorsDsl
 val EMPTY_INTS_ARRAY = IntArray(0)
@@ -70,6 +72,30 @@ inline fun getStandardOutut(): PrintStream = System.out
 
 @CreatorsDsl
 inline fun getStandardError(): PrintStream = System.err
+
+@CreatorsDsl
+fun PrintStream.echo(data: Any?): PrintStream {
+    this.print(data)
+    return this
+}
+
+@CreatorsDsl
+fun PrintStream.echo(vararg args: Any?): PrintStream {
+    args.forEach { data -> echo(data) }
+    return this
+}
+
+@CreatorsDsl
+fun PrintStream.spaces(many: Int = 1): PrintStream {
+    this.print(SPACE_STRING.repeat(many))
+    return this
+}
+
+@CreatorsDsl
+fun PrintStream.newline(): PrintStream {
+    this.println()
+    return this
+}
 
 @CreatorsDsl
 inline fun <T : Clearable, R> T.finishOn(block: (T) -> R): R {
@@ -159,10 +185,6 @@ fun URL.toFileOrNull(skip: Boolean = false): File? = IO.toFileOrNull(this, skip)
 fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): File = createTempFile(prefix, suffix, folder).apply { deleteOnExit() }
 
 @CreatorsDsl
-@Suppress("FunctionName")
-inline fun BytesOutputStream(size: Int = DEFAULT_BUFFER_SIZE) = ByteArrayOutputStream(size.maxOf(0))
-
-@CreatorsDsl
 inline fun File.isValidToRead(): Boolean = isDirectory.isNotTrue() && canRead()
 
 @CreatorsDsl
@@ -226,7 +248,7 @@ fun ByteArray.toInputStream(copy: Boolean = false): InputStream = ByteArrayInput
 fun File.toInputStream(vararg args: OpenOption): InputStream = toPath().toInputStream(*args)
 
 @CreatorsDsl
-fun Path.toInputStream(vararg args: OpenOption): InputStream = if (isValidToRead()) Files.newInputStream(this, *args) else throw MercenaryExceptiion(toString())
+fun Path.toInputStream(vararg args: OpenOption): InputStream = if (isValidToRead()) toFile().inputStream() else throw MercenaryExceptiion(toString())
 
 @CreatorsDsl
 inline fun ReadableByteChannel.toInputStream(): InputStream = Channels.newInputStream(this)
@@ -374,6 +396,12 @@ inline fun ByteArray.toContentSize(): Long = size.toLong()
 
 @CreatorsDsl
 fun CharArray.toCharArray(copy: Boolean = true): CharArray = if (copy) copyOf() else this
+
+@CreatorsDsl
+fun CharArray.toByteArray(copy: Boolean = true): ByteArray = toCharSequence(copy).getContentData()
+
+@CreatorsDsl
+fun CharArray.getContentData(copy: Boolean = true): ByteArray = toCharSequence(copy).getContentData()
 
 @CreatorsDsl
 fun CharArray.toCharSequence(copy: Boolean = true): CharSequence = if (isEmpty()) EMPTY_STRING else toCharArray(copy).concatToString()

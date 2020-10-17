@@ -35,7 +35,8 @@ class LoggingMarker @CreatorsDsl constructor(private val marker: mu.Marker) : IM
     constructor(type: KClass<*>) : this(type.java)
 
     @CreatorsDsl
-    override fun nameOf(): String = marker.name
+    @IgnoreForSerialize
+    override fun getName(): String = marker.name
 
     @CreatorsDsl
     override fun markerOf(): mu.Marker = marker

@@ -178,6 +178,7 @@ object SameAndHashCode {
             is Path -> value.toByteArray()
             is Reader -> value.toByteArray()
             is ByteArray -> value.toByteArray()
+            is CharArray -> value.toByteArray()
             is ByteBuffer -> value.toByteArray()
             is InputStream -> value.toByteArray()
             is CharSequence -> value.getContentData()

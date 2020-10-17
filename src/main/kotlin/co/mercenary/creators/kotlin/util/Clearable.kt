@@ -16,7 +16,7 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface Clearable {
+fun interface Clearable {
     @CreatorsDsl
     fun clear()
 }

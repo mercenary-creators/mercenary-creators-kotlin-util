@@ -40,6 +40,15 @@ object LoggingFactory : HasMapNames {
 
     private val open = false.toAtomic()
 
+    private val klas: Class<*>? by lazy {
+        try {
+            Class.forName("org.slf4j.bridge.SLF4JBridgeHandler")
+        }
+        catch (cause: Throwable) {
+            null
+        }
+    }
+
     @CreatorsDsl
     private val auto = LoggingConfig.isAutoStart()
 
@@ -55,7 +64,37 @@ object LoggingFactory : HasMapNames {
             if (auto.isTrue()) {
                 start()
             }
+            if (stop.isTrue()) {
+                onExitOfProcess {
+                    val exit = close()
+                    getStandardError().echo(exit).newline()
+                }
+            }
         }
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    private fun isBridge(): Boolean {
+        return klas != null
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    private fun isBridgeStarted(): Boolean {
+        if (isBridge()) {
+            return try {
+                when (val call = klas!!.getMethod("isInstalled").invoke(null)) {
+                    is Boolean -> call
+                    else -> false
+                }
+            }
+            catch (cause: Throwable) {
+                getStandardError().echo("isInstalled").newline()
+                false
+            }
+        }
+        return false
     }
 
     @JvmStatic
@@ -68,11 +107,21 @@ object LoggingFactory : HasMapNames {
         return false
     }
 
+    @JvmStatic
+    @CreatorsDsl
+    fun close(): Boolean {
+        if (isStarted()) {
+            context().stop()
+            return true
+        }
+        return false
+    }
+
     @CreatorsDsl
     override fun toString() = nameOf()
 
     @CreatorsDsl
-    override fun toMapNames() = dictOf("type" to nameOf(), "open" to open.isTrue(), "started" to isStarted(), "conf" to dictOf("list" to list, "auto" to auto, "stop" to stop))
+    override fun toMapNames() = dictOf("type" to nameOf(), "open" to open.isTrue(), "started" to isStarted(), "isBridgeStarted" to isBridgeStarted(), "conf" to dictOf("list" to list, "auto" to auto, "stop" to stop))
 
     @JvmStatic
     @CreatorsDsl
@@ -128,7 +177,7 @@ object LoggingFactory : HasMapNames {
     }
 
     @CreatorsDsl
-    internal inline fun markerOf(name: String): mu.Marker = MarkerFactory.getMarker(name)
+    internal inline fun markerOf(name: String): mu.Marker = KMarkerFactory.getMarker(name)
 
     @CreatorsDsl
     internal inline fun Logger.loggerOf(): KLogger = KotlinLogging.logger(this)
