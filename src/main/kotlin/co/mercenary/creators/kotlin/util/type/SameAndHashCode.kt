@@ -18,6 +18,7 @@ package co.mercenary.creators.kotlin.util.type
 
 import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.io.*
+import co.mercenary.creators.kotlin.util.io.BytesOutputStream
 import java.io.*
 import java.io.ByteArrayOutputStream
 import java.math.*
@@ -32,13 +33,17 @@ object SameAndHashCode {
 
     @JvmStatic
     @CreatorsDsl
-    fun isEverySameAs(vararg args: Pair<Any?, Any?>): Boolean {
-        for ((value, other) in args) {
-            if (isNotSameAs(value, other)) {
-                return false
+    fun isEverySameAs(vararg args: Maybe): Boolean {
+        val size = args.size
+        if (size.isNotEven()) {
+            return false.toBoolean()
+        }
+        for (i in 0 until size step 2) {
+            if (isNotSameAs(args[i], args[i + 1])) {
+                return false.toBoolean()
             }
         }
-        return true
+        return true.toBoolean()
     }
 
     @JvmStatic
@@ -46,10 +51,10 @@ object SameAndHashCode {
     fun isEverySameAs(args: Iterable<Pair<Any?, Any?>>): Boolean {
         for ((value, other) in args) {
             if (isNotSameAs(value, other)) {
-                return false
+                return false.toBoolean()
             }
         }
-        return true
+        return true.toBoolean()
     }
 
     @JvmStatic
@@ -57,46 +62,46 @@ object SameAndHashCode {
     fun isEverySameAs(args: Sequence<Pair<Any?, Any?>>): Boolean {
         for ((value, other) in args) {
             if (isNotSameAs(value, other)) {
-                return false
+                return false.toBoolean()
             }
         }
-        return true
+        return true.toBoolean()
     }
 
     @JvmStatic
     @CreatorsDsl
     fun isSameAs(value: Any?, other: Any?): Boolean {
         if (value === other) {
-            return true
+            return true.toBoolean()
         }
         return when (value) {
             null -> other == null
-            is String -> if (other is String) value == other else false
-            is Array<*> -> if (other is Array<*>) value isSameArrayAs other else false
-            is IntArray -> if (other is IntArray) value isSameArrayAs other else false
-            is ByteArray -> if (other is ByteArray) value isSameArrayAs other else false
-            is CharArray -> if (other is CharArray) value isSameArrayAs other else false
-            is LongArray -> if (other is LongArray) value isSameArrayAs other else false
-            is ShortArray -> if (other is ShortArray) value isSameArrayAs other else false
-            is FloatArray -> if (other is FloatArray) value isSameArrayAs other else false
-            is DoubleArray -> if (other is DoubleArray) value isSameArrayAs other else false
-            is BooleanArray -> if (other is BooleanArray) value isSameArrayAs other else false
-            is AtomicBoolean -> if (other is Boolean) value.toBoolean() == other else if (other is AtomicBoolean) value.toBoolean() == other.toBoolean() else false
-            is Boolean -> if (other is Boolean) value == other else if (other is AtomicBoolean) value == other.toBoolean() else false
+            is String -> if (other is String) value == other else false.toBoolean()
+            is Array<*> -> if (other is Array<*>) value isSameArrayAs other else false.toBoolean()
+            is IntArray -> if (other is IntArray) value isSameArrayAs other else false.toBoolean()
+            is ByteArray -> if (other is ByteArray) value isSameArrayAs other else false.toBoolean()
+            is CharArray -> if (other is CharArray) value isSameArrayAs other else false.toBoolean()
+            is LongArray -> if (other is LongArray) value isSameArrayAs other else false.toBoolean()
+            is ShortArray -> if (other is ShortArray) value isSameArrayAs other else false.toBoolean()
+            is FloatArray -> if (other is FloatArray) value isSameArrayAs other else false.toBoolean()
+            is DoubleArray -> if (other is DoubleArray) value isSameArrayAs other else false.toBoolean()
+            is BooleanArray -> if (other is BooleanArray) value isSameArrayAs other else false.toBoolean()
+            is AtomicBoolean -> if (other is Boolean) value.toBoolean() == other else if (other is AtomicBoolean) value.toBoolean() == other.toBoolean() else false.toBoolean()
+            is Boolean -> if (other is Boolean) value == other else if (other is AtomicBoolean) value == other.toBoolean() else false.toBoolean()
             is Number -> when (other) {
                 is Number -> when (value) {
-                    is Int -> if (other is Int) value == other else if (other is AtomicInteger) value == other.toInt() else if (other is BigInteger) value.toBigInteger() == other else false
-                    is Byte -> if (other is Byte) value == other else false
-                    is Char -> if (other is Char) value == other else false
-                    is Short -> if (other is Short) value == other else false
-                    is Float -> if (other is Float) value.toBits() == other.toBits() else if (other is BigDecimal) value.toBigDecimal() == other else false
-                    is Double -> if (other is Double) value.toBits() == other.toBits() else if (other is BigDecimal) value.toBigDecimal() == other else false
-                    is Long -> if (other is Long) value == other else if (other is AtomicLong) value == other.toLong() else if (other is BigInteger) value.toBigInteger() == other else false
+                    is Int -> if (other is Int) value == other else if (other is AtomicInteger) value == other.toInt() else if (other is BigInteger) value.toBigInteger() == other else false.toBoolean()
+                    is Byte -> if (other is Byte) value == other else false.toBoolean()
+                    is Char -> if (other is Char) value == other else false.toBoolean()
+                    is Short -> if (other is Short) value == other else false.toBoolean()
+                    is Float -> if (other is Float) value.toBits() == other.toBits() else if (other is BigDecimal) value.toBigDecimal() == other else false.toBoolean()
+                    is Double -> if (other is Double) value.toBits() == other.toBits() else if (other is BigDecimal) value.toBigDecimal() == other else false.toBoolean()
+                    is Long -> if (other is Long) value == other else if (other is AtomicLong) value == other.toLong() else if (other is BigInteger) value.toBigInteger() == other else false.toBoolean()
                     is BigDecimal -> when (other) {
                         is Float -> other.toBigDecimal() == value
                         is Double -> other.toBigDecimal() == value
                         is BigDecimal -> value == other
-                        else -> false
+                        else -> false.toBoolean()
                     }
                     is BigInteger -> when (other) {
                         is Int -> other.toBigInteger() == value
@@ -104,13 +109,13 @@ object SameAndHashCode {
                         is AtomicLong -> other.toBigInteger() == value
                         is AtomicInteger -> other.toBigInteger() == value
                         is BigInteger -> value == other
-                        else -> false
+                        else -> false.toBoolean()
                     }
-                    is AtomicLong -> if (other is Long) value.toLong() == other else if (other is AtomicLong) value == other else if (other is BigInteger) value.toBigInteger() == other else false
-                    is AtomicInteger -> if (other is Int) value.toInt() == other else if (other is AtomicInteger) value.toInt() == other.toInt() else if (other is BigInteger) value.toBigInteger() == other else false
-                    else -> false
+                    is AtomicLong -> if (other is Long) value.toLong() == other else if (other is AtomicLong) value == other else if (other is BigInteger) value.toBigInteger() == other else false.toBoolean()
+                    is AtomicInteger -> if (other is Int) value.toInt() == other else if (other is AtomicInteger) value.toInt() == other.toInt() else if (other is BigInteger) value.toBigInteger() == other else false.toBoolean()
+                    else -> false.toBoolean()
                 }
-                else -> false
+                else -> false.toBoolean()
             }
             else -> value == other
         }
@@ -118,26 +123,27 @@ object SameAndHashCode {
 
     @JvmStatic
     @CreatorsDsl
-    fun isNotSameAs(value: Any?, other: Any?): Boolean = !isSameAs(value, other)
+    fun isNotSameAs(value: Any?, other: Any?): Boolean = isSameAs(value, other).isNotTrue()
 
     @JvmStatic
     @CreatorsDsl
     fun isContentCapable(value: Any?): Boolean = when (value) {
-        null -> false
-        is URI -> true
-        is URL -> true
-        is File -> true
-        is Path -> true
-        is Reader -> true
-        is ByteArray -> true
-        is ByteBuffer -> true
-        is InputStream -> true
-        is CharSequence -> true
-        is ContentResource -> true
-        is ReadableByteChannel -> true
-        is InputStreamSupplier -> true
-        is ByteArrayOutputStream -> true
-        else -> false
+        null -> false.toBoolean()
+        is URI -> true.toBoolean()
+        is URL -> true.toBoolean()
+        is File -> true.toBoolean()
+        is Path -> true.toBoolean()
+        is Reader -> true.toBoolean()
+        is ByteArray -> true.toBoolean()
+        is ByteBuffer -> true.toBoolean()
+        is InputStream -> true.toBoolean()
+        is CharSequence -> true.toBoolean()
+        is ContentResource -> true.toBoolean()
+        is BytesOutputStream -> true.toBoolean()
+        is ReadableByteChannel -> true.toBoolean()
+        is InputStreamSupplier -> true.toBoolean()
+        is ByteArrayOutputStream -> true.toBoolean()
+        else -> false.toBoolean()
     }
 
     @JvmStatic
@@ -151,22 +157,21 @@ object SameAndHashCode {
                     if (v.size == o.size) {
                         for (i in v.indices) {
                             if (v[i] != o[i]) {
-                                return false
+                                return false.toBoolean()
                             }
                         }
-                        return true
+                        return true.toBoolean()
                     }
-                }
-                catch (cause: Throwable) {
+                } catch (cause: Throwable) {
                 }
             }
         }
-        return false
+        return isSameAs(value, other)
     }
 
     @JvmStatic
     @CreatorsDsl
-    fun isContentNotSameAs(value: Any?, other: Any?): Boolean = !isContentSameAs(value, other)
+    fun isContentNotSameAs(value: Any?, other: Any?): Boolean = isContentSameAs(value, other).isNotTrue()
 
     @JvmStatic
     @CreatorsDsl

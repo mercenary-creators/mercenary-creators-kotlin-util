@@ -18,5 +18,5 @@ package co.mercenary.creators.kotlin.util.logging
 
 @DslMarker
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 annotation class LoggingInfoDsl

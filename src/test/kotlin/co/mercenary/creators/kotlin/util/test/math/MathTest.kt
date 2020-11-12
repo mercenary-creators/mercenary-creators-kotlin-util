@@ -23,8 +23,8 @@ import kotlin.math.*
 class MathTest : KotlinTest() {
     @Test
     fun test() {
-        val data = 2.5.neg()
-        val negs = 1.0.neg()
+        val data = 2.5.negOf()
+        val negs = 1.0.negOf()
         info { data }
         warn { dash() }
         info { data.truncated() }
@@ -42,7 +42,7 @@ class MathTest : KotlinTest() {
         info { sign(data) }
         info { data.isNegative() }
         info { sign(-data) }
-        info { data.neg().isNegative() }
+        info { data.negOf().isNegative() }
         warn { dash() }
         info { 2.0.pow(2) }
         info { 2.0.pow(-1) }
@@ -62,7 +62,7 @@ class MathTest : KotlinTest() {
         warn { dash() }
         info { 9.0 rootOf 2 }
         info { 8.0 rootOf 3 }
-        info { 8.0 rootOf 3.0.neg() }
+        info { 8.0 rootOf 3.0.negOf() }
         warn { dash() }
         var save = 1
         measured(10) {
@@ -79,13 +79,13 @@ class MathTest : KotlinTest() {
         warn { dash() }
         measured(10) {
             for (i in 1..10000000) {
-                save = IS_NOT_FOUND.abs()
+                save = IS_NOT_FOUND.absOf()
             }
         }
         warn { dash() }
         measured(10) {
             for (i in 1..10000000) {
-                save = 1.abs()
+                save = 1.absOf()
             }
         }
         warn { dash() }

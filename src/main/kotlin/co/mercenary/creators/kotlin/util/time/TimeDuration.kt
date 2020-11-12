@@ -34,22 +34,29 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
     @CreatorsDsl
     fun duration() = time.copyOf()
 
+    @CreatorsDsl
     operator fun plus(other: TimeDuration): TimeDuration {
         return time.plus(other.time).build(unit)
     }
 
+    @CreatorsDsl
     operator fun minus(other: TimeDuration): TimeDuration {
         return time.minus(other.time).build(unit)
     }
 
+    @CreatorsDsl
     operator fun div(other: Int): TimeDuration = div(other.toDouble())
 
+    @CreatorsDsl
     operator fun div(other: Long): TimeDuration = div(other.toDouble())
 
+    @CreatorsDsl
     operator fun div(other: Short): TimeDuration = div(other.toDouble())
 
+    @CreatorsDsl
     operator fun div(other: Float): TimeDuration = div(other.toDouble())
 
+    @CreatorsDsl
     operator fun div(other: Double): TimeDuration {
         return when (other.toValidDivisor()) {
             1.0 -> TimeDuration(time, unit)
@@ -57,14 +64,19 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
         }
     }
 
+    @CreatorsDsl
     operator fun times(other: Int): TimeDuration = times(other.toDouble())
 
+    @CreatorsDsl
     operator fun times(other: Long): TimeDuration = times(other.toDouble())
 
+    @CreatorsDsl
     operator fun times(other: Short): TimeDuration = times(other.toDouble())
 
+    @CreatorsDsl
     operator fun times(other: Float): TimeDuration = times(other.toDouble())
 
+    @CreatorsDsl
     operator fun times(other: Double): TimeDuration {
         return when (other.toFinite()) {
             1.0 -> TimeDuration(time, unit)
@@ -73,8 +85,10 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
         }
     }
 
+    @CreatorsDsl
     operator fun unaryPlus() = TimeDuration(time.abs(), unit)
 
+    @CreatorsDsl
     operator fun unaryMinus() = TimeDuration(time.negated(), unit)
 
     @CreatorsDsl
@@ -100,28 +114,40 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
 
     companion object {
 
+        @CreatorsDsl
         private const val NANOS_SHIFTED = 9
 
+        @CreatorsDsl
         private const val DAYS_PER_WEEK = 7L
 
+        @CreatorsDsl
         private const val DAYS_PER_YEAR = 365L
 
+        @CreatorsDsl
         private const val SECONDS_PER_TICK = 60L
 
+        @CreatorsDsl
         private const val MILLS_PER_SECOND = 1000L
 
+        @CreatorsDsl
         private const val NANOS_PER_SECOND = 1000000000L
 
+        @CreatorsDsl
         private const val SECONDS_PER_HOUR = SECONDS_PER_TICK * 60L
 
+        @CreatorsDsl
         private const val SECONDS_PER_DAYS = SECONDS_PER_HOUR * 24L
 
+        @CreatorsDsl
         private const val SECONDS_PER_WEEK = SECONDS_PER_DAYS * DAYS_PER_WEEK
 
+        @CreatorsDsl
         private const val SECONDS_PER_YEAR = SECONDS_PER_DAYS * DAYS_PER_YEAR
 
+        @CreatorsDsl
         private val NANOS_PER_SECOND_VALUE = NANOS_PER_SECOND.toBigInteger()
 
+        @CreatorsDsl
         private val ZERO = Duration.ZERO
 
         @CreatorsDsl
@@ -129,7 +155,7 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
 
         @CreatorsDsl
         private val HASH = atomicMapOf<String, TimeDuration>()
-
+        @CreatorsDsl
         private val Duration.nanos: Long
             get() = nano.toLong()
 
@@ -158,7 +184,7 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
         @JvmStatic
         @CreatorsDsl
         private fun text(unit: TimeDurationUnit, time: Long = 0L): String {
-            return "$time ${unit.toLowerCase(time.abs() != 1L)}"
+            return "$time ${unit.toLowerCase(time.absOf() != 1L)}"
         }
 
         @JvmStatic
@@ -440,7 +466,7 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
         @JvmStatic
         @CreatorsDsl
         private fun secondsOf(time: Double, unit: TimeDurationUnit): TimeDuration {
-            val full = if (time.isValid()) time.abs() else throw MercenaryFatalExceptiion("invalid time $time")
+            val full = if (time.isValid()) time.absOf() else throw MercenaryFatalExceptiion("invalid time $time")
             val part = full.floorOf()
             if (part >= Long.MAX_VALUE) {
                 throw MercenaryFatalExceptiion("invalid part $part")

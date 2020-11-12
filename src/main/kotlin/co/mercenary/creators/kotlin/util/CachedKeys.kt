@@ -16,19 +16,11 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface CachedKeys : Iterable<String> {
+interface CachedKeys<T: CharSequence> : Iterable<T>, SizedContainer {
 
     @CreatorsDsl
-    val size: Int
+    operator fun contains(data: String): Boolean
 
     @CreatorsDsl
-    @IgnoreForSerialize
-    fun isEmpty(): Boolean
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isNotEmpty(): Boolean = isEmpty().isNotTrue()
-
-    @CreatorsDsl
-    operator fun contains(data: CharSequence): Boolean
+    operator fun contains(data: CharSequence): Boolean = contains(data.toString())
 }

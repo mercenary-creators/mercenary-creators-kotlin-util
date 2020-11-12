@@ -25,11 +25,11 @@ class RootTest : KotlinTest() {
         warn { dash() }
         info { 9.0 rootOf 2 }
         info { 8.0 rootOf 3 }
-        info { 8.0 rootOf 3.0.neg() }
+        info { 8.0 rootOf 3.0.negOf() }
         warn { dash() }
-        info { 9.0.neg() rootOf 2 }
-        info { 8.0.neg() rootOf 3 }
-        info { 8.0.neg() rootOf 3.0.neg() }
+        info { 9.0.negOf() rootOf 2 }
+        info { 8.0.negOf() rootOf 3 }
+        info { 8.0.negOf() rootOf 3.0.negOf() }
         warn { dash() }
         info { Double.NaN.toBigDecimal() }
         warn { dash() }

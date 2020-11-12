@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
 
-interface IMarker {
+interface IMarker : Container, HasMapNames {
 
     @CreatorsDsl
     @IgnoreForSerialize
@@ -28,7 +28,10 @@ interface IMarker {
     fun markerOf(): mu.Marker
 
     operator fun plusAssign(value: IMarker)
+
     operator fun minusAssign(value: IMarker)
+
     operator fun contains(value: IMarker): Boolean
+
     operator fun contains(value: CharSequence): Boolean
 }

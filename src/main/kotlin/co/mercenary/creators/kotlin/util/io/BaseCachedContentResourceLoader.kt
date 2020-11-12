@@ -21,33 +21,8 @@ import co.mercenary.creators.kotlin.util.*
 @IgnoreForSerialize
 open class BaseCachedContentResourceLoader @JvmOverloads @CreatorsDsl constructor(name: String = EMPTY_STRING, loader: ClassLoader? = null) : BaseContentResourceLoader(name, loader), CachedContentResourceLoader {
 
+    @CreatorsDsl
     private val maps = atomicMapOf<String, CachedContentResource>()
-
-    private val keep = object : MutableCachedKeys {
-
-        @CreatorsDsl
-        private fun keys() = maps.keys
-
-        @CreatorsDsl
-        override fun clear() {
-            keys().clear()
-        }
-
-        @CreatorsDsl
-        override val size: Int
-            @IgnoreForSerialize
-            get() = keys().size
-
-        @CreatorsDsl
-        @IgnoreForSerialize
-        override fun isEmpty() = keys().isEmpty()
-
-        @CreatorsDsl
-        override operator fun iterator() = keys().iterator()
-
-        @CreatorsDsl
-        override operator fun contains(data: CharSequence) = keys().contains(data.toString())
-    }
 
     override operator fun get(path: String): CachedContentResource {
         return maps.computeIfAbsent(path) {
@@ -62,16 +37,50 @@ open class BaseCachedContentResourceLoader @JvmOverloads @CreatorsDsl constructo
     @CreatorsDsl
     override val keys: MutableCachedKeys
         @IgnoreForSerialize
-        get() = keep
+        get() = ViewOfKeys(maps)
 
-    override fun toString() = toMapNames().toString()
+    @CreatorsDsl
+    override fun toString() = toMapNames().toSafeString()
 
-    override fun hashCode() = toMapNames().hashCode()
+    @CreatorsDsl
+    override fun hashCode() = toMapNames().toSafeHashUf()
 
     @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
         is BaseCachedContentResourceLoader -> this === other || toMapNames() isSameAs other.toMapNames()
         else -> false
+    }
+
+    private class ViewOfKeys @CreatorsDsl constructor(maps: AtomicHashMap<String, CachedContentResource>) : MutableCachedKeys {
+
+        @CreatorsDsl
+        private val view: AtomicHashMapKeysView<String, CachedContentResource> = maps.keys
+
+        @CreatorsDsl
+        override val size: Int
+            @IgnoreForSerialize
+            get() = view.size
+
+        @CreatorsDsl
+        override operator fun iterator() = view.iterator()
+
+        @CreatorsDsl
+        override operator fun contains(data: String): Boolean = view.contains(data)
+
+        @CreatorsDsl
+        override fun clear() = view.clear()
+
+        @CreatorsDsl
+        override fun hashCode() = view.hashCode()
+
+        @CreatorsDsl
+        override fun toString() = view.toString()
+
+        @CreatorsDsl
+        override fun equals(other: Any?) = when (other) {
+            is ViewOfKeys -> this === other || view == other.view
+            else -> false
+        }
     }
 
     companion object {

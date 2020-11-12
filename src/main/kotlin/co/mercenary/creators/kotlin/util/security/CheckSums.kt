@@ -19,21 +19,62 @@ package co.mercenary.creators.kotlin.util.security
 import co.mercenary.creators.kotlin.util.*
 import java.util.zip.*
 
-object CheckSums {
+@IgnoreForSerialize
+object CheckSums : HasMapNames {
+
+    @FrameworkDsl
+    private const val CRC_32_NAME = "crc32"
+
+    @FrameworkDsl
+    private const val ADL_32_NAME = "adl32"
 
     @JvmStatic
     @CreatorsDsl
-    fun crc32(): CheckSum = CheckSumFactory(CRC32())
+    fun crc32(): CheckSum = CheckSumFactory(CRC32(), CRC_32_NAME)
 
     @JvmStatic
     @CreatorsDsl
-    fun adl32(): CheckSum = CheckSumFactory(Adler32())
+    fun adl32(): CheckSum = CheckSumFactory(Adler32(), ADL_32_NAME)
+
+    @CreatorsDsl
+    override fun toString() = toMapNames().toSafeString()
+
+    @CreatorsDsl
+    override fun toMapNames() = dictOf("type" to nameOf(), "sums" to uniqueListOf(CRC_32_NAME, ADL_32_NAME))
 
     @IgnoreForSerialize
-    private class CheckSumFactory @CreatorsDsl constructor(private val factory: Checksum) : CheckSum {
+    private class CheckSumFactory @CreatorsDsl constructor(private val factory: Checksum, private val name: String) : CheckSum {
 
         @CreatorsDsl
-        override fun clear() = factory.reset()
+        override val total: Long
+            @IgnoreForSerialize
+            get() = factory.value
+
+        @CreatorsDsl
+        private fun toName() = name
+
+        @CreatorsDsl
+        private fun updateGetTotalOf(data: ByteArray): Long {
+            return factory.update(data, 0, data.size).let { total }
+        }
+
+        @CreatorsDsl
+        override fun reset() = factory.reset()
+
+        @CreatorsDsl
+        override fun toMapNames() = dictOf("type" to nameOf(), "name" to toName())
+
+        @CreatorsDsl
+        override fun toString() = toName()
+
+        @CreatorsDsl
+        override fun hashCode() = toName().hashCode()
+
+        @CreatorsDsl
+        override fun equals(other: Any?) = when (other) {
+            is CheckSumFactory -> other === this || toName() == other.toName()
+            else -> false
+        }
 
         @CreatorsDsl
         override fun decoder(data: String): Long = updater(data.getContentData())
@@ -42,9 +83,9 @@ object CheckSums {
         override fun encoder(data: String): String = Encoders.hex().encode(buffers(decoder(data)))
 
         @CreatorsDsl
-        override fun updater(data: ByteArray): Long = factory.also { it.update(data, 0, data.size) }.value
+        override fun updater(data: ByteArray): Long = updateGetTotalOf(data)
 
         @CreatorsDsl
-        override fun buffers(data: Long): ByteArray = getByteBuffer(Int.SIZE_BYTES).putInt(data.toMasked()).toByteArray()
+        override fun buffers(data: Long): ByteArray = toByteArrayOfInt(data)
     }
 }

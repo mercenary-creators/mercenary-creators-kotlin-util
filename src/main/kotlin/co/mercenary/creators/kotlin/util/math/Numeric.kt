@@ -53,6 +53,10 @@ object Numeric {
 
     @JvmStatic
     @CreatorsDsl
+    inline fun negOf(value: Double): Double = -value
+
+    @JvmStatic
+    @CreatorsDsl
     inline fun sqrtOf(value: Double): Double = sqrt(value.toFinite())
 
     @JvmStatic
@@ -311,38 +315,6 @@ object Numeric {
         }
         return true
     }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun toDoubleArray(list: IntArray): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun toDoubleArray(list: LongArray): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun toDoubleArray(list: Array<Int>): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun toDoubleArray(list: Array<Long>): DoubleArray = DoubleArray(list.size) { i -> list[i].toDouble() }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun toDoubleArray(list: DoubleArray): DoubleArray = DoubleArray(list.size) { i -> list[i].toFinite() }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun toDoubleArray(list: Array<Double>): DoubleArray = DoubleArray(list.size) { i -> list[i].toFinite() }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun <N : Number> toDoubleArray(args: Iterable<N>): DoubleArray = args.toList().let { list -> DoubleArray(list.size) { i -> list[i].toDouble().toFinite() } }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun <N : Number> toDoubleArray(args: Sequence<N>): DoubleArray = args.toList().let { list -> DoubleArray(list.size) { i -> list[i].toDouble().toFinite() } }
 
     @JvmStatic
     @CreatorsDsl
@@ -638,7 +610,7 @@ object Numeric {
             val s = toSign(r + x) * powerOf(absOf(r + x), 1.0 / 3.0)
             val t = toSign(r - x) * powerOf(absOf(r - x), 1.0 / 3.0)
             data[0] = s + t
-            data[1] = (a.neg() / 3.0) - ((s + t) / 2.0)
+            data[1] = (negOf(a) / 3.0) - ((s + t) / 2.0)
             data[2] = data[1]
             if (absOf((sqrtOf(3.0) * (s - t)) / 2.0) != 0.0) {
                 data[1] = NEGATIVE_ONE
@@ -646,10 +618,10 @@ object Numeric {
             }
         }
         else {
-            val t = acosOf(r / sqrtOf(powerOf(q, 3.0).neg()))
-            data[0] = (2.0 * sqrtOf(q.neg()) * cosOf(t / 3.0)) - (a / 3.0)
-            data[1] = (2.0 * sqrtOf(q.neg()) * cosOf((t + PI_2) / 3.0)) - (a / 3.0)
-            data[2] = (2.0 * sqrtOf(q.neg()) * cosOf((t + PI_4) / 3.0)) - (a / 3.0)
+            val t = acosOf(r / sqrtOf(powerOf(q, 3.0).negOf()))
+            data[0] = (2.0 * sqrtOf(q.negOf()) * cosOf(t / 3.0)) - (a / 3.0)
+            data[1] = (2.0 * sqrtOf(q.negOf()) * cosOf((t + PI_2) / 3.0)) - (a / 3.0)
+            data[2] = (2.0 * sqrtOf(q.negOf()) * cosOf((t + PI_4) / 3.0)) - (a / 3.0)
             for (i in data.indices) {
                 if (data[i] < 0.0 || data[i] > 1.0) {
                     data[i] = NEGATIVE_ONE
@@ -679,17 +651,17 @@ object Numeric {
         val q = (b * b) - (4.0 * a * c)
         if (q > 0) {
             val r = sqrtOf(q)
-            var t = (b.neg() + r) / (2.0 * a)
+            var t = (b.negOf() + r) / (2.0 * a)
             if ((0 < t) && (t < 1)) {
                 data[0] = t
             }
-            t = (b.neg() - r) / (2.0 * a)
+            t = (b.negOf() - r) / (2.0 * a)
             if ((0 < t) && (t < 1)) {
                 data[1] = t
             }
         }
         else if (closeEnough(q, 0.0, 0.000001)) {
-            data[0] = b.neg() / (2.0 * a)
+            data[0] = b.negOf() / (2.0 * a)
             data[1] = data[0]
         }
         return data
@@ -700,7 +672,7 @@ object Numeric {
     internal fun linearRootsOf(a: Double, b: Double): DoubleArray {
         val data = vectorOf(3, NEGATIVE_ONE)
         if (closeEnough(a.toFinite(), 0.0, 0.000001).isNotTrue()) {
-            val t = b.neg() dividedBy a
+            val t = b.negOf() dividedBy a
             if ((0 < t) && (t < 1)) {
                 data[0] = t
             }

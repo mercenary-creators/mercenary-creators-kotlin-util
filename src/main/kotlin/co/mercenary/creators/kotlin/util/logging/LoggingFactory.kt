@@ -21,6 +21,7 @@ package co.mercenary.creators.kotlin.util.logging
 import co.mercenary.creators.kotlin.util.*
 import mu.*
 import org.slf4j.*
+import org.slf4j.bridge.SLF4JBridgeHandler
 import kotlin.reflect.KClass
 
 @IgnoreForSerialize
@@ -40,20 +41,14 @@ object LoggingFactory : HasMapNames {
 
     private val open = false.toAtomic()
 
-    private val klas: Class<*>? by lazy {
-        try {
-            Class.forName("org.slf4j.bridge.SLF4JBridgeHandler")
-        }
-        catch (cause: Throwable) {
-            null
-        }
-    }
-
     @CreatorsDsl
     private val auto = LoggingConfig.isAutoStart()
 
     @CreatorsDsl
     private val stop = LoggingConfig.isAutoClose()
+
+    @CreatorsDsl
+    private val juli = LoggingConfig.isBridgeing()
 
     @CreatorsDsl
     private val list = LoggingConfig.getIgnoring()
@@ -65,7 +60,7 @@ object LoggingFactory : HasMapNames {
                 start()
             }
             if (stop.isTrue()) {
-                onExitOfProcess {
+                onExitOfProcess(true) {
                     val exit = close()
                     getStandardError().echo(exit).newline()
                 }
@@ -75,33 +70,14 @@ object LoggingFactory : HasMapNames {
 
     @JvmStatic
     @CreatorsDsl
-    private fun isBridge(): Boolean {
-        return klas != null
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    private fun isBridgeStarted(): Boolean {
-        if (isBridge()) {
-            return try {
-                when (val call = klas!!.getMethod("isInstalled").invoke(null)) {
-                    is Boolean -> call
-                    else -> false
-                }
-            }
-            catch (cause: Throwable) {
-                getStandardError().echo("isInstalled").newline()
-                false
-            }
-        }
-        return false
-    }
-
-    @JvmStatic
-    @CreatorsDsl
     fun start(): Boolean {
         if (isStarted().isNotTrue()) {
             context().start()
+            if (juli.isTrue()) {
+                if (LoggingBridge.isNotStarted()) {
+                    LoggingBridge.start()
+                }
+            }
             return true
         }
         return false
@@ -112,6 +88,11 @@ object LoggingFactory : HasMapNames {
     fun close(): Boolean {
         if (isStarted()) {
             context().stop()
+            if (juli.isTrue()) {
+                if (LoggingBridge.isStarted()) {
+                    LoggingBridge.close()
+                }
+            }
             return true
         }
         return false
@@ -121,7 +102,7 @@ object LoggingFactory : HasMapNames {
     override fun toString() = nameOf()
 
     @CreatorsDsl
-    override fun toMapNames() = dictOf("type" to nameOf(), "open" to open.isTrue(), "started" to isStarted(), "isBridgeStarted" to isBridgeStarted(), "conf" to dictOf("list" to list, "auto" to auto, "stop" to stop))
+    override fun toMapNames() = dictOf("type" to nameOf(), "open" to open.isTrue(), "started" to isStarted(), "bridge" to LoggingBridge.isStarted(), "conf" to dictOf("list" to list, "auto" to auto, "stop" to stop))
 
     @JvmStatic
     @CreatorsDsl
@@ -275,17 +256,15 @@ object LoggingFactory : HasMapNames {
     @JvmStatic
     @CreatorsDsl
     fun withLevel(name: CharSequence, using: LoggingLevel, block: () -> Unit) {
-        with(classic(name.whenRoot())) {
+        scope(classic(name.whenRoot())) {
             val saved = level
             level = using.toLevel()
             try {
                 block()
-            }
-            catch (cause: Throwable) {
+            } catch (cause: Throwable) {
                 Throwables.thrown(cause)
                 throw cause
-            }
-            finally {
+            } finally {
                 level = saved
             }
         }
@@ -298,5 +277,53 @@ object LoggingFactory : HasMapNames {
     @CreatorsDsl
     fun toSafeString(func: () -> Any?): String {
         return Formatters.toSafeString(func)
+    }
+
+    @IgnoreForSerialize
+    private object LoggingBridge {
+
+        @JvmStatic
+        @FrameworkDsl
+        @IgnoreForSerialize
+        fun isStarted(): Boolean {
+            return try {
+                SLF4JBridgeHandler.isInstalled()
+            } catch (cause: Throwable) {
+                false
+            }
+        }
+
+        @JvmStatic
+        @FrameworkDsl
+        @IgnoreForSerialize
+        fun isNotStarted(): Boolean = isStarted().isNotTrue()
+
+        @JvmStatic
+        @FrameworkDsl
+        fun start(): Boolean {
+            if (isNotStarted()) {
+                return try {
+                    SLF4JBridgeHandler.install()
+                    true
+                } catch (cause: Throwable) {
+                    false
+                }
+            }
+            return false
+        }
+
+        @JvmStatic
+        @FrameworkDsl
+        fun close(): Boolean {
+            if (isStarted()) {
+                return try {
+                    SLF4JBridgeHandler.uninstall()
+                    true
+                } catch (cause: Throwable) {
+                    false
+                }
+            }
+            return false
+        }
     }
 }

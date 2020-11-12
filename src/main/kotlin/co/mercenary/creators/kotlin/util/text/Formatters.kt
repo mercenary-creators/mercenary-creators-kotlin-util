@@ -25,10 +25,10 @@ object Formatters {
     @JvmOverloads
     fun getFormatterList(load: ClassLoader? = null): List<StringFormatterService> {
         return try {
-            ServiceLoading.loaderOf(StringFormatterService::class, load).sorted().reversed().toList()
+            ServiceLoading.loaderOf(StringFormatterService::class, load).toReverseSortedListOf()
         }
         catch (cause: Throwable) {
-            listOf()
+            toListOf()
         }
     }
 

@@ -22,7 +22,8 @@ import java.time.*
 import java.time.format.*
 import java.util.*
 
-object TimeAndDate {
+@IgnoreForSerialize
+object TimeAndDate : HasMapNames {
 
     private val formatter: DateTimeFormatter by lazy {
         DateTimeFormatterBuilder().appendPattern(TIME_DEFAULT_DATE_FORMAT).toFormatter()
@@ -52,25 +53,30 @@ object TimeAndDate {
     @JvmStatic
     @CreatorsDsl
     @JvmOverloads
+    @IgnoreForSerialize
     fun getTimeStamp(nano: Boolean = false): Long = if (nano) nanos() else mills()
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     fun getDefaultTimeZoneId(): ZoneId = ZoneId.of(TIME_DEFAULT_ZONE_STRING)
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(TIME_DEFAULT_ZONE_STRING)
 
     @JvmStatic
     @CreatorsDsl
     @JvmOverloads
+    @IgnoreForSerialize
     fun setDefaultTimeZone(zone: TimeZone = getDefaultTimeZone()) {
         TimeZone.setDefault(zone)
     }
 
     @JvmStatic
     @CreatorsDsl
+    @IgnoreForSerialize
     fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat(TIME_DEFAULT_DATE_FORMAT)
 
     @JvmStatic
@@ -80,6 +86,7 @@ object TimeAndDate {
     @JvmStatic
     @CreatorsDsl
     @JvmOverloads
+    @IgnoreForSerialize
     fun getDefaultDateFormatAndTimeZone(zone: TimeZone = getDefaultTimeZone()): SimpleDateFormat = getDefaultDateFormat(zone)
 
     @JvmStatic
@@ -127,6 +134,7 @@ object TimeAndDate {
     @JvmStatic
     @CreatorsDsl
     @JvmOverloads
+    @IgnoreForSerialize
     fun getThreadLocalDefaultDateFormat(zone: TimeZone = getDefaultTimeZone()): ThreadLocal<SimpleDateFormat> = ThreadLocal.withInitial { getDefaultDateFormat(zone) }
 
     @JvmStatic
@@ -138,4 +146,10 @@ object TimeAndDate {
     @CreatorsDsl
     @JvmOverloads
     fun toElapsedString(data: Long, head: String = "elapsed "): String = head + if (data < 1000000L) "$data nanoseconds" else if (data < 1000000000L) toDecimalPlaces(1.0E-6 * data, " milliseconds") else toDecimalPlaces(1.0E-9 * data, " seconds")
+
+    @CreatorsDsl
+    override fun toString() = toMapNames().toSafeString()
+
+    @CreatorsDsl
+    override fun toMapNames() = dictOf("type" to nameOf())
 }

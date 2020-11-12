@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 
 @IgnoreForSerialize
-class NoCloseReader @CreatorsDsl constructor(data: Reader) : FilterReader(data), OpenCloseable {
+class NoCloseReader @CreatorsDsl constructor(data: Reader) : FilterReader(data), OpenAutoClosable {
 
     private val open = true.toAtomic()
 

@@ -16,8 +16,9 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface OpenCloseable : AutoCloseable {
+interface MutableSizedContainer : MutableContainer, Sized {
+
     @CreatorsDsl
     @IgnoreForSerialize
-    fun isOpen(): Boolean
+    override fun isEmpty(): Boolean = size == 0
 }

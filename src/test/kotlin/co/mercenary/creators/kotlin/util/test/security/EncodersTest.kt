@@ -23,7 +23,8 @@ class EncodersTest : KotlinSecurityTest() {
     @Test
     fun test() {
         val name = getGeneratedText()
-        val code = Encoders.text(Encoders.hex())
+        val code = Encoders.hex().toText()
+        warn { code }
         info { name }
         val data = timed {
             code.encode(name)

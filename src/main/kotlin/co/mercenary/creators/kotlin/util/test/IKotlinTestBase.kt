@@ -19,6 +19,7 @@ package co.mercenary.creators.kotlin.util.test
 import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.io.*
 import co.mercenary.creators.kotlin.util.logging.*
+import co.mercenary.creators.kotlin.util.logging.ILoggingBase
 import java.io.File
 import java.util.*
 import kotlin.reflect.KClass

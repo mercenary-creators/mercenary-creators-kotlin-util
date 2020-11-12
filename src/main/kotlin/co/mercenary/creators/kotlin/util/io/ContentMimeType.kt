@@ -40,13 +40,16 @@ class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBas
         @IgnoreForSerialize
         get() = mime.part
 
+    @CreatorsDsl
     override fun clone() = copyOf()
 
     @CreatorsDsl
     override fun copyOf() = ContentMimeType(mime.copyOf())
 
+    @CreatorsDsl
     override fun toString() = mime.toString()
 
+    @CreatorsDsl
     override fun hashCode() = mime.hashCode()
 
     @CreatorsDsl
@@ -97,8 +100,7 @@ class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBas
         private fun parse(type: String): MimeBase {
             return try {
                 MimeBase(type)
-            }
-            catch (cause: Throwable) {
+            } catch (cause: Throwable) {
                 Throwables.thrown(cause)
                 BASE
             }
@@ -166,8 +168,7 @@ class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBas
             @CreatorsDsl
             infix fun isMatchOf(other: String): Boolean = try {
                 mime.match(other)
-            }
-            catch (cause: Throwable) {
+            } catch (cause: Throwable) {
                 Throwables.thrown(cause)
                 false
             }
@@ -175,8 +176,7 @@ class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBas
             @CreatorsDsl
             infix fun isMatchOf(other: MimeBase): Boolean = try {
                 mime.match(other.mime)
-            }
-            catch (cause: Throwable) {
+            } catch (cause: Throwable) {
                 Throwables.thrown(cause)
                 false
             }

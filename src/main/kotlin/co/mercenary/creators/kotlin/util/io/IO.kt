@@ -25,9 +25,10 @@ import java.net.*
 import java.nio.channels.ReadableByteChannel
 import java.nio.charset.Charset
 import java.nio.file.Paths
+import java.util.*
 
 @IgnoreForSerialize
-object IO : HasMapNames {
+object IO : HasMapNames, Logging("IO") {
 
     const val EXT_SEPARATOR_CHAR = '.'
     const val SINGLE_PREFIX_CHAR = '~'
@@ -152,8 +153,7 @@ object IO : HasMapNames {
                 return conn
             }
             conn.getInputStream().close()
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         return null
@@ -168,8 +168,7 @@ object IO : HasMapNames {
             if (load != null) {
                 return load
             }
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         try {
@@ -177,8 +176,7 @@ object IO : HasMapNames {
             if (load != null) {
                 return load
             }
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         try {
@@ -186,8 +184,7 @@ object IO : HasMapNames {
             if (load != null) {
                 return load
             }
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         return IO.javaClass.classLoader
@@ -205,8 +202,7 @@ object IO : HasMapNames {
                 else -> data
             }
         }
-    }
-    catch (cause: Throwable) {
+    } catch (cause: Throwable) {
         Throwables.thrown(cause)
         null
     }
@@ -216,8 +212,7 @@ object IO : HasMapNames {
     @JvmOverloads
     fun getInputStream(path: String, claz: Class<*>? = null, load: ClassLoader? = null): InputStream? = try {
         getInputStream(getResouce(path, claz, load))
-    }
-    catch (cause: Throwable) {
+    } catch (cause: Throwable) {
         Throwables.thrown(cause)
         null
     }
@@ -237,8 +232,7 @@ object IO : HasMapNames {
                 return null
             }
             return data.openStream()
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         return null
@@ -252,14 +246,12 @@ object IO : HasMapNames {
         }
         try {
             return Paths.get(data).toInputStream()
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         try {
             return data.toURL().toInputStream()
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         return null
@@ -292,15 +284,13 @@ object IO : HasMapNames {
                     return file.toOutputStream()
                 }
                 return null
-            }
-            else {
+            } else {
                 return data.openConnection().let {
                     it.doOutput = true
                     it.getOutputStream()
                 }
             }
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         return null
@@ -314,14 +304,12 @@ object IO : HasMapNames {
         }
         try {
             return Paths.get(data).toOutputStream()
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         try {
             return data.toURL().toOutputStream()
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         return null
@@ -339,8 +327,7 @@ object IO : HasMapNames {
                 }
             }
             return null
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         return null
@@ -353,8 +340,7 @@ object IO : HasMapNames {
             if (data.isFileURL()) {
                 val file = toFileOrNull(data, true)
                 return ((file != null) && (file.isValidToRead()))
-            }
-            else {
+            } else {
                 val conn = getHeadConnection(data)
                 if (conn != null) {
                     val code = conn.responseCode
@@ -364,8 +350,7 @@ object IO : HasMapNames {
                 data.openStream().close()
                 return true
             }
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         return false
@@ -379,8 +364,7 @@ object IO : HasMapNames {
             if ((file != null) && (file.isValidToRead())) {
                 return file.length()
             }
-        }
-        else {
+        } else {
             val conn = getHeadConnection(data)
             if (conn != null) {
                 val size = conn.contentLengthLong
@@ -414,8 +398,7 @@ object IO : HasMapNames {
             if ((file != null) && (file.isValidToRead())) {
                 return file.lastModified()
             }
-        }
-        else {
+        } else {
             val conn = getHeadConnection(data)
             if (conn != null) {
                 val time = conn.lastModified
@@ -443,8 +426,7 @@ object IO : HasMapNames {
                 if (path.isNotEmpty()) {
                     return getContentTypeProbe().getContentType(path, type)
                 }
-            }
-            else {
+            } else {
                 val conn = getHeadConnection(data)
                 if (conn != null) {
                     val send = toTrimOrElse(conn.contentType, DEFAULT_CONTENT_TYPE)
@@ -466,8 +448,7 @@ object IO : HasMapNames {
                 conn.disconnect()
                 return if (send.isDefaultContentType()) ContentMimeType.DEFAULT_CONTENT_MIME_TYPE else ContentMimeType(send)
             }
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         return ContentMimeType.DEFAULT_CONTENT_MIME_TYPE
@@ -479,8 +460,7 @@ object IO : HasMapNames {
         if (type.isDefaultContentType() && data.isAbsolute) {
             try {
                 return getContentType(data.toURL(), type)
-            }
-            catch (cause: Throwable) {
+            } catch (cause: Throwable) {
                 Throwables.thrown(cause)
             }
         }
@@ -515,6 +495,64 @@ object IO : HasMapNames {
             }
         }
         return type.toLowerTrim()
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: InputStream): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: ContentResource): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: ContentResource, properties: Properties): Properties {
+        return getProperties(data.getInputStream(), properties)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: InputStream, properties: Properties): Properties {
+        warn { "getProperties(1)" }
+        try {
+            data.use { look -> properties.load(look) }
+        } catch (cause: Throwable) {
+            Throwables.thrown(cause)
+            error(cause) { "getProperties(2)" }
+        }
+        info { "getProperties(3)" }
+        return properties
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: CharSequence, properties: Properties): Properties {
+        val name = data.toTrimOr(EMPTY_STRING)
+        if (name.isNotSameAs(EMPTY_STRING).isNotTrue()) {
+            try {
+                return getProperties(CONTENT_RESOURCE_LOADER[name], properties)
+            } catch (cause: Throwable) {
+                error(cause) { "Can't load resource" }
+            }
+        }
+        debug { "Resource name was empty" }
+        return properties
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun load(name: CharSequence): ContentResource {
+        return try {
+            CONTENT_RESOURCE_LOADER[name.toTrimOr()].toContentCache()
+        }
+        catch (cause: Throwable) {
+            EmptyContentResource
+        }
     }
 
     @CreatorsDsl

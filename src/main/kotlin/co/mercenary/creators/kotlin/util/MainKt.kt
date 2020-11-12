@@ -15,16 +15,19 @@
  */
 
 @file:kotlin.jvm.JvmName("MainKt")
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 
 package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.security.*
 import java.math.BigInteger
+import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.atomic.*
+import java.util.stream.*
 import kotlin.reflect.KClass
+import kotlin.streams.*
 
 @CreatorsDsl
 const val IS_NOT_FOUND = -1
@@ -34,6 +37,15 @@ const val EMPTY_STRING = ""
 
 @CreatorsDsl
 const val SPACE_STRING = " "
+
+@CreatorsDsl
+const val SPACE_LETTER = ' '
+
+@CreatorsDsl
+const val MINUS_STRING = "-"
+
+@CreatorsDsl
+const val MINUS_LETTER = '-'
 
 @CreatorsDsl
 const val NULLS_STRING = "null"
@@ -47,11 +59,28 @@ const val KOTLIN_METAS = "kotlin.Metadata"
 @CreatorsDsl
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2020, Mercenary Creators Company."
 
+@CreatorsDsl
+const val DEFAULT_MAP_FACTOR = 0.75
+
+@CreatorsDsl
+const val DEFAULT_MAP_CAPACITY = 16
+
+@CreatorsDsl
+const val DEFAULT_PARALLEL_CUTOFF = 2
+
+@CreatorsDsl
+const val DEFAULT_STRINGOF_CAPACITY = 16
+
+@CreatorsDsl
+const val DEFAULT_LRU_THRESHOLD = DEFAULT_MAP_CAPACITY * 8
+
 typealias Inflaters = co.mercenary.creators.kotlin.util.io.Inflaters
 
 typealias Logging = co.mercenary.creators.kotlin.util.logging.Logging
 
 typealias ILogging = co.mercenary.creators.kotlin.util.logging.ILogging
+
+typealias ILoggingBase = co.mercenary.creators.kotlin.util.logging.ILoggingBase
 
 typealias LoggingFactory = co.mercenary.creators.kotlin.util.logging.LoggingFactory
 
@@ -77,9 +106,38 @@ typealias SameAndHashCode = co.mercenary.creators.kotlin.util.type.SameAndHashCo
 
 typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
+typealias Manager = co.mercenary.creators.kotlin.util.system.Manager
+
 typealias AtomicHashMap<K, V> = java.util.concurrent.ConcurrentHashMap<K, V>
 
+typealias AtomicHashMapKeysView<K, V> = java.util.concurrent.ConcurrentHashMap.KeySetView<K, V>
+
 typealias LRUCacheMap<K, V> = co.mercenary.creators.kotlin.util.collection.LRUCacheMap<K, V>
+
+typealias IterableBuilder<V> = co.mercenary.creators.kotlin.util.collection.IterableBuilder<V>
+
+typealias BasicDictionaryMap<V> = co.mercenary.creators.kotlin.util.collection.BasicDictionaryMap<V>
+
+typealias StringDictionary = co.mercenary.creators.kotlin.util.collection.StringDictionary
+
+typealias Dictionary<V> = Map<String, V>
+
+typealias AnyDictionary = Dictionary<Any?>
+
+typealias MutableDictionary<V> = MutableMap<String, V>
+
+typealias MutableAnyDictionary = MutableDictionary<Any?>
+
+typealias MessageDigestProxy = co.mercenary.creators.kotlin.util.security.Digests.MessageDigestProxy
+
+@CreatorsDsl
+fun <T : Any?> T.toSafeHashUf(): Int = hashOf()
+
+@CreatorsDsl
+fun <T : Any?> T.toSafeString(): String = Formatters.toSafeString { this }
+
+@CreatorsDsl
+inline fun <E : Enum<E>> E.toOrdinalLong(): Long = ordinal.toLong()
 
 open class MercenaryExceptiion @CreatorsDsl constructor(text: String?, root: Throwable?) : RuntimeException(text, root) {
 
@@ -112,7 +170,7 @@ open class MercenaryFatalExceptiion @CreatorsDsl constructor(text: String?, root
     }
 }
 
-open class MercenaryAssertExceptiion @CreatorsDsl constructor(text: String?, root: Throwable?) : AssertionError(text, root) {
+open class MercenaryAssertionExceptiion @CreatorsDsl constructor(text: String?, root: Throwable?) : AssertionError(text, root) {
 
     @CreatorsDsl
     constructor(text: String) : this(text, null)
@@ -130,8 +188,143 @@ open class MercenaryAssertExceptiion @CreatorsDsl constructor(text: String?, roo
 fun java.security.MessageDigest.proxyOf() = Digests.proxyOf(this)
 
 @CreatorsDsl
-fun onExitOfProcess(func: () -> Unit) {
-    SecureAccess.onExitOfProcess(func)
+fun Properties.toStringDictionary() = StringDictionary(this)
+
+@CreatorsDsl
+fun Double.toMapFactorOrElse(value: Double = DEFAULT_MAP_FACTOR): Float = toFiniteOrElse(value.toFiniteOrElse(DEFAULT_MAP_FACTOR)).toFloat()
+
+@CreatorsDsl
+fun <K, V, T : MutableMap<in K, in V>> T.append(k: K, v: V): T {
+    this[k] = v
+    return this
+}
+
+@CreatorsDsl
+fun <K, V, T : MutableMap<in K, in V>> T.append(args: Pair<K, V>): T {
+    this[args.first] = args.second
+    return this
+}
+
+@CreatorsDsl
+fun <K, V, T : MutableMap<in K, in V>> T.append(vararg args: Pair<K, V>): T {
+    for ((k, v) in args) {
+        this[k] = v
+    }
+    return this
+}
+
+@CreatorsDsl
+fun <K, V, T : MutableMap<in K, in V>> T.append(args: Iterator<Pair<K, V>>): T {
+    for ((k, v) in args) {
+        this[k] = v
+    }
+    return this
+}
+
+@CreatorsDsl
+fun <K, V, T : MutableMap<in K, in V>> T.append(args: Iterable<Pair<K, V>>): T {
+    for ((k, v) in args) {
+        this[k] = v
+    }
+    return this
+}
+
+@CreatorsDsl
+fun <K, V, T : MutableMap<in K, in V>> T.append(args: Sequence<Pair<K, V>>): T {
+    for ((k, v) in args) {
+        this[k] = v
+    }
+    return this
+}
+
+@CreatorsDsl
+fun <K, V, T : MutableMap<in K, in V>> T.append(args: Map<out K, V>): T {
+    for ((k, v) in args) {
+        this[k] = v
+    }
+    return this
+}
+
+@CreatorsDsl
+inline infix fun <K, V> Map<K, V>.isKeyDefined(key: K): Boolean = containsKey(key)
+
+@CreatorsDsl
+inline infix fun <K, V> Map<K, V>.isKeyNotDefined(key: K): Boolean = isKeyDefined(key).isNotTrue()
+
+@CreatorsDsl
+inline fun <K, V> toMapOf(): Map<K, V> = mapOf()
+
+@CreatorsDsl
+inline fun <K, V> toMapOf(vararg args: Pair<K, V>): Map<K, V> = mapOf(*args)
+
+@CreatorsDsl
+inline fun <T> toListOf(): List<T> = listOf()
+
+@CreatorsDsl
+fun <T> toListOf(args: T): List<T> = listOf(args)
+
+@CreatorsDsl
+fun <T> toListOf(vararg args: T): List<T> = listOf(*args)
+
+@CreatorsDsl
+fun <T> toListOf(args: Stream<T>): List<T> = args.toList()
+
+@CreatorsDsl
+fun <T> toListOf(args: Iterable<T>): List<T> = args.toList()
+
+@CreatorsDsl
+fun <T> toListOf(args: Iterator<T>): List<T> = args.toList()
+
+@CreatorsDsl
+fun <T> toListOf(args: Sequence<T>): List<T> = args.toList()
+
+@CreatorsDsl
+fun MessageDigestProxy.update(vararg args: ByteArray): MessageDigestProxy {
+    if (args.isNotEmpty()) {
+        args.forEach { buffer ->
+            update(buffer)
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+fun MessageDigestProxy.update(args: List<ByteArray>): MessageDigestProxy {
+    if (args.isNotEmpty()) {
+        args.forEach { buffer ->
+            update(buffer)
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+fun MessageDigestProxy.update(vararg args: ByteBuffer): MessageDigestProxy {
+    if (args.isNotEmpty()) {
+        args.forEach { buffer ->
+            update(buffer)
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+fun MessageDigestProxy.update(args: Iterable<ByteBuffer>): MessageDigestProxy {
+    val list = args.toList()
+    if (list.isNotEmpty()) {
+        list.forEach { buffer ->
+            update(buffer)
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+fun Encoder<String, ByteArray>.toText(): Encoder<String, String> = Encoders.toText(this)
+
+@CreatorsDsl
+fun onExitOfProcess(push: Boolean = false, func: () -> Unit) {
+    SecureAccess.onExitOfProcess(push, func)
 }
 
 @CreatorsDsl
@@ -149,28 +342,86 @@ fun KClass<*>.toPackageName(): String = java.`package`.name
 inline fun <reified T : Any> packageNameOf(): String = T::class.java.`package`.name
 
 @CreatorsDsl
-fun <K, V> atomicMapOf(): AtomicHashMap<K, V> {
-    return AtomicHashMap()
+inline fun <T : Any> T.typeOf(): KClass<T> {
+    if (this is KClass<*>) {
+        return this as KClass<T>
+    }
+    if (this is Class<*>) {
+        return this.kotlin as KClass<T>
+    }
+    return javaClass.kotlin
 }
 
 @CreatorsDsl
-fun <K, V> atomicMapOf(vararg args: Pair<K, V>): AtomicHashMap<K, V> {
-    return if (args.isNotEmpty()) AtomicHashMap(args.toMap()) else AtomicHashMap()
+infix fun <T : Any> T.isType(other: Any): Boolean {
+    return javaClass.kotlin == other.javaClass.kotlin
+}
+
+@CreatorsDsl
+fun <K, V> atomicMapOf(): AtomicHashMap<K, V> {
+    return AtomicHashMap(DEFAULT_MAP_CAPACITY)
+}
+
+@CreatorsDsl
+fun <K, V> atomicMapOf(size: Int): AtomicHashMap<K, V> {
+    return AtomicHashMap(size.maxOf(DEFAULT_MAP_CAPACITY))
+}
+
+@CreatorsDsl
+fun <K, V> atomicMapOf(k: K, v: V): AtomicHashMap<K, V> {
+    return atomicMapOf<K, V>().append(k, v)
 }
 
 @CreatorsDsl
 fun <K, V> atomicMapOf(args: Map<K, V>): AtomicHashMap<K, V> {
-    return if (args.isNotEmpty()) AtomicHashMap(args.toMap()) else AtomicHashMap()
+    return atomicMapOf<K, V>(args.size).append(args)
+}
+
+@CreatorsDsl
+fun <K, V> atomicMapOf(args: Pair<K, V>): AtomicHashMap<K, V> {
+    return atomicMapOf<K, V>().append(args)
+}
+
+@CreatorsDsl
+fun <K, V> atomicMapOf(vararg args: Pair<K, V>): AtomicHashMap<K, V> {
+    return atomicMapOf<K, V>(args.size).append(*args)
 }
 
 @CreatorsDsl
 fun <K, V> Map<K, V>.toAtomic(): AtomicHashMap<K, V> {
-    return if (this is AtomicHashMap) this else AtomicHashMap(this)
+    return if (this is AtomicHashMap) this else atomicMapOf(this)
+}
+
+@CreatorsDsl
+fun <K, V> AtomicHashMap<K, V>.toMap(): Map<K, V> {
+    return if (isNotEmpty()) LinkedHashMap(this).toMap() else toMapOf()
+}
+
+@CreatorsDsl
+fun <K, V> AtomicHashMap<K, V>.toMutableMap(): MutableMap<K, V> {
+    return this
+}
+
+@CreatorsDsl
+fun <K, V> AtomicHashMap<K, V>.copyOf(): AtomicHashMap<K, V> {
+    return atomicMapOf(this)
 }
 
 @CreatorsDsl
 fun <E> List<E>.whenNotEmpty(block: (List<E>) -> Unit) {
     if (isNotEmpty()) block(this)
+}
+
+@CreatorsDsl
+fun <E, T : MutableList<E>> T.push(value: E): T {
+    add(0, value)
+    return this
+}
+
+@CreatorsDsl
+fun <E, T : MutableList<E>> T.post(value: E): T {
+    this += value
+    return this
 }
 
 @CreatorsDsl
@@ -180,19 +431,29 @@ fun getCurrentThreadName(): String = Thread.currentThread().name
 inline fun getProcessors(): Int = Runtime.getRuntime().availableProcessors()
 
 @CreatorsDsl
-fun toTrimOrNull(data: String?): String? = data?.trim().takeUnless { it.isNullOrEmpty() }
+fun toTrimOrNull(data: CharSequence?): String? {
+    return when (data == null) {
+        true -> null
+        else -> data.toString().trim().let { look ->
+            when (look.isNotEmpty()) {
+                true -> look
+                else -> null
+            }
+        }
+    }
+}
 
 @CreatorsDsl
-fun toTrimOrElse(data: String?, other: String = EMPTY_STRING): String = toTrimOrNull(data) ?: other
+fun toTrimOrElse(data: CharSequence?, other: String = EMPTY_STRING): String = toTrimOrNull(data) ?: other
 
 @CreatorsDsl
-inline fun toTrimOrElse(data: String?, other: () -> String): String = toTrimOrNull(data) ?: other.invoke()
+inline fun toTrimOrElse(data: CharSequence?, other: () -> String): String = toTrimOrNull(data) ?: other.invoke()
 
 @CreatorsDsl
-inline fun String?.toTrimOr(other: String = EMPTY_STRING): String = toTrimOrNull(this) ?: other
+inline fun CharSequence?.toTrimOr(other: String = EMPTY_STRING): String = toTrimOrNull(this) ?: other
 
 @CreatorsDsl
-inline fun String?.toTrimOr(other: () -> String): String = toTrimOrNull(this) ?: other.invoke()
+inline fun CharSequence?.toTrimOr(other: () -> String): String = toTrimOrNull(this) ?: other.invoke()
 
 @CreatorsDsl
 inline fun String.head(many: Int = 1): String = if (many >= 0) drop(many) else this
@@ -201,9 +462,28 @@ inline fun String.head(many: Int = 1): String = if (many >= 0) drop(many) else t
 inline fun String.tail(many: Int = 1): String = if (many >= 0) dropLast(many) else this
 
 @CreatorsDsl
-fun String.center(many: Int, pads: Char = ' ', trim: Boolean = true): String {
-    return if (many <= 0) this else (if (trim) trim() else this).let { it.padStart((it.length + many) / 2, pads).padEnd(many, pads) }
+fun String.filter(pads: Char = SPACE_LETTER, trim: Boolean = true): String = when (trim.isNotTrue()) {
+    true -> this
+    else -> when (pads.isWhitespace()) {
+        true -> trim()
+        else -> trim {
+            it == pads
+        }
+    }
 }
+
+@CreatorsDsl
+fun <R> CharSequence?.whenNotEmptyDo(data: R, action: (String) -> R): R {
+    toTrimOr(EMPTY_STRING).also { buff ->
+        return if (buff.isNotSameAs(EMPTY_STRING)) action(buff) else data
+    }
+}
+
+@CreatorsDsl
+fun String.padout(many: Int, pads: Char = SPACE_LETTER): String = if (many <= 0) this else padStart((length + many) / 2, pads).padEnd(many, pads)
+
+@CreatorsDsl
+fun String.center(many: Int, pads: Char = SPACE_LETTER, trim: Boolean = true): String = if (many <= 0) this else filter(pads, trim).padout(many, pads)
 
 @CreatorsDsl
 fun CharSequence.toChecked(): String {
@@ -257,27 +537,24 @@ fun <T, R : Any> List<T>.whenNotNull(block: (T) -> R?): List<R> {
 fun <T : Any> ThreadLocal<T>.toValue(): T = get()
 
 @CreatorsDsl
-fun isValid(value: Any?): Boolean = when (value) {
+inline fun Validated.isNotValid(): Boolean = isValid().isNotTrue()
+
+@CreatorsDsl
+fun isValid(value: Maybe): Boolean = when (value) {
     null -> false
-    is Validated -> {
-        try {
-            value.isValid()
-        }
-        catch (cause: Throwable) {
-            Throwables.thrown(cause)
-            false
-        }
-    }
+    is Throwable -> false
+    is Float -> value.isValid()
+    is Double -> value.isValid()
     is Boolean -> value.isTrue()
+    is Validated -> value.isValid()
     is AtomicBoolean -> value.isTrue()
     else -> true
 }
 
 @CreatorsDsl
-inline fun isValid(block: () -> Any?): Boolean = try {
+inline fun isValid(block: LazyMessage): Boolean = try {
     isValid(block.invoke())
-}
-catch (cause: Throwable) {
+} catch (cause: Throwable) {
     Throwables.thrown(cause)
     false
 }
@@ -579,7 +856,7 @@ inline fun Boolean.isTrue(): Boolean = this
 inline fun Boolean.toBoolean(): Boolean = this
 
 @CreatorsDsl
-inline fun Boolean.isNotTrue(): Boolean = toBoolean().not()
+inline fun Boolean.isNotTrue(): Boolean = !this
 
 @CreatorsDsl
 fun AtomicBoolean.copyOf(): AtomicBoolean = toAtomic()
@@ -591,10 +868,10 @@ fun AtomicBoolean.toAtomic(): AtomicBoolean = toBoolean().toAtomic()
 inline fun AtomicBoolean.toBoolean(): Boolean = get()
 
 @CreatorsDsl
-inline fun AtomicBoolean.isTrue(): Boolean = toBoolean()
+inline fun AtomicBoolean.isTrue(): Boolean = get()
 
 @CreatorsDsl
-inline fun AtomicBoolean.isNotTrue(): Boolean = isTrue().not()
+inline fun AtomicBoolean.isNotTrue(): Boolean = !get()
 
 @CreatorsDsl
 fun AtomicBoolean.isTrueToFalse(): Boolean = isUpdateTo(true.toBoolean(), false.toBoolean())
@@ -635,46 +912,34 @@ fun AtomicBoolean.toNotTrue(): AtomicBoolean {
 }
 
 @CreatorsDsl
-operator fun AtomicBoolean.not(): Boolean = toBoolean().not()
+inline operator fun AtomicBoolean.not(): Boolean = !get()
 
 @CreatorsDsl
-infix fun Boolean.or(value: AtomicBoolean): Boolean = or(value.toBoolean())
+inline infix fun Boolean.or(value: AtomicBoolean): Boolean = toBoolean() || value.toBoolean()
 
 @CreatorsDsl
-infix fun AtomicBoolean.or(value: Boolean): Boolean = toBoolean().or(value)
+inline infix fun AtomicBoolean.or(value: Boolean): Boolean = toBoolean() || value.toBoolean()
 
 @CreatorsDsl
-infix fun AtomicBoolean.or(value: AtomicBoolean): Boolean = toBoolean().or(value.toBoolean())
+inline infix fun AtomicBoolean.or(value: AtomicBoolean): Boolean = toBoolean() || value.toBoolean()
 
 @CreatorsDsl
-infix fun Boolean.and(value: AtomicBoolean): Boolean = and(value.toBoolean())
+inline infix fun Boolean.and(value: AtomicBoolean): Boolean = toBoolean() && value.toBoolean()
 
 @CreatorsDsl
-infix fun AtomicBoolean.and(value: Boolean): Boolean = toBoolean().and(value)
+inline infix fun AtomicBoolean.and(value: Boolean): Boolean = toBoolean() && value.toBoolean()
 
 @CreatorsDsl
-infix fun AtomicBoolean.and(value: AtomicBoolean): Boolean = toBoolean().and(value.toBoolean())
+inline infix fun AtomicBoolean.and(value: AtomicBoolean): Boolean = toBoolean() && value.toBoolean()
 
 @CreatorsDsl
-infix fun Boolean.xor(value: AtomicBoolean): Boolean = xor(value.toBoolean())
+inline infix fun Boolean.xor(value: AtomicBoolean): Boolean = toBoolean() != value.toBoolean()
 
 @CreatorsDsl
-infix fun AtomicBoolean.xor(value: Boolean): Boolean = toBoolean().xor(value)
+inline infix fun AtomicBoolean.xor(value: Boolean): Boolean = toBoolean() != value.toBoolean()
 
 @CreatorsDsl
-infix fun AtomicBoolean.xor(value: AtomicBoolean): Boolean = toBoolean().xor(value.toBoolean())
-
-@CreatorsDsl
-infix fun <T : Any?> T.isSameAs(value: T) = SameAndHashCode.isSameAs(this, value)
-
-@CreatorsDsl
-infix fun <T : Any?> T.isNotSameAs(value: T) = SameAndHashCode.isNotSameAs(this, value)
-
-@CreatorsDsl
-infix fun <T : Any?> T.isContentSameAs(value: T) = SameAndHashCode.isContentSameAs(this, value)
-
-@CreatorsDsl
-infix fun <T : Any?> T.isContentNotSameAs(value: T) = SameAndHashCode.isContentNotSameAs(this, value)
+inline infix fun AtomicBoolean.xor(value: AtomicBoolean): Boolean = toBoolean() != value.toBoolean()
 
 @CreatorsDsl
 fun <T : Any?> T.hashOf() = SameAndHashCode.hashOf(this)
@@ -686,22 +951,46 @@ fun <T : Any?> T.hashOf(vararg args: Any?) = SameAndHashCode.hashOf(hashOf().toA
 fun <T : Any?> T.idenOf() = SameAndHashCode.idenOf(this)
 
 @CreatorsDsl
-fun <V> dictOf(vararg args: Pair<String, V>): Map<String, V> = mapOf(*args)
+infix fun <B> String.to(that: B): Pair<String, B> = Pair(this, that)
 
 @CreatorsDsl
-fun <V> dictOfMutable(vararg args: Pair<String, V>): MutableMap<String, V> = mutableMapOf(*args)
+fun <V> dictOf(): Dictionary<V> = toMapOf()
 
 @CreatorsDsl
-inline fun stringOf(action: StringBuilder.() -> Unit): String = StringBuilder().apply(action).toString()
+fun <V> dictOf(vararg args: Pair<String, V>): Dictionary<V> = toMapOf(*args)
 
 @CreatorsDsl
-inline fun stringOf(size: Int, action: StringBuilder.() -> Unit): String = StringBuilder(size).apply(action).toString()
+fun <V> dictOfMutable(): MutableDictionary<V> = mutableMapOf()
 
 @CreatorsDsl
-inline fun stringOf(data: String, action: StringBuilder.() -> Unit): String = StringBuilder(data).apply(action).toString()
+fun <V> dictOfMutable(vararg args: Pair<String, V>): MutableDictionary<V> = mutableMapOf(*args)
 
 @CreatorsDsl
-inline fun stringOf(data: CharSequence, action: StringBuilder.() -> Unit): String = StringBuilder(data).apply(action).toString()
+inline fun stringBuilderOf() = StringBuilder()
+
+@CreatorsDsl
+inline fun stringBuilderOf(size: Int) = StringBuilder(size)
+
+@CreatorsDsl
+inline fun stringBuilderOf(data: String) = StringBuilder(data)
+
+@CreatorsDsl
+inline fun stringBuilderOf(data: CharSequence) = StringBuilder(data)
+
+@CreatorsDsl
+inline fun StringBuilder.finish(action: StringBuilder.() -> Unit): String = apply(action).toString()
+
+@CreatorsDsl
+inline fun stringOf(action: StringBuilder.() -> Unit): String = stringBuilderOf().finish(action)
+
+@CreatorsDsl
+inline fun stringOf(size: Int, action: StringBuilder.() -> Unit): String = stringBuilderOf(size).finish(action)
+
+@CreatorsDsl
+inline fun stringOf(data: String, action: StringBuilder.() -> Unit): String = stringBuilderOf(data).finish(action)
+
+@CreatorsDsl
+inline fun stringOf(data: CharSequence, action: StringBuilder.() -> Unit): String = stringBuilderOf(data).finish(action)
 
 @CreatorsDsl
 inline fun StringBuilder.add(data: Int): StringBuilder = append(data)
@@ -711,6 +1000,9 @@ inline fun StringBuilder.add(data: Char): StringBuilder = append(data)
 
 @CreatorsDsl
 inline fun StringBuilder.add(data: Long): StringBuilder = append(data)
+
+@CreatorsDsl
+inline fun StringBuilder.add(data: CharArray): StringBuilder = append(data)
 
 @CreatorsDsl
 fun StringBuilder.add(data: IntProgression): StringBuilder {
@@ -743,10 +1035,221 @@ fun StringBuilder.add(data: LongProgression): StringBuilder {
 }
 
 @CreatorsDsl
+inline fun Char.toCode(): Int = toInt()
+
+@CreatorsDsl
+fun StringBuilder.encode(data: Int): StringBuilder {
+    data.toHexString().toUpperCaseEnglish().let { buff ->
+        when ((4 - buff.length).boxIn(0, 3)) {
+            0 -> add("\\u", buff)
+            1 -> add("\\u0", buff)
+            2 -> add("\\u00", buff)
+            3 -> add("\\u000", buff)
+            else -> add(EMPTY_STRING)
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+fun StringBuilder.escape(data: Char): StringBuilder {
+    return add(Escapers.ESCAPE_SLASH).add(data)
+}
+
+@CreatorsDsl
+fun StringBuilder.push(data: Char): StringBuilder {
+    insert(0, data)
+    return this
+}
+
+@CreatorsDsl
+fun StringBuilder.push(data: String): StringBuilder {
+    insert(0, data)
+    return this
+}
+
+@CreatorsDsl
+fun StringBuilder.push(data: CharSequence): StringBuilder {
+    insert(0, data.toString())
+    return this
+}
+
+@CreatorsDsl
+fun StringBuilder.wrap(data: Char): StringBuilder {
+    return push(data).add(data)
+}
+
+@CreatorsDsl
+fun StringBuilder.wrap(data: String): StringBuilder {
+    return push(data).add(data)
+}
+
+@CreatorsDsl
+fun StringBuilder.wrap(data: CharSequence): StringBuilder {
+    return wrap(data.toString())
+}
+
+@CreatorsDsl
+@JvmOverloads
+fun <T> Array<T>.parrallel(cutoff: Int = DEFAULT_PARALLEL_CUTOFF, transform: (Int) -> T): Array<T> {
+    if (size > 0) {
+        if (size <= cutoff) {
+            size.forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        } else {
+            IntStream.range(0, size).parallel().forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+@JvmOverloads
+fun IntArray.parrallel(cutoff: Int = DEFAULT_PARALLEL_CUTOFF, transform: (Int) -> Int): IntArray {
+    if (size > 0) {
+        if (size <= cutoff) {
+            size.forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        } else {
+            IntStream.range(0, size).parallel().forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+@JvmOverloads
+fun ByteArray.parrallel(cutoff: Int = DEFAULT_PARALLEL_CUTOFF, transform: (Int) -> Byte): ByteArray {
+    if (size > 0) {
+        if (size <= cutoff) {
+            size.forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        } else {
+            IntStream.range(0, size).parallel().forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+@JvmOverloads
+fun CharArray.parrallel(cutoff: Int = DEFAULT_PARALLEL_CUTOFF, transform: (Int) -> Char): CharArray {
+    if (size > 0) {
+        if (size <= cutoff) {
+            size.forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        } else {
+            IntStream.range(0, size).parallel().forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+@JvmOverloads
+fun LongArray.parrallel(cutoff: Int = DEFAULT_PARALLEL_CUTOFF, transform: (Int) -> Long): LongArray {
+    if (size > 0) {
+        if (size <= cutoff) {
+            size.forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        } else {
+            IntStream.range(0, size).parallel().forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+@JvmOverloads
+fun ShortArray.parrallel(cutoff: Int = DEFAULT_PARALLEL_CUTOFF, transform: (Int) -> Short): ShortArray {
+    if (size > 0) {
+        if (size <= cutoff) {
+            size.forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        } else {
+            IntStream.range(0, size).parallel().forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+@JvmOverloads
+fun FloatArray.parrallel(cutoff: Int = DEFAULT_PARALLEL_CUTOFF, transform: (Int) -> Float): FloatArray {
+    if (size > 0) {
+        if (size <= cutoff) {
+            size.forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        } else {
+            IntStream.range(0, size).parallel().forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+@JvmOverloads
+fun DoubleArray.parrallel(cutoff: Int = DEFAULT_PARALLEL_CUTOFF, transform: (Int) -> Double): DoubleArray {
+    if (size > 0) {
+        if (size <= cutoff) {
+            size.forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        } else {
+            IntStream.range(0, size).parallel().forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
+@JvmOverloads
+fun BooleanArray.parrallel(cutoff: Int = DEFAULT_PARALLEL_CUTOFF, transform: (Int) -> Boolean): BooleanArray {
+    if (size > 0) {
+        if (size <= cutoff) {
+            size.forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        } else {
+            IntStream.range(0, size).parallel().forEach { index ->
+                this[index] = transform.invoke(index)
+            }
+        }
+    }
+    return this
+}
+
+@CreatorsDsl
 inline fun StringBuilder.add(vararg args: Any?): StringBuilder = append(*args)
 
 @CreatorsDsl
 inline fun StringBuilder.add(vararg args: String?): StringBuilder = append(*args)
+
+@CreatorsDsl
+inline fun StringBuilder.newline(): StringBuilder = add(BREAK_STRING)
 
 @CreatorsDsl
 fun <T : Any?> T.nameOf(): String = SameAndHashCode.nameOf(this)
@@ -778,16 +1281,76 @@ infix fun DoubleArray.isSameArrayAs(args: DoubleArray): Boolean = size == args.s
 @CreatorsDsl
 infix fun BooleanArray.isSameArrayAs(args: BooleanArray): Boolean = size == args.size && this contentEquals args
 
+@CreatorsDsl
+infix fun Array<*>.isNotSameArrayAs(args: Array<*>): Boolean = this.isSameArrayAs(args).isNotTrue()
+
+@CreatorsDsl
+infix fun IntArray.isNotSameArrayAs(args: IntArray): Boolean = this.isSameArrayAs(args).isNotTrue()
+
+@CreatorsDsl
+infix fun ByteArray.isNotSameArrayAs(args: ByteArray): Boolean = this.isSameArrayAs(args).isNotTrue()
+
+@CreatorsDsl
+infix fun CharArray.isNotSameArrayAs(args: CharArray): Boolean = this.isSameArrayAs(args).isNotTrue()
+
+@CreatorsDsl
+infix fun LongArray.isNotSameArrayAs(args: LongArray): Boolean = this.isSameArrayAs(args).isNotTrue()
+
+@CreatorsDsl
+infix fun ShortArray.isNotSameArrayAs(args: ShortArray): Boolean = this.isSameArrayAs(args).isNotTrue()
+
+@CreatorsDsl
+infix fun FloatArray.isNotSameArrayAs(args: FloatArray): Boolean = this.isSameArrayAs(args).isNotTrue()
+
+@CreatorsDsl
+infix fun DoubleArray.isNotSameArrayAs(args: DoubleArray): Boolean = this.isSameArrayAs(args).isNotTrue()
+
+@CreatorsDsl
+infix fun BooleanArray.isNotSameArrayAs(args: BooleanArray): Boolean = this.isSameArrayAs(args).isNotTrue()
+
+@CreatorsDsl
+inline fun IntArray.toContentHashOf(): Int = contentHashCode()
+
+@CreatorsDsl
+inline fun ByteArray.toContentHashOf(): Int = contentHashCode()
+
+@CreatorsDsl
+inline fun CharArray.toContentHashOf(): Int = contentHashCode()
+
+@CreatorsDsl
+inline fun LongArray.toContentHashOf(): Int = contentHashCode()
+
+@CreatorsDsl
+inline fun ShortArray.toContentHashOf(): Int = contentHashCode()
+
+@CreatorsDsl
+inline fun FloatArray.toContentHashOf(): Int = contentHashCode()
+
+@CreatorsDsl
+inline fun DoubleArray.toContentHashOf(): Int = contentHashCode()
+
+@CreatorsDsl
+inline fun BooleanArray.toContentHashOf(): Int = contentHashCode()
+
+@CreatorsDsl
+inline fun Array<*>.toContentHashOf(): Int = contentDeepHashCode()
+
+@CreatorsDsl
+fun Constrained.isNotConstrained(): Boolean = isConstrained().isNotTrue()
+
 open class MercenarySequence<out T> @CreatorsDsl constructor(private val iterator: Iterator<T>) : Sequence<T> {
 
     @CreatorsDsl
     override operator fun iterator(): Iterator<T> = iterator
 
     @CreatorsDsl
-    constructor() : this(listOf())
+    constructor() : this(toListOf())
 
     @CreatorsDsl
     constructor(vararg source: T) : this(source.iterator())
+
+    @CreatorsDsl
+    constructor(source: Stream<T>) : this(source.iterator())
 
     @CreatorsDsl
     constructor(source: Iterable<T>) : this(source.iterator())
@@ -796,11 +1359,41 @@ open class MercenarySequence<out T> @CreatorsDsl constructor(private val iterato
     constructor(source: Sequence<T>) : this(source.iterator())
 }
 
-@CreatorsDsl
-fun <T> sequenceOf(): Sequence<T> = MercenarySequence()
+class MercenaryConstrainedSequence<out T> @CreatorsDsl constructor(source: Iterator<T>) : MercenarySequence<T>(source), Sequence<T>
 
 @CreatorsDsl
-fun <T> sequenceOf(vararg args: T): Sequence<T> = MercenarySequence(*args)
+inline fun <T> Sequence<T>.constrain(): Sequence<T> {
+    return if (this is MercenaryConstrainedSequence) this else MercenaryConstrainedSequence(constrainOnce().iterator())
+}
+
+@CreatorsDsl
+inline fun <T> Sequence<T>.toIterator(): Iterator<T> = iterator()
+
+@CreatorsDsl
+inline fun <T> Iterator<T>.toIterator(): Iterator<T> = iterator()
+
+@CreatorsDsl
+fun <T> Sequence<T>.toIterable(): Iterable<T> = object : Iterable<T> {
+    override operator fun iterator(): Iterator<T> {
+        return toIterator()
+    }
+}
+
+@CreatorsDsl
+fun <T> Iterator<T>.toIterable(): Iterable<T> = object : Iterable<T> {
+    override operator fun iterator(): Iterator<T> {
+        return toIterator()
+    }
+}
+
+@CreatorsDsl
+fun <T> Iterator<T>.toList(): List<T> = toIterable().toList()
+
+@CreatorsDsl
+inline fun <T> Sequence<T>.toStream(): Stream<T> = asStream()
+
+@CreatorsDsl
+fun <T> sequenceOf(): Sequence<T> = MercenarySequence()
 
 @CreatorsDsl
 fun sequenceOf(args: IntProgression): Sequence<Int> = MercenarySequence(args)
@@ -812,10 +1405,25 @@ fun sequenceOf(args: LongProgression): Sequence<Long> = MercenarySequence(args)
 fun sequenceOf(args: CharProgression): Sequence<Char> = MercenarySequence(args)
 
 @CreatorsDsl
-fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = MercenarySequence(this)
+fun IntStream.toSequence(): Sequence<Int> = iterator().toSequence()
+
+@CreatorsDsl
+fun LongStream.toSequence(): Sequence<Long> = iterator().toSequence()
+
+@CreatorsDsl
+fun DoubleStream.toSequence(): Sequence<Double> = iterator().toSequence()
+
+@CreatorsDsl
+fun <T : Any> Stream<T>.toSequence(): Sequence<T> = MercenarySequence(this)
+
+@CreatorsDsl
+fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = iterator().toSequence()
 
 @CreatorsDsl
 fun <T : Any> Iterator<T>.toSequence(): Sequence<T> = MercenarySequence(this)
+
+@CreatorsDsl
+fun <T> sequenceOf(vararg args: T): Sequence<T> = MercenarySequence(args.iterator())
 
 @CreatorsDsl
 fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(generateSequence(next))
@@ -830,10 +1438,22 @@ fun <T : Any> sequenceOf(seed: () -> T?, next: (T) -> T?): Sequence<T> = Mercena
 inline fun <T : Any> iteratorOf(vararg args: T): Iterator<T> = args.iterator()
 
 @CreatorsDsl
-fun Sequence<String>.uniqueTrimmedOf(): List<String> = asIterable().uniqueTrimmedOf()
+fun <T> Array<out T>.toIterable(): Iterable<T> = asIterable()
+
+@CreatorsDsl
+inline fun <T : Any> uniqueListOf(vararg args: T): List<T> = args.toList().distinct()
+
+@CreatorsDsl
+fun Sequence<String>.uniqueTrimmedOf(): List<String> = toIterable().uniqueTrimmedOf()
 
 @CreatorsDsl
 fun Iterable<String>.uniqueTrimmedOf(): List<String> = mapNotNull { toTrimOrNull(it) }.distinct()
+
+@CreatorsDsl
+fun <T : Comparable<T>> Iterable<T>.toSortedListOf(): List<T> = sorted()
+
+@CreatorsDsl
+fun <T : Comparable<T>> Iterable<T>.toReverseSortedListOf(): List<T> = sorted().reversed()
 
 @CreatorsDsl
 fun <T : Any> Iterator<T>.toEnumeration(): Enumeration<T> = object : Enumeration<T> {

@@ -23,6 +23,16 @@ class MainTest : KotlinTest() {
     @Test
     fun test() {
         onExitOfProcess { getStandardError().echo(uuid()).newline() }
+        error { 5.typeOf() }
+        error { 5 isType 6 }
+        error { 5 isType 6L }
+        dashes()
+        info { Common.load().toStringDictionary() }
+        dashes()
+        info { Common.getSystemProperties().toStringDictionary() }
+        dashes()
+        val maps = timed { Manager.toMapNames() }
+        warn { maps }
         warn { loggerOf().name }
         warn { loggerOf().getLevel() }
         loggerOf().withLevel(LoggingLevel.DEBUG) {

@@ -19,41 +19,48 @@ package co.mercenary.creators.kotlin.util.collection
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class LRUCacheMap<K, V> @JvmOverloads @CreatorsDsl constructor(private val threshold: Int = DEFAULT_MAX_SIZE, capacity: Int = DEFAULT_CAPACITY, factor: Double = DEFAULT_FACTOR) : LinkedHashMap<K, V>(capacity, factor.toFiniteOrElse(DEFAULT_FACTOR).toFloat(), true), Clearable, Copyable<LRUCacheMap<K, V>>, Cloneable, MutableMap<K, V> {
+class LRUCacheMap<K, V> @JvmOverloads @CreatorsDsl constructor(private val threshold: Int = DEFAULT_LRU_THRESHOLD, capacity: Int = DEFAULT_MAP_CAPACITY, factor: Double = DEFAULT_MAP_FACTOR) : BasicLinkedMap<K, V>(capacity, factor, true), Threshold {
 
     @CreatorsDsl
-    constructor(vararg args: Pair<K, V>) : this() {
-        if (args.isNotEmpty()) {
-            putAll(args.toMap())
-        }
+    constructor(k: K, v: V) : this() {
+        append(k, v)
     }
 
     @CreatorsDsl
     constructor(args: Map<K, V>) : this() {
-        if (args.isNotEmpty()) {
-            putAll(args.toMap())
-        }
+        append(args)
     }
 
     @CreatorsDsl
-    constructor(args: LRUCacheMap<K, V>) : this(args.threshold) {
-        if (args.isNotEmpty()) {
-            putAll(args.toMap())
-        }
+    constructor(args: Pair<K, V>) : this() {
+        append(args)
     }
 
     @CreatorsDsl
-    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?): Boolean {
-        return size > threshold
+    constructor(vararg args: Pair<K, V>) : this() {
+        append(*args)
     }
 
     @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isEmpty(): Boolean = super.isEmpty()
+    constructor(args: Iterable<Pair<K, V>>) : this() {
+        append(args)
+    }
 
     @CreatorsDsl
-    @IgnoreForSerialize
-    fun isNotEmpty(): Boolean = isEmpty().isNotTrue()
+    constructor(args: Sequence<Pair<K, V>>) : this() {
+        append(args)
+    }
+
+    @CreatorsDsl
+    constructor(args: LRUCacheMap<K, V>) : this(args.threshold()) {
+        append(args)
+    }
+
+    @CreatorsDsl
+    override fun threshold(): Int = threshold
+
+    @CreatorsDsl
+    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?) = size > threshold()
 
     @CreatorsDsl
     override fun clone() = copyOf()
@@ -62,31 +69,19 @@ class LRUCacheMap<K, V> @JvmOverloads @CreatorsDsl constructor(private val thres
     override fun copyOf() = LRUCacheMap(this)
 
     @CreatorsDsl
-    override fun hashCode() = super.hashCode()
+    override fun hashCode() = toSafeHashUf()
 
     @CreatorsDsl
-    override fun toString() = super.toString()
+    override fun toString() = toSafeString()
 
     @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
-        is LRUCacheMap<*, *> -> this === other
+        is LRUCacheMap<*, *> -> this === other || threshold() == other.threshold() && super.equals(other)
         else -> false
     }
 
-    @CreatorsDsl
-    override fun clear() = super.clear()
-
     companion object {
 
-        private const val serialVersionUID = 2L
-
-        @CreatorsDsl
-        private const val DEFAULT_FACTOR = 0.75
-
-        @CreatorsDsl
-        private const val DEFAULT_CAPACITY = 16
-
-        @CreatorsDsl
-        private const val DEFAULT_MAX_SIZE = DEFAULT_CAPACITY * 8
+        private const val serialVersionUID = 3L
     }
 }

@@ -47,8 +47,7 @@ object Throwables {
                 logger.debug {
                     "${type.name}(${cause.message}) IGNORED."
                 }
-            }
-            else if (type in failure) {
+            } else if (type in failure) {
                 logger.error {
                     "${type.name}(${cause.message}) FAILURE."
                 }
@@ -148,8 +147,7 @@ object Throwables {
         if (args.isEmpty()) {
             failure.clear()
             ignored.clear()
-        }
-        else {
+        } else {
             args.forEach { kind ->
                 when (kind) {
                     Mode.FAILURE -> failure.clear()
@@ -172,11 +170,21 @@ object Throwables {
 
     @JvmStatic
     @CreatorsDsl
+    fun check(cause: Throwable): Throwable {
+        when (cause) {
+            is OutOfMemoryError -> throw cause
+            is StackOverflowError -> throw cause
+        }
+        return cause
+    }
+
+    @JvmStatic
+    @CreatorsDsl
     private fun defaults() {
         append(OutOfMemoryError::class)
         append(StackOverflowError::class)
         append(NullPointerException::class)
         append(MercenaryFatalExceptiion::class)
-        append(MercenaryAssertExceptiion::class)
+        append(MercenaryAssertionExceptiion::class)
     }
 }

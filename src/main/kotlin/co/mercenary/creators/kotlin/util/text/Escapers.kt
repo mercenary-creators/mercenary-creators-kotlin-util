@@ -18,37 +18,38 @@ package co.mercenary.creators.kotlin.util.text
 
 import co.mercenary.creators.kotlin.util.*
 
-object Escapers {
+@IgnoreForSerialize
+object Escapers : HasMapNames {
 
     @CreatorsDsl
-    private const val ASCII_MINVAL = 32
+    const val ASCII_MINVAL = 32
 
     @CreatorsDsl
-    private const val ASCII_MAXVAL = 127
+    const val ASCII_MAXVAL = 127
 
     @CreatorsDsl
-    private const val ESCAPE_SLASH = '\\'
+    const val ESCAPE_SLASH = '\\'
 
     @CreatorsDsl
-    private const val SINGLE_QUOTE = '\''
+    const val SINGLE_QUOTE = '\''
 
     @CreatorsDsl
-    private const val DOUBLE_QUOTE = '"'
+    const val DOUBLE_QUOTE = '"'
 
     @CreatorsDsl
-    private const val ASCII_BSCHAR = '\b'
+    const val ASCII_BSCHAR = '\b'
 
     @CreatorsDsl
-    private const val ASCII_NLCHAR = '\n'
+    const val ASCII_NLCHAR = '\n'
 
     @CreatorsDsl
-    private const val ASCII_VTCHAR = '\t'
+    const val ASCII_VTCHAR = '\t'
 
     @CreatorsDsl
-    private const val ASCII_CRCHAR = '\r'
+    const val ASCII_CRCHAR = '\r'
 
     @CreatorsDsl
-    private const val ASCII_FFCHAR = 12.toChar()
+    const val ASCII_FFCHAR = 12.toChar()
 
     @CreatorsDsl
     private val ASCII_TABLE: BooleanArray by lazy {
@@ -58,30 +59,10 @@ object Escapers {
     }
 
     @CreatorsDsl
-    private fun Char.toCode(): Int = toInt()
+    override fun toString() = toMapNames().toSafeString()
 
     @CreatorsDsl
-    private fun StringBuilder.escape(code: Int): StringBuilder {
-        return code.toHexString().toUpperCaseEnglish().let { buff ->
-            when ((4 - buff.length).boxIn(0, 3)) {
-                0 -> add("\\u")
-                1 -> add("\\u0")
-                2 -> add("\\u00")
-                3 -> add("\\u000")
-            }
-            add(buff)
-        }
-    }
-
-    @CreatorsDsl
-    private fun StringBuilder.encode(code: Char): StringBuilder {
-        return add(ESCAPE_SLASH, code)
-    }
-
-    @CreatorsDsl
-    private fun StringBuilder.quoted(code: Boolean): StringBuilder {
-        return if (code) add(DOUBLE_QUOTE) else this
-    }
+    override fun toMapNames() = dictOf("type" to nameOf())
 
     @JvmStatic
     @CreatorsDsl
@@ -116,7 +97,9 @@ object Escapers {
             return if (quoted) "\"$string\"" else string
         }
         return stringOf(string.length * 2) {
-            quoted(quoted)
+            if (quoted) {
+                add(DOUBLE_QUOTE)
+            }
             for (char in string) {
                 val code = char.toCode()
                 if (isAscii(code).isTrue()) {
@@ -124,24 +107,26 @@ object Escapers {
                     continue
                 }
                 when {
-                    code > ASCII_MAXVAL -> escape(code)
+                    code > ASCII_MAXVAL -> encode(code)
                     code < ASCII_MINVAL -> when (char) {
-                        ASCII_BSCHAR -> encode('b')
-                        ASCII_NLCHAR -> encode('n')
-                        ASCII_VTCHAR -> encode('t')
-                        ASCII_CRCHAR -> encode('r')
-                        ASCII_FFCHAR -> encode('f')
-                        else -> escape(code)
+                        ASCII_BSCHAR -> escape('b')
+                        ASCII_NLCHAR -> escape('n')
+                        ASCII_VTCHAR -> escape('t')
+                        ASCII_CRCHAR -> escape('r')
+                        ASCII_FFCHAR -> escape('f')
+                        else -> encode(code)
                     }
                     else -> when (char) {
-                        SINGLE_QUOTE -> encode(SINGLE_QUOTE)
-                        DOUBLE_QUOTE -> encode(DOUBLE_QUOTE)
-                        ESCAPE_SLASH -> encode(ESCAPE_SLASH)
+                        SINGLE_QUOTE -> escape(SINGLE_QUOTE)
+                        DOUBLE_QUOTE -> escape(DOUBLE_QUOTE)
+                        ESCAPE_SLASH -> escape(ESCAPE_SLASH)
                         else -> add(char)
                     }
                 }
             }
-            quoted(quoted)
+            if (quoted) {
+                add(DOUBLE_QUOTE)
+            }
         }
     }
 }

@@ -196,7 +196,7 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
 
     @CreatorsDsl
     override fun fail(text: String): Nothing {
-        throw MercenaryAssertExceptiion(text)
+        throw MercenaryAssertionExceptiion(text)
     }
 
     @CreatorsDsl

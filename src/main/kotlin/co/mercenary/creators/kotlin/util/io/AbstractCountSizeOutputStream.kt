@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 
 @IgnoreForSerialize
-abstract class AbstractCountSizeOutputStream @JvmOverloads constructor(proxy: OutputStream, private val flush: Boolean = false) : FilterOutputStream(proxy), OpenCloseable, HasContentSize, HasMapNames, Clearable {
+abstract class AbstractCountSizeOutputStream @JvmOverloads constructor(proxy: OutputStream, private val flush: Boolean = false) : FilterOutputStream(proxy), OpenAutoClosable, HasContentSize, HasMapNames, Clearable {
 
     private val count = 0L.toAtomic()
 

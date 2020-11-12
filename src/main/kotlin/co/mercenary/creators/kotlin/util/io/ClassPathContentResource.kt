@@ -95,5 +95,6 @@ class ClassPathContentResource @JvmOverloads @CreatorsDsl constructor(path: Stri
         else -> false
     }
 
+    @CreatorsDsl
     override fun hashCode() = getContentPath().hashCode()
 }

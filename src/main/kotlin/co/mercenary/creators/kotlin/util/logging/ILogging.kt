@@ -88,7 +88,10 @@ interface ILogging {
     fun debug(cause: Throwable, marker: IMarker, block: () -> Any?)
 
     fun error(block: () -> Any?)
+
     fun error(cause: Throwable, block: () -> Any?)
+
     fun error(marker: IMarker, block: () -> Any?)
+
     fun error(cause: Throwable, marker: IMarker, block: () -> Any?)
 }

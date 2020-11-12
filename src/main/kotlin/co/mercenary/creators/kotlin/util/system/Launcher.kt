@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util
+package co.mercenary.creators.kotlin.util.system
 
-interface SafeForLogging {
-    @CreatorsDsl
-    fun toSafeString(): String = toString()
+import co.mercenary.creators.kotlin.util.*
+
+@FrameworkDsl
+@IgnoreForSerialize
+object Launcher : HasMapNames {
+
+    @FrameworkDsl
+    override fun toMapNames() = dictOf("type" to nameOf())
+
+    @FrameworkDsl
+    override fun toString() = toMapNames().toSafeString()
 }

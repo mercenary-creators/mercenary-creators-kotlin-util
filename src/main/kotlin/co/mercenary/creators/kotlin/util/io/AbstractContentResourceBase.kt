@@ -26,12 +26,12 @@ abstract class AbstractContentResourceBase @JvmOverloads constructor(private val
     }
 
     private val desc: String by lazy {
-        "${javaClass.name}($kind${getContentPath()}, ${getContentType()}, ${isContentCache()})"
+        "${nameOf()}($kind${getContentPath()}, ${getContentType()}, ${isContentCache()})"
     }
 
     @CreatorsDsl
-    override fun toMapNames(): Map<String, Any?> {
-        return dictOf("name" to javaClass.name, "path" to "$kind${getContentPath()}", "type" to getContentType(), "time" to getContentTime().toDate())
+    override fun toMapNames():AnyDictionary {
+        return dictOf("name" to nameOf(), "path" to "$kind${getContentPath()}", "type" to getContentType(), "time" to getContentTime().toDate())
     }
 
     @CreatorsDsl

@@ -20,7 +20,7 @@ import ch.qos.logback.classic.Level
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-enum class LoggingLevel(private val value: Level) : SafeForLogging {
+enum class LoggingLevel(private val value: Level) {
 
     @CreatorsDsl
     OFF(Level.OFF),
@@ -68,7 +68,7 @@ enum class LoggingLevel(private val value: Level) : SafeForLogging {
     fun isMoreThanOrEqual(level: LoggingLevel) = toInteger() >= level.toInteger()
 
     @CreatorsDsl
-    override fun toString() = toLevel().toString().toUpperCaseEnglish()
+    override fun toString() = name.toUpperCaseEnglish()
 
     companion object {
 

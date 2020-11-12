@@ -82,16 +82,6 @@ object Ciphers : HasMapNames {
     override fun toMapNames() = dictOf("type" to nameOf(), "ciphers" to getAlgorithms())
 
     @CreatorsDsl
-    private fun getBufferOf(data: InputStream): Int {
-        return try {
-            data.available().maxOf(DEFAULT_BUFFER_SIZE).minOf(DEFAULT_BUFFER_SIZE * 4)
-        }
-        catch (cause: Throwable) {
-            DEFAULT_BUFFER_SIZE
-        }
-    }
-
-    @CreatorsDsl
     private fun getCipher(algorithm: CipherAlgorithm): Cipher = Cipher.getInstance(algorithm.getCipherTransform())
 
     @CreatorsDsl
@@ -119,7 +109,7 @@ object Ciphers : HasMapNames {
 
         @CreatorsDsl
         override fun encrypt(data: InputStream, copy: OutputStream) = synchronized(encrypt) {
-            val buffer = getBufferOf(data)
+            val buffer = data.getBufferSize()
             val vector = factory.getKeys().also { copy.write(it) }
             val output = FastCipherOutputStream(copy, setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)))
             data.copyTo(output, buffer)
@@ -128,7 +118,7 @@ object Ciphers : HasMapNames {
 
         @CreatorsDsl
         override fun decrypt(data: InputStream, copy: OutputStream) = synchronized(decrypt) {
-            val buffer = getBufferOf(data)
+            val buffer = data.getBufferSize()
             val vector = ByteArray(factory.getSize()).also { data.read(it) }
             val output = FastCipherOutputStream(copy, setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)))
             data.copyTo(output, buffer)

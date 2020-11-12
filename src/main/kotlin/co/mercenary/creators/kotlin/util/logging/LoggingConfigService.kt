@@ -21,15 +21,19 @@ import co.mercenary.creators.kotlin.util.*
 @IgnoreForSerialize
 abstract class LoggingConfigService(protected val order: Int) : Comparable<LoggingConfigService> {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     open fun isAutoStart(): Boolean = false
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     open fun isAutoClose(): Boolean = false
 
-    @CreatorsDsl
+    @FrameworkDsl
+    @IgnoreForSerialize
+    open fun isBridgeing(): Boolean = false
+
+    @FrameworkDsl
     @IgnoreForSerialize
     abstract fun getIgnoring(): List<String>
 
@@ -41,11 +45,11 @@ abstract class LoggingConfigService(protected val order: Int) : Comparable<Loggi
     companion object {
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun toIgnoring(args: String) = listOf(args).uniqueTrimmedOf()
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun toIgnoring(vararg args: String) = listOf(*args).uniqueTrimmedOf()
     }
 }

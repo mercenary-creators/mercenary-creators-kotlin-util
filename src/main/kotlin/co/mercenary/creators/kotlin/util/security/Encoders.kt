@@ -19,7 +19,15 @@ package co.mercenary.creators.kotlin.util.security
 import co.mercenary.creators.kotlin.util.*
 import javax.xml.bind.DatatypeConverter
 
+@IgnoreForSerialize
 object Encoders {
+
+    @CreatorsDsl
+    private val DIGITS = "0123456789ABCDEF".toCharArray()
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getHexChar(code: Int): Char = DIGITS[code and 0xF]
 
     @CreatorsDsl
     private fun String.convert(): ByteArray = DatatypeConverter.parseHexBinary(toLowerTrim())
@@ -28,7 +36,13 @@ object Encoders {
     private fun ByteArray.convert(): String = DatatypeConverter.printHexBinary(this).toLowerTrim()
 
     @CreatorsDsl
+    override fun toString() = nameOf()
+
+    @CreatorsDsl
     private val bhex = object : Encoder<String, ByteArray> {
+
+        @CreatorsDsl
+        override fun toString() = "HexBinaryEncoder"
 
         @CreatorsDsl
         override fun decode(data: String): ByteArray = data.convert()
@@ -49,8 +63,10 @@ object Encoders {
 
     @JvmStatic
     @CreatorsDsl
-    @JvmOverloads
-    fun text(base: Encoder<String, ByteArray> = hex()): Encoder<String, String> = object : Encoder<String, String> {
+    fun toText(base: Encoder<String, ByteArray>): Encoder<String, String> = object : Encoder<String, String> {
+
+        @CreatorsDsl
+        override fun toString() = "HexStringEncoder"
 
         @CreatorsDsl
         override fun decode(data: String): String = base.decode(data).getContentText()

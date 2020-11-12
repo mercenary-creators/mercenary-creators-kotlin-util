@@ -20,18 +20,17 @@ import co.mercenary.creators.kotlin.util.*
 import java.nio.charset.Charset
 
 @IgnoreForSerialize
-class BytesOutputStream @JvmOverloads @CreatorsDsl constructor(size: Int = DEFAULT_BUFFER_SIZE) : ByteArrayOutputStream(size), Resetable, Clearable, HasContentSize {
+class BytesOutputStream @JvmOverloads @CreatorsDsl constructor(size: Int = DEFAULT_BUFFER_SIZE) : ByteArrayOutputStream(size), Resetable, Clearable, HasContentSize, ByteArraySupplier {
 
     @CreatorsDsl
-    @JvmOverloads
     @IgnoreForSerialize
-    fun getContentData(copy: Boolean = false): ByteArray {
+    override fun getContentData(copy: Boolean): ByteArray {
         return toByteArray().toByteArray(copy)
     }
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun getContentSize() = super.size().toLong()
+    override fun getContentSize() = size().toLong()
 
     @CreatorsDsl
     override fun reset() {
@@ -49,7 +48,7 @@ class BytesOutputStream @JvmOverloads @CreatorsDsl constructor(size: Int = DEFAU
     }
 
     @CreatorsDsl
-    override fun hashCode() = idenOf()
+    override fun hashCode() = toByteArray().contentHashCode()
 
     @CreatorsDsl
     override fun toString(): String {

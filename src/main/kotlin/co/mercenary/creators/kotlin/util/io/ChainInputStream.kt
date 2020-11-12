@@ -17,54 +17,52 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import java.io.*
+import java.io.InputStream
 import java.util.*
+import kotlin.collections.ArrayList
 
 @IgnoreForSerialize
-class ChainInputStream @CreatorsDsl constructor(args: Enumeration<InputStream>) : SequenceInputStream(args), OpenCloseable, HasMapNames {
+class ChainInputStream @CreatorsDsl constructor(args: Iterator<InputStream>) : AbstractChainInputStream(args) {
 
     @CreatorsDsl
-    constructor(args: Iterator<InputStream>) : this(args.toEnumeration())
+    constructor(args: Iterable<InputStream>) : this(args.iterator())
 
     @CreatorsDsl
-    constructor(args: Iterable<InputStream>) : this(args.toEnumeration())
+    constructor(args: Sequence<InputStream>) : this(args.iterator())
 
     @CreatorsDsl
-    constructor(args: Sequence<InputStream>) : this(args.toEnumeration())
+    constructor(args: Enumeration<InputStream>) : this(args.iterator())
 
     @CreatorsDsl
-    constructor(head: InputStream, next: InputStream, vararg more: InputStream) : this(iteratorOf(head, next, *more))
+    constructor(head: InputStream, next: InputStream, vararg more: InputStream) : this(append(head).append(next).append(more.toIterable()).toIterable())
 
-    private val open = true.toAtomic()
-
-    @CreatorsDsl
-    override fun close() {
-        if (open.isTrueToFalse()) {
-            try {
-                super.close()
-            }
-            catch (cause: Throwable) {
-                Throwables.thrown(cause)
-            }
-        }
-    }
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isOpen() = open.isTrue()
-
-    @CreatorsDsl
-    override fun toString() = nameOf()
-
-    @CreatorsDsl
     override fun hashCode() = idenOf()
 
     @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
-        is ChainInputStream -> this === other
+        is ChainInputStream -> this === other || super.equals(other)
         else -> false
     }
 
-    @CreatorsDsl
-    override fun toMapNames() = dictOf("name" to nameOf(), "open" to isOpen())
+    companion object Companion {
+
+        private val list = ArrayList<InputStream>(2)
+
+        @CreatorsDsl
+        fun append(data: InputStream): Companion {
+            list += data
+            return this
+        }
+
+        @CreatorsDsl
+        fun append(data: Iterable<InputStream>): Companion {
+            list.addAll(data)
+            return this
+        }
+
+        @CreatorsDsl
+        fun toIterable(): Iterable<InputStream> {
+            return toListOf(list).also { list.clear() }
+        }
+    }
 }

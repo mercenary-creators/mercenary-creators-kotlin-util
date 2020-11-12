@@ -57,15 +57,24 @@ class LoggingMarker @CreatorsDsl constructor(private val marker: mu.Marker) : IM
     }
 
     @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isEmpty(): Boolean {
+        return marker.hasReferences().isNotTrue()
+    }
+
+    @CreatorsDsl
     override operator fun contains(value: IMarker): Boolean {
         return marker.contains(value.markerOf())
     }
 
     @CreatorsDsl
-    override fun toString() = marker.toString()
+    override fun toString() = markerOf().toString()
 
     @CreatorsDsl
-    override fun hashCode() = marker.hashCode()
+    override fun toMapNames() = dictOf("name" to getName(), "empty" to isEmpty())
+
+    @CreatorsDsl
+    override fun hashCode() = toString().hashCode()
 
     @CreatorsDsl
     override fun equals(other: Any?) = when (other) {

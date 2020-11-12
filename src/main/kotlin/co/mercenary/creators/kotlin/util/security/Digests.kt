@@ -18,9 +18,10 @@ package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
 import java.nio.ByteBuffer
-import java.security.MessageDigest
+import java.security.*
 
-object Digests {
+@IgnoreForSerialize
+object Digests : HasMapNames {
 
     @JvmStatic
     @CreatorsDsl
@@ -35,6 +36,12 @@ object Digests {
     @IgnoreForSerialize
     fun getAlgorithms(): Algorithm = Algorithm.forName("MessageDigest")
 
+    @CreatorsDsl
+    override fun toString() = nameOf()
+
+    @CreatorsDsl
+    override fun toMapNames() = dictOf("type" to nameOf(), "digests" to getAlgorithms())
+
     @JvmStatic
     @CreatorsDsl
     fun getMessageDigest(named: String): MessageDigest = MessageDigest.getInstance(named)
@@ -44,7 +51,22 @@ object Digests {
     fun proxyOf(digest: MessageDigest) = MessageDigestProxy(digest)
 
     @IgnoreForSerialize
-    class MessageDigestProxy @CreatorsDsl internal constructor(private val digest: MessageDigest): Clearable {
+    class MessageDigestProxy @CreatorsDsl @JvmOverloads internal constructor(private val digest: MessageDigest, private val algorithm: String = digest.algorithm, private val provider: Provider = digest.provider) : Clearable, Resetable, HasMapNames {
+
+        @CreatorsDsl
+        override fun toString() = nameOf()
+
+        @CreatorsDsl
+        override fun hashCode() = idenOf()
+
+        @CreatorsDsl
+        override fun equals(other: Any?) = when (other) {
+            is MessageDigestProxy -> this === other
+            else -> false
+        }
+
+        @CreatorsDsl
+        override fun toMapNames() = dictOf("type" to nameOf(), "algorithm" to algorithm, "provider" to dictOf("name" to provider.name, "version" to provider.version))
 
         @CreatorsDsl
         @JvmOverloads
@@ -57,30 +79,26 @@ object Digests {
         }
 
         @CreatorsDsl
+        fun update(buffer: Byte): MessageDigestProxy {
+            digest.update(buffer)
+            return this
+        }
+
+        @CreatorsDsl
         fun update(buffer: ByteArray): MessageDigestProxy {
             digest.update(buffer)
             return this
         }
 
         @CreatorsDsl
-        fun update(list: List<ByteArray>): MessageDigestProxy {
-            list.forEach { buffer ->
-                update(buffer)
-            }
+        fun update(buffer: ByteArray, off: Int, len: Int): MessageDigestProxy {
+            digest.update(buffer, off, len)
             return this
         }
 
         @CreatorsDsl
         fun update(buffer: ByteBuffer): MessageDigestProxy {
             digest.update(buffer)
-            return this
-        }
-
-        @CreatorsDsl
-        fun update(list: Iterable<ByteBuffer>): MessageDigestProxy {
-            list.forEach { buffer ->
-                update(buffer)
-            }
             return this
         }
 
@@ -97,6 +115,11 @@ object Digests {
 
         @CreatorsDsl
         override fun clear() {
+            reset()
+        }
+
+        @CreatorsDsl
+        override fun reset() {
             digest.reset()
         }
     }

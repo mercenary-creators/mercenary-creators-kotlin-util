@@ -15,7 +15,7 @@
  */
 
 @file:kotlin.jvm.JvmName("DataKt")
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 
 package co.mercenary.creators.kotlin.util
 
@@ -31,9 +31,9 @@ typealias DefaultContentTypeProbe = MimeContentTypeProbe
 
 typealias DefaultContentFileTypeMap = ContentFileTypeMap
 
-typealias ContentResourceLookup = (String) -> ContentResource
-
 typealias ByteArrayOutputStream = java.io.ByteArrayOutputStream
+
+typealias IO = co.mercenary.creators.kotlin.util.io.IO
 
 typealias BytesOutputStream = co.mercenary.creators.kotlin.util.io.BytesOutputStream
 
@@ -42,6 +42,20 @@ typealias EmptyOutputStream = co.mercenary.creators.kotlin.util.io.EmptyOutputSt
 typealias Escapers = co.mercenary.creators.kotlin.util.text.Escapers
 
 typealias Formatters = co.mercenary.creators.kotlin.util.text.Formatters
+
+typealias Maybe = Any?
+
+typealias Factory<T> = () -> T
+
+typealias Convert<T, R> = (T) -> R
+
+typealias Applier<T> = T.() -> Unit
+
+typealias Indexed<T> = (Int, T) -> Unit
+
+typealias LazyMessage = Factory<Maybe>
+
+typealias ContentResourceLookup = Convert<String, ContentResource>
 
 @CreatorsDsl
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
@@ -74,13 +88,13 @@ inline fun getStandardOutut(): PrintStream = System.out
 inline fun getStandardError(): PrintStream = System.err
 
 @CreatorsDsl
-fun PrintStream.echo(data: Any?): PrintStream {
+fun PrintStream.echo(data: Maybe): PrintStream {
     this.print(data)
     return this
 }
 
 @CreatorsDsl
-fun PrintStream.echo(vararg args: Any?): PrintStream {
+fun PrintStream.echo(vararg args: Maybe): PrintStream {
     args.forEach { data -> echo(data) }
     return this
 }
@@ -98,19 +112,28 @@ fun PrintStream.newline(): PrintStream {
 }
 
 @CreatorsDsl
+fun <T> Indexed<T>.indexed(index: Int, value: T) = invoke(index, value)
+
+@CreatorsDsl
+inline fun <T, R> Convert<T, R>.convert(args: T): R = invoke(args)
+
+@CreatorsDsl
+inline fun <T, R> T.transform(block: Convert<T, R>): R = block.convert(this)
+
+@CreatorsDsl
+inline fun <T, R> scope(value: T, block: T.() -> R): R = with(value, block)
+
+@CreatorsDsl
 inline fun <T : Clearable, R> T.finishOn(block: (T) -> R): R {
     try {
         return block(this)
-    }
-    catch (cause: Throwable) {
+    } catch (cause: Throwable) {
         Throwables.thrown(cause)
         throw cause
-    }
-    finally {
+    } finally {
         try {
             clear()
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
     }
@@ -120,16 +143,13 @@ inline fun <T : Clearable, R> T.finishOn(block: (T) -> R): R {
 inline fun <T : Resetable, R> T.finishOn(block: (T) -> R): R {
     try {
         return block(this)
-    }
-    catch (cause: Throwable) {
+    } catch (cause: Throwable) {
         Throwables.thrown(cause)
         throw cause
-    }
-    finally {
+    } finally {
         try {
             reset()
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
     }
@@ -139,8 +159,7 @@ inline fun <T : Resetable, R> T.finishOn(block: (T) -> R): R {
 inline fun <T : Closeable, R> T.finishOn(block: (T) -> R): R {
     try {
         return use(block)
-    }
-    catch (cause: Throwable) {
+    } catch (cause: Throwable) {
         Throwables.thrown(cause)
         throw cause
     }
@@ -162,6 +181,12 @@ fun String.toCommonContentType(type: String = DEFAULT_CONTENT_TYPE): String = wh
 
 @CreatorsDsl
 inline fun getDefaultContentTypeProbe(): ContentTypeProbe = IO.getContentTypeProbe()
+
+@CreatorsDsl
+inline fun isSystemWindows(): Boolean = IO.isSystemWindows()
+
+@CreatorsDsl
+inline fun isSystemUnixLike(): Boolean = IO.isSystemUnixLike()
 
 @CreatorsDsl
 fun getPathNormalizedOrElse(path: String?, other: String = EMPTY_STRING): String = toTrimOrElse(IO.getPathNormalized(path), other)
@@ -236,6 +261,18 @@ fun CharArray.toCharBuffer(copy: Boolean = false): CharBuffer = CharBuffer.wrap(
 inline fun getByteBuffer(size: Int): ByteBuffer = ByteBuffer.allocate(size.maxOf(0))
 
 @CreatorsDsl
+inline fun toByteArrayOfInt(data: Byte): ByteArray = toByteArrayOfInt(data.toMaskedInt())
+
+@CreatorsDsl
+inline fun toByteArrayOfInt(data: Char): ByteArray = toByteArrayOfInt(data.toMaskedInt())
+
+@CreatorsDsl
+inline fun toByteArrayOfInt(data: Long): ByteArray = toByteArrayOfInt(data.toMaskedInt())
+
+@CreatorsDsl
+inline fun toByteArrayOfInt(data: Int): ByteArray = getByteBuffer(Int.SIZE_BYTES).putInt(data).toByteArray(false)
+
+@CreatorsDsl
 fun CharSequence.toCharBuffer(beg: Int = 0, end: Int = length): CharBuffer = CharBuffer.wrap(toString(), beg, end)
 
 @CreatorsDsl
@@ -245,10 +282,10 @@ fun CharSequence.getCharArray(copy: Boolean = false): CharArray = toString().toC
 fun ByteArray.toInputStream(copy: Boolean = false): InputStream = ByteArrayInputStream(toByteArray(copy))
 
 @CreatorsDsl
-fun File.toInputStream(vararg args: OpenOption): InputStream = toPath().toInputStream(*args)
+fun File.toInputStream(): InputStream = toPath().toInputStream()
 
 @CreatorsDsl
-fun Path.toInputStream(vararg args: OpenOption): InputStream = if (isValidToRead()) toFile().inputStream() else throw MercenaryExceptiion(toString())
+fun Path.toInputStream(): InputStream = if (isValidToRead()) FileInputStream(toFile()) else throw MercenaryExceptiion(toString())
 
 @CreatorsDsl
 inline fun ReadableByteChannel.toInputStream(): InputStream = Channels.newInputStream(this)
@@ -281,10 +318,10 @@ inline fun File.isValidToWrite(): Boolean = isDirectory.isNotTrue() && canWrite(
 inline fun Path.isValidToWrite(): Boolean = toFile().isValidToWrite()
 
 @CreatorsDsl
-fun File.toOutputStream(vararg args: OpenOption): OutputStream = toPath().toOutputStream(*args)
+fun File.toOutputStream(append: Boolean = false): OutputStream = toPath().toOutputStream(append)
 
 @CreatorsDsl
-fun Path.toOutputStream(vararg args: OpenOption): OutputStream = if (isValidToWrite()) Files.newOutputStream(this, *args) else throw MercenaryExceptiion(toString())
+fun Path.toOutputStream(append: Boolean = false): OutputStream = if (isValidToWrite()) FileOutputStream(toFile(), append) else throw MercenaryExceptiion(toString())
 
 @CreatorsDsl
 inline fun WritableByteChannel.toOutputStream(): OutputStream = Channels.newOutputStream(this)
@@ -329,7 +366,21 @@ inline infix fun InputStreamSupplier.forEachLineIndexed(block: (Int, String) -> 
 
 @CreatorsDsl
 inline infix fun InputStream.forEachLineIndexed(block: (Int, String) -> Unit) {
-    reader().buffered().useLines { it.forEachIndexed(block) }
+    toBufferedReader().forEachLineIndexed(block)
+}
+
+@CreatorsDsl
+inline fun InputStream.toBufferedReader(charset: Charset = Charsets.UTF_8): BufferedReader {
+    return reader(charset).buffered(getBufferSize())
+}
+
+@CreatorsDsl
+fun InputStream.getBufferSize(most: Int = DEFAULT_BUFFER_SIZE * 4): Int {
+    return try {
+        available().maxOf(DEFAULT_BUFFER_SIZE).minOf(most)
+    } catch (cause: Throwable) {
+        DEFAULT_BUFFER_SIZE
+    }
 }
 
 @CreatorsDsl
@@ -351,7 +402,9 @@ fun URL.toByteArray(): ByteArray = toInputStream().toByteArray()
 fun URI.toByteArray(): ByteArray = toInputStream().toByteArray()
 
 @CreatorsDsl
-fun InputStream.toByteArray(): ByteArray = finishOn { it.readBytes() }
+fun InputStream.toByteArray(): ByteArray = finishOn { data ->
+    BytesOutputStream(data.getBufferSize()).toByteArray()
+}
 
 @CreatorsDsl
 fun File.toByteArray(): ByteArray = toInputStream().toByteArray()
@@ -388,7 +441,8 @@ fun ByteArray.toByteArray(copy: Boolean = true): ByteArray = if (copy) copyOf() 
 
 @CreatorsDsl
 fun ByteBuffer.toByteArray(copy: Boolean = false): ByteArray {
-    return if (hasArray()) array().toByteArray(copy) else EMPTY_BYTE_ARRAY.toByteArray(copy)
+
+    return if (hasArray()) array().toByteArray(copy) else EMPTY_BYTE_ARRAY
 }
 
 @CreatorsDsl
@@ -428,11 +482,30 @@ inline fun File.toContentResource() = FileContentResource(this)
 inline fun Path.toContentResource() = FileContentResource(this)
 
 @CreatorsDsl
-inline fun CharSequence.forEachChar(noinline block: (Char) -> Unit) {
+inline infix fun CharSequence.forEachChar(noinline block: Convert<Char, Unit>) {
     if (length > 0) {
         for (i in 0 until length) {
-            block(this[i])
+            block.convert(this[i])
         }
     }
+}
+
+@CreatorsDsl
+inline fun CharSequence.pluralOf(size: Int = length, tail: String = EMPTY_STRING): String {
+    return if (size == 1) "${toString()}$tail" else "${toString()}s$tail"
+}
+
+@CreatorsDsl
+inline infix fun CharSequence.forEachCharIndexed(noinline block: Indexed<Char>) {
+    if (length > 0) {
+        for (i in 0 until length) {
+            block.indexed(i, this[i])
+        }
+    }
+}
+
+@CreatorsDsl
+inline fun <R> CharSequence.transformTo(transform: Convert<CharSequence, R>): R {
+    return transform.convert(this)
 }
 

@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.text
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.Formatters
 import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
@@ -28,7 +29,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
     private val deep = ThreadLocal.withInitial { 0L.toAtomic() }
 
     @CreatorsDsl
-    private val safe = { data: Any? -> Formatters.toSafeString { data } }
+    private fun format(data: Any?): String = Formatters.toSafeString { data }
 
     @CreatorsDsl
     override fun toSafeString(data: Any): String {
@@ -53,8 +54,9 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
                 val (k, v) = data
                 add(escape(k), ": ", escape(v))
             }
-            is HasMapNames -> safe.invoke(data.toMapNames())
-            is SafeForLogging -> data.toSafeString()
+            is HasMapNames -> format(data.toMapNames())
+            is SafeStringable -> data.toSafeString()
+            is Pair<*, *> -> format(toMapOf(data))
             else -> data.toString()
         }
     }
@@ -84,7 +86,8 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
             is Map.Entry<*, *> -> true
             is HasMapNames -> true
             is CharSequence -> true
-            is SafeForLogging -> true
+            is SafeStringable -> true
+            is Pair<*, *> -> true
             else -> false
         }
     }
@@ -93,7 +96,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
     private fun escape(data: Any?): String {
         val flag = quoted(data)
         deep.toValue().increment()
-        val next = safe.invoke(data)
+        val next = format(data)
         val look = flag.isNotTrue().and(deep.toValue() > 0).isNotTrue()
         deep.toValue().decrement()
         return if (look.isTrue()) Escapers.toEscapedString(next, flag.isTrue()) else next
@@ -101,7 +104,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
 
     @CreatorsDsl
     private fun joinTo(data: List<*>): String {
-        return when(val size = data.size) {
+        return when (val size = data.size) {
             0 -> "[]"
             else -> {
                 stringOf("[") {
@@ -109,7 +112,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
                         if (i > 0) {
                             add(", ")
                         }
-                        add(safe.invoke(data[i]))
+                        add(format(data[i]))
                     }
                     add("]")
                 }
@@ -120,7 +123,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
     @CreatorsDsl
     private fun joinTo(data: Map<*, *>): String {
         val list = data.entries.toList()
-        return when(val size = list.size) {
+        return when (val size = list.size) {
             0 -> "{}"
             else -> {
                 stringOf("{") {
@@ -128,7 +131,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
                         if (i > 0) {
                             add(", ")
                         }
-                        add(safe.invoke(list[i]))
+                        add(format(list[i]))
                     }
                     add("}")
                 }

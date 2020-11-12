@@ -60,15 +60,15 @@ open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(priv
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun getLoadersName() = toTrimOrElse(name, javaClass.name)
-
-    @CreatorsDsl
-    @IgnoreForSerialize
     override fun isContentCache() = false
 
     @CreatorsDsl
     @IgnoreForSerialize
     override fun getClassLoader() = loader
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    override fun getLoadersName() = name.toTrimOr { nameOf() }
 
     @CreatorsDsl
     protected open fun getContentResourceByPath(path: String): ContentResource {
@@ -83,9 +83,14 @@ open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(priv
                 Throwables.thrown(cause)
             }
         }
-        return ClassPathContentResource(path, DEFAULT_CONTENT_TYPE, null, getClassLoader())
+        val look = ClassPathContentResource(path, DEFAULT_CONTENT_TYPE, null, getClassLoader())
+        if (look.isContentThere()) {
+            return look
+        }
+        return EmptyContentResource
     }
 
+    @CreatorsDsl
     override operator fun plusAssign(args: ContentProtocolResolver) {
         synchronized(list) {
             if (!contains(args)) {
@@ -94,6 +99,7 @@ open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(priv
         }
     }
 
+    @CreatorsDsl
     override operator fun minusAssign(args: ContentProtocolResolver) {
         synchronized(list) {
             if (contains(args)) {
@@ -119,10 +125,10 @@ open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(priv
     override fun toMapNames() = dictOf("name" to getLoadersName(), "cached" to isContentCache())
 
     @CreatorsDsl
-    override fun toString() = toMapNames().toString()
+    override fun toString() = toMapNames().toSafeString()
 
     @CreatorsDsl
-    override fun hashCode() = toMapNames().hashCode()
+    override fun hashCode() = toMapNames().toSafeHashUf()
 
     @CreatorsDsl
     override fun equals(other: Any?) = when (other) {

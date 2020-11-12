@@ -20,7 +20,6 @@ import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
 class SequenceTest : KotlinDataTest() {
-
     @Test
     fun test() {
         val size = 10
@@ -42,16 +41,18 @@ class SequenceTest : KotlinDataTest() {
             info { it }
         }
         ints.size shouldBe 16
-        warn { dash() }
+        dashes()
         val maps = LRUCacheMap<String, String>(4)
         maps["author"] = author
         info { maps.size }
-        warn { dash() }
+        dashes()
         16 forEach {
             info { maps }
-            maps[it.toDecString(2)] = it.toDecString(2)
+            val temp = "%04d".format(it)
+            error { temp }
+            maps[temp] = temp
             info { maps.size }
-            warn { dash() }
+            dashes()
         }
         maps.computeIfAbsent("author") { name ->
             warn { name.center(16) }
@@ -59,6 +60,6 @@ class SequenceTest : KotlinDataTest() {
         }
         info { maps.size }
         info { maps }
-        warn { dash() }
+        dashes()
     }
 }

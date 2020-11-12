@@ -88,12 +88,12 @@ fun lcmOf(value: Int, other: Long): Long = Numeric.lcmOf(value, other)
 fun lcmOf(value: Long, other: Int): Long = Numeric.lcmOf(value, other)
 
 @CreatorsDsl
-inline fun Int.abs(): Int {
+inline fun Int.absOf(): Int {
     return Numeric.absOf(this)
 }
 
 @CreatorsDsl
-inline fun Int.neg(): Int {
+inline fun Int.negOf(): Int {
     return -this
 }
 
@@ -104,12 +104,12 @@ inline fun Int.isNegative(): Boolean {
 
 @CreatorsDsl
 inline fun Int.isEven(): Boolean {
-    return abs() % 2 == 0
+    return absOf() % 2 == 0
 }
 
 @CreatorsDsl
 inline fun Int.isNotEven(): Boolean {
-    return abs() % 2 == 1
+    return absOf() % 2 == 1
 }
 
 @CreatorsDsl
@@ -133,12 +133,12 @@ inline fun Int.boxIn(range: ClosedRange<Int>): Int {
 }
 
 @CreatorsDsl
-inline fun Long.abs(): Long {
+inline fun Long.absOf(): Long {
     return Numeric.absOf(this)
 }
 
 @CreatorsDsl
-inline fun Long.neg(): Long {
+inline fun Long.negOf(): Long {
     return -this
 }
 
@@ -149,12 +149,12 @@ inline fun Long.isNegative(): Boolean {
 
 @CreatorsDsl
 inline fun Long.isEven(): Boolean {
-    return abs() % 2 == 0L
+    return absOf() % 2 == 0L
 }
 
 @CreatorsDsl
 inline fun Long.isNotEven(): Boolean {
-    return abs() % 2 == 1L
+    return absOf() % 2 == 1L
 }
 
 @CreatorsDsl
@@ -193,12 +193,12 @@ inline fun Long.boxIn(range: ClosedRange<Long>): Long {
 }
 
 @CreatorsDsl
-inline fun Double.abs(): Double {
+inline fun Double.absOf(): Double {
     return Numeric.absOf(this)
 }
 
 @CreatorsDsl
-inline fun Double.neg(): Double {
+inline fun Double.negOf(): Double {
     return -this
 }
 
@@ -259,12 +259,12 @@ inline fun Double.isPositive(): Boolean {
 
 @CreatorsDsl
 inline fun Double.isEven(): Boolean {
-    return truncated().abs() % 2 == 0.0
+    return truncated().absOf() % 2 == 0.0
 }
 
 @CreatorsDsl
 inline fun Double.isNotEven(): Boolean {
-    return truncated().abs() % 2 == 1.0
+    return truncated().absOf() % 2 == 1.0
 }
 
 @CreatorsDsl
@@ -279,7 +279,7 @@ inline fun Long.isValidDivisor(): Boolean {
 
 @CreatorsDsl
 inline fun Double.isValidDivisor(): Boolean {
-    return (toFinite().abs() != 0.0)
+    return (toFinite().absOf() != 0.0)
 }
 
 @CreatorsDsl
@@ -298,7 +298,7 @@ inline fun Double.toValidDivisor(): Double {
 }
 
 @CreatorsDsl
-fun Double.toDecimalPlacesString(scale: Int = Numeric.DEFAULT_PRECISION_SCALE, places: Int = scale.abs()): String {
+fun Double.toDecimalPlacesString(scale: Int = Numeric.DEFAULT_PRECISION_SCALE, places: Int = scale.absOf()): String {
     return Numeric.toDecimalPlacesString(this, scale, places)
 }
 
@@ -433,7 +433,16 @@ inline fun Double.toFiniteOrElse(value: Double): Double = if (isValid()) this el
 inline fun Double.toFiniteOrElse(block: () -> Double): Double = if (isValid()) this else block.invoke()
 
 @CreatorsDsl
-fun Long.toMasked(): Int = (this and 0xffffffffL).toInt()
+fun Byte.toMaskedInt(): Int = toLong().toMaskedInt()
+
+@CreatorsDsl
+fun Char.toMaskedInt(): Int = toLong().toMaskedInt()
+
+@CreatorsDsl
+fun Short.toMaskedInt(): Int = toLong().toMaskedInt()
+
+@CreatorsDsl
+fun Long.toMaskedInt(): Int = (this and 0xffffffffL).toInt()
 
 @CreatorsDsl
 fun toDoubleArrayOf(vararg args: Double): DoubleArray = doubleArrayOf(*args)
@@ -501,6 +510,12 @@ fun Short.toHexString(pads: Int = 0): String = toString(16).padStart(pads.maxOf(
 fun Char.toHexString(pads: Int = 0): String = toInt().toHexString(pads)
 
 @CreatorsDsl
+fun Float.toHexString(pads: Int = 0): String = toRawBits().toHexString(pads)
+
+@CreatorsDsl
+fun Double.toHexString(pads: Int = 0): String = toRawBits().toHexString(pads)
+
+@CreatorsDsl
 fun Int.toDecString(pads: Int = 0): String = toString(10).padStart(pads.maxOf(0), '0')
 
 @CreatorsDsl
@@ -516,6 +531,9 @@ fun Short.toDecString(pads: Int = 0): String = toString(10).padStart(pads.maxOf(
 fun Char.toDecString(pads: Int = 0): String = toInt().toDecString(pads)
 
 @CreatorsDsl
+inline fun Valued<Int>.toValueString(): String = value().toString()
+
+@CreatorsDsl
 fun Int.toBinaryString(pads: Int = Int.SIZE_BITS): String = toString(2).padStart(pads.maxOf(0), '0')
 
 @CreatorsDsl
@@ -529,3 +547,9 @@ fun Short.toBinaryString(pads: Int = Short.SIZE_BITS): String = toString(2).padS
 
 @CreatorsDsl
 fun Char.toBinaryString(pads: Int = Char.SIZE_BITS): String = toInt().toBinaryString(pads)
+
+@CreatorsDsl
+fun Float.toBinaryString(pads: Int = Float.SIZE_BITS): String = toRawBits().toString(2).padStart(pads.maxOf(0), '0')
+
+@CreatorsDsl
+fun Double.toBinaryString(pads: Int = Double.SIZE_BITS): String = toRawBits().toString(2).padStart(pads.maxOf(0), '0')

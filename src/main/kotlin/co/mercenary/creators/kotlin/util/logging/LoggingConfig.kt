@@ -22,14 +22,14 @@ import co.mercenary.creators.kotlin.util.*
 object LoggingConfig {
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
-    fun getLoggingConfigServiceList(load: ClassLoader? = null): List<LoggingConfigService> {
+    internal fun getLoggingConfigServiceList(load: ClassLoader? = null): List<LoggingConfigService> {
         return try {
-            ServiceLoading.loaderOf(LoggingConfigService::class, load).sorted().toList()
+            ServiceLoading.loaderOf(LoggingConfigService::class, load).toSortedListOf()
         }
         catch (cause: Throwable) {
-            listOf()
+            toListOf()
         }
     }
 
@@ -38,19 +38,24 @@ object LoggingConfig {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getIgnoring(): List<String> {
         return list.flatMapTo(ArrayList()) { it.getIgnoring() }.uniqueTrimmedOf()
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isAutoStart(): Boolean = list.last().isAutoStart()
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isAutoClose(): Boolean = list.last().isAutoClose()
+
+    @JvmStatic
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isBridgeing(): Boolean = list.last().isBridgeing()
 }

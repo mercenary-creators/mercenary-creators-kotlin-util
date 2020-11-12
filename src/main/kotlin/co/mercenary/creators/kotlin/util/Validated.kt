@@ -17,6 +17,8 @@
 package co.mercenary.creators.kotlin.util
 
 fun interface Validated {
+
     @CreatorsDsl
+    @IgnoreForSerialize
     fun isValid(): Boolean
 }

@@ -31,14 +31,14 @@ object SecureAccess {
     @Synchronized
     private fun doExit() {
         if (list.isNotEmpty()) {
-            list.reversed().also { list.clear() }.forEach {
+            list.reversed().forEach {
                 try {
                     it.invoke()
-                }
-                catch (cause: Throwable) {
+                } catch (cause: Throwable) {
                 }
             }
         }
+        list.clear()
     }
 
     @JvmStatic
@@ -53,14 +53,24 @@ object SecureAccess {
     @JvmStatic
     @CreatorsDsl
     @Synchronized
-    fun onExitOfProcess(func: () -> Unit) {
+    @JvmOverloads
+    fun onExitOfProcess(push: Boolean = false, func: () -> Unit) {
         if (open.isFalseToTrue()) {
-            object : Thread() {
-                override fun run() {
-                    doExit()
-                }
-            }.also { Runtime.getRuntime().addShutdownHook(it) }
+            ExitThread(nameOf()) {
+                doExit()
+            }
         }
-        list += func
+        if (push.isTrue()) {
+            list.push(func)
+        }
+        else {
+            list.post(func)
+        }
+    }
+
+    private class ExitThread @CreatorsDsl constructor(name: String, task: () -> Unit) : Thread(task, name) {
+        init {
+            Runtime.getRuntime().addShutdownHook(this)
+        }
     }
 }

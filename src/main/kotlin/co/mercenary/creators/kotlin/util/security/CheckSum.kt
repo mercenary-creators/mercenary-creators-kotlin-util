@@ -18,7 +18,13 @@ package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
 
-interface CheckSum : Clearable {
+interface CheckSum : Clearable, Resetable, HasMapNames {
+
+    @CreatorsDsl
+    val total: Long
+
+    @CreatorsDsl
+    override fun clear() = reset()
 
     @CreatorsDsl
     fun decoder(data: String): Long

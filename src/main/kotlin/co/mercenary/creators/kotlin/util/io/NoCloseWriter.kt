@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 
 @IgnoreForSerialize
-class NoCloseWriter @JvmOverloads @CreatorsDsl constructor(data: Writer, private val done: Boolean = true) : FilterWriter(data), OpenCloseable {
+class NoCloseWriter @JvmOverloads @CreatorsDsl constructor(data: Writer, private val done: Boolean = true) : FilterWriter(data), OpenAutoClosable {
 
     private val open = true.toAtomic()
 

@@ -37,5 +37,6 @@ class ByteArrayContentResource @JvmOverloads @CreatorsDsl constructor(data: Byte
         else -> false
     }
 
+    @CreatorsDsl
     override fun hashCode() = toDataHashOf()
 }

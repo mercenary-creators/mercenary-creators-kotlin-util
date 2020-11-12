@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 
 @IgnoreForSerialize
-class NoCloseOutputStream @JvmOverloads @CreatorsDsl constructor(data: OutputStream, private val done: Boolean = true) : FilterOutputStream(data), OpenCloseable {
+class NoCloseOutputStream @JvmOverloads @CreatorsDsl constructor(data: OutputStream, private val done: Boolean = true) : FilterOutputStream(data), OpenAutoClosable {
 
     private val open = true.toAtomic()
 

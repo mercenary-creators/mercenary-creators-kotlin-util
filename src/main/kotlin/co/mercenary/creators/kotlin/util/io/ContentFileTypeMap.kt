@@ -45,6 +45,7 @@ class ContentFileTypeMap : HasMapNames {
 
     override fun toString() = toMapNames().toString()
 
+    @CreatorsDsl
     override fun toMapNames() = dictOf("name" to name, "type" to javaClass.name)
 
     companion object {
