@@ -51,7 +51,7 @@ class LoaderTest : KotlinDataTest() {
         val data = EmptyContentResource
         info { EmptyContentResource }
         info { data == EmptyContentResource }
-        info { data isSameAs EmptyContentResource }
+        //info { data isSameAs EmptyContentResource }
         data shouldBe EmptyContentResource
         info { loader["http://jsonplaceholder.typicode.com/posts"].toRelativePath("../todos") }
         info { loader["http://jsonplaceholder.typicode.com/todos"]["../posts"] }

@@ -19,28 +19,9 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 import java.io.OutputStream
 
-@CreatorsDsl
-@IgnoreForSerialize
-object EmptyOutputStream : OutputStream(), HasMapNames {
+fun interface ErrorOutputStreamSupplier {
 
     @CreatorsDsl
-    override fun close() = Unit
-
-    @CreatorsDsl
-    override fun flush() = Unit
-
-    @CreatorsDsl
-    override fun write(b: Int) = Unit
-
-    @CreatorsDsl
-    override fun write(b: ByteArray) = Unit
-
-    @CreatorsDsl
-    override fun write(b: ByteArray, off: Int, len: Int) = Unit
-
-    @CreatorsDsl
-    override fun toString() = toMapNames().toSafeString()
-
-    @CreatorsDsl
-    override fun toMapNames() = dictOf("type" to nameOf())
+    @IgnoreForSerialize
+    fun getErrorStream(): OutputStream
 }

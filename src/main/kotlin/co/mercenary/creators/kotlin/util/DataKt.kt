@@ -112,7 +112,10 @@ fun PrintStream.newline(): PrintStream {
 }
 
 @CreatorsDsl
-fun <T> Indexed<T>.indexed(index: Int, value: T) = invoke(index, value)
+inline fun <T> Indexed<T>.indexed(index: Int, value: T) = invoke(index, value)
+
+@CreatorsDsl
+inline fun <T> Factory<T>.convert() = invoke()
 
 @CreatorsDsl
 inline fun <T, R> Convert<T, R>.convert(args: T): R = invoke(args)
@@ -288,6 +291,9 @@ fun File.toInputStream(): InputStream = toPath().toInputStream()
 fun Path.toInputStream(): InputStream = if (isValidToRead()) FileInputStream(toFile()) else throw MercenaryExceptiion(toString())
 
 @CreatorsDsl
+inline fun FileDescriptor.toInputStream(): InputStream = FileInputStream(this)
+
+@CreatorsDsl
 inline fun ReadableByteChannel.toInputStream(): InputStream = Channels.newInputStream(this)
 
 @CreatorsDsl
@@ -322,6 +328,9 @@ fun File.toOutputStream(append: Boolean = false): OutputStream = toPath().toOutp
 
 @CreatorsDsl
 fun Path.toOutputStream(append: Boolean = false): OutputStream = if (isValidToWrite()) FileOutputStream(toFile(), append) else throw MercenaryExceptiion(toString())
+
+@CreatorsDsl
+inline fun FileDescriptor.toOutputStream(): OutputStream = FileOutputStream(this)
 
 @CreatorsDsl
 inline fun WritableByteChannel.toOutputStream(): OutputStream = Channels.newOutputStream(this)
@@ -376,10 +385,13 @@ inline fun InputStream.toBufferedReader(charset: Charset = Charsets.UTF_8): Buff
 
 @CreatorsDsl
 fun InputStream.getBufferSize(most: Int = DEFAULT_BUFFER_SIZE * 4): Int {
+    if (this is EmptyInputStream) {
+        return 0
+    }
     return try {
         available().maxOf(DEFAULT_BUFFER_SIZE).minOf(most)
     } catch (cause: Throwable) {
-        DEFAULT_BUFFER_SIZE
+        Throwables.fatal(cause, DEFAULT_BUFFER_SIZE)
     }
 }
 

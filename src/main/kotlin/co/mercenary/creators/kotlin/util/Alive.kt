@@ -14,33 +14,11 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.*
-import java.io.OutputStream
-
-@CreatorsDsl
-@IgnoreForSerialize
-object EmptyOutputStream : OutputStream(), HasMapNames {
+fun interface Alive {
 
     @CreatorsDsl
-    override fun close() = Unit
-
-    @CreatorsDsl
-    override fun flush() = Unit
-
-    @CreatorsDsl
-    override fun write(b: Int) = Unit
-
-    @CreatorsDsl
-    override fun write(b: ByteArray) = Unit
-
-    @CreatorsDsl
-    override fun write(b: ByteArray, off: Int, len: Int) = Unit
-
-    @CreatorsDsl
-    override fun toString() = toMapNames().toSafeString()
-
-    @CreatorsDsl
-    override fun toMapNames() = dictOf("type" to nameOf())
+    @IgnoreForSerialize
+    fun isAlive(): Boolean
 }

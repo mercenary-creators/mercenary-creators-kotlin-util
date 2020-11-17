@@ -170,12 +170,28 @@ object Throwables {
 
     @JvmStatic
     @CreatorsDsl
-    fun check(cause: Throwable): Throwable {
+    fun <T> fatal(cause: Throwable, block: Factory<T>): T {
         when (cause) {
             is OutOfMemoryError -> throw cause
             is StackOverflowError -> throw cause
         }
-        return cause
+        return block.convert()
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun <T> fatal(cause: Throwable, value: T): T {
+        when (cause) {
+            is OutOfMemoryError -> throw cause
+            is StackOverflowError -> throw cause
+        }
+        return value
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun check(cause: Throwable): Throwable {
+        return fatal(cause, cause)
     }
 
     @JvmStatic

@@ -23,4 +23,5 @@ import java.io.InputStream
 @IgnoreForSerialize
 object EmptyInputStream : InputStream() {
     override fun read() = IS_NOT_FOUND
+    override fun toString() = nameOf()
 }

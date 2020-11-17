@@ -164,7 +164,7 @@ object Randoms {
     @JvmStatic
     @CreatorsDsl
     fun getLongSequence(sized: Long): Sequence<Long> {
-        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.longs(sized).iterator())
+        return if (sized < 1L) MercenarySequence() else random.longs(sized).toSequence()
     }
 
     @JvmStatic
@@ -176,7 +176,7 @@ object Randoms {
     @JvmStatic
     @CreatorsDsl
     fun getLongSequence(sized: Long, lower: Long, upper: Long): Sequence<Long> {
-        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.longs(sized, lower, upper).iterator())
+        return if (sized < 1L) MercenarySequence() else random.longs(sized, lower, upper).toSequence()
     }
 
     @JvmStatic
@@ -188,7 +188,7 @@ object Randoms {
     @JvmStatic
     @CreatorsDsl
     fun getIntegerSequence(sized: Long): Sequence<Int> {
-        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.ints(sized).iterator())
+        return if (sized < 1L) MercenarySequence() else random.ints(sized).toSequence()
     }
 
     @JvmStatic
@@ -200,7 +200,7 @@ object Randoms {
     @JvmStatic
     @CreatorsDsl
     fun getIntegerSequence(sized: Long, lower: Int, upper: Int): Sequence<Int> {
-        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.ints(sized, lower, upper).iterator())
+        return if (sized < 1L) MercenarySequence() else random.ints(sized, lower, upper).toSequence()
     }
 
     @JvmStatic
@@ -212,7 +212,7 @@ object Randoms {
     @JvmStatic
     @CreatorsDsl
     fun getDoubleSequence(sized: Long): Sequence<Double> {
-        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.doubles(sized).iterator())
+        return if (sized < 1L) MercenarySequence() else random.doubles(sized).toSequence()
     }
 
     @JvmStatic
@@ -224,7 +224,7 @@ object Randoms {
     @JvmStatic
     @CreatorsDsl
     fun getDoubleSequence(sized: Long, lower: Double, upper: Double): Sequence<Double> {
-        return if (sized < 1L) MercenarySequence() else MercenarySequence(random.doubles(sized, lower, upper).iterator())
+        return if (sized < 1L) MercenarySequence() else random.doubles(sized, lower, upper).toSequence()
     }
 
     @JvmStatic

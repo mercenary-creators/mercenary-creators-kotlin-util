@@ -66,6 +66,9 @@ const val DEFAULT_MAP_FACTOR = 0.75
 const val DEFAULT_MAP_CAPACITY = 16
 
 @CreatorsDsl
+const val DEFAULT_LIST_CAPACITY = 10
+
+@CreatorsDsl
 const val DEFAULT_PARALLEL_CUTOFF = 2
 
 @CreatorsDsl
@@ -73,6 +76,9 @@ const val DEFAULT_STRINGOF_CAPACITY = 16
 
 @CreatorsDsl
 const val DEFAULT_LRU_THRESHOLD = DEFAULT_MAP_CAPACITY * 8
+
+@CreatorsDsl
+const val DEFAULT_LIST_THRESHOLD = DEFAULT_LIST_CAPACITY * 16
 
 typealias Inflaters = co.mercenary.creators.kotlin.util.io.Inflaters
 
@@ -108,6 +114,8 @@ typealias CipherAlgorithm = co.mercenary.creators.kotlin.util.security.CipherAlg
 
 typealias Manager = co.mercenary.creators.kotlin.util.system.Manager
 
+typealias Launcher = co.mercenary.creators.kotlin.util.system.Launcher
+
 typealias AtomicHashMap<K, V> = java.util.concurrent.ConcurrentHashMap<K, V>
 
 typealias AtomicHashMapKeysView<K, V> = java.util.concurrent.ConcurrentHashMap.KeySetView<K, V>
@@ -135,6 +143,30 @@ fun <T : Any?> T.toSafeHashUf(): Int = hashOf()
 
 @CreatorsDsl
 fun <T : Any?> T.toSafeString(): String = Formatters.toSafeString { this }
+
+@CreatorsDsl
+fun Iterator<*>.toIteratorHashOf(): Int {
+    val code = 1.toAtomic()
+    for (each in this) {
+        code.setValue(31 * code.getValue() + each.hashOf())
+    }
+    return code.getValue()
+}
+
+@CreatorsDsl
+fun Iterable<*>.toIterableHashOf(): Int {
+    if (this is Collection) {
+        if (isEmpty()) {
+            return 1
+        }
+    }
+    return toIterator().toIteratorHashOf()
+}
+
+@CreatorsDsl
+inline fun List<*>.toListHashOf(): Int {
+    return if (isEmpty()) 1 else toIterator().toIteratorHashOf()
+}
 
 @CreatorsDsl
 inline fun <E : Enum<E>> E.toOrdinalLong(): Long = ordinal.toLong()
@@ -189,6 +221,9 @@ fun java.security.MessageDigest.proxyOf() = Digests.proxyOf(this)
 
 @CreatorsDsl
 fun Properties.toStringDictionary() = StringDictionary(this)
+
+@CreatorsDsl
+fun Int.toListCapacity(): Int = if (isNegative()) DEFAULT_LIST_CAPACITY else minOf(DEFAULT_LIST_THRESHOLD)
 
 @CreatorsDsl
 fun Double.toMapFactorOrElse(value: Double = DEFAULT_MAP_FACTOR): Float = toFiniteOrElse(value.toFiniteOrElse(DEFAULT_MAP_FACTOR)).toFloat()
@@ -413,14 +448,46 @@ fun <E> List<E>.whenNotEmpty(block: (List<E>) -> Unit) {
 }
 
 @CreatorsDsl
-fun <E, T : MutableList<E>> T.push(value: E): T {
-    add(0, value)
+fun <E, T : MutableList<E>> T.push(args: E): T {
+    add(0, args)
     return this
 }
 
 @CreatorsDsl
-fun <E, T : MutableList<E>> T.post(value: E): T {
-    this += value
+fun <E, T : MutableList<E>> T.append(args: E): T {
+    this += args
+    return this
+}
+
+@CreatorsDsl
+fun <E, T : MutableList<E>> T.append(vararg args: E): T {
+    for (item in args) {
+        this += item
+    }
+    return this
+}
+
+@CreatorsDsl
+fun <E, T : MutableList<E>> T.append(args: Iterator<E>): T {
+    for (item in args) {
+        this += item
+    }
+    return this
+}
+
+@CreatorsDsl
+fun <E, T : MutableList<E>> T.append(args: Iterable<E>): T {
+    for (item in args) {
+        this += item
+    }
+    return this
+}
+
+@CreatorsDsl
+fun <E, T : MutableList<E>> T.append(args: Sequence<E>): T {
+    for (item in args) {
+        this += item
+    }
     return this
 }
 
@@ -486,8 +553,14 @@ fun String.padout(many: Int, pads: Char = SPACE_LETTER): String = if (many <= 0)
 fun String.center(many: Int, pads: Char = SPACE_LETTER, trim: Boolean = true): String = if (many <= 0) this else filter(pads, trim).padout(many, pads)
 
 @CreatorsDsl
+inline fun CharSequence.isZeroCharPresent(): Boolean = any { it == Char.MIN_VALUE }
+
+@CreatorsDsl
+inline fun CharSequence.isZeroCharNotPresent(): Boolean = isZeroCharPresent().isNotTrue()
+
+@CreatorsDsl
 fun CharSequence.toChecked(): String {
-    return if (any { it == Char.MIN_VALUE })
+    return if (isZeroCharPresent())
         throw MercenaryFatalExceptiion("null byte present. there are no known legitimate use cases for such data, but several injection attacks may use it.")
     else toString()
 }
@@ -735,6 +808,32 @@ fun AtomicLong.isNotEven(): Boolean {
 }
 
 @CreatorsDsl
+fun AtomicLong.setValue(value: Int): AtomicLong {
+    return setValue(value.toLong())
+}
+
+@CreatorsDsl
+fun AtomicLong.setValue(value: Long): AtomicLong {
+    set(value)
+    return this
+}
+
+@CreatorsDsl
+fun AtomicLong.setValue(value: AtomicLong): AtomicLong {
+    return setValue(value.getValue())
+}
+
+@CreatorsDsl
+fun AtomicLong.setValue(value: AtomicInteger): AtomicLong {
+    return setValue(value.getValue())
+}
+
+@CreatorsDsl
+fun AtomicLong.getValue(): Long {
+    return get()
+}
+
+@CreatorsDsl
 fun Int.toAtomic(): AtomicInteger = AtomicInteger(this)
 
 @CreatorsDsl
@@ -820,6 +919,22 @@ infix fun AtomicInteger.minOf(value: AtomicInteger): AtomicInteger {
         set(value.get())
     }
     return this
+}
+
+@CreatorsDsl
+fun AtomicInteger.setValue(value: Int): AtomicInteger {
+    set(value)
+    return this
+}
+
+@CreatorsDsl
+fun AtomicInteger.setValue(value: AtomicInteger): AtomicInteger {
+    return setValue(value.getValue())
+}
+
+@CreatorsDsl
+fun AtomicInteger.getValue(): Int {
+    return get()
 }
 
 @CreatorsDsl
@@ -1338,6 +1453,14 @@ inline fun Array<*>.toContentHashOf(): Int = contentDeepHashCode()
 @CreatorsDsl
 fun Constrained.isNotConstrained(): Boolean = isConstrained().isNotTrue()
 
+@CreatorsDsl
+fun Alive.isNotAlive(): Boolean = isAlive().isNotTrue()
+
+@CreatorsDsl
+inline fun Iterator<String>.toNoEmptyChars(): List<String> {
+    return toList().filter { it.isZeroCharNotPresent() }
+}
+
 open class MercenarySequence<out T> @CreatorsDsl constructor(private val iterator: Iterator<T>) : Sequence<T> {
 
     @CreatorsDsl
@@ -1347,24 +1470,30 @@ open class MercenarySequence<out T> @CreatorsDsl constructor(private val iterato
     constructor() : this(toListOf())
 
     @CreatorsDsl
-    constructor(vararg source: T) : this(source.iterator())
+    constructor(vararg source: T) : this(source.toIterator())
 
     @CreatorsDsl
-    constructor(source: Stream<T>) : this(source.iterator())
+    constructor(source: Stream<T>) : this(source.toIterator())
 
     @CreatorsDsl
-    constructor(source: Iterable<T>) : this(source.iterator())
+    constructor(source: Iterable<T>) : this(source.toIterator())
 
     @CreatorsDsl
-    constructor(source: Sequence<T>) : this(source.iterator())
+    constructor(source: Sequence<T>) : this(source.toIterator())
 }
 
 class MercenaryConstrainedSequence<out T> @CreatorsDsl constructor(source: Iterator<T>) : MercenarySequence<T>(source), Sequence<T>
 
 @CreatorsDsl
 inline fun <T> Sequence<T>.constrain(): Sequence<T> {
-    return if (this is MercenaryConstrainedSequence) this else MercenaryConstrainedSequence(constrainOnce().iterator())
+    return if (this is MercenaryConstrainedSequence) this else MercenaryConstrainedSequence(constrainOnce().toIterator())
 }
+
+@CreatorsDsl
+inline fun <T> Array<T>.toIterator(): Iterator<T> = iterator()
+
+@CreatorsDsl
+inline fun <T> Stream<T>.toIterator(): Iterator<T> = iterator()
 
 @CreatorsDsl
 inline fun <T> Sequence<T>.toIterator(): Iterator<T> = iterator()
@@ -1373,18 +1502,16 @@ inline fun <T> Sequence<T>.toIterator(): Iterator<T> = iterator()
 inline fun <T> Iterator<T>.toIterator(): Iterator<T> = iterator()
 
 @CreatorsDsl
-fun <T> Sequence<T>.toIterable(): Iterable<T> = object : Iterable<T> {
-    override operator fun iterator(): Iterator<T> {
-        return toIterator()
-    }
-}
+inline fun <T> Iterable<T>.toIterator(): Iterator<T> = iterator()
 
 @CreatorsDsl
-fun <T> Iterator<T>.toIterable(): Iterable<T> = object : Iterable<T> {
-    override operator fun iterator(): Iterator<T> {
-        return toIterator()
-    }
-}
+fun <T> Array<T>.toIterable(): Iterable<T> = Iterable { toIterator() }
+
+@CreatorsDsl
+fun <T> Sequence<T>.toIterable(): Iterable<T> = Iterable { toIterator() }
+
+@CreatorsDsl
+fun <T> Iterator<T>.toIterable(): Iterable<T> = Iterable { toIterator() }
 
 @CreatorsDsl
 fun <T> Iterator<T>.toList(): List<T> = toIterable().toList()
@@ -1423,7 +1550,7 @@ fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = iterator().toSequence()
 fun <T : Any> Iterator<T>.toSequence(): Sequence<T> = MercenarySequence(this)
 
 @CreatorsDsl
-fun <T> sequenceOf(vararg args: T): Sequence<T> = MercenarySequence(args.iterator())
+fun <T> sequenceOf(vararg args: T): Sequence<T> = MercenarySequence(args.toIterator())
 
 @CreatorsDsl
 fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(generateSequence(next))
@@ -1435,13 +1562,10 @@ fun <T : Any> sequenceOf(seed: T?, next: (T) -> T?): Sequence<T> = MercenarySequ
 fun <T : Any> sequenceOf(seed: () -> T?, next: (T) -> T?): Sequence<T> = MercenarySequence(generateSequence(seed, next))
 
 @CreatorsDsl
-inline fun <T : Any> iteratorOf(vararg args: T): Iterator<T> = args.iterator()
+inline fun <T : Any> iteratorOf(vararg args: T): Iterator<T> = args.toIterator()
 
 @CreatorsDsl
-fun <T> Array<out T>.toIterable(): Iterable<T> = asIterable()
-
-@CreatorsDsl
-inline fun <T : Any> uniqueListOf(vararg args: T): List<T> = args.toList().distinct()
+inline fun <T : Any> unique(vararg args: T): List<T> = args.toIterator().toList().distinct()
 
 @CreatorsDsl
 fun Sequence<String>.uniqueTrimmedOf(): List<String> = toIterable().uniqueTrimmedOf()
@@ -1468,13 +1592,13 @@ inline fun <T : Any> Iterable<T>.toEnumeration(): Enumeration<T> = iterator().to
 inline fun <T : Any> Sequence<T>.toEnumeration(): Enumeration<T> = iterator().toEnumeration()
 
 @CreatorsDsl
-inline fun <T : Any> T?.orElse(block: () -> T): T = this ?: block.invoke()
+inline fun <T : Any> T?.otherwise(block: () -> T): T = this ?: block.invoke()
 
 @CreatorsDsl
-inline fun <T : Any> T?.orElse(value: T): T = this ?: value
+inline fun <T : Any> T?.otherwise(value: T): T = this ?: value
 
 @CreatorsDsl
-inline fun String?.orElse(value: String = EMPTY_STRING): String = this ?: value
+inline fun String?.otherwise(value: String = EMPTY_STRING): String = this ?: value
 
 @CreatorsDsl
 inline fun <reified T : Any> logsOf(): ILogging = LoggingFactory.logger(T::class)

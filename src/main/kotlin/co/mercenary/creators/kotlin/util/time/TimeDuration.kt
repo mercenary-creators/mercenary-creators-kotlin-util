@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import java.math.BigDecimal
 import java.time.Duration
 
-class TimeDuration @CreatorsDsl private constructor(private val time: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable {
+class TimeDuration @CreatorsDsl private constructor(private val time: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable, Container {
 
     @CreatorsDsl
     constructor(text: String) : this(parse(text))
@@ -101,6 +101,10 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
     override fun copyOf() = TimeDuration(time.copyOf(), unit)
 
     @CreatorsDsl
+    @IgnoreForSerialize
+    override fun isEmpty() = isEmpty(time)
+
+    @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
         is TimeDuration -> this === other || time == other.time
         else -> false
@@ -155,6 +159,7 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
 
         @CreatorsDsl
         private val HASH = atomicMapOf<String, TimeDuration>()
+
         @CreatorsDsl
         private val Duration.nanos: Long
             get() = nano.toLong()
@@ -178,7 +183,7 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
         @JvmStatic
         @CreatorsDsl
         private fun isEmpty(time: Duration): Boolean {
-            return time.isZero.or(time.isNegative)
+            return time.isZero || time.isNegative
         }
 
         @JvmStatic

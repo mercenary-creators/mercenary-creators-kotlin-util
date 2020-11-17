@@ -20,8 +20,40 @@ import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.io.*
 
 @IgnoreForSerialize
-interface LaunchRunner: OpenAutoClosable, InputStreamSupplier, OutputStreamSupplier, Validated {
+interface LaunchRunner : OpenAutoClosable, InputStreamSupplier, OutputStreamSupplier, ErrorInputStreamSupplier, Alive {
 
-    @FrameworkDsl
-    fun code(): Int
+    @CreatorsDsl
+    fun codeOf(): Int
+
+    @CreatorsDsl
+    fun waitOn(): Int
+
+    @CreatorsDsl
+    fun waitOn(time: TimeDuration): Boolean
+
+    @CreatorsDsl
+    fun destroy(force: Boolean = true): Boolean
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getCommandLine(): List<String>
+
+    @CreatorsDsl
+    @IgnoreForSerialize
+    fun getEnvironment(): Map<String, String>
+
+    @CreatorsDsl
+    fun isUnknownCode(code: Int): Boolean = code == UNKNOWN_CODE
+
+    @CreatorsDsl
+    fun isSuccessCode(code: Int): Boolean = code == SUCCESS_CODE
+
+    companion object {
+
+        @CreatorsDsl
+        const val SUCCESS_CODE = 0
+
+        @CreatorsDsl
+        const val UNKNOWN_CODE = Int.MIN_VALUE
+    }
 }

@@ -39,21 +39,21 @@ object CheckSums : HasMapNames {
     @CreatorsDsl
     override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
-    override fun toMapNames() = dictOf("type" to nameOf(), "sums" to uniqueListOf(CRC_32_NAME, ADL_32_NAME))
+    @FrameworkDsl
+    override fun toMapNames() = dictOf("type" to nameOf(), "sums" to unique(CRC_32_NAME, ADL_32_NAME))
 
     @IgnoreForSerialize
-    private class CheckSumFactory @CreatorsDsl constructor(private val factory: Checksum, private val name: String) : CheckSum {
+    private class CheckSumFactory @FrameworkDsl constructor(private val factory: Checksum, private val name: String) : CheckSum {
 
-        @CreatorsDsl
+        @FrameworkDsl
         override val total: Long
             @IgnoreForSerialize
             get() = factory.value
 
-        @CreatorsDsl
+        @FrameworkDsl
         private fun toName() = name
 
-        @CreatorsDsl
+        @FrameworkDsl
         private fun updateGetTotalOf(data: ByteArray): Long {
             return factory.update(data, 0, data.size).let { total }
         }
@@ -76,16 +76,16 @@ object CheckSums : HasMapNames {
             else -> false
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun decoder(data: String): Long = updater(data.getContentData())
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun encoder(data: String): String = Encoders.hex().encode(buffers(decoder(data)))
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun updater(data: ByteArray): Long = updateGetTotalOf(data)
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun buffers(data: Long): ByteArray = toByteArrayOfInt(data)
     }
 }

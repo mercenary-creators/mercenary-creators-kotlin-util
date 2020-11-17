@@ -38,7 +38,12 @@ class LRUCacheMap<K, V> @JvmOverloads @CreatorsDsl constructor(private val thres
 
     @CreatorsDsl
     constructor(vararg args: Pair<K, V>) : this() {
-        append(*args)
+        append(args.toIterator())
+    }
+
+    @CreatorsDsl
+    constructor(args: Iterator<Pair<K, V>>) : this() {
+        append(args)
     }
 
     @CreatorsDsl

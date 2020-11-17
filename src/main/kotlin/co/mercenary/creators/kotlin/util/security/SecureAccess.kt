@@ -64,7 +64,7 @@ object SecureAccess {
             list.push(func)
         }
         else {
-            list.post(func)
+            list.append(func)
         }
     }
 

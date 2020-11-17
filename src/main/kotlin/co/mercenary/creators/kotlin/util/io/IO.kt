@@ -28,13 +28,18 @@ import java.nio.file.Paths
 import java.util.*
 
 @IgnoreForSerialize
-object IO : HasMapNames, Logging("IO") {
-
+object IO : HasMapNames, Logging(IO::class.nameOf()) {
+    @CreatorsDsl
     const val EXT_SEPARATOR_CHAR = '.'
+    @CreatorsDsl
     const val SINGLE_PREFIX_CHAR = '~'
+    @CreatorsDsl
     const val COL_SEPARATOR_CHAR = ','
+    @CreatorsDsl
     const val UNX_SEPARATOR_CHAR = '/'
+    @CreatorsDsl
     const val WIN_SEPARATOR_CHAR = '\\'
+    @CreatorsDsl
     const val SINGLE_TILDE = SINGLE_PREFIX_CHAR.toString()
     const val SINGLE_SLASH = UNX_SEPARATOR_CHAR.toString()
     const val DOUBLE_SLASH = SINGLE_SLASH + SINGLE_SLASH
@@ -46,7 +51,9 @@ object IO : HasMapNames, Logging("IO") {
     const val PREFIX_FILES = "file:"
     const val PREFIX_BYTES = "data:"
     const val PREFIX_CLASS = "classpath:"
+    @CreatorsDsl
     private val SYSTEM_SEPARATOR_CHAR = File.separatorChar
+    @CreatorsDsl
     private val OTHERS_SEPARATOR_CHAR = if (isSystemWindows()) UNX_SEPARATOR_CHAR else WIN_SEPARATOR_CHAR
 
     private val probe: ContentTypeProbe by lazy {
@@ -103,15 +110,15 @@ object IO : HasMapNames, Logging("IO") {
     @CreatorsDsl
     @JvmOverloads
     fun getPathRelative(path: String, tail: String, root: Boolean = true): String {
-        return FilenameUtils.concat(path, tail).orElse().let { if (root) it.removePrefix(SINGLE_SLASH) else it }
+        return FilenameUtils.concat(path, tail).otherwise().let { if (root) it.removePrefix(SINGLE_SLASH) else it }
     }
 
     @JvmStatic
     @CreatorsDsl
     fun getPathExtension(path: String?): String {
-        val temp = getPathNormalized(path).orElse()
+        val temp = getPathNormalized(path).otherwise()
         if ((temp.isNotEmpty()) && (temp.indexOf(EXT_SEPARATOR_CHAR) != IS_NOT_FOUND)) {
-            val last = toTrimOrNull(FilenameUtils.getExtension(temp)).orElse()
+            val last = toTrimOrNull(FilenameUtils.getExtension(temp)).otherwise()
             if (last.isNotEmpty()) {
                 if (last.startsWith(EXT_SEPARATOR_CHAR)) {
                     return last
@@ -125,7 +132,7 @@ object IO : HasMapNames, Logging("IO") {
     @JvmStatic
     @CreatorsDsl
     fun toFileURL(path: String): URL {
-        return PREFIX_FILES.plus(SINGLE_SLASH).plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).orElse().removePrefix(SINGLE_SLASH).trim()).toURL()
+        return PREFIX_FILES.plus(SINGLE_SLASH).plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).otherwise().removePrefix(SINGLE_SLASH).trim()).toURL()
     }
 
     @JvmStatic
@@ -321,7 +328,7 @@ object IO : HasMapNames, Logging("IO") {
     fun toFileOrNull(data: URL, skip: Boolean = false): File? {
         try {
             if (skip || data.isFileURL()) {
-                val path = getPathNormalized(data.file).orElse()
+                val path = getPathNormalized(data.file).otherwise()
                 if (path.isNotEmpty()) {
                     return File(path)
                 }
@@ -422,7 +429,7 @@ object IO : HasMapNames, Logging("IO") {
     fun getContentType(data: URL, type: String): String {
         if (type.isDefaultContentType()) {
             if (data.isFileURL()) {
-                val path = getPathNormalized(data.file).orElse()
+                val path = getPathNormalized(data.file).otherwise()
                 if (path.isNotEmpty()) {
                     return getContentTypeProbe().getContentType(path, type)
                 }
@@ -518,14 +525,11 @@ object IO : HasMapNames, Logging("IO") {
     @JvmStatic
     @CreatorsDsl
     fun getProperties(data: InputStream, properties: Properties): Properties {
-        warn { "getProperties(1)" }
         try {
             data.use { look -> properties.load(look) }
         } catch (cause: Throwable) {
             Throwables.thrown(cause)
-            error(cause) { "getProperties(2)" }
         }
-        info { "getProperties(3)" }
         return properties
     }
 
@@ -537,22 +541,10 @@ object IO : HasMapNames, Logging("IO") {
             try {
                 return getProperties(CONTENT_RESOURCE_LOADER[name], properties)
             } catch (cause: Throwable) {
-                error(cause) { "Can't load resource" }
+                Throwables.thrown(cause)
             }
         }
-        debug { "Resource name was empty" }
         return properties
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun load(name: CharSequence): ContentResource {
-        return try {
-            CONTENT_RESOURCE_LOADER[name.toTrimOr()].toContentCache()
-        }
-        catch (cause: Throwable) {
-            EmptyContentResource
-        }
     }
 
     @CreatorsDsl

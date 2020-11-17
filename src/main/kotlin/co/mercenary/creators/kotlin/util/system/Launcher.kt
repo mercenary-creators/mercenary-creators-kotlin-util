@@ -23,8 +23,51 @@ import co.mercenary.creators.kotlin.util.*
 object Launcher : HasMapNames {
 
     @FrameworkDsl
-    override fun toMapNames() = dictOf("type" to nameOf())
+    private val many = 0L.toAtomic()
+
+    @JvmStatic
+    @FrameworkDsl
+    @Synchronized
+    internal fun bump() {
+        if (many.isNegative() || many.getValue() > Long.MAX_VALUE - 2L) {
+            many.setValue(0L)
+        }
+        many.increment()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun count(): Long {
+        return many.getValue()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun builder(prog: String, vararg args: String): LaunchBuilder {
+        return builder(prog, args.toIterator())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun builder(prog: String, args: Iterable<String>): LaunchBuilder {
+        return builder(prog, args.toIterator())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun builder(prog: String, args: Sequence<String>): LaunchBuilder {
+        return builder(prog, args.toIterator())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun builder(prog: String, args: Iterator<String>): LaunchBuilder {
+        return LaunchBuilder(prog.toChecked()).arguments(args).also { bump() }
+    }
 
     @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()
+
+    @FrameworkDsl
+    override fun toMapNames() = dictOf("type" to nameOf(), "unix" to isSystemUnixLike(), "many" to count())
 }

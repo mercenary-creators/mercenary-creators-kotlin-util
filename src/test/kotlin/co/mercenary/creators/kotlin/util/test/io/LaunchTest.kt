@@ -14,33 +14,17 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util.test.io
 
 import co.mercenary.creators.kotlin.util.*
-import java.io.OutputStream
+import org.junit.jupiter.api.Test
 
-@CreatorsDsl
-@IgnoreForSerialize
-object EmptyOutputStream : OutputStream(), HasMapNames {
-
-    @CreatorsDsl
-    override fun close() = Unit
-
-    @CreatorsDsl
-    override fun flush() = Unit
-
-    @CreatorsDsl
-    override fun write(b: Int) = Unit
-
-    @CreatorsDsl
-    override fun write(b: ByteArray) = Unit
-
-    @CreatorsDsl
-    override fun write(b: ByteArray, off: Int, len: Int) = Unit
-
-    @CreatorsDsl
-    override fun toString() = toMapNames().toSafeString()
-
-    @CreatorsDsl
-    override fun toMapNames() = dictOf("type" to nameOf())
+class LaunchTest : KotlinDataTest() {
+    @Test
+    fun test() {
+        val process = Launcher.builder("ls", "-las").directory("/bin").build()
+        process.getInputStream().forEachLineIndexed(printer)
+        info { process.getEnvironment() }
+        info { process.codeOf() }
+    }
 }

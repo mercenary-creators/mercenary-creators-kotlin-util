@@ -292,6 +292,12 @@ val Double.nanoseconds: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
 @CreatorsDsl
+inline fun TimeDuration.getNanoSeconds(): Long = duration().toNanos()
+
+@CreatorsDsl
+inline fun TimeDuration.getMilliSeconds(): Long = duration().toMillis()
+
+@CreatorsDsl
 fun Date?.copyOf(): Date = when (this) {
     null -> Date()
     else -> Date(toLong())
@@ -307,10 +313,10 @@ fun Long.toDate(): Date = Date(this)
 fun dateOf(): Date = Date()
 
 @CreatorsDsl
-operator fun Date.plus(value: TimeDuration): Date = Date(toLong() + value.duration().toMillis())
+operator fun Date.plus(value: TimeDuration): Date = Date(toLong() + value.getMilliSeconds())
 
 @CreatorsDsl
-operator fun Date.minus(value: TimeDuration): Date = Date(toLong() - value.duration().toMillis())
+operator fun Date.minus(value: TimeDuration): Date = Date(toLong() - value.getMilliSeconds())
 
 @CreatorsDsl
 operator fun LocalDateTime.plus(value: TimeDuration): LocalDateTime = plus(value.duration())

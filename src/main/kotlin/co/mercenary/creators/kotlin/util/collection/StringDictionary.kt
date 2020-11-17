@@ -51,7 +51,12 @@ open class StringDictionary @JvmOverloads @CreatorsDsl constructor(capacity: Int
 
     @CreatorsDsl
     constructor(vararg args: Pair<String, String>) : this() {
-        append(*args)
+        append(args.toIterator())
+    }
+
+    @CreatorsDsl
+    constructor(args: Iterator<Pair<String, String>>) : this() {
+        append(args)
     }
 
     @CreatorsDsl
