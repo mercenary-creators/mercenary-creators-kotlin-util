@@ -19,69 +19,78 @@ package co.mercenary.creators.kotlin.util.collection
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class LRUCacheMap<K, V> @JvmOverloads @CreatorsDsl constructor(private val threshold: Int = DEFAULT_LRU_THRESHOLD, capacity: Int = DEFAULT_MAP_CAPACITY, factor: Double = DEFAULT_MAP_FACTOR) : BasicLinkedMap<K, V>(capacity, factor, true), Threshold {
+class LRUCacheMap<K, V> @JvmOverloads @FrameworkDsl constructor(threshold: Int = DEFAULT_LRU_THRESHOLD) : BasicLinkedMap<K, V>(DEFAULT_MAP_CAPACITY, DEFAULT_MAP_FACTOR, true), InsertLimited by threshold.toInsertLimited() {
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(k: K, v: V) : this() {
         append(k, v)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Map<K, V>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args)
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Pair<K, V>) : this() {
         append(args)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(vararg args: Pair<K, V>) : this() {
-        append(args.toIterator())
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterator<Pair<K, V>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterable<Pair<K, V>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Sequence<Pair<K, V>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
-    constructor(args: LRUCacheMap<K, V>) : this(args.threshold()) {
-        append(args)
+    @FrameworkDsl
+    constructor(args: LRUCacheMap<K, V>) : this(args.getLimit()) {
+        if (args.isNotExhausted()) {
+            append(args)
+        }
     }
 
-    @CreatorsDsl
-    override fun threshold(): Int = threshold
+    @FrameworkDsl
+    override fun removeEldestEntry(eldest: Map.Entry<K, V>) = isOrdered() && sizeOf() > getLimit()
 
-    @CreatorsDsl
-    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?) = size > threshold()
-
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clone() = copyOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun copyOf() = LRUCacheMap(this)
 
-    @CreatorsDsl
-    override fun hashCode() = toSafeHashUf()
+    @FrameworkDsl
+    override fun hashCode() = super.hashCode()
 
-    @CreatorsDsl
-    override fun toString() = toSafeString()
+    @FrameworkDsl
+    override fun toString() = super.toString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is LRUCacheMap<*, *> -> this === other || threshold() == other.threshold() && super.equals(other)
+        is LRUCacheMap<*, *> -> this === other || getLimit() == other.getLimit() && super.equals(other)
         else -> false
     }
 

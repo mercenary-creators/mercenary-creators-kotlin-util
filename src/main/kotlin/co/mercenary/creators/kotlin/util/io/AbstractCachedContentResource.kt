@@ -21,38 +21,38 @@ import co.mercenary.creators.kotlin.util.*
 @IgnoreForSerialize
 abstract class AbstractCachedContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractContentResourceBase(path, type, time), CachedContentResource {
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val save = data.toByteArray()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentData() = save.toByteArray()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getInputStream() = save.toInputStream()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentSize() = save.toContentSize()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isContentThere() = true
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isContentCache() = true
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toContentCache() = this
 
-    @CreatorsDsl
+    @FrameworkDsl
     protected fun toDataHashOf() = getContentPath().hashOf(save)
 
-    @CreatorsDsl
+    @FrameworkDsl
     protected fun isDataSameAs(data: AbstractCachedContentResource) = save isSameArrayAs data.save
 
-    @CreatorsDsl
+    @FrameworkDsl
     protected fun isPathSameAs(data: AbstractCachedContentResource) = getContentPath() == data.getContentPath()
 }

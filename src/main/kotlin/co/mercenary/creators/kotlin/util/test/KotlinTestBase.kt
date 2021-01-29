@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
 @IgnoreForSerialize
 open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor() : this(null)
 
     private val nope = ArrayList<Class<*>>()
@@ -42,55 +42,55 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
         getConfigPropertiesBuilder().invoke()
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override val author = CREATORS_AUTHOR_INFO
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override val loader = CONTENT_RESOURCE_LOADER
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override val cached = CACHED_CONTENT_RESOURCE_LOADER
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override val prober = getDefaultContentTypeProbe()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getTempFileNamed(name: String, suff: String): File {
         return getTempFile(name, suff)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getTempFileNamedPath(name: String, suff: String): String {
         return getTempFileNamed(name, suff).path
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override val printer: (Int, String) -> Unit = { i, s -> info { "%2d : %s".format(i + 1, s) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getConfigPropertiesBuilder(): () -> Properties = { Properties() }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun dash(size: Int): String = "-".repeat(size.maxOf(0))
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun uuid(): String = Randoms.uuid()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getConfigProperty(name: String, other: String): String = conf.getProperty(name, other)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun setConfigProperties(vararg args: Pair<String, Any?>) {
         setConfigProperties(args.toMap())
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun setConfigProperties(args: Map<String, Any?>) {
         if (args.isNotEmpty()) {
             val temp = conf
@@ -124,8 +124,7 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
             if (item.className.startsWith(name)) {
                 if (item.methodName in mine) {
                     list += dictOfMutable("func" to item.methodName, "type" to name, "file" to item.fileName, "line" to item.lineNumber)
-                }
-                else if (item.methodName == "invoke") {
+                } else if (item.methodName == "invoke") {
                     // I'm coming from inside anonymous blocks that are not inlined,
                     // especially in logging where I am with AssumeEach, assumeThat,
                     // and AssumeCollector DSL.
@@ -136,15 +135,15 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
         if (list.isEmpty()) {
             return dictOf("func" to DUNNO_STRING, "type" to name, "file" to DUNNO_STRING, "line" to 0)
         }
-        val line = most.toInt()
-        val maps = list.first()
+        val line = most.getValue()
+        val maps = list.head()
         if (line > maps["line"] as Int) {
             maps["line"] = line
         }
         return maps.toMap()
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = nameOf()
 
     @LoggingWarnDsl
@@ -165,8 +164,7 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
             list.sort()
             val look = list.copyOfRange(2, list.size - 2).average().toLong()
             info { TimeAndDate.toElapsedString(look) }
-        }
-        else {
+        } else {
             warn { TimeAndDate.toElapsedString(0, "error ") }
         }
     }
@@ -194,128 +192,17 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
         }
     }
 
-    @CreatorsDsl
-    override fun fail(text: String): Nothing {
-        throw MercenaryAssertionExceptiion(text)
-    }
-
-    @CreatorsDsl
-    override fun fail(func: () -> Any?): Nothing {
-        fail(Formatters.toSafeString(func))
-    }
-
-    @CreatorsDsl
-    override fun assertTrueOf(condition: Boolean, func: () -> Any?) {
-        if (!condition) {
-            fail(func)
-        }
-    }
-
-    @CreatorsDsl
-    override fun assertNotTrueOf(condition: Boolean, func: () -> Any?) {
-        if (condition) {
-            fail(func)
-        }
-    }
-
-    @CreatorsDsl
-    override fun getThrowableOf(func: () -> Unit): Throwable? {
-        return try {
-            func.invoke()
-            null
-        }
-        catch (oops: Throwable) {
-            nope.forEach { type ->
-                if (type.isInstance(oops)) {
-                    throw oops
-                }
-            }
-            oops
-        }
-    }
-
-    @CreatorsDsl
-    override fun assumeEach(block: IAssumeCollector.() -> Unit) {
-        AssumeCollector(block).also { it.invoke() }
-    }
-
-    @IgnoreForSerialize
-    inner class AssumeCollector @CreatorsDsl constructor(block: AssumeCollector.() -> Unit) : IAssumeCollector {
-
-        private val list = ArrayList<() -> Unit>()
-
-        init {
-            block(this)
-        }
-
-        @CreatorsDsl
-        override fun assumeThat(block: () -> Unit) {
-            list += block
-        }
-
-        @CreatorsDsl
-        override fun clear() {
-            list.clear()
-        }
-
-        @CreatorsDsl
-        operator fun invoke() = list.whenNotNull { func -> getThrowableOf(func) }.whenNotEmpty { look ->
-            throw MercenaryMultipleAssertExceptiion(look).suppress()
-        }
-    }
-
-    @CreatorsDsl
-    override infix fun <T : Any?> T.shouldBe(value: T) = assertTrueOf(value isSameAs this) {
-        "shouldBe failed"
-    }
-
-    @CreatorsDsl
-    override infix fun <T : Any?> T.shouldNotBe(value: T) = assertTrueOf(value isNotSameAs this) {
-        "shouldNotBe failed"
-    }
-
-    @CreatorsDsl
-    override infix fun <T : Any?> T.shouldBeSameContent(value: T) = assertTrueOf(value isContentSameAs this) {
-        "shouldBeSameContent failed"
-    }
-
-    @CreatorsDsl
-    override infix fun <T : Any?> T.shouldNotBeSameContent(value: T) = assertTrueOf(value isContentNotSameAs this) {
-        "shouldNotBeSameContent failed"
-    }
-
-    @CreatorsDsl
-    override infix fun <T : Any> T.shouldBeIdentity(value: T) = assertTrueOf(value === this) {
-        "shouldBeIdentity failed"
-    }
-
-    @CreatorsDsl
-    override infix fun <T : Any> T.shouldNotBeIdentity(value: T) = assertNotTrueOf(value === this) {
-        "shouldNotBeIdentity failed"
-    }
-
-    @CreatorsDsl
-    override fun <T : Any?> T.shouldBeNull() = assertTrueOf(this == null) {
-        "shouldBeNull failed"
-    }
-
-    @CreatorsDsl
-    override fun <T : Any?> T.shouldNotBeNull() = assertTrueOf(this != null) {
-        "shouldNotBeNull failed"
-    }
-
-    @CreatorsDsl
+    @FrameworkDsl
     override fun loggerOf(): KLogger {
         return super.loggerOf()
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     inline fun <reified T : Throwable> assumeThrows(noinline block: () -> Unit) {
         try {
             block.invoke()
-        }
-        catch (cause: Throwable) {
-            assertTrueOf(cause is T) {
+        } catch (cause: Throwable) {
+            shouldBeTrue(cause is T) {
                 "assumeThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
             }
             return
@@ -323,13 +210,12 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
         fail("assumeThrows failed for ${T::class.java.name}")
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     inline fun <reified T : Throwable> assumeNotThrows(noinline block: () -> Unit) {
         try {
             block.invoke()
-        }
-        catch (cause: Throwable) {
-            assertNotTrueOf(cause is T) {
+        } catch (cause: Throwable) {
+            shouldNotBeTrue(cause is T) {
                 "assumeNotThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
             }
         }

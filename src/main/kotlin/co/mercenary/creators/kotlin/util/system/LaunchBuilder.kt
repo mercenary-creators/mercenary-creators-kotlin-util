@@ -39,7 +39,7 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
     private val envp = dict()
 
     @FrameworkDsl
-    private val file = file()
+    private var file = file()
 
     @FrameworkDsl
     private val argv = argv().append(args)
@@ -47,27 +47,29 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
     @FrameworkDsl
     fun directory(home: File): LaunchBuilder {
         if (home.isDirectory) {
-            file.setValue(home)
+            file = home
         }
         return this
     }
 
     @FrameworkDsl
     fun directory(home: Path): LaunchBuilder {
-        return directory(home.toFile())
+        return directory(home.fileOf())
     }
 
     @FrameworkDsl
     fun directory(home: String): LaunchBuilder {
-        if (home.isNotEmpty() && home.isNotBlank()) {
-            return directory(Paths.get(home))
+        if (home.isNotEmptyOrBlank()) {
+            return directory(home.pathOf())
         }
         return this
     }
 
     @FrameworkDsl
     fun environment(args: Properties): LaunchBuilder {
-        envp.append(args.toStringDictionary())
+        if (args.isNotExhausted()) {
+            return environment(args.toStringDictionary())
+        }
         return this
     }
 
@@ -154,18 +156,18 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
 
         @JvmStatic
         @FrameworkDsl
-        internal fun file(): MaybeValued<File> = MaybeValued.empty()
+        internal fun file(): File? = null
 
         @JvmStatic
         @FrameworkDsl
-        internal fun proc(list: Iterator<String>, file: MaybeValued<File>) = ProcessFactory(list, file).build()
+        internal fun proc(list: Iterator<String>, file: File?) = ProcessFactory(list, file).build()
 
         @IgnoreForSerialize
-        internal class ProcessFactory @FrameworkDsl constructor(private val args: Iterator<String>, private val  file: MaybeValued<File>) : Builder<ProcessBuilder> {
+        internal class ProcessFactory @FrameworkDsl constructor(private val args: Iterator<String>, private val file: File?) : Builder<ProcessBuilder> {
 
             @FrameworkDsl
             override fun build(): ProcessBuilder {
-                return ProcessBuilder(args.toNoEmptyChars())
+                return ProcessBuilder(args.toNoEmptyChars()).also { if (file != null) it.directory(file) }
             }
         }
 
@@ -176,18 +178,20 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
             constructor(make: ProcessBuilder, envmap: StringDictionary) : this(make.start(), envmap, make.command().toIterator().toNoEmptyChars().toIterator())
 
             @FrameworkDsl
-            private val open = true.toAtomic()
+            private val open = getAtomicTrue()
 
             @FrameworkDsl
             private val code = LaunchRunner.UNKNOWN_CODE.toAtomic()
 
-            @CreatorsDsl
+            override fun toMapNames() = dictOf("open" to isOpen(), "alive" to isAlive())
+
+            @FrameworkDsl
             @IgnoreForSerialize
             override fun isOpen(): Boolean {
                 return open.isTrue()
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             override fun close() {
                 if (open.isTrueToFalse()) {
                     if (isAlive()) {
@@ -196,7 +200,7 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
                 }
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             @IgnoreForSerialize
             override fun getInputStream(): InputStream {
                 return try {
@@ -210,7 +214,7 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
                 }
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             @IgnoreForSerialize
             override fun getOutputStream(): OutputStream {
                 return try {
@@ -224,7 +228,7 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
                 }
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             @IgnoreForSerialize
             override fun getErrorStream(): InputStream {
                 return try {
@@ -238,7 +242,7 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
                 }
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             override fun codeOf(): Int {
                 if (isUnknownCode(code.getValue())) {
                     try {
@@ -250,7 +254,7 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
                 return code.getValue()
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             override fun waitOn(): Int {
                 if (isUnknownCode(code.getValue())) {
                     try {
@@ -262,7 +266,7 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
                 return code.getValue()
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             override fun waitOn(time: TimeDuration): Boolean {
                 if (time.isEmpty()) {
                     return true
@@ -274,7 +278,7 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
                 }
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             override fun destroy(force: Boolean): Boolean {
                 try {
                     process.destroy()
@@ -287,19 +291,19 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
                 return isNotAlive()
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             @IgnoreForSerialize
             override fun getCommandLine(): List<String> {
                 return command.toNoEmptyChars()
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             @IgnoreForSerialize
             override fun getEnvironment(): Map<String, String> {
                 return envmap.copyOf()
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             @IgnoreForSerialize
             override fun isAlive(): Boolean {
                 return process.isAlive.isTrue()

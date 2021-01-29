@@ -108,19 +108,19 @@ object Randoms {
     fun getLongValue() = random.nextLong()
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getByteArray(sized: Int) = getByteArray(ByteArray(sized))
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getByteArray(bytes: ByteArray) = getByteArray(random, bytes)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getByteArray(random: SecureRandom, sized: Int) = getByteArray(random, ByteArray(sized))
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getByteArray(random: SecureRandom, bytes: ByteArray) = bytes.also { random.nextBytes(it) }
 
     @JvmStatic
@@ -246,7 +246,7 @@ object Randoms {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T> shuffled(list: Iterable<T>): List<T> {
         return list.shuffled(random)
     }

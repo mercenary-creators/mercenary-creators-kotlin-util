@@ -16,9 +16,4 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface MutableSizedContainer : MutableContainer, Sized {
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isEmpty(): Boolean = size == 0
-}
+interface MutableSizedContainer : MutableContainer, Sized

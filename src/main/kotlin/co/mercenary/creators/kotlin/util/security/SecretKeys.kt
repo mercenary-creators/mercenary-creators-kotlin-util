@@ -42,24 +42,6 @@ object SecretKeys {
 
     @JvmStatic
     @CreatorsDsl
-    fun getSecret(pass: SecureChars, salt: SecureBytes, algorithm: CipherAlgorithm): SecretKey {
-        return getSecret(pass.toCharArray(), salt.toByteArray(), algorithm)
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getSecret(pass: SecureChars, salt: SecureChars, algorithm: CipherAlgorithm): SecretKey {
-        return getSecret(pass.toCharArray().toCharSequence(), salt.toCharArray().toCharSequence(), algorithm)
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getSecret(pass: SecureBytes, salt: SecureBytes, algorithm: CipherAlgorithm): SecretKey {
-        return getSecret(pass.toByteArray(), salt.toByteArray(), algorithm)
-    }
-
-    @JvmStatic
-    @CreatorsDsl
     @IgnoreForSerialize
     fun getAlgorithms(): Algorithm = Algorithm.forName("SecretKeyFactory")
 }

@@ -18,11 +18,11 @@ package co.mercenary.creators.kotlin.util
 
 interface Container {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isEmpty(): Boolean
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isNotEmpty(): Boolean = isEmpty().isNotTrue()
 }

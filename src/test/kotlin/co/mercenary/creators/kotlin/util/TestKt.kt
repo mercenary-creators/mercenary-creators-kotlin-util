@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:kotlin.jvm.JvmMultifileClass
 @file:kotlin.jvm.JvmName("TestKt")
 
 package co.mercenary.creators.kotlin.util

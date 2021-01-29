@@ -24,101 +24,101 @@ import java.security.*
 object Digests : HasMapNames {
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun sha256() = getMessageDigest("SHA-256")
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun sha512() = getMessageDigest("SHA-512")
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getAlgorithms(): Algorithm = Algorithm.forName("MessageDigest")
 
-    @CreatorsDsl
-    override fun toString() = nameOf()
+    @FrameworkDsl
+    override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = dictOf("type" to nameOf(), "digests" to getAlgorithms())
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getMessageDigest(named: String): MessageDigest = MessageDigest.getInstance(named)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun proxyOf(digest: MessageDigest) = MessageDigestProxy(digest)
 
     @IgnoreForSerialize
-    class MessageDigestProxy @CreatorsDsl @JvmOverloads internal constructor(private val digest: MessageDigest, private val algorithm: String = digest.algorithm, private val provider: Provider = digest.provider) : Clearable, Resetable, HasMapNames {
+    class MessageDigestProxy @FrameworkDsl @JvmOverloads internal constructor(private val digest: MessageDigest, private val algorithm: String = digest.algorithm, private val provider: Provider = digest.provider) : Clearable, Resetable, HasMapNames {
 
-        @CreatorsDsl
-        override fun toString() = nameOf()
+        @FrameworkDsl
+        override fun toString() = toMapNames().toSafeString()
 
-        @CreatorsDsl
-        override fun hashCode() = idenOf()
+        @FrameworkDsl
+        override fun hashCode() = toMapNames().toSafeHashOf()
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun equals(other: Any?) = when (other) {
             is MessageDigestProxy -> this === other
             else -> false
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun toMapNames() = dictOf("type" to nameOf(), "algorithm" to algorithm, "provider" to dictOf("name" to provider.name, "version" to provider.version))
 
-        @CreatorsDsl
+        @FrameworkDsl
         @JvmOverloads
         fun digest(buffer: ByteArray, target: ByteArray = buffer, finish: Boolean = true): ByteArray {
             update(buffer).digest().copyInto(target)
-            if (finish) {
+            if (finish.isTrue()) {
                 clear()
             }
             return target
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         fun update(buffer: Byte): MessageDigestProxy {
             digest.update(buffer)
             return this
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         fun update(buffer: ByteArray): MessageDigestProxy {
             digest.update(buffer)
             return this
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         fun update(buffer: ByteArray, off: Int, len: Int): MessageDigestProxy {
             digest.update(buffer, off, len)
             return this
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         fun update(buffer: ByteBuffer): MessageDigestProxy {
             digest.update(buffer)
             return this
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         fun finish(): MessageDigestProxy {
             clear()
             return this
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         fun digest(): ByteArray {
             return digest.digest()
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun clear() {
             reset()
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun reset() {
             digest.reset()
         }

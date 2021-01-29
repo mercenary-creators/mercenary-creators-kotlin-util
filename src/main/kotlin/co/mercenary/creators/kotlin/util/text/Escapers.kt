@@ -21,37 +21,37 @@ import co.mercenary.creators.kotlin.util.*
 @IgnoreForSerialize
 object Escapers : HasMapNames {
 
-    @CreatorsDsl
+    @FrameworkDsl
     const val ASCII_MINVAL = 32
 
-    @CreatorsDsl
+    @FrameworkDsl
     const val ASCII_MAXVAL = 127
 
-    @CreatorsDsl
+    @FrameworkDsl
     const val ESCAPE_SLASH = '\\'
 
-    @CreatorsDsl
+    @FrameworkDsl
     const val SINGLE_QUOTE = '\''
 
-    @CreatorsDsl
+    @FrameworkDsl
     const val DOUBLE_QUOTE = '"'
 
-    @CreatorsDsl
+    @FrameworkDsl
     const val ASCII_BSCHAR = '\b'
 
-    @CreatorsDsl
+    @FrameworkDsl
     const val ASCII_NLCHAR = '\n'
 
-    @CreatorsDsl
+    @FrameworkDsl
     const val ASCII_VTCHAR = '\t'
 
-    @CreatorsDsl
+    @FrameworkDsl
     const val ASCII_CRCHAR = '\r'
 
-    @CreatorsDsl
+    @FrameworkDsl
     const val ASCII_FFCHAR = 12.toChar()
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val ASCII_TABLE: BooleanArray by lazy {
         BooleanArray(128) { code ->
             (code in 32..126 && (code >= 93 || code in 48..91 || code in 32..33 || code in 35..38 || code in 40..46))
@@ -65,21 +65,21 @@ object Escapers : HasMapNames {
     override fun toMapNames() = dictOf("type" to nameOf())
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun isAscii(code: Int): Boolean {
         return if (code < ASCII_MINVAL || code > ASCII_MAXVAL) false else ASCII_TABLE[code]
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun isAscii(code: Char): Boolean {
         return isAscii(code.toCode())
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun isAscii(string: String): Boolean {
-        if (string.isNotEmpty()) {
+        if (string.isNotExhausted()) {
             for (char in string) {
                 if (isAscii(char.toCode()).isNotTrue()) {
                     return false
@@ -90,7 +90,7 @@ object Escapers : HasMapNames {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun toEscapedString(string: String, quoted: Boolean = false): String {
         if (isAscii(string)) {

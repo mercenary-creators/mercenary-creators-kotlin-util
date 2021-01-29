@@ -20,6 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
 interface IAssumeCollector : Clearable {
-    @CreatorsDsl
+
+    @FrameworkDsl
     fun assumeThat(block: () -> Unit)
 }

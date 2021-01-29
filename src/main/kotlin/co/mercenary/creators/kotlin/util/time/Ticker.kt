@@ -19,14 +19,11 @@ package co.mercenary.creators.kotlin.util.time
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-interface Ticker {
+interface Ticker : Resetable {
 
-    @CreatorsDsl
-    fun reset()
-
-    @CreatorsDsl
+    @FrameworkDsl
     fun since(): Long
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun toElapsedString(): String
 }

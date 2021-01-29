@@ -55,22 +55,22 @@ object CheckSums : HasMapNames {
 
         @FrameworkDsl
         private fun updateGetTotalOf(data: ByteArray): Long {
-            return factory.update(data, 0, data.size).let { total }
+            return factory.update(data, 0, data.sizeOf()).let { total }
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun reset() = factory.reset()
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun toMapNames() = dictOf("type" to nameOf(), "name" to toName())
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun toString() = toName()
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun hashCode() = toName().hashCode()
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun equals(other: Any?) = when (other) {
             is CheckSumFactory -> other === this || toName() == other.toName()
             else -> false

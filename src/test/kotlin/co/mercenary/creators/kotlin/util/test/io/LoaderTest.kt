@@ -60,13 +60,13 @@ class LoaderTest : KotlinDataTest() {
         info { cached["test.htm"].toRelativePath("../test.txt") }
         info { cached["test.txt"].toRelativePath("../test.pdf") }
         error { cached.keys }
-        cached.keys.size shouldNotBe 0
+        cached.keys.sizeOf() shouldNotBe 0
         cached.keys.clear()
         error { cached.keys }
-        cached.keys.size shouldBe 0
+        cached.keys.sizeOf() shouldBe 0
         info { cached["test.pdf"].toRelativePath("../test.doc") }
         error { cached.keys }
-        cached.keys.size shouldNotBe 0
+        cached.keys.sizeOf() shouldNotBe 0
         warn { loader["http://jsonplaceholder.typicode.com/posts"].getContentMime() }
         info { ContentMimeType(loader["http://jsonplaceholder.typicode.com/posts"].getContentType()) }
         info { ContentMimeType() }

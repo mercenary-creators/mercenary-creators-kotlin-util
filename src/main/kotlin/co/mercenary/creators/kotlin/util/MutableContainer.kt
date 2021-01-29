@@ -18,6 +18,6 @@ package co.mercenary.creators.kotlin.util
 
 interface MutableContainer : Container, Clearable, Resetable {
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun reset() = clear()
 }

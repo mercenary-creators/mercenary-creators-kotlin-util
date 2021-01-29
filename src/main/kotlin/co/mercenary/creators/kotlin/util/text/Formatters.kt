@@ -21,7 +21,7 @@ import co.mercenary.creators.kotlin.util.*
 object Formatters {
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun getFormatterList(load: ClassLoader? = null): List<StringFormatterService> {
         return try {
@@ -32,15 +32,16 @@ object Formatters {
         }
     }
 
+    @FrameworkDsl
     private val list: List<StringFormatterService> by lazy {
         getFormatterList()
     }
 
     @JvmStatic
-    @CreatorsDsl
-    fun toSafeString(func: () -> Any?): String {
+    @FrameworkDsl
+    fun toSafeString(func: Factory<Maybe>): String {
         return try {
-            when (val data = func.invoke()) {
+            when (val data = func.create()) {
                 null -> NULLS_STRING
                 else -> {
                     list.forEach {

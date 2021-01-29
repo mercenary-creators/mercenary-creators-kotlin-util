@@ -16,30 +16,191 @@
 
 package co.mercenary.creators.kotlin.util
 
+import co.mercenary.creators.kotlin.util.io.InputStreamSupplier
+import java.io.*
+import java.net.*
+import java.nio.channels.ReadableByteChannel
+import java.nio.file.Path
 import java.util.*
 
+@FrameworkDsl
 @IgnoreForSerialize
 object Common : HasMapNames {
 
-    private val loader = CONTENT_RESOURCE_LOADER
+    @FrameworkDsl
+    private val DIGITS = DIGIT_STRING.toCharArray(false)
+
+    @FrameworkDsl
+    private val CACHED = atomicMapOf<Int, String>(0xFFFF)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
+    fun getHexChar(code: Int): Char = DIGITS[code and 0xF]
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getUniCode(code: Int): String {
+        return CACHED.computeIfAbsent(code.boxIn(0, 0xFFFF)) { calc ->
+            CharArray(6) { posn ->
+                when (posn) {
+                    1 -> 'u'
+                    2 -> getHexChar(calc mask 12)
+                    3 -> getHexChar(calc mask 8)
+                    4 -> getHexChar(calc mask 4)
+                    5 -> getHexChar(calc mask 0)
+                    else -> Escapers.ESCAPE_SLASH
+                }
+            }.getContentText(false)
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun user(): String = System.getProperty("user.name", "unknown")
+
+    @JvmStatic
+    @FrameworkDsl
     @IgnoreForSerialize
-    fun getSystemProperties(): Properties {
+    fun getSystemProperties(): SystemProperties {
         return System.getProperties()
     }
 
     @JvmStatic
-    @CreatorsDsl
-    @JvmOverloads
-    fun load(name: String = "default.properties"): Properties {
-        return IO.getProperties(loader[name])
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun getSystemEnvironment(): MutableDictionary<String> {
+        return System.getenv()
     }
 
-    @CreatorsDsl
-    override fun toString() = nameOf()
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: Reader): SystemProperties {
+        return getProperties(data, SystemProperties())
+    }
 
-    @CreatorsDsl
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: InputStream): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: URI): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: URI, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: URL): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: URL, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: File): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: File, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: Path): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: Path, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: InputStreamSupplier): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: InputStreamSupplier, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: ReadableByteChannel): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: ReadableByteChannel, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: Reader, properties: SystemProperties): SystemProperties {
+        try {
+            data.use { look -> properties.load(look) }
+        } catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+        return properties
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: InputStream, properties: Properties): Properties {
+        try {
+            data.use { look -> properties.load(look) }
+        } catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+        return properties
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: CharSequence): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getProperties(data: CharSequence, properties: Properties): Properties {
+        val name = data.toTrimOr(EMPTY_STRING)
+        if (name.isEmptyOrBlank().isNotTrue()) {
+            try {
+                return getProperties(CONTENT_RESOURCE_LOADER[name], properties)
+            } catch (cause: Throwable) {
+                Throwables.thrown(cause)
+            }
+        }
+        return properties
+    }
+
+    @FrameworkDsl
+    override fun toString() = toMapNames().toSafeString()
+
+    @FrameworkDsl
     override fun toMapNames() = dictOf("type" to nameOf())
 }

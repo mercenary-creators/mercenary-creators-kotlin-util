@@ -18,6 +18,6 @@ package co.mercenary.creators.kotlin.util
 
 fun interface Copyable<out T> {
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun copyOf(): T
 }

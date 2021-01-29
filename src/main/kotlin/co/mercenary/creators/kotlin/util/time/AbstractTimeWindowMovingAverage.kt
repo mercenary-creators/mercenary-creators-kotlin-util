@@ -28,7 +28,7 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constr
     @Volatile
     private var moving = 0.0
 
-    private val window = wait.convert(max(window, 1L), unit).toDouble()
+    private val window = wait.convert(window.maxOf(1L), unit).toDouble()
 
     @CreatorsDsl
     @IgnoreForSerialize

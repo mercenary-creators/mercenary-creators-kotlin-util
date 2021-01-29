@@ -20,11 +20,18 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 
 @IgnoreForSerialize
-abstract class AbstractChainInputStream @CreatorsDsl constructor(private val chain: Iterator<InputStream>) : SequenceInputStream(chain.toEnumeration()), OpenAutoClosable, Container, HasMapNames, Validated {
+abstract class AbstractChainInputStream @FrameworkDsl constructor(private val chain: Iterator<InputStream>) : SequenceInputStream(chain.toEnumeration()), OpenAutoClosable, Container, HasMapNames, Validated {
 
-    private val open = true.toAtomic()
+    @FrameworkDsl
+    private val open = getAtomicTrue()
 
-    @CreatorsDsl
+    @FrameworkDsl
+    @IgnoreForSerialize
+    override fun isOpen(): Boolean {
+        return open.isTrue()
+    }
+
+    @FrameworkDsl
     override fun close() {
         if (open.isTrueToFalse()) {
             try {
@@ -35,36 +42,32 @@ abstract class AbstractChainInputStream @CreatorsDsl constructor(private val cha
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isEmpty(): Boolean {
         return try {
-            chain.hasNext()
+            chain.isNotExhausted()
         } catch (cause: Throwable) {
             true
         }
     }
 
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isOpen(): Boolean = open.isTrue()
-
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isValid(): Boolean = isOpen() && isNotEmpty()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = idenOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is AbstractChainInputStream -> this === other || isOpen() == other.isOpen() && isEmpty() == other.isEmpty()
         else -> false
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = dictOf("name" to nameOf(), "open" to isOpen(), "empty" to isEmpty(), "valid" to isValid())
 }

@@ -16,7 +16,9 @@
 
 package co.mercenary.creators.kotlin.util
 
-@DslMarker
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.LOCAL_VARIABLE, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
-annotation class CreatorsDsl
+fun interface InsertOrdered {
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isOrdered(): Boolean
+}

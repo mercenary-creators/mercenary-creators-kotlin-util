@@ -26,38 +26,39 @@ interface ContentTypeProbe : FileTypeMapSupplier {
 
     operator fun get(name: String): String = getContentType(name)
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: URI, type: String = DEFAULT_CONTENT_TYPE): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: URL, type: String = DEFAULT_CONTENT_TYPE): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: File, type: String = DEFAULT_CONTENT_TYPE): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: Path, type: String = DEFAULT_CONTENT_TYPE): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(name: String, type: String = DEFAULT_CONTENT_TYPE): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: ByteArray, type: String = DEFAULT_CONTENT_TYPE): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: InputStream, type: String = DEFAULT_CONTENT_TYPE): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: ReadableByteChannel, type: String = DEFAULT_CONTENT_TYPE): String
 
     companion object {
 
+        @FrameworkDsl
         private val maps: DefaultContentFileTypeMap by lazy {
             DefaultContentFileTypeMap()
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun getDefaultFileTypeMap(): DefaultContentFileTypeMap = maps
     }
 }

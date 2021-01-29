@@ -18,4 +18,29 @@ package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
 
-interface MutableMapBase<K, V, M : MutableMap<K, V>> : MutableSizedContainer, Copyable<M>, Cloneable
+interface MutableMapBase<K, V, M : MutableMapBase<K, V, M>> : MutableBase<M>, MutableMap<K, V> {
+
+    @FrameworkDsl
+    override fun sizeOf(): Int {
+        return size.copyOf()
+    }
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    override fun isEmpty(): Boolean {
+        return sizeOf() == 0
+    }
+
+    @FrameworkDsl
+    fun toMap(): Map<K, V> {
+        return when (sizeOf()) {
+            0 -> toMapOf()
+            else -> toPairs().mapTo()
+        }
+    }
+
+    @FrameworkDsl
+    fun enhance(base: MutableMap<K, V>): MutableMap<K, V> {
+        return base
+    }
+}

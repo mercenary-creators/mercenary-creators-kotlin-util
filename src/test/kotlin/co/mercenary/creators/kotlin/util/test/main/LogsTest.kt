@@ -28,9 +28,9 @@ class LogsTest : KotlinTest() {
         info { MainData() }
         info { dateOf() }
         info { dateTimeOf() }
-        info { listOf<Any>() }
-        info { listOf(1) }
-        info { listOf(1, 2, 3) }
+        info { toListOf<Any>() }
+        info { toListOf(1) }
+        info { toListOf(1, 2, 3) }
         info { sequenceOf(4, 5, 6) }
         info { toDoubleArrayOf(4, 5, 6) }
         info { TimeAndDate.nanosOf() }
@@ -42,7 +42,7 @@ class LogsTest : KotlinTest() {
         info { loader["test.htm"] }
         info { loader["http://jsonplaceholder.typicode.com/posts"] }
         info { 255.toBinaryString() }
-        info { 255.toBinaryString().length }
+        info { 255.toBinaryString().sizeOf() }
         info { 255.toBinaryString(0) }
         warn { dash() }
         error { loggerOf().javaClass }

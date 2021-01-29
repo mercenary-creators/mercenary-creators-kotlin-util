@@ -35,30 +35,30 @@ class SequenceTest : KotlinDataTest() {
         list.forEach {
             info { it }
         }
-        list.size shouldBe size
+        list.sizeOf() shouldBe size
         val ints = sequenceOf(1..16).toList()
         ints.forEach {
             info { it }
         }
-        ints.size shouldBe 16
+        ints.sizeOf() shouldBe 16
         dashes()
         val maps = LRUCacheMap<String, String>(4)
         maps["author"] = author
-        info { maps.size }
+        info { maps.sizeOf() }
         dashes()
         16 forEach {
             info { maps }
             val temp = "%04d".format(it)
             error { temp }
             maps[temp] = temp
-            info { maps.size }
+            info { maps.sizeOf() }
             dashes()
         }
         maps.computeIfAbsent("author") { name ->
             warn { name.center(16) }
             author
         }
-        info { maps.size }
+        info { maps.sizeOf() }
         info { maps }
         dashes()
     }

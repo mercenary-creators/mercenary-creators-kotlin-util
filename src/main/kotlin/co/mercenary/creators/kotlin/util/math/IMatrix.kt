@@ -14,17 +14,32 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.collection
+package co.mercenary.creators.kotlin.util.math
 
 import co.mercenary.creators.kotlin.util.*
 
-interface ConstrainedIterator<out T> : Iterator<T>, Constrained, Validated, Container, HasMapNames {
+interface IMatrix<R : IVector<R>, M : IMatrix<R, M>> : SizedContainer, Copyable<M>, Cloneable, Iterable<R> {
 
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isDone(): Boolean
+    @FrameworkDsl
+    val indices: IntRange
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    fun isNotDone(): Boolean = isDone().isNotTrue()
+    fun isSubMatrix(): Boolean
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isNotSubMatrix(): Boolean = isSubMatrix().isNotTrue()
+
+    @FrameworkDsl
+    fun matrix(index: Int, place: Int): M
+
+    @FrameworkDsl
+    operator fun get(index: Int): R
+
+    @FrameworkDsl
+    operator fun get(index: Int, place: Int): Double
+
+    @FrameworkDsl
+    operator fun set(index: Int, place: Int, value: Double)
 }

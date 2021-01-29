@@ -17,78 +17,80 @@
 package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
-import java.util.*
 
-open class StringDictionary @JvmOverloads @CreatorsDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY, factor: Double = DEFAULT_MAP_FACTOR, order: Boolean = false) : BasicDictionaryMap<String>(capacity, factor, order) {
+open class StringDictionary @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY, factor: Double = DEFAULT_MAP_FACTOR, order: Boolean = false) : BasicDictionaryMap<String>(capacity, factor, order) {
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(k: String, v: String) : this() {
         append(k, v)
     }
 
-    @CreatorsDsl
-    constructor(args: Properties) : this() {
-        args.stringPropertyNames().forEach { k ->
-            if (k != null) {
-                args.getProperty(k).also { v ->
-                    if (v != null) {
-                        append(k, v)
-                    }
-                }
-            }
+    @FrameworkDsl
+    constructor(args: SystemProperties) : this() {
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Map<String, String>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args)
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Pair<String, String>) : this() {
         append(args)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(vararg args: Pair<String, String>) : this() {
-        append(args.toIterator())
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterator<Pair<String, String>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterable<Pair<String, String>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Sequence<Pair<String, String>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clone() = copyOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun copyOf() = StringDictionary(this)
 
-    @CreatorsDsl
-    override fun hashCode() = toSafeHashUf()
+    @FrameworkDsl
+    override fun hashCode() = super.hashCode()
 
-    @CreatorsDsl
-    override fun toString() = toSafeString()
+    @FrameworkDsl
+    override fun toString() = super.toString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is StringDictionary -> this === other || super.equals(other)
         else -> false
     }
 
     companion object {
-
         private const val serialVersionUID = 5L
     }
 }

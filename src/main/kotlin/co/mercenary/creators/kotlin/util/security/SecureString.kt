@@ -19,66 +19,52 @@ package co.mercenary.creators.kotlin.util.security
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class SecureString @CreatorsDsl constructor(data: CharArray) : SecureChars, StandardInterfaces<SecureString> {
+class SecureString @FrameworkDsl constructor(data: CharArray) : SecureChars<SecureString> {
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor() : this(EMPTY_CHAR_ARRAY)
 
-    @CreatorsDsl
-    constructor(data: Array<Char>) : this(data.toCharArray())
+    @FrameworkDsl
+    constructor(data: CharSequence) : this(data.toCharArray(false))
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(data: SecureString) : this(recode(data.buff, data.swap))
 
-    @CreatorsDsl
-    constructor(data: CharSequence) : this(data.toString().toCharArray())
-
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(data: Iterable<Char>) : this(data.toList().toCharArray())
 
-    @CreatorsDsl
-    constructor(data: Sequence<Char>) : this(data.toList().toCharArray())
-
+    @FrameworkDsl
     private val swap = swapof(data)
 
+    @FrameworkDsl
     private val buff = recode(data, swap, true)
 
-    @CreatorsDsl
-    override val size: Int
-        @IgnoreForSerialize
-        get() = buff.size
+    @FrameworkDsl
+    override fun sizeOf(): Int {
+        return buff.sizeOf()
+    }
 
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isEmpty() = buff.isEmpty().isTrue()
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isNotEmpty() = isEmpty().isNotTrue()
-
-    @CreatorsDsl
-    @IgnoreForSerialize
+    @FrameworkDsl
     override fun toCharArray(flip: Boolean): CharArray {
         return if (flip.isTrue()) recode(buff, swap) else buff.toCharArray()
     }
 
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun toMapNames() = dictOf("size" to size, "type" to nameOf())
+    @FrameworkDsl
+    override fun toMapNames() = dictOf("size" to sizeOf(), "type" to nameOf())
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clone() = copyOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun copyOf() = SecureString(this)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = nameOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = idenOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is SecureString -> this === other
         else -> false
@@ -87,15 +73,15 @@ class SecureString @CreatorsDsl constructor(data: CharArray) : SecureChars, Stan
     companion object {
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         private fun swapof(data: CharArray): IntArray {
-            return if (data.size < 2) EMPTY_INTS_ARRAY else Randoms.shuffled(data.indices).toIntArray()
+            return if (data.sizeOf() < 2) EMPTY_INTS_ARRAY else Randoms.shuffled(data.indices).toIntArray()
         }
 
         @JvmStatic
-        @CreatorsDsl
-        private fun recode(data: CharArray, swap: IntArray, init: Boolean = false): CharArray {
-            return when (val size = data.size) {
+        @FrameworkDsl
+        private fun recode(data: CharArray, swap: IntArray, init: Boolean = false, size: Int = data.sizeOf()): CharArray {
+            return when (size) {
                 0 -> EMPTY_CHAR_ARRAY
                 1 -> data.toCharArray()
                 else -> when (init.isTrue()) {

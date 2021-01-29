@@ -19,23 +19,24 @@ package co.mercenary.creators.kotlin.util.time
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-abstract class AbstractTicker @CreatorsDsl constructor(private val tick: () -> Long) : Ticker {
+abstract class AbstractTicker @FrameworkDsl constructor(private val tick: Factory<Long>) : Ticker {
 
-    private var time = tick.invoke()
+    @FrameworkDsl
+    private var time = tick.create()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @Synchronized
     override fun reset() {
-        time = tick.invoke()
+        time = tick.create()
     }
 
-    @CreatorsDsl
-    override fun since(): Long = tick.invoke() - time
+    @FrameworkDsl
+    override fun since(): Long = tick.create() - time
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toElapsedString(): String = TimeAndDate.toElapsedString(since())
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
-    operator fun invoke(reset: Boolean = false): String = toString().also { if (reset) reset() }
+    operator fun invoke(reset: Boolean = false): String = toString().also { if (reset.isTrue()) reset() }
 }

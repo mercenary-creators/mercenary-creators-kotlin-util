@@ -25,13 +25,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 @IgnoreForSerialize
 class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val deep = ThreadLocal.withInitial { 0L.toAtomic() }
 
-    @CreatorsDsl
+    @FrameworkDsl
     private fun format(data: Any?): String = Formatters.toSafeString { data }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toSafeString(data: Any): String {
         return when (data) {
             is String -> data
@@ -55,7 +55,6 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
                 add(escape(k), ": ", escape(v))
             }
             is HasMapNames -> format(data.toMapNames())
-            is SafeStringable -> data.toSafeString()
             is Pair<*, *> -> format(toMapOf(data))
             else -> data.toString()
         }
@@ -86,13 +85,12 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
             is Map.Entry<*, *> -> true
             is HasMapNames -> true
             is CharSequence -> true
-            is SafeStringable -> true
             is Pair<*, *> -> true
             else -> false
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     private fun escape(data: Any?): String {
         val flag = quoted(data)
         deep.toValue().increment()
@@ -122,8 +120,11 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
 
     @CreatorsDsl
     private fun joinTo(data: Map<*, *>): String {
+        if (data.isExhausted()) {
+            return "{}"
+        }
         val list = data.entries.toList()
-        return when (val size = list.size) {
+        return when (val size = list.sizeOf()) {
             0 -> "{}"
             else -> {
                 stringOf("{") {
@@ -139,7 +140,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     private fun quoted(data: Any?): Boolean {
         return when (data) {
             null -> false

@@ -18,14 +18,4 @@ package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
 
-interface IDictionary<out V, T : Collection<String>> : SizedContainer {
-
-    @CreatorsDsl
-    val keys: T
-
-    @CreatorsDsl
-    fun isKeyDefined(element: String): Boolean
-
-    @CreatorsDsl
-    fun isKeyNotDefined(element: String): Boolean = isKeyDefined(element).isNotTrue()
-}
+interface MutableBase<B : MutableBase<B>> : MutableSizedContainer, Copyable<B>, Cloneable

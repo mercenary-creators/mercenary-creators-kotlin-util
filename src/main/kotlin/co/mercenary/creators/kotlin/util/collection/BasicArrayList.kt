@@ -18,45 +18,53 @@ package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
 
-open class BasicArrayList<T> @JvmOverloads @CreatorsDsl constructor(capacity: Int = DEFAULT_LIST_CAPACITY) : AbstractBasicMutableList<T, BasicArrayList<T>>(capacity) {
+open class BasicArrayList<T> @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_LIST_CAPACITY) : AbstractBasicMutableList<T, BasicArrayList<T>>(capacity) {
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: T) : this() {
         append(args)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(vararg args: T) : this() {
-        append(args.toIterator())
+        if (args.isNotExhausted()) {
+            append(args.toCollection())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterator<T>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.toCollection())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterable<T>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.toCollection())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Sequence<T>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.toCollection())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun copyOf() = BasicArrayList(this)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = super.hashCode()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = super.toString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is BasicArrayList<*> -> other === this || super.equals(other)
+        is BasicArrayList<*> -> other === this || sizeOf() == other.sizeOf() && super.equals(other)
         else -> false
     }
 

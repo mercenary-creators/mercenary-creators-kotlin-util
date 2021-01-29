@@ -19,14 +19,14 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(private val name: String = EMPTY_STRING, private val loader: ClassLoader? = null) : ContentResourceLoader {
+open class BaseContentResourceLoader @JvmOverloads @FrameworkDsl constructor(private val name: String = EMPTY_STRING, private val loader: ClassLoader? = null) : ContentResourceLoader {
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val list = ArrayList<ContentProtocolResolver>()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override operator fun get(path: String): ContentResource {
-        if (list.isNotEmpty()) {
+        if (list.isNotExhausted()) {
             list.forEach { resolver ->
                 val data = resolver.resolve(path, this)
                 if (data != null) {
@@ -35,14 +35,14 @@ open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(priv
             }
         }
         if (path.startsWith(IO.SINGLE_SLASH)) {
-            return getContentResourceByPath(IO.getPathNormalized(path).orEmpty())
+            return getContentResourceByPath(IO.getPathNormalized(path).otherwise(EMPTY_STRING))
         }
         if (path.startsWith(IO.PREFIX_CLASS)) {
             return ClassPathContentResource(path.removePrefix(IO.PREFIX_CLASS), DEFAULT_CONTENT_TYPE, null, getClassLoader())
         }
         if (path.contains(IO.PREFIX_COLON)) {
             try {
-                val data = path.toURL()
+                val data = path.linkOf()
                 if (data.isFileURL()) {
                     val file = data.toFileOrNull(true)
                     if (file != null) {
@@ -58,19 +58,19 @@ open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(priv
         return getContentResourceByPath(path)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isContentCache() = false
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getClassLoader() = loader
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getLoadersName() = name.toTrimOr { nameOf() }
 
-    @CreatorsDsl
+    @FrameworkDsl
     protected open fun getContentResourceByPath(path: String): ContentResource {
         if (path.startsWith(IO.SINGLE_SLASH)) {
             try {
@@ -108,8 +108,9 @@ open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(priv
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override operator fun contains(args: ContentProtocolResolver): Boolean {
+        if (list.isExhausted())
         if (list.contains(args)) {
             return true
         }
@@ -121,16 +122,16 @@ open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(priv
         return false
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = dictOf("name" to getLoadersName(), "cached" to isContentCache())
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
-    override fun hashCode() = toMapNames().toSafeHashUf()
+    @FrameworkDsl
+    override fun hashCode() = toMapNames().hashOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is BaseContentResourceLoader -> this === other || toMapNames() isSameAs other.toMapNames()
         else -> false
@@ -138,7 +139,7 @@ open class BaseContentResourceLoader @JvmOverloads @CreatorsDsl constructor(priv
 
     companion object {
 
-        @CreatorsDsl
+        @FrameworkDsl
         val INSTANCE: ContentResourceLoader by lazy {
             BaseContentResourceLoader()
         }

@@ -18,6 +18,6 @@ package co.mercenary.creators.kotlin.util
 
 interface MutableCachedKeys : CachedKeys<String>, Clearable, Resetable {
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun reset() = clear()
 }

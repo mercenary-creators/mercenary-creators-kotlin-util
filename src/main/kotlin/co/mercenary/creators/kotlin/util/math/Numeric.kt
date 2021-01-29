@@ -40,19 +40,19 @@ object Numeric {
     const val DEFAULT_PRECISION_DELTA = 0.0000001
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     inline fun absOf(value: Int): Int = if (value < 0) -value else value
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     inline fun absOf(value: Long): Long = if (value < 0L) -value else value
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     inline fun absOf(value: Double): Double = if (value.toFinite() <= 0.0) 0.0 - value else value
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     inline fun negOf(value: Double): Double = -value
 
     @JvmStatic
@@ -334,11 +334,11 @@ object Numeric {
 
     @JvmStatic
     @CreatorsDsl
-    fun gcdOf(value: Int, other: Long): Long = gcdOf(value.toLong(), other)
+    fun gcdOf(value: Int, other: Long): Long = gcdOf(value.longOf(), other)
 
     @JvmStatic
     @CreatorsDsl
-    fun gcdOf(value: Long, other: Int): Long = gcdOf(value, other.toLong())
+    fun gcdOf(value: Long, other: Int): Long = gcdOf(value, other.longOf())
 
     @JvmStatic
     @CreatorsDsl
@@ -382,11 +382,11 @@ object Numeric {
 
     @JvmStatic
     @CreatorsDsl
-    fun lcmOf(value: Int, other: Long): Long = lcmOf(value.toLong(), other)
+    fun lcmOf(value: Int, other: Long): Long = lcmOf(value.longOf(), other)
 
     @JvmStatic
     @CreatorsDsl
-    fun lcmOf(value: Long, other: Int): Long = lcmOf(value, other.toLong())
+    fun lcmOf(value: Long, other: Int): Long = lcmOf(value, other.longOf())
 
     @JvmStatic
     @CreatorsDsl

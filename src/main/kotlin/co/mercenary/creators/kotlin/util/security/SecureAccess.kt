@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
@@ -22,12 +22,14 @@ import java.security.*
 @IgnoreForSerialize
 object SecureAccess {
 
+    @FrameworkDsl
     private val open = false.toAtomic()
 
-    private val list = ArrayList<() -> Unit>(2)
+    @FrameworkDsl
+    private val list = BasicArrayList<() -> Unit>(2)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @Synchronized
     private fun doExit() {
         if (list.isNotEmpty()) {
@@ -42,16 +44,16 @@ object SecureAccess {
     }
 
     @JvmStatic
-    @CreatorsDsl
-    fun <T : Any> priviledgedActionOf(func: () -> T): T {
+    @FrameworkDsl
+    inline fun <T : Any> doPrivileged(noinline func: Factory<T>): T {
         return when (System.getSecurityManager()) {
-            null -> func.invoke()
+            null -> func.create()
             else -> AccessController.doPrivileged(PrivilegedAction { func.invoke() })
         }
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @Synchronized
     @JvmOverloads
     fun onExitOfProcess(push: Boolean = false, func: () -> Unit) {
@@ -62,13 +64,12 @@ object SecureAccess {
         }
         if (push.isTrue()) {
             list.push(func)
-        }
-        else {
+        } else {
             list.append(func)
         }
     }
 
-    private class ExitThread @CreatorsDsl constructor(name: String, task: () -> Unit) : Thread(task, name) {
+    private class ExitThread @FrameworkDsl constructor(name: String, task: () -> Unit) : Thread(task, name) {
         init {
             Runtime.getRuntime().addShutdownHook(this)
         }

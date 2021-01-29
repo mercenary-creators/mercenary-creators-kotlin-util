@@ -19,40 +19,40 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBase) : StandardInterfaces<ContentMimeType> {
+class ContentMimeType @FrameworkDsl private constructor(private val mime: MimeBase) : StandardInterfaces<ContentMimeType> {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     constructor(type: String = DEFAULT_CONTENT_TYPE) : this(build(type))
 
-    @CreatorsDsl
+    @FrameworkDsl
     val base: String
         @IgnoreForSerialize
         get() = mime.base
 
-    @CreatorsDsl
+    @FrameworkDsl
     val type: String
         @IgnoreForSerialize
         get() = mime.type
 
-    @CreatorsDsl
+    @FrameworkDsl
     val part: String
         @IgnoreForSerialize
         get() = mime.part
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clone() = copyOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun copyOf() = ContentMimeType(mime.copyOf())
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = mime.toString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = mime.hashCode()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = mime.toMapNames()
 
     @CreatorsDsl
@@ -73,19 +73,23 @@ class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBas
 
     companion object {
 
-        @CreatorsDsl
-        val DEFAULT_CONTENT_MIME_TYPE: ContentMimeType by lazy {
+        @FrameworkDsl
+        private val DEFAULT_CONTENT_MIME_TYPE: ContentMimeType by lazy {
             ContentMimeType(BASE)
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         private val BASE = MimeBase()
 
-        @CreatorsDsl
+        @FrameworkDsl
         private val HASH = atomicMapOf(DEFAULT_CONTENT_TYPE to BASE)
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
+        fun getDefaultContentMimeType(): ContentMimeType = DEFAULT_CONTENT_MIME_TYPE
+
+        @JvmStatic
+        @FrameworkDsl
         private fun build(type: String): MimeBase {
             return when (type.isDefaultContentType()) {
                 true -> BASE
@@ -96,7 +100,7 @@ class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBas
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         private fun parse(type: String): MimeBase {
             return try {
                 MimeBase(type)
@@ -107,21 +111,23 @@ class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBas
         }
 
         @IgnoreForSerialize
-        private class MimeBase private constructor(private val mime: javax.activation.MimeType) : StandardInterfaces<MimeBase> {
+        private class MimeBase @FrameworkDsl private constructor(private val mime: javax.activation.MimeType) : StandardInterfaces<MimeBase> {
 
-            @CreatorsDsl
+            @FrameworkDsl
             constructor() : this("application", "octet-stream")
 
-            @CreatorsDsl
+            @FrameworkDsl
             constructor(type: String) : this(javax.activation.MimeType(type))
 
-            @CreatorsDsl
+            @FrameworkDsl
             constructor(base: String, part: String) : this(javax.activation.MimeType(base, part))
 
+            @FrameworkDsl
             private val list = mime.parameters
 
+            @FrameworkDsl
             private val prop: Map<String, String> by lazy {
-                LinkedHashMap<String, String>(list.size()).also { self ->
+                StringDictionary().also { self ->
                     list.names.toList().map { name: Any -> name.toString().toLowerTrimEnglish() }.sorted().forEach { name ->
                         self[name] = list[name]
                     }
@@ -147,19 +153,19 @@ class ContentMimeType @CreatorsDsl private constructor(private val mime: MimeBas
                 }
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             override fun clone() = copyOf()
 
-            @CreatorsDsl
+            @FrameworkDsl
             override fun copyOf() = MimeBase(toString())
 
-            @CreatorsDsl
+            @FrameworkDsl
             override fun toString() = mime.toString()
 
-            @CreatorsDsl
-            override fun hashCode() = mime.toString().hashCode()
+            @FrameworkDsl
+            override fun hashCode() = toString().hashCode()
 
-            @CreatorsDsl
+            @FrameworkDsl
             override fun equals(other: Any?) = when (other) {
                 is MimeBase -> this === other || toString() isSameAs other.toString()
                 else -> false

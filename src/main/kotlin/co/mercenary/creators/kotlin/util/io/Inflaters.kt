@@ -20,6 +20,8 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 import java.util.zip.*
 
+@CreatorsDsl
+@IgnoreForSerialize
 object Inflaters {
 
     @JvmStatic
@@ -44,7 +46,7 @@ object Inflaters {
         }
 
         @CreatorsDsl
-        override fun toString() = toMapNames().toString()
+        override fun toString() = toMapNames().toSafeString()
 
         @CreatorsDsl
         override fun toMapNames() = dictOf("type" to "GZIP")

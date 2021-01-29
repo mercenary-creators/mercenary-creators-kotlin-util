@@ -20,51 +20,52 @@ import co.mercenary.creators.kotlin.util.*
 
 interface ContentResource : InputStreamSupplier, HasMapNames, HasContentSize {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getContentTime(): Long
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getContentPath(): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getContentType(): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getDescription(): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getContentKind(): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isContentThere(): Boolean
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isContentCache(): Boolean
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getContentData(): ByteArray
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun toContentCache(): CachedContentResource
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getContentLook(): ContentResourceLookup
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getContentMime(): ContentMimeType
 
-    @CreatorsDsl
-    fun toRelativePath(path: String): ContentResource = getContentLook().invoke(path)
+    @FrameworkDsl
+    fun toRelativePath(path: String): ContentResource = getContentLook().convert(path)
 
+    @FrameworkDsl
     operator fun get(path: CharSequence): ContentResource = toRelativePath(path.toString())
 }

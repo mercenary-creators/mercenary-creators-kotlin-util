@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util
 
 fun interface Alive {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isAlive(): Boolean
 }

@@ -84,7 +84,7 @@ object EmptyContentResource : CachedContentResource {
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun getContentMime() = ContentMimeType.DEFAULT_CONTENT_MIME_TYPE
+    override fun getContentMime() = ContentMimeType.getDefaultContentMimeType()
 
     @CreatorsDsl
     @IgnoreForSerialize

@@ -14,182 +14,186 @@
  * limitations under the License.
  */
 
+@file:kotlin.jvm.JvmMultifileClass
 @file:kotlin.jvm.JvmName("TestKt")
 @file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 
 package co.mercenary.creators.kotlin.util
 
-@CreatorsDsl
+@FrameworkDsl
 internal const val SHOULD_BE_SAME_ARRAY_FAILED = "shouldBeSameArray failed"
 
-@CreatorsDsl
+@FrameworkDsl
 internal const val SHOULD_NOT_BE_SAME_ARRAY_FAILED = "shouldNotBeSameArray failed"
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun LazyMessage.toSafeString(): String = Formatters.toSafeString(this)
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun fail(text: String): Nothing {
     throw MercenaryAssertionExceptiion(text)
 }
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun fail(func: LazyMessage): Nothing {
     fail(func.toSafeString())
 }
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun shouldBeTrue(value: Boolean, text: String) {
     if (value.isNotTrue()) {
         fail(text)
     }
 }
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun shouldBeTrue(value: Boolean, func: LazyMessage) {
     if (value.isNotTrue()) {
         fail(func)
     }
 }
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun shouldNotBeTrue(value: Boolean, text: String) {
     if (value.isTrue()) {
         fail(text)
     }
 }
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun shouldNotBeTrue(value: Boolean, func: LazyMessage) {
     if (value.isTrue()) {
         fail(func)
     }
 }
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun shouldBeValid(value: Validated, text: String) {
     if (value.isNotValid()) {
         fail(text)
     }
 }
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun shouldBeValid(value: Validated, func: LazyMessage) {
     if (value.isNotValid()) {
         fail(func)
     }
 }
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun shouldNotBeValid(value: Validated, text: String) {
     if (value.isValid()) {
         fail(text)
     }
 }
 
-@CreatorsDsl
+@FrameworkDsl
 inline fun shouldNotBeValid(value: Validated, func: LazyMessage) {
     if (value.isValid()) {
         fail(func)
     }
 }
 
-@CreatorsDsl
+@FrameworkDsl
+infix fun Map<*, *>.isSameAs(value: Map<*, *>) = SameAndHashCode.isSameAs(this, value)
+
+@FrameworkDsl
 infix fun <T : Any?> T.isSameAs(value: T) = SameAndHashCode.isSameAs(this, value)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun <T : Any?> T.isNotSameAs(value: T) = SameAndHashCode.isNotSameAs(this, value)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun <T : Any?> T.isContentSameAs(value: T) = SameAndHashCode.isContentSameAs(this, value)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun <T : Any?> T.isContentNotSameAs(value: T) = SameAndHashCode.isContentNotSameAs(this, value)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun <T : Any?> T.shouldBe(value: T) = shouldBeTrue(value isSameAs this, "shouldBe failed")
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun <T : Any?> T.shouldNotBe(value: T) = shouldBeTrue(value isNotSameAs this, "shouldNotBe failed")
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun <T : Any?> T.shouldBeSameContent(value: T) = shouldBeTrue(value isContentSameAs this, "shouldBeSameContent failed")
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun <T : Any?> T.shouldNotBeSameContent(value: T) = shouldBeTrue(value isContentNotSameAs this, "shouldNotBeSameContent failed")
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun Array<*>.shouldBeSameArray(value: Array<*>) = shouldBeTrue(value isSameArrayAs this, SHOULD_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun IntArray.shouldBeSameArray(value: IntArray) = shouldBeTrue(value isSameArrayAs this, SHOULD_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun ByteArray.shouldBeSameArray(value: ByteArray) = shouldBeTrue(value isSameArrayAs this, SHOULD_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun CharArray.shouldBeSameArray(value: CharArray) = shouldBeTrue(value isSameArrayAs this, SHOULD_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun LongArray.shouldBeSameArray(value: LongArray) = shouldBeTrue(value isSameArrayAs this, SHOULD_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun ShortArray.shouldBeSameArray(value: ShortArray) = shouldBeTrue(value isSameArrayAs this, SHOULD_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun FloatArray.shouldBeSameArray(value: FloatArray) = shouldBeTrue(value isSameArrayAs this, SHOULD_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun DoubleArray.shouldBeSameArray(value: DoubleArray) = shouldBeTrue(value isSameArrayAs this, SHOULD_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun BooleanArray.shouldBeSameArray(value: BooleanArray) = shouldBeTrue(value isSameArrayAs this, SHOULD_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun Array<*>.shouldNotBeSameArray(value: Array<*>) = shouldBeTrue(value isNotSameArrayAs this, SHOULD_NOT_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun IntArray.shouldNotBeSameArray(value: IntArray) = shouldBeTrue(value isNotSameArrayAs this, SHOULD_NOT_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun ByteArray.shouldNotBeSameArray(value: ByteArray) = shouldBeTrue(value isNotSameArrayAs this, SHOULD_NOT_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun CharArray.shouldNotBeSameArray(value: CharArray) = shouldBeTrue(value isNotSameArrayAs this, SHOULD_NOT_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun LongArray.shouldNotBeSameArray(value: LongArray) = shouldBeTrue(value isNotSameArrayAs this, SHOULD_NOT_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun ShortArray.shouldNotBeSameArray(value: ShortArray) = shouldBeTrue(value isNotSameArrayAs this, SHOULD_NOT_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun FloatArray.shouldNotBeSameArray(value: FloatArray) = shouldBeTrue(value isNotSameArrayAs this, SHOULD_NOT_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun DoubleArray.shouldNotBeSameArray(value: DoubleArray) = shouldBeTrue(value isNotSameArrayAs this, SHOULD_NOT_BE_SAME_ARRAY_FAILED)
 
-@CreatorsDsl
+@FrameworkDsl
 infix fun BooleanArray.shouldNotBeSameArray(value: BooleanArray) = shouldBeTrue(value isNotSameArrayAs this, SHOULD_NOT_BE_SAME_ARRAY_FAILED)
 
 @IgnoreForSerialize
-class MercenaryMultipleAssertionExceptiion @JvmOverloads @CreatorsDsl constructor(args: Iterable<Throwable>, message: String = EMPTY_STRING, cause: Throwable? = null) : AssertionError(message, cause), MutableSizedContainer {
+class MercenaryMultipleAssertionExceptiion @JvmOverloads @FrameworkDsl constructor(args: Iterable<Throwable>, message: String = EMPTY_STRING, cause: Throwable? = null) : AssertionError(message, cause), MutableSizedContainer {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     constructor(args: Iterator<Throwable>, message: String = EMPTY_STRING, cause: Throwable? = null) : this(args.toIterable(), message, cause)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     constructor(args: Sequence<Throwable>, message: String = EMPTY_STRING, cause: Throwable? = null) : this(args.toIterable(), message, cause)
 
-    @CreatorsDsl
-    private val list = ArrayList<Throwable>(args.toList())
+    @FrameworkDsl
+    private val list = BasicArrayList(args)
 
-    @CreatorsDsl
-    override val size: Int
-        @IgnoreForSerialize
-        get() = list.size
+    @FrameworkDsl
+    override fun sizeOf(): Int {
+        return list.sizeOf()
+    }
 
     override val cause: Throwable?
         @IgnoreForSerialize
@@ -197,28 +201,34 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @CreatorsDsl constructo
 
     override val message: String
         @IgnoreForSerialize
-        get() = format(text(), list, size)
+        get() = format(text(), list)
 
-    @CreatorsDsl
+    @FrameworkDsl
     private fun text(): String {
         return super.message.toTrimOr("multiple failures")
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
+    @IgnoreForSerialize
+    override fun isEmpty(): Boolean {
+        return list.isEmpty()
+    }
+
+    @FrameworkDsl
     override fun clear() {
         list.clear()
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun append(cause: Throwable, vararg args: Throwable): MercenaryMultipleAssertionExceptiion {
-        list += cause
-        args.forEach {
-            list += it
+        list.add(cause)
+        if (args.isNotExhausted()) {
+            list.add(args.toCollection())
         }
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun append(args: Iterator<Throwable>): MercenaryMultipleAssertionExceptiion {
         args.forEach {
             list += it
@@ -226,7 +236,7 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @CreatorsDsl constructo
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun append(args: Iterable<Throwable>): MercenaryMultipleAssertionExceptiion {
         args.forEach {
             list += it
@@ -234,7 +244,7 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @CreatorsDsl constructo
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun append(args: Sequence<Throwable>): MercenaryMultipleAssertionExceptiion {
         args.forEach {
             list += it
@@ -242,37 +252,37 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @CreatorsDsl constructo
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun suppress(): MercenaryMultipleAssertionExceptiion {
         list.forEach { suppress(it) }
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun suppress(cause: Throwable): MercenaryMultipleAssertionExceptiion {
         addSuppressed(cause)
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun suppress(vararg args: Throwable): MercenaryMultipleAssertionExceptiion {
         args.forEach { suppress(it) }
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun suppress(args: Iterable<Throwable>): MercenaryMultipleAssertionExceptiion {
         args.forEach { suppress(it) }
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun suppress(args: Iterator<Throwable>): MercenaryMultipleAssertionExceptiion {
         args.forEach { suppress(it) }
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun suppress(args: Sequence<Throwable>): MercenaryMultipleAssertionExceptiion {
         args.forEach { suppress(it) }
         return this
@@ -283,14 +293,14 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @CreatorsDsl constructo
         private const val serialVersionUID = 2L
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         private fun format(oops: Throwable, head: Char = SPACE_LETTER): String {
             return "$head${oops.nameOf()}: ${oops.message.toTrimOr("<no message>")}"
         }
 
         @JvmStatic
-        @CreatorsDsl
-        private fun format(text: String, args: List<Throwable>, size: Int = args.size, last: Int = size - 1): String {
+        @FrameworkDsl
+        private fun format(text: String, args: List<Throwable>, size: Int = args.sizeOf(), last: Int = size - 1): String {
             return when (size) {
                 0 -> text
                 else -> stringOf {
@@ -308,34 +318,34 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @CreatorsDsl constructo
 @IgnoreForSerialize
 fun interface AssumptionContainer {
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun assumeThat(block: () -> Unit)
 }
 
-@CreatorsDsl
+@FrameworkDsl
 fun assumeEach(block: AssumptionContainer.() -> Unit) {
     AssumptionCollector(block).also { self -> self.invoke() }
 }
 
 @IgnoreForSerialize
-class AssumptionCollector @CreatorsDsl constructor(block: AssumptionCollector.() -> Unit) : AssumptionContainer {
+class AssumptionCollector @FrameworkDsl constructor(block: AssumptionCollector.() -> Unit) : AssumptionContainer {
 
-    @CreatorsDsl
-    private val list = ArrayList<() -> Unit>()
+    @FrameworkDsl
+    private val list = BasicArrayList<() -> Unit>()
 
     init {
         block(this)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun invoke() {
         if (list.isNotEmpty()) {
-            val look = ArrayList<Throwable>(list.size)
+            val look = BasicArrayList<Throwable>(list.sizeOf())
             list.forEach { function ->
                 try {
                     function.invoke()
                 } catch (oops: Throwable) {
-                    look += Throwables.check(oops)
+                    look.add(Throwables.check(oops))
                 }
             }
             if (look.isNotEmpty()) {
@@ -344,18 +354,18 @@ class AssumptionCollector @CreatorsDsl constructor(block: AssumptionCollector.()
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun assumeThat(block: () -> Unit) {
         list += block
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = nameOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = idenOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is AssumptionCollector -> this === other
         else -> false

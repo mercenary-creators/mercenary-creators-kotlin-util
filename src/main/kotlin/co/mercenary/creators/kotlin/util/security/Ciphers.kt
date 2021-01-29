@@ -95,6 +95,7 @@ object Ciphers : HasMapNames {
 
         @CreatorsDsl
         override fun encrypt(data: ByteArray): ByteArray = synchronized(encrypt) {
+            data.copyInto(ByteArray(data.size))
             factory.getKeys().let { vector -> vector + setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(data) }
         }
 
@@ -166,8 +167,7 @@ object Ciphers : HasMapNames {
         override fun close() {
             obuf = try {
                 cipher.doFinal()
-            }
-            catch (cause: Throwable) {
+            } catch (cause: Throwable) {
                 null
             }
             flush()

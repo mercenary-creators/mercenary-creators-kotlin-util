@@ -20,15 +20,15 @@ import co.mercenary.creators.kotlin.util.*
 import java.security.Security
 
 @IgnoreForSerialize
-data class Algorithm @CreatorsDsl constructor(val service: String, val algorithms: List<String>) : HasMapNames {
+data class Algorithm @FrameworkDsl constructor(val service: String, val algorithms: List<String>) : HasMapNames {
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = dictOf("service" to service, "algorithms" to algorithms)
 
     companion object {
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun forName(name: String): Algorithm = Algorithm(name, Security.getAlgorithms(name).toList())
     }
 }

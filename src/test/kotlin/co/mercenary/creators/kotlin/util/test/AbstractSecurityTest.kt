@@ -23,12 +23,12 @@ import co.mercenary.creators.kotlin.util.security.CipherAlgorithm
 
 abstract class AbstractSecurityTest @JvmOverloads constructor(private val text: String = CREATORS_AUTHOR_INFO) : AbstractKotlinTest() {
 
-    @CreatorsDsl
+    @FrameworkDsl
     protected open val rounds: Int
         @IgnoreForSerialize
         get() = 4
 
-    @CreatorsDsl
+    @FrameworkDsl
     protected infix fun CipherEncryptingCopy.warmup(data: ContentResource) {
         if (rounds > 0) {
             val baos = BytesOutputStream()
@@ -42,30 +42,30 @@ abstract class AbstractSecurityTest @JvmOverloads constructor(private val text: 
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     protected open fun getGeneratedText(): String = text
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     protected open fun getGeneratedPass(): CharSequence = Passwords.getGeneratedPass()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     protected open fun getGeneratedSalt(): CharSequence = Passwords.getGeneratedSalt()
 
-    @CreatorsDsl
+    @FrameworkDsl
     protected open fun isValid(pass: CharSequence): Boolean = Passwords.isValid(pass)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     protected fun getTextCipher(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) = CipherEncryptingText(pass, salt, algorithm)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     protected fun getDataCipher(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) = CipherEncryptingData(pass, salt, algorithm)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     protected fun getCopyCipher(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) = CipherEncryptingCopy(pass, salt, algorithm)
 }

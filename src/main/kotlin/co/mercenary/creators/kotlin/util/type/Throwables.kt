@@ -19,15 +19,16 @@ package co.mercenary.creators.kotlin.util.type
 import co.mercenary.creators.kotlin.util.*
 import kotlin.reflect.KClass
 
+@FrameworkDsl
 @IgnoreForSerialize
 object Throwables {
 
     enum class Mode { FAILURE, IGNORED }
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val failure = LinkedHashSet<Class<*>>()
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val ignored = LinkedHashSet<Class<*>>()
 
     private val logger: ILogging by lazy {
@@ -39,7 +40,7 @@ object Throwables {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun thrown(cause: Throwable?) {
         if (cause != null) {
             val type = cause.javaClass
@@ -57,43 +58,43 @@ object Throwables {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T : Throwable> isFailure(type: Class<T>): Boolean {
         return type in failure
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T : Throwable> isFailure(type: KClass<T>): Boolean {
         return isFailure(type.java)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun isFailure(cause: Throwable): Boolean {
         return isFailure(cause.javaClass)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T : Throwable> isIgnored(type: Class<T>): Boolean {
         return type in ignored
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T : Throwable> isIgnored(type: KClass<T>): Boolean {
         return isIgnored(type.java)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun isIgnored(cause: Throwable): Boolean {
         return isIgnored(cause.javaClass)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @Synchronized
     @JvmOverloads
     fun <T : Throwable> append(type: Class<T>, mode: Mode = Mode.FAILURE) {
@@ -104,26 +105,26 @@ object Throwables {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun <T : Throwable> append(type: KClass<T>, mode: Mode = Mode.FAILURE) {
         append(type.java, mode)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T : Throwable> ignored(type: Class<T>) {
         append(type, Mode.IGNORED)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T : Throwable> ignored(type: KClass<T>) {
         append(type.java, Mode.IGNORED)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @Synchronized
     @JvmOverloads
     fun <T : Throwable> remove(type: Class<T>, mode: Mode = Mode.FAILURE) {
@@ -134,17 +135,17 @@ object Throwables {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun <T : Throwable> remove(type: KClass<T>, mode: Mode = Mode.FAILURE) {
         remove(type.java, mode)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @Synchronized
     fun clear(vararg args: Mode) {
-        if (args.isEmpty()) {
+        if (args.isExhausted()) {
             failure.clear()
             ignored.clear()
         } else {
@@ -158,7 +159,7 @@ object Throwables {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @Synchronized
     @JvmOverloads
     fun reset(defaults: Boolean = true) {
@@ -169,17 +170,17 @@ object Throwables {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T> fatal(cause: Throwable, block: Factory<T>): T {
         when (cause) {
             is OutOfMemoryError -> throw cause
             is StackOverflowError -> throw cause
         }
-        return block.convert()
+        return block.create()
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T> fatal(cause: Throwable, value: T): T {
         when (cause) {
             is OutOfMemoryError -> throw cause
@@ -189,13 +190,13 @@ object Throwables {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun check(cause: Throwable): Throwable {
         return fatal(cause, cause)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     private fun defaults() {
         append(OutOfMemoryError::class)
         append(StackOverflowError::class)

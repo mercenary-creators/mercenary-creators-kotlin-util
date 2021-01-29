@@ -18,75 +18,69 @@ package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
 
-open class BasicDictionaryMap<V> @JvmOverloads @CreatorsDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY, factor: Double = DEFAULT_MAP_FACTOR, order: Boolean = false) : BasicLinkedMap<String, V>(capacity, factor, order), IMutableDictionary<V, MutableSet<String>> {
+open class BasicDictionaryMap<V> @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY, factor: Double = DEFAULT_MAP_FACTOR, order: Boolean = false) : BasicLinkedMap<String, V>(capacity, factor, order) {
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(k: String, v: V) : this() {
         append(k, v)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Map<String, V>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args)
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Pair<String, V>) : this() {
         append(args)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(vararg args: Pair<String, V>) : this() {
-        append(*args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterable<Pair<String, V>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Sequence<Pair<String, V>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
-    override val size: Int
-        @IgnoreForSerialize
-        get() = super.size
-
-    @CreatorsDsl
-    override val keys: MutableSet<String>
-        @IgnoreForSerialize
-        get() = super.keys
-
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clone() = copyOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun copyOf() = BasicDictionaryMap(this)
 
-    @CreatorsDsl
-    override fun hashCode() = toSafeHashUf()
+    @FrameworkDsl
+    @IgnoreForSerialize
+    override fun isEmpty() = sizeOf().isExhausted()
 
-    @CreatorsDsl
-    override fun toString() = toSafeString()
+    @FrameworkDsl
+    override fun hashCode() = super.hashCode()
 
-    @CreatorsDsl
+    @FrameworkDsl
+    override fun toString() = super.toString()
+
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is BasicDictionaryMap<*> -> this === other || super.equals(other)
         else -> false
     }
 
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isEmpty(): Boolean = size == 0
-
-    @CreatorsDsl
-    override fun isKeyDefined(element: String): Boolean = isNotEmpty() && super.containsKey(element)
-
     companion object {
-
         private const val serialVersionUID = 4L
     }
 }

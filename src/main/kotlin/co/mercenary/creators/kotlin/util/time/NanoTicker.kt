@@ -19,15 +19,15 @@ package co.mercenary.creators.kotlin.util.time
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class NanoTicker @CreatorsDsl constructor() : AbstractTicker(TimeAndDate.nanosOf()) {
+class NanoTicker @FrameworkDsl constructor() : AbstractTicker(TimeAndDate.nanosOf()) {
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = idenOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = toElapsedString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is NanoTicker -> this === other
         else -> false

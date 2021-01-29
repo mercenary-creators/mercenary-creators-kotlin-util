@@ -18,20 +18,9 @@ package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
 
-interface SecureChars {
+@IgnoreForSerialize
+interface SecureChars<B : SecureChars<B>> : SecureArray<B> {
 
-    @CreatorsDsl
-    val size: Int
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isEmpty(): Boolean
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isNotEmpty(): Boolean
-
-    @CreatorsDsl
-    @IgnoreForSerialize
+    @FrameworkDsl
     fun toCharArray(flip: Boolean = true): CharArray
 }

@@ -23,11 +23,10 @@ class MainTest : KotlinTest() {
     @Test
     fun test() {
         onExitOfProcess { getStandardError().echo(uuid()).newline() }
-        error { 5.typeOf() }
         error { 5 isType 6 }
         error { 5 isType 6L }
         dashes()
-        info { Common.load().toStringDictionary() }
+        info { Common.getProperties("default.properties").toStringDictionary() }
         dashes()
         info { Common.getSystemProperties().toStringDictionary() }
         dashes()

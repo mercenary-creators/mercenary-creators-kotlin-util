@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.system
 
 import co.mercenary.creators.kotlin.util.*
 
-class MemoryUsageData @FrameworkDsl constructor(private val type: MemoryType, private val used: Long, private val initial: Long, private val maximum: Long, private val committed: Long) : StandardInterfaces<MemoryUsageData>, SafeStringable {
+class MemoryUsageData @FrameworkDsl constructor(private val type: MemoryType, private val used: Long, private val initial: Long, private val maximum: Long, private val committed: Long) : StandardInterfaces<MemoryUsageData> {
 
     @FrameworkDsl
     constructor(data: MemoryUsageData) : this(data.getType(), data.getUsed(), data.getInitial(), data.getMaximum(), data.getComitted())
@@ -38,22 +38,19 @@ class MemoryUsageData @FrameworkDsl constructor(private val type: MemoryType, pr
     @FrameworkDsl
     fun getComitted() = committed
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clone() = copyOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun copyOf() = MemoryUsageData(this)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = idenOf()
 
-    @CreatorsDsl
-    override fun toString() = toSafeStringable()
+    @FrameworkDsl
+    override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
-    override fun toSafeStringable() = toMapNames().toSafeString()
-
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is MemoryUsageData -> this === other || this isEverySame other
         else -> false
@@ -62,12 +59,11 @@ class MemoryUsageData @FrameworkDsl constructor(private val type: MemoryType, pr
     @FrameworkDsl
     private fun Long.format(): String = getType().invoke(this)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = dictOf("type" to getType(), "used" to getUsed().format(), "initial" to getInitial().format(), "maximum" to getMaximum().format(), "committed" to getComitted().format())
 
     private companion object {
 
-        @JvmStatic
         @FrameworkDsl
         private infix fun MemoryUsageData.isEverySame(other: MemoryUsageData): Boolean {
             if (getType() != other.getType()) {

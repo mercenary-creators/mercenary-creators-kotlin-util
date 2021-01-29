@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util
 
 interface SizedContainer : Container, Sized {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun isEmpty(): Boolean = size == 0
+    override fun isEmpty(): Boolean = sizeOf() == 0
 }

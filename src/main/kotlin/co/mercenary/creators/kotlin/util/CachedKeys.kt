@@ -18,9 +18,9 @@ package co.mercenary.creators.kotlin.util
 
 interface CachedKeys<T: CharSequence> : Iterable<T>, SizedContainer {
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun contains(data: String): Boolean
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun contains(data: CharSequence): Boolean = contains(data.toString())
 }

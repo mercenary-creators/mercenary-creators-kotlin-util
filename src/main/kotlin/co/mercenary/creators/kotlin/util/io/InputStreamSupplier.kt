@@ -21,7 +21,7 @@ import java.io.InputStream
 
 fun interface InputStreamSupplier {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getInputStream(): InputStream
 }

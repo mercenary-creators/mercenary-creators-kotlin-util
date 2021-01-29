@@ -14,10 +14,33 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util
+package co.mercenary.creators.kotlin.util.math
 
-fun interface SerializeProvider<out T> {
+import co.mercenary.creators.kotlin.util.*
 
-    @CreatorsDsl
-    fun serialOf(): T
+interface Sliced<B : Sliced<B>> : SizedContainer, Copyable<B>, Cloneable {
+
+    @FrameworkDsl
+    fun headOf(): Int
+
+    @FrameworkDsl
+    fun tailOf(): Int
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isSlice(): Boolean
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isNotSlice(): Boolean {
+        return isSlice().isNotTrue()
+    }
+
+    @FrameworkDsl
+    fun slice(index: Int, place: Int): B
+
+    @FrameworkDsl
+    override fun sizeOf(): Int {
+        return tailOf() - headOf()
+    }
 }

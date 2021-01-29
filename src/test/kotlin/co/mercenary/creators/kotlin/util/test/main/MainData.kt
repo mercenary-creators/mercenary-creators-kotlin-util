@@ -18,4 +18,4 @@ package co.mercenary.creators.kotlin.util.test.main
 
 import co.mercenary.creators.kotlin.util.*
 
-data class MainData @CreatorsDsl constructor(val rand: Int = Randoms.getInteger(0..100))
+data class MainData @FrameworkDsl constructor(val rand: Int = Randoms.getInteger(0..100))

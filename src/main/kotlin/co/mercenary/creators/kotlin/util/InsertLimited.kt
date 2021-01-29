@@ -16,8 +16,8 @@
 
 package co.mercenary.creators.kotlin.util
 
-fun interface Proxy<out T> : Factory<T> {
+fun interface InsertLimited {
 
-    @CreatorsDsl
-    override operator fun invoke(): T
+    @FrameworkDsl
+    fun getLimit(): Int
 }

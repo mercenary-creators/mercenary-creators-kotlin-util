@@ -43,7 +43,7 @@ open class BaseCachedContentResourceLoader @JvmOverloads @CreatorsDsl constructo
     override fun toString() = toMapNames().toSafeString()
 
     @CreatorsDsl
-    override fun hashCode() = toMapNames().toSafeHashUf()
+    override fun hashCode() = toMapNames().toSafeHashOf()
 
     @CreatorsDsl
     override fun equals(other: Any?) = when (other) {
@@ -57,9 +57,9 @@ open class BaseCachedContentResourceLoader @JvmOverloads @CreatorsDsl constructo
         private val view: AtomicHashMapKeysView<String, CachedContentResource> = maps.keys
 
         @CreatorsDsl
-        override val size: Int
-            @IgnoreForSerialize
-            get() = view.size
+        override fun sizeOf(): Int {
+            return view.size
+        }
 
         @CreatorsDsl
         override operator fun iterator() = view.iterator()

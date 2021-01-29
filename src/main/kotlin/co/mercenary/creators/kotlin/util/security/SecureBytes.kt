@@ -18,20 +18,9 @@ package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
 
-interface SecureBytes {
+@IgnoreForSerialize
+interface SecureBytes<B : SecureBytes<B>> : SecureArray<B> {
 
-    @CreatorsDsl
-    val size: Int
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isEmpty(): Boolean
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isNotEmpty(): Boolean
-
-    @CreatorsDsl
-    @IgnoreForSerialize
+    @FrameworkDsl
     fun toByteArray(flip: Boolean = true): ByteArray
 }

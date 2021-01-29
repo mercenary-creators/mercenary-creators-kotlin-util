@@ -22,7 +22,20 @@ import java.io.Writer
 @CreatorsDsl
 @IgnoreForSerialize
 object EmptyWriter : Writer() {
+
     override fun flush() = Unit
     override fun close() = Unit
+    override fun write(data: Int) = Unit
+    override fun write(cbuf: CharArray) = Unit
     override fun write(cbuf: CharArray, off: Int, len: Int) = Unit
+    override fun write(text: String) = Unit
+    override fun write(text: String, off: Int, len: Int) = Unit
+    override fun append(data: Char) = EmptyWriter
+    override fun append(data: CharSequence?) = EmptyWriter
+    override fun append(data: CharSequence?, beg: Int, end: Int) = EmptyWriter
+    override fun toString()=nameOf()
+    override fun hashCode()=idenOf()
+    override fun equals(other: Any?): Boolean {
+        return super.equals(other)
+    }
 }

@@ -17,76 +17,133 @@
 package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.type.SameAndHashCode
 
-open class BasicLinkedMap<K, V> @JvmOverloads @CreatorsDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY, factor: Double = DEFAULT_MAP_FACTOR, order: Boolean = false) : LinkedHashMap<K, V>(capacity, factor.toMapFactorOrElse(), order), MutableMapBase<K, V, BasicLinkedMap<K, V>> {
+open class BasicLinkedMap<K, V> @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY, factor: Double = DEFAULT_MAP_FACTOR, order: Boolean = false) : LinkedHashMap<K, V>(capacity, factor.toMapFactorOrElse(), order), MutableMapBase<K, V, BasicLinkedMap<K, V>>, InsertOrdered by order.toInsertOrdered() {
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(k: K, v: V) : this() {
         append(k, v)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Map<K, V>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args)
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Pair<K, V>) : this() {
         append(args)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(vararg args: Pair<K, V>) : this() {
-        append(*args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterable<Pair<K, V>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterator<Pair<K, V>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Sequence<Pair<K, V>>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.mapTo())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
+    constructor(args: BasicLinkedMap<K, V>) : this(order = args.isOrdered()) {
+        if (args.isNotExhausted()) {
+            append(args)
+        }
+    }
+
+    @FrameworkDsl
     override val size: Int
         @IgnoreForSerialize
-        get() = super.size
+        get() = sizeOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clone() = copyOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun copyOf() = BasicLinkedMap(this)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun isEmpty() = size == 0
+    override fun isEmpty() = sizeOf() == 0
 
-    @CreatorsDsl
-    override fun hashCode() = toSafeHashUf()
+    @FrameworkDsl
+    override fun hashCode() = hashOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = toSafeString()
 
-    @CreatorsDsl
+    @FrameworkDsl
+    override fun containsKey(key: K): Boolean {
+        return isNotExhausted() && super.containsKey(key)
+    }
+
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is BasicLinkedMap<*, *> -> this === other || size == other.size && super.equals(other)
+        is BasicLinkedMap<*, *> -> this === other || sizeOf() == other.sizeOf() && isOrdered() == other.isOrdered() && isSameLinkedHashMap(this, other)
         else -> false
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clear() = super.clear()
 
     companion object {
 
         private const val serialVersionUID = 2L
+
+        @JvmStatic
+        @FrameworkDsl
+        fun isSameLinkedHashMap(value: LinkedHashMap<*, *>, other: LinkedHashMap<*, *>): Boolean {
+            if (value === other) {
+                return true
+            }
+            if (value.sizeOf() != other.sizeOf()) {
+                return false
+            }
+            if (value.sizeOf() == 0) {
+                return true
+            }
+            try {
+                for ((k, v) in value) {
+                    if (other isKeyNotDefined k) {
+                        return false
+                    }
+                    val o = other[k]
+                    if (o === v) {
+                        continue
+                    }
+                    if (v == null && o != null) {
+                        return false
+                    }
+                    if (v.isSameAs(o)) {
+                        continue
+                    }
+                }
+            } catch (cause: Throwable) {
+                return Throwables.fatal(cause, false)
+            }
+            return true
+        }
     }
 }

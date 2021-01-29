@@ -19,109 +19,73 @@ package co.mercenary.creators.kotlin.util.collection
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class IterableBuilder<T> @JvmOverloads @CreatorsDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY) : Builder<Iterable<T>>, Clearable, SizedContainer, HasMapNames {
+class IterableBuilder<T> @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_LIST_CAPACITY) : Builder<Iterable<T>>, MutableSizedContainer, HasMapNames {
 
-    @CreatorsDsl
-    @JvmOverloads
-    constructor(capacity: Int = DEFAULT_MAP_CAPACITY, args: T) : this(capacity) {
-        append(args)
+    @FrameworkDsl
+    private val list = BasicArrayList<T>(capacity.maxOf(2))
+
+    @FrameworkDsl
+    override fun sizeOf(): Int = list.sizeOf()
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    override fun isEmpty(): Boolean {
+        return list.isEmpty()
     }
 
-    @CreatorsDsl
-    @JvmOverloads
-    constructor(capacity: Int = DEFAULT_MAP_CAPACITY, vararg args: T) : this(capacity) {
-        append(args.toIterable())
-    }
-
-    @CreatorsDsl
-    @JvmOverloads
-    constructor(capacity: Int = DEFAULT_MAP_CAPACITY, args: Iterator<T>) : this(capacity) {
-        append(args)
-    }
-
-    @CreatorsDsl
-    @JvmOverloads
-    constructor(capacity: Int = DEFAULT_MAP_CAPACITY, args: Iterable<T>) : this(capacity) {
-        append(args)
-    }
-
-    @CreatorsDsl
-    @JvmOverloads
-    constructor(capacity: Int = DEFAULT_MAP_CAPACITY, args: Sequence<T>) : this(capacity) {
-        append(args)
-    }
-
-    private val list = ArrayList<T>(capacity.maxOf(2))
-
-    @CreatorsDsl
-    internal fun sizeOf(): Int = list.size
-
-    @CreatorsDsl
-    override val size: Int
-        @IgnoreForSerialize
-        get() = sizeOf()
-
-    @CreatorsDsl
+    @FrameworkDsl
     override fun build(): Iterable<T> {
         return list.toList().also { clear() }
     }
 
-    @CreatorsDsl
-    fun typeOf(): Class<*> {
-        return list.toArray().javaClass.componentType
-    }
-
-    @CreatorsDsl
-    fun append(args: T): IterableBuilder<T> {
-        list += args
-        return this
-    }
-
-    @CreatorsDsl
-    fun append(vararg args: T): IterableBuilder<T> {
-        args.forEach {
-            list += it
+    @FrameworkDsl
+    fun append(head: T, vararg args: T): IterableBuilder<T> {
+        list.add(head)
+        if (args.isNotExhausted()) {
+            return append(args.toCollection())
         }
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun append(args: Iterator<T>): IterableBuilder<T> {
-        args.forEach {
-            list += it
+        if (args.isNotExhausted()) {
+            return append(args.toCollection())
         }
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun append(args: Iterable<T>): IterableBuilder<T> {
-        list += args
+        if (args.isNotExhausted()) {
+            list.add(args)
+
+        }
         return this
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun append(args: Sequence<T>): IterableBuilder<T> {
-        list += args
-        return this
+        return append(args.toIterator())
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clear() {
         list.clear()
     }
 
-    @CreatorsDsl
-    override fun hashCode() = toMapNames().toSafeHashUf()
+    @FrameworkDsl
+    override fun hashCode() = idenOf()
 
-    @CreatorsDsl
-    override fun toString() = toMapNames().toSafeString()
+    @FrameworkDsl
+    override fun toString() = nameOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is IterableBuilder<*> -> this === other || sizeOf() == other.sizeOf()
         else -> false
     }
 
-    @CreatorsDsl
-    override fun toMapNames() = dictOf("name" to nameOf(), "size" to sizeOf(), "type" to typeOf().nameOf())
+    @FrameworkDsl
+    override fun toMapNames() = dictOf("name" to nameOf(), "size" to sizeOf())
 }

@@ -24,22 +24,28 @@ import java.io.*
 import java.net.*
 import java.nio.channels.ReadableByteChannel
 import java.nio.charset.Charset
-import java.nio.file.Paths
+import java.nio.file.*
 import java.util.*
 
 @IgnoreForSerialize
 object IO : HasMapNames, Logging(IO::class.nameOf()) {
-    @CreatorsDsl
+
+    @FrameworkDsl
     const val EXT_SEPARATOR_CHAR = '.'
-    @CreatorsDsl
+
+    @FrameworkDsl
     const val SINGLE_PREFIX_CHAR = '~'
-    @CreatorsDsl
+
+    @FrameworkDsl
     const val COL_SEPARATOR_CHAR = ','
-    @CreatorsDsl
+
+    @FrameworkDsl
     const val UNX_SEPARATOR_CHAR = '/'
-    @CreatorsDsl
+
+    @FrameworkDsl
     const val WIN_SEPARATOR_CHAR = '\\'
-    @CreatorsDsl
+
+    @FrameworkDsl
     const val SINGLE_TILDE = SINGLE_PREFIX_CHAR.toString()
     const val SINGLE_SLASH = UNX_SEPARATOR_CHAR.toString()
     const val DOUBLE_SLASH = SINGLE_SLASH + SINGLE_SLASH
@@ -51,9 +57,11 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     const val PREFIX_FILES = "file:"
     const val PREFIX_BYTES = "data:"
     const val PREFIX_CLASS = "classpath:"
-    @CreatorsDsl
+
+    @FrameworkDsl
     private val SYSTEM_SEPARATOR_CHAR = File.separatorChar
-    @CreatorsDsl
+
+    @FrameworkDsl
     private val OTHERS_SEPARATOR_CHAR = if (isSystemWindows()) UNX_SEPARATOR_CHAR else WIN_SEPARATOR_CHAR
 
     private val probe: ContentTypeProbe by lazy {
@@ -64,28 +72,28 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     private fun patch(path: String): String = path.trim().let { if (it.contains(DOUBLE_SLASH)) patch(it.replace(DOUBLE_SLASH, SINGLE_SLASH)) else it }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getContentTypeProbe(): ContentTypeProbe = probe
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isSystemWindows(): Boolean = SYSTEM_SEPARATOR_CHAR == WIN_SEPARATOR_CHAR
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isSystemUnixLike(): Boolean = SYSTEM_SEPARATOR_CHAR != WIN_SEPARATOR_CHAR
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getFileExtension(file: File): String {
         return getPathExtension(file.path)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getPathNormalized(path: String?): String? {
         val temp = toTrimOrNull(path)
         if (temp != null) {
@@ -107,19 +115,19 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun getPathRelative(path: String, tail: String, root: Boolean = true): String {
         return FilenameUtils.concat(path, tail).otherwise().let { if (root) it.removePrefix(SINGLE_SLASH) else it }
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getPathExtension(path: String?): String {
         val temp = getPathNormalized(path).otherwise()
-        if ((temp.isNotEmpty()) && (temp.indexOf(EXT_SEPARATOR_CHAR) != IS_NOT_FOUND)) {
+        if ((temp.isNotExhausted()) && (temp.indexOf(EXT_SEPARATOR_CHAR) != IS_NOT_FOUND)) {
             val last = toTrimOrNull(FilenameUtils.getExtension(temp)).otherwise()
-            if (last.isNotEmpty()) {
+            if (last.isNotExhausted()) {
                 if (last.startsWith(EXT_SEPARATOR_CHAR)) {
                     return last
                 }
@@ -130,9 +138,9 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun toFileURL(path: String): URL {
-        return PREFIX_FILES.plus(SINGLE_SLASH).plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).otherwise().removePrefix(SINGLE_SLASH).trim()).toURL()
+        return PREFIX_FILES.plus(SINGLE_SLASH).plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).otherwise().removePrefix(SINGLE_SLASH).trim()).linkOf()
     }
 
     @JvmStatic
@@ -145,13 +153,13 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getRelative(data: File, path: String): File {
         return File(getPathRelative(data.path, path))
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getHeadConnection(data: URL): HttpURLConnection? {
         try {
             val conn = data.openConnection()
@@ -167,7 +175,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getDefaultClassLoader(): ClassLoader {
         try {
@@ -198,7 +206,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun getResouce(path: String, claz: Class<*>? = null, load: ClassLoader? = null): URL? = try {
         when {
@@ -215,7 +223,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun getInputStream(path: String, claz: Class<*>? = null, load: ClassLoader? = null): InputStream? = try {
         getInputStream(getResouce(path, claz, load))
@@ -225,7 +233,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getInputStream(data: URL?): InputStream? {
         if (data == null) {
             return null
@@ -323,13 +331,13 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun toFileOrNull(data: URL, skip: Boolean = false): File? {
         try {
             if (skip || data.isFileURL()) {
                 val path = getPathNormalized(data.file).otherwise()
-                if (path.isNotEmpty()) {
+                if (path.isNotExhausted()) {
                     return File(path)
                 }
             }
@@ -341,7 +349,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun isContentThere(data: URL): Boolean {
         try {
             if (data.isFileURL()) {
@@ -364,7 +372,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentSize(data: URL): Long {
         if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
@@ -430,7 +438,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
         if (type.isDefaultContentType()) {
             if (data.isFileURL()) {
                 val path = getPathNormalized(data.file).otherwise()
-                if (path.isNotEmpty()) {
+                if (path.isNotExhausted()) {
                     return getContentTypeProbe().getContentType(path, type)
                 }
             } else {
@@ -446,25 +454,25 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentMime(data: URL): ContentMimeType {
         try {
             val conn = getHeadConnection(data)
             if (conn != null) {
                 val send = toTrimOrElse(conn.contentType, DEFAULT_CONTENT_TYPE)
                 conn.disconnect()
-                return if (send.isDefaultContentType()) ContentMimeType.DEFAULT_CONTENT_MIME_TYPE else ContentMimeType(send)
+                return if (send.isDefaultContentType()) ContentMimeType.getDefaultContentMimeType() else ContentMimeType(send)
             }
         } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
-        return ContentMimeType.DEFAULT_CONTENT_MIME_TYPE
+        return ContentMimeType.getDefaultContentMimeType()
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: URI, type: String): String {
-        if (type.isDefaultContentType() && data.isAbsolute) {
+        if (type.isDefaultContentType() && data.isAbsolutePath()) {
             try {
                 return getContentType(data.toURL(), type)
             } catch (cause: Throwable) {
@@ -497,11 +505,17 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     fun getContentType(data: InputStream, type: String): String {
         if (type.isDefaultContentType() && data.markSupported()) {
             val send = toTrimOrElse(HttpURLConnection.guessContentTypeFromStream(data)).toLowerTrim()
-            if (send.isNotEmpty()) {
+            if (send.isNotExhausted()) {
                 return send
             }
         }
         return type.toLowerTrim()
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: Reader): Properties {
+        return getProperties(data, Properties())
     }
 
     @JvmStatic
@@ -512,14 +526,85 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
 
     @JvmStatic
     @CreatorsDsl
-    fun getProperties(data: ContentResource): Properties {
+    fun getProperties(data: URI): Properties {
         return getProperties(data, Properties())
     }
 
     @JvmStatic
     @CreatorsDsl
-    fun getProperties(data: ContentResource, properties: Properties): Properties {
-        return getProperties(data.getInputStream(), properties)
+    fun getProperties(data: URI, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: URL): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: URL, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: File): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: File, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: Path): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: Path, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: InputStreamSupplier): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: InputStreamSupplier, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: ReadableByteChannel): Properties {
+        return getProperties(data, Properties())
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: ReadableByteChannel, properties: Properties): Properties {
+        return getProperties(data.toInputStream(), properties)
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: Reader, properties: Properties): Properties {
+        try {
+            data.use { look -> properties.load(look) }
+        } catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+        return properties
     }
 
     @JvmStatic
@@ -531,6 +616,12 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
             Throwables.thrown(cause)
         }
         return properties
+    }
+
+    @JvmStatic
+    @CreatorsDsl
+    fun getProperties(data: CharSequence): Properties {
+        return getProperties(data, Properties())
     }
 
     @JvmStatic

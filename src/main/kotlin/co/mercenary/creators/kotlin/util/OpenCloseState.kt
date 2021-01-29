@@ -16,21 +16,9 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface OpenCloseState {
+fun interface OpenCloseState {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isOpen(): Boolean
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isClosed(): Boolean = isOpen().isNotTrue()
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isNotOpen(): Boolean = isClosed().isTrue()
-
-    @CreatorsDsl
-    @IgnoreForSerialize
-    fun isNotClosed(): Boolean = isClosed().isNotTrue()
 }

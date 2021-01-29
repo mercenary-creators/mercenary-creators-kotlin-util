@@ -24,7 +24,7 @@ abstract class AbstractCountSizeOutputStream @JvmOverloads constructor(proxy: Ou
 
     private val count = 0L.toAtomic()
 
-    private val state = true.toAtomic()
+    private val state = getAtomicTrue()
 
     @CreatorsDsl
     @IgnoreForSerialize
@@ -67,12 +67,12 @@ abstract class AbstractCountSizeOutputStream @JvmOverloads constructor(proxy: Ou
 
     @CreatorsDsl
     override fun clear() {
-        count.set(0L)
+        count.setValue(0)
     }
 
     @CreatorsDsl
     @IgnoreForSerialize
-    override fun getContentSize() = count.toLong().maxOf(0)
+    override fun getContentSize() = count.getValue().maxOf(0)
 
     @CreatorsDsl
     override fun toMapNames() = dictOf("name" to nameOf(), "open" to isOpen(), "size" to getContentSize(), "flush" to flush.isTrue())

@@ -16,4 +16,31 @@
 
 package co.mercenary.creators.kotlin.util.collection
 
-interface IMutableDictionary<out V, T : MutableCollection<String>> : IDictionary<V, T>
+import co.mercenary.creators.kotlin.util.*
+
+@IgnoreForSerialize
+interface ListPointerBase<T, B : ListPointerBase<T, B>> : MutableBase<B>, HasMapNames {
+
+    @FrameworkDsl
+    fun advance()
+
+    @FrameworkDsl
+    fun current(): T
+
+    @FrameworkDsl
+    fun indexOf(): Int
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isExhausted(): Boolean = isEmpty()
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isNotExhausted(): Boolean = isNotEmpty()
+
+    @FrameworkDsl
+    fun forEachRemaining(reset: Boolean = false, block: Convert<T, Unit>)
+
+    @FrameworkDsl
+    fun forEachRemainingIndexed(reset: Boolean = false, block: Indexed<T, Unit>)
+}

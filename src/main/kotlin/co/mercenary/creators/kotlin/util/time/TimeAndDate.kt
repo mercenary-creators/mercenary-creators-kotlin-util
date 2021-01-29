@@ -30,44 +30,44 @@ object TimeAndDate : HasMapNames {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun dateTimeOf(zone: ZoneId = getDefaultTimeZoneId()): LocalDateTime = LocalDateTime.now(zone)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun nanos(): Long = System.nanoTime()
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun nanosOf(): () -> Long = TimeAndDate::nanos
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun mills(): Long = System.currentTimeMillis()
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun millsOf(): () -> Long = TimeAndDate::mills
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     @IgnoreForSerialize
     fun getTimeStamp(nano: Boolean = false): Long = if (nano) nanos() else mills()
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getDefaultTimeZoneId(): ZoneId = ZoneId.of(TIME_DEFAULT_ZONE_STRING)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(TIME_DEFAULT_ZONE_STRING)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     @IgnoreForSerialize
     fun setDefaultTimeZone(zone: TimeZone = getDefaultTimeZone()) {
@@ -75,81 +75,81 @@ object TimeAndDate : HasMapNames {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat(TIME_DEFAULT_DATE_FORMAT)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getDefaultDateFormat(zone: TimeZone): SimpleDateFormat = getDefaultDateFormat().also { it.timeZone = zone }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     @IgnoreForSerialize
     fun getDefaultDateFormatAndTimeZone(zone: TimeZone = getDefaultTimeZone()): SimpleDateFormat = getDefaultDateFormat(zone)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun convertTo(date: Date, zone: ZoneId = getDefaultTimeZoneId()): LocalDateTime {
         return LocalDateTime.ofInstant(date.toInstant(), zone)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun convertTo(date: LocalDateTime, zone: ZoneId = getDefaultTimeZoneId()): Date {
         return Date.from(date.atZone(zone).toInstant())
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun formatDate(date: Date, safe: Boolean = true): String {
         return if (safe) getThreadLocalDefaultDateFormat().toValue().format(date) else getDefaultDateFormatAndTimeZone().format(date)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun formatDate(date: LocalDateTime, zone: ZoneId = getDefaultTimeZoneId()): String {
         return formatter.withZone(zone).format(date)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun parseDate(text: CharSequence, safe: Boolean = true): Date {
         return if (safe) getThreadLocalDefaultDateFormat().toValue().parse(text.toString()) else getDefaultDateFormatAndTimeZone().parse(text.toString())
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun parseDate(text: CharSequence, zone: ZoneId = getDefaultTimeZoneId()): LocalDateTime {
         return LocalDateTime.parse(text, formatter.withZone(zone))
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     @IgnoreForSerialize
     fun getThreadLocalDefaultDateFormat(zone: TimeZone = getDefaultTimeZone()): ThreadLocal<SimpleDateFormat> = ThreadLocal.withInitial { getDefaultDateFormat(zone) }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun toDecimalPlaces(data: Double, tail: String = EMPTY_STRING, places: Int = Numeric.DEFAULT_PRECISION_SCALE): String = data.toDecimalPlacesString(places) + tail
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun toElapsedString(data: Long, head: String = "elapsed "): String = head + if (data < 1000000L) "$data nanoseconds" else if (data < 1000000000L) toDecimalPlaces(1.0E-6 * data, " milliseconds") else toDecimalPlaces(1.0E-9 * data, " seconds")
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = dictOf("type" to nameOf())
 }

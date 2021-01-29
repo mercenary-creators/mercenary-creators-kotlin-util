@@ -28,56 +28,168 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 import java.util.concurrent.atomic.*
 import kotlin.reflect.KClass
-
+@FrameworkDsl
+@IgnoreForSerialize
 object SameAndHashCode {
 
     @JvmStatic
-    @CreatorsDsl
-    fun isEverySameAs(vararg args: Maybe): Boolean {
-        val size = args.size
-        if (size.isNotEven()) {
-            return false.toBoolean()
+    @FrameworkDsl
+    fun isSameAs(value: Array<*>, other: Array<*>): Boolean {
+        if (value === other) {
+            return true
         }
-        for (i in 0 until size step 2) {
-            if (isNotSameAs(args[i], args[i + 1])) {
-                return false.toBoolean()
+        if (value.sizeOf() != other.sizeOf()) {
+            return false
+        }
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        for (i in value.indices) {
+            val v = value[i]
+            val o = other[i]
+            if (v === o) {
+                continue
+            }
+            if ((v == null) && (o != null)) {
+                return false
+            }
+            if (isSameAs(v, o)) {
+                continue
             }
         }
-        return true.toBoolean()
+        return true
     }
 
     @JvmStatic
-    @CreatorsDsl
-    fun isEverySameAs(args: Iterable<Pair<Any?, Any?>>): Boolean {
-        for ((value, other) in args) {
-            if (isNotSameAs(value, other)) {
-                return false.toBoolean()
-            }
+    @FrameworkDsl
+    fun isSameAs(value: Set<*>, other: Set<*>): Boolean {
+        if (value === other) {
+            return true
         }
-        return true.toBoolean()
+        if (value.sizeOf() != other.sizeOf()) {
+            return false
+        }
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        return isSameAs(value.toList(), other.toList())
     }
 
     @JvmStatic
-    @CreatorsDsl
-    fun isEverySameAs(args: Sequence<Pair<Any?, Any?>>): Boolean {
-        for ((value, other) in args) {
-            if (isNotSameAs(value, other)) {
-                return false.toBoolean()
+    @FrameworkDsl
+    fun isSameAs(value: List<*>, other: List<*>): Boolean {
+        if (value === other) {
+            return true
+        }
+        if (value.sizeOf() != other.sizeOf()) {
+            return false
+        }
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        for (i in value.indices) {
+            val v = value[i]
+            val o = other[i]
+            if (v === o) {
+                continue
+            }
+            if ((v == null) && (o != null)) {
+                return false
+            }
+            if (isSameAs(v, o)) {
+                continue
             }
         }
-        return true.toBoolean()
+        return true
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
+    fun isSameAs(value: Collection<*>, other: Collection<*>): Boolean {
+        if (value === other) {
+            return true
+        }
+        if (value.sizeOf() != other.sizeOf()) {
+            return false
+        }
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        return isSameAs(value.toList(), other.toList())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun isSameAs(value: Iterable<*>, other: Iterable<*>): Boolean {
+        if (value === other) {
+            return true
+        }
+        return when (value) {
+            is Set<*> -> if (other is Set<*>) isSameAs(value, other) else false
+            is List<*> -> if (other is List<*>) isSameAs(value, other) else false
+            is Collection<*> -> if (other is Collection<*>) isSameAs(value, other) else false
+            else -> isSameAs(value.toList(), other.toList())
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun isSameAs(value: Map<*, *>, other: Map<*, *>): Boolean {
+        if (value === other) {
+            return true
+        }
+        if (value.sizeOf() != other.sizeOf()) {
+            return false
+        }
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        try {
+            for ((k, v) in value) {
+                if (other isKeyNotDefined k) {
+                    return false
+                }
+                val o = other[k]
+                if (o === v) {
+                    continue
+                }
+                if (v == null && o != null) {
+                    return false
+                }
+                if (isSameAs(v, o)) {
+                    continue
+                }
+            }
+        } catch (cause: Throwable) {
+            return Throwables.fatal(cause, false)
+        }
+        return true
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun isSameAs(value: Map.Entry<*, *>, other: Map.Entry<*, *>): Boolean {
+        if (value === other) {
+            return true
+        }
+        return isSameAs(value.key, other.key) && isSameAs(value.value, other.value)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
     fun isSameAs(value: Any?, other: Any?): Boolean {
         if (value === other) {
-            return true.toBoolean()
+            return true
         }
         return when (value) {
             null -> other == null
-            is String -> if (other is String) value == other else false.toBoolean()
-            is Array<*> -> if (other is Array<*>) value isSameArrayAs other else false.toBoolean()
+            is String -> if (other is String) value == other else false
+            is Set<*> -> if (other is Set<*>) isSameAs(value, other) else false
+            is List<*> -> if (other is List<*>) isSameAs(value, other) else false
+            is Array<*> -> if (other is Array<*>) isSameAs(value, other) else false
+            is Map<*, *> -> if (other is Map<*, *>) isSameAs(value, other) else false
+            is Iterable<*> -> if (other is Iterable<*>) isSameAs(value, other) else false
+            is Map.Entry<*, *> -> if (other is Map.Entry<*, *>) isSameAs(value, other) else false
             is IntArray -> if (other is IntArray) value isSameArrayAs other else false.toBoolean()
             is ByteArray -> if (other is ByteArray) value isSameArrayAs other else false.toBoolean()
             is CharArray -> if (other is CharArray) value isSameArrayAs other else false.toBoolean()
@@ -122,15 +234,15 @@ object SameAndHashCode {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun isNotSameAs(value: Any?, other: Any?): Boolean = isSameAs(value, other).isNotTrue()
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun isContentCapable(value: Any?): Boolean = when (value) {
-        null -> false.toBoolean()
-        is URI -> true.toBoolean()
-        is URL -> true.toBoolean()
+        null -> false
+        is URI -> true
+        is URL -> true
         is File -> true.toBoolean()
         is Path -> true.toBoolean()
         is Reader -> true.toBoolean()
@@ -147,7 +259,7 @@ object SameAndHashCode {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun isContentSameAs(value: Any?, other: Any?): Boolean {
         if (value != null && other != null) {
             if (isContentCapable(value) && isContentCapable(other)) {
@@ -157,24 +269,24 @@ object SameAndHashCode {
                     if (v.size == o.size) {
                         for (i in v.indices) {
                             if (v[i] != o[i]) {
-                                return false.toBoolean()
+                                return false
                             }
                         }
-                        return true.toBoolean()
+                        return true
                     }
                 } catch (cause: Throwable) {
                 }
             }
         }
-        return isSameAs(value, other)
+        return false
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun isContentNotSameAs(value: Any?, other: Any?): Boolean = isContentSameAs(value, other).isNotTrue()
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     private fun contentOf(value: Any): ByteArray {
         return when (value) {
             is URI -> value.toByteArray()
@@ -190,70 +302,72 @@ object SameAndHashCode {
             is ContentResource -> value.getContentData()
             is ReadableByteChannel -> value.toByteArray()
             is InputStreamSupplier -> value.toByteArray()
+            is ByteArraySupplier -> value.getContentData()
             is ByteArrayOutputStream -> value.getContentData()
             else -> EMPTY_BYTE_ARRAY
         }
     }
 
     @JvmStatic
-    @CreatorsDsl
-    fun hashOf(vararg args: Any?, accumulator: (Int) -> Unit) {
-        args.forEach {
-            accumulator(hashOf(it))
-        }
-    }
-
-    @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun hashOf(value: Any?): Int {
         return when (value) {
-            null -> 0
-            is Path -> value.toFile().hashCode()
-            is Array<*> -> value.contentDeepHashCode()
-            is IntArray -> value.contentHashCode()
-            is ByteArray -> value.contentHashCode()
-            is CharArray -> value.contentHashCode()
-            is LongArray -> value.contentHashCode()
-            is ShortArray -> value.contentHashCode()
-            is FloatArray -> value.contentHashCode()
-            is DoubleArray -> value.contentHashCode()
-            is BooleanArray -> value.contentHashCode()
+            null -> HASH_NULL_VALUE
+            is Path -> value.hashOf()
+            is Array<*> -> value.hashOf()
+            is IntArray -> value.hashOf()
+            is ByteArray -> value.hashOf()
+            is CharArray -> value.hashOf()
+            is LongArray -> value.hashOf()
+            is ShortArray -> value.hashOf()
+            is FloatArray -> value.hashOf()
+            is DoubleArray -> value.hashOf()
+            is BooleanArray -> value.hashOf()
+            is Map<*, *> -> value.hashOf()
+            is Set<*> -> value.hashOf()
+            is List<*> -> value.hashOf()
+            is Iterable<*> -> value.hashOf()
+            is Iterator<*> -> value.hashOf()
+            is Map.Entry<*, *> -> value.hashOf()
             else -> value.hashCode()
         }
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun hashOf(vararg args: Any?): Int {
-        return hashOf(1.toAtomic(), *args)
+        return when (args.isExhausted()) {
+            true -> HASH_BASE_VALUE
+            else -> args.toIterator().hashOf()
+        }
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun idenOf(value: Any?): Int {
         return when (value) {
-            null -> 0
+            null -> HASH_NULL_VALUE
             else -> System.identityHashCode(value)
         }
     }
 
     @JvmStatic
-    @CreatorsDsl
-    private fun hashOf(hash: AtomicInteger, vararg args: Any?): Int {
-        hashOf(*args) {
-            hash * 31 + it
-        }
-        return hash.toInt()
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun nameOf(value: Any?): String {
+    @FrameworkDsl
+    fun nameOf(value: Any): String {
         return when (value) {
-            null -> NULLS_STRING
             is Class<*> -> value.name
             is KClass<*> -> value.java.name
             else -> value.javaClass.name
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun simpleNameOf(value: Any): String {
+        return when (value) {
+            is Class<*> -> if (value.isKotlinClass()) "kotlin." + value.simpleName else value.simpleName
+            is KClass<*> -> simpleNameOf(value.java)
+            else -> simpleNameOf(value.javaClass)
         }
     }
 }

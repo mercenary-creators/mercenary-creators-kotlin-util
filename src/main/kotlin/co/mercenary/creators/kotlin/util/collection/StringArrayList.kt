@@ -18,50 +18,57 @@ package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
 
-class StringArrayList @JvmOverloads @CreatorsDsl constructor(capacity: Int = DEFAULT_LIST_CAPACITY) : AbstractBasicMutableList<String, StringArrayList>(capacity) {
+class StringArrayList @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_LIST_CAPACITY) : AbstractBasicMutableList<String, StringArrayList>(capacity) {
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: String) : this() {
         append(args)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(vararg args: String) : this() {
-        append(args.toIterator())
+        if (args.isNotExhausted()) {
+            append(args.toCollection())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterator<String>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.toCollection())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Iterable<String>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.toCollection())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(args: Sequence<String>) : this() {
-        append(args)
+        if (args.isNotExhausted()) {
+            append(args.toCollection())
+        }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun copyOf() = StringArrayList(this)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = super.hashCode()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = super.toString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is StringArrayList -> other === this || super.equals(other)
+        is StringArrayList -> other === this || sizeOf() == other.sizeOf() && super.equals(other)
         else -> false
     }
 
     companion object {
-
         private const val serialVersionUID = 6L
     }
 }

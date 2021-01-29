@@ -29,6 +29,11 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
     constructor(self: TimeDuration) : this(self.time, self.unit)
 
     @CreatorsDsl
+    private val save: String by lazy {
+        text(time, unit).toTrimOr { text(unit) }
+    }
+
+    @CreatorsDsl
     fun unit() = unit
 
     @CreatorsDsl
@@ -114,7 +119,7 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
     override fun hashCode() = time.hashCode()
 
     @CreatorsDsl
-    override fun toString() = text(time, unit).toTrimOr { text(unit) }
+    override fun toString() = save
 
     companion object {
 

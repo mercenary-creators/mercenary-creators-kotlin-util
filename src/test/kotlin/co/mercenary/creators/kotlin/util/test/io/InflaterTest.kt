@@ -27,7 +27,7 @@ class InflaterTest : KotlinDataTest() {
         val make = Inflaters.gzip().deflate(data)
         info { make.toContentSize() }
         val back = Inflaters.gzip().inflate(make)
-        info { back.size }
+        info { back.sizeOf() }
         info { Inflaters.gzip().deflate(data, EmptyOutputStream) }
         val file = getTempFileNamed()
         info { Inflaters.gzip().deflate(data, file) }

@@ -23,13 +23,6 @@ import javax.xml.bind.DatatypeConverter
 object Encoders {
 
     @CreatorsDsl
-    private val DIGITS = "0123456789ABCDEF".toCharArray()
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getHexChar(code: Int): Char = DIGITS[code and 0xF]
-
-    @CreatorsDsl
     private fun String.convert(): ByteArray = DatatypeConverter.parseHexBinary(toLowerTrim())
 
     @CreatorsDsl

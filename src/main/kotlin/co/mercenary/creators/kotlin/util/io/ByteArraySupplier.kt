@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-interface ByteArraySupplier {
+ interface ByteArraySupplier {
 
     @CreatorsDsl
     @IgnoreForSerialize

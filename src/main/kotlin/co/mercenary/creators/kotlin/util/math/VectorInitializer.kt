@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util
+package co.mercenary.creators.kotlin.util.math
 
-fun interface Valued<out T> {
+import co.mercenary.creators.kotlin.util.*
 
-    @CreatorsDsl
-    fun value(): T
+@IgnoreForSerialize
+interface VectorInitializer {
+
+    @FrameworkDsl
+    fun initialize(size: Int): DoubleArray
 }

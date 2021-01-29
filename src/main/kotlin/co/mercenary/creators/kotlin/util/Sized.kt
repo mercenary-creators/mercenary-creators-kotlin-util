@@ -16,8 +16,8 @@
 
 package co.mercenary.creators.kotlin.util
 
-interface Sized {
+fun interface Sized {
 
-    @CreatorsDsl
-    val size: Int
+    @FrameworkDsl
+    fun sizeOf(): Int
 }

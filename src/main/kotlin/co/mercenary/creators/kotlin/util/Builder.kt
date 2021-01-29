@@ -18,6 +18,6 @@ package co.mercenary.creators.kotlin.util
 
 fun interface Builder<out T> {
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun build(): T
 }

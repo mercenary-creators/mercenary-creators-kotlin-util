@@ -20,36 +20,17 @@ package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
 
-abstract class AbstractBasicMutableList<T, M : AbstractBasicMutableList<T, M>> @JvmOverloads constructor(capacity: Int = DEFAULT_LIST_CAPACITY) : ArrayList<T>(capacity.toListCapacity()), MutableSizedContainer, MutableList<T>, Copyable<M>, Cloneable {
+abstract class AbstractBasicMutableList<T, M : AbstractBasicMutableList<T, M>> @JvmOverloads constructor(capacity: Int = DEFAULT_LIST_CAPACITY) : ProxyMutableList<T>(capacity.toArrayList()) {
 
-    @CreatorsDsl
-    override val size: Int
-        @IgnoreForSerialize
-        get() = super.size
+    @FrameworkDsl
+    override fun hashCode() = super.hashCode()
 
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun isEmpty(): Boolean = size == 0
+    @FrameworkDsl
+    override fun toString() = super.toString()
 
-    @CreatorsDsl
-    override fun toArray(): Array<T> {
-        return super.toArray().copyOf() as Array<T>
-    }
-
-    @CreatorsDsl
-    override fun clone(): M {
-        return copyOf()
-    }
-
-    @CreatorsDsl
-    override fun hashCode() = toListHashOf()
-
-    @CreatorsDsl
-    override fun toString() = toSafeString()
-
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is AbstractBasicMutableList<*, *> -> other === this || size == other.size && super.equals(other)
+        is AbstractBasicMutableList<*, *> -> other === this || sizeOf() == other.sizeOf() && super.equals(other)
         else -> false
     }
 

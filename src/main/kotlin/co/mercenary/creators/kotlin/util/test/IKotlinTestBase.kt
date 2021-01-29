@@ -36,45 +36,45 @@ interface IKotlinTestBase : ILoggingBase {
 
     val printer: (Int, String) -> Unit
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getTempFileNamed(name: String = uuid(), suff: String = ".tmp"): File
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getTempFileNamedPath(name: String, suff: String): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getConfigPropertiesBuilder(): () -> Properties
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun dash(size: Int = 64): String
 
     @LoggingWarnDsl
     fun dashes(size: Int = 64)
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun uuid(): String
 
-    @CreatorsDsl
-    fun String.toLink() = toURL()
+    @FrameworkDsl
+    fun String.toLink() = linkOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getConfigProperty(name: String, other: String = EMPTY_STRING): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun setConfigProperties(vararg args: Pair<String, Any?>)
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun setConfigProperties(args: Map<String, Any?>)
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T : Throwable> addThrowableAsFatal(type: Class<T>)
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun <T : Throwable> addThrowableAsFatal(type: KClass<T>)
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun here(): Map<String, Any>
 
     @LoggingInfoDsl
@@ -88,46 +88,4 @@ interface IKotlinTestBase : ILoggingBase {
 
     @LoggingInfoDsl
     fun annotations(type: Class<*>)
-
-    @CreatorsDsl
-    fun fail(text: String): Nothing
-
-    @CreatorsDsl
-    fun fail(func: () -> Any?): Nothing
-
-    @CreatorsDsl
-    fun assertTrueOf(condition: Boolean, func: () -> Any?)
-
-    @CreatorsDsl
-    fun assertNotTrueOf(condition: Boolean, func: () -> Any?)
-
-    @CreatorsDsl
-    fun getThrowableOf(func: () -> Unit): Throwable?
-
-    @CreatorsDsl
-    fun assumeEach(block: IAssumeCollector.() -> Unit)
-
-    @CreatorsDsl
-    infix fun <T : Any?> T.shouldBe(value: T)
-
-    @CreatorsDsl
-    infix fun <T : Any?> T.shouldNotBe(value: T)
-
-    @CreatorsDsl
-    infix fun <T : Any?> T.shouldBeSameContent(value: T)
-
-    @CreatorsDsl
-    infix fun <T : Any?> T.shouldNotBeSameContent(value: T)
-
-    @CreatorsDsl
-    infix fun <T : Any> T.shouldBeIdentity(value: T)
-
-    @CreatorsDsl
-    infix fun <T : Any> T.shouldNotBeIdentity(value: T)
-
-    @CreatorsDsl
-    fun <T : Any?> T.shouldBeNull()
-
-    @CreatorsDsl
-    fun <T : Any?> T.shouldNotBeNull()
 }

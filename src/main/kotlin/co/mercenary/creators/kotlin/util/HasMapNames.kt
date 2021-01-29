@@ -18,6 +18,6 @@ package co.mercenary.creators.kotlin.util
 
 fun interface HasMapNames {
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun toMapNames(): AnyDictionary
 }

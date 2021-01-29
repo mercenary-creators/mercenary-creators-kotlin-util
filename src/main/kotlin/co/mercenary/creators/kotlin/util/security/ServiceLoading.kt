@@ -24,19 +24,19 @@ import kotlin.reflect.KClass
 object ServiceLoading {
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
-    fun <T : Any> loaderOf(type: Class<T>, load: ClassLoader? = null): ServiceLoader<T> = SecureAccess.priviledgedActionOf {
+    fun <T : Any> loaderOf(type: Class<T>, load: ClassLoader? = null): ServiceLoader<T> = SecureAccess.doPrivileged {
         serviceOf(type, load)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun <T : Any> loaderOf(type: KClass<T>, load: ClassLoader? = null): ServiceLoader<T> = loaderOf(type.java, load)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     private fun <T : Any> serviceOf(type: Class<T>, load: ClassLoader?): ServiceLoader<T> = when (load) {
         null -> ServiceLoader.load(type)
         else -> ServiceLoader.load(type, load)

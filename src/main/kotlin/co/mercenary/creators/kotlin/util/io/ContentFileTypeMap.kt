@@ -23,46 +23,51 @@ import javax.activation.MimetypesFileTypeMap
 @IgnoreForSerialize
 class ContentFileTypeMap : HasMapNames {
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor() : this(DEFAULT_FILE, DEFAULT_PROP)
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(file: String, prop: String) {
         val (name, maps) = read(prop(file, prop))
         this.name = name
         this.maps = maps
     }
 
+    @FrameworkDsl
     private val name: String
 
+    @FrameworkDsl
     private val maps: MimetypesFileTypeMap
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(file: File): String = maps.getContentType(file).toLowerTrim()
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(name: String): String = maps.getContentType(name).toLowerTrim()
 
-    override fun toString() = toMapNames().toString()
+    @FrameworkDsl
+    override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
-    override fun toMapNames() = dictOf("name" to name, "type" to javaClass.name)
+    @FrameworkDsl
+    override fun toMapNames() = dictOf("name" to name, "type" to nameOf())
 
     companion object {
 
+        @FrameworkDsl
         const val DEFAULT_PROP = "co.mercenary.creators.kotlin.mime.file"
 
+        @FrameworkDsl
         const val DEFAULT_FILE = "MIME-INF/co-mercenary-creators-kotlin-mime.types"
 
-        @CreatorsDsl
+        @FrameworkDsl
         private fun prop(file: String, prop: String): String {
             return System.getProperty(prop.toTrimOr(DEFAULT_PROP), file.toTrimOr(DEFAULT_FILE))
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         private fun read(file: String): Pair<String, MimetypesFileTypeMap> {
             return when (val data = IO.getInputStream(file)) {
-                null -> when (file isNotSameAs DEFAULT_FILE) {
+                null -> when (file != DEFAULT_FILE) {
                     true -> when (val open = IO.getInputStream(DEFAULT_FILE)) {
                         null -> DUNNO_STRING to MimetypesFileTypeMap()
                         else -> DEFAULT_FILE to open.use { MimetypesFileTypeMap(it) }

@@ -21,13 +21,13 @@ import co.mercenary.creators.kotlin.util.*
 @IgnoreForSerialize
 abstract class StringFormatterService(protected val order: Int) : Comparable<StringFormatterService> {
 
-    @CreatorsDsl
+    @FrameworkDsl
     abstract fun toSafeString(data: Any): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     abstract fun isValidClass(data: Any): Boolean
 
-    @CreatorsDsl
+    @FrameworkDsl
     override operator fun compareTo(other: StringFormatterService): Int {
         return order.compareTo(other.order)
     }

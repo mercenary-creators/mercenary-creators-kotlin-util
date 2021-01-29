@@ -20,7 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.io.*
 
 @IgnoreForSerialize
-interface LaunchRunner : OpenAutoClosable, InputStreamSupplier, OutputStreamSupplier, ErrorInputStreamSupplier, Alive {
+interface LaunchRunner : OpenAutoClosable, InputStreamSupplier, OutputStreamSupplier, ErrorInputStreamSupplier, Alive, HasMapNames {
 
     @CreatorsDsl
     fun codeOf(): Int

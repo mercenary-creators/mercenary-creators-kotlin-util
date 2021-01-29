@@ -18,10 +18,39 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import java.io.Reader
+import java.nio.CharBuffer as NIOSource
 
 @CreatorsDsl
 @IgnoreForSerialize
-object EmptyReader : Reader() {
+object EmptyReader : Reader(), HasMapNames {
+
+    @CreatorsDsl
+    override fun ready() = true
+
+    @CreatorsDsl
+    override fun reset() = Unit
+
+    @CreatorsDsl
     override fun close() = Unit
-    override fun read(cbuf: CharArray, off: Int, len: Int) = IS_NOT_FOUND
+
+    @CreatorsDsl
+    override fun mark(mark: Int) = Unit
+
+    @CreatorsDsl
+    override fun read(): Int = IS_NOT_FOUND
+
+    @CreatorsDsl
+    override fun read(cbuf: NIOSource): Int = IS_NOT_FOUND
+
+    @CreatorsDsl
+    override fun read(cbuf: CharArray): Int = IS_NOT_FOUND
+
+    @CreatorsDsl
+    override fun read(cbuf: CharArray, off: Int, len: Int): Int = IS_NOT_FOUND
+
+    @CreatorsDsl
+    override fun toString() = toMapNames().toSafeString()
+
+    @CreatorsDsl
+    override fun toMapNames() = dictOf("type" to nameOf())
 }

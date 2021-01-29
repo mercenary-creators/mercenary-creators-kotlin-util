@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util
+package co.mercenary.creators.kotlin.util.security
 
-fun interface Threshold {
+import co.mercenary.creators.kotlin.util.*
 
-    @CreatorsDsl
-    fun threshold(): Int
-}
+@IgnoreForSerialize
+interface SecureArray<B : SecureArray<B>> : SizedContainer, StandardInterfaces<B>
