@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class SecureByteArray @FrameworkDsl constructor(data: ByteArray) : SecureBytes<S
     }
 
     @FrameworkDsl
-    override fun toMapNames() = dictOf("size" to sizeOf(), "type" to nameOf())
+    override fun toMapNames() = dictOfType<SecureByteArray>("size" to sizeOf())
 
     @FrameworkDsl
     override fun clone() = copyOf()
@@ -56,7 +56,7 @@ class SecureByteArray @FrameworkDsl constructor(data: ByteArray) : SecureBytes<S
     override fun copyOf() = SecureByteArray(this)
 
     @FrameworkDsl
-    override fun toString() = nameOf()
+    override fun toString() = dictOfType<SecureByteArray>().toSafeString()
 
     @FrameworkDsl
     override fun hashCode() = idenOf()
@@ -78,7 +78,7 @@ class SecureByteArray @FrameworkDsl constructor(data: ByteArray) : SecureBytes<S
         @JvmStatic
         @FrameworkDsl
         private fun swapof(data: ByteArray): IntArray {
-            return if (data.sizeOf() < 2) EMPTY_INTS_ARRAY else Randoms.shuffled(data.indices).toIntArray()
+            return if (data.sizeOf() < 2) EMPTY_INTS_ARRAY else Randoms.shuffled(data.indices)
         }
 
         @JvmStatic
@@ -88,7 +88,7 @@ class SecureByteArray @FrameworkDsl constructor(data: ByteArray) : SecureBytes<S
                 0 -> EMPTY_BYTE_ARRAY
                 1 -> data.toByteArray()
                 else -> when (init.isTrue()) {
-                    true -> ByteArray(size) { iter -> data[swap[iter]] }
+                    true -> size.toByteArray() { iter -> data[swap[iter]] }
                     else -> data.toByteArray().also { self ->
                         size.forEach { iter ->
                             swap[iter].also { flip ->

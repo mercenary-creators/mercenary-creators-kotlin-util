@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,11 @@ object Manager : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
-    fun process(): String {
+    fun process(): Int {
         return try {
-            ManagementFactory.getRuntimeMXBean().name.split("@")[0].toTrimOr("0").padStart(10, '0')
+            ManagementFactory.getRuntimeMXBean().name.split("@")[0].toTrimOr("0").toIntOrElse()
         } catch (cause: Throwable) {
-            "?".padStart(10, '?')
+            IS_NOT_FOUND
         }
     }
 
@@ -58,14 +58,24 @@ object Manager : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
-    fun memory(): List<MemoryUsageData> = toListOf(heapMemuryUsage(), otherMemoryUsage())
+    fun memory(): List<MemoryUsageData> = listOf(heapMemuryUsage(), otherMemoryUsage())
+
+    @JvmStatic
+    @FrameworkDsl
+    fun load(): Double {
+        return try {
+            ManagementFactory.getOperatingSystemMXBean().systemLoadAverage
+        } catch (cause: Throwable) {
+            -1.0
+        }
+    }
 
     @JvmStatic
     @FrameworkDsl
     fun system(): AnyDictionary {
         return try {
             ManagementFactory.getOperatingSystemMXBean().let { data ->
-                dictOf("name" to data.name, "arch" to data.arch, "version" to data.version)
+                dictOf("name" to data.name, "arch" to data.arch, "version" to data.version, "load" to data.systemLoadAverage)
             }
         } catch (cause: Throwable) {
             dictOf()

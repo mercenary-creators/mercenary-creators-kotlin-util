@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
 object Escapers : HasMapNames {
+
+    @FrameworkDsl
+    const val ASCII_FFCODE = 12
 
     @FrameworkDsl
     const val ASCII_MINVAL = 32
@@ -49,7 +52,7 @@ object Escapers : HasMapNames {
     const val ASCII_CRCHAR = '\r'
 
     @FrameworkDsl
-    const val ASCII_FFCHAR = 12.toChar()
+    const val ASCII_FFCHAR = ASCII_FFCODE.toChar()
 
     @FrameworkDsl
     private val ASCII_TABLE: BooleanArray by lazy {
@@ -58,10 +61,10 @@ object Escapers : HasMapNames {
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = dictOf("type" to nameOf())
 
     @JvmStatic
@@ -78,7 +81,7 @@ object Escapers : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
-    fun isAscii(string: String): Boolean {
+    fun isAscii(string: CharSequence): Boolean {
         if (string.isNotExhausted()) {
             for (char in string) {
                 if (isAscii(char.toCode()).isNotTrue()) {
@@ -94,10 +97,10 @@ object Escapers : HasMapNames {
     @JvmOverloads
     fun toEscapedString(string: String, quoted: Boolean = false): String {
         if (isAscii(string)) {
-            return if (quoted) "\"$string\"" else string
+            return if (quoted.isTrue()) "\"$string\"" else string
         }
-        return stringOf(string.length * 2) {
-            if (quoted) {
+        return stringOf(string.sizeOf() * 2) {
+            if (quoted.isTrue()) {
                 add(DOUBLE_QUOTE)
             }
             for (char in string) {
@@ -124,7 +127,7 @@ object Escapers : HasMapNames {
                     }
                 }
             }
-            if (quoted) {
+            if (quoted.isTrue()) {
                 add(DOUBLE_QUOTE)
             }
         }

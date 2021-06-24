@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,44 @@
 package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
-import java.util.*
-import kotlin.collections.*
 
 internal typealias Collections = java.util.Collections
 
-internal typealias DeckArrayList<T> = ArrayDeque<T>
+internal typealias LinkCachedMap<T> = LRUCacheMap<T, Maybe>
 
-internal typealias LinkArrayList<T> = LinkedList<T>
+internal typealias DictMaybeMap = BasicDictionaryMap<Maybe>
 
-internal typealias CopyArrayList<T> = java.util.concurrent.CopyOnWriteArrayList<T>
+internal typealias LinkedDeque<T> = java.util.concurrent.ConcurrentLinkedDeque<T>
+
+@FrameworkDsl
+fun <T> Collection<T>.toLinkedDeque(): LinkedDeque<T> {
+    return LinkedDeque(this)
+}
+
+@FrameworkDsl
+inline fun <T : Any> Array<T>.toBasicLinkedSet(): BasicLinkedSet<T> {
+    return BasicLinkedSet(toIterator())
+}
+
+@FrameworkDsl
+inline fun <T> Collection<T>.toBasicLinkedSet(): BasicLinkedSet<T> {
+    return BasicLinkedSet(toIterator())
+}
+
+@FrameworkDsl
+inline fun <T> Iterable<T>.toBasicLinkedSet(): BasicLinkedSet<T> {
+    return BasicLinkedSet(toIterator())
+}
+
+@FrameworkDsl
+inline fun <T> Iterator<T>.toBasicLinkedSet(): BasicLinkedSet<T> {
+    return BasicLinkedSet(toIterator())
+}
+
+@FrameworkDsl
+inline fun <T> Sequence<T>.toBasicLinkedSet(): BasicLinkedSet<T> {
+    return BasicLinkedSet(toIterator())
+}
 
 @FrameworkDsl
 inline fun <T> Int.toArrayList(): ArrayList<T> {
@@ -43,32 +71,52 @@ inline fun <T> Collection<T>.toArrayList(): ArrayList<T> {
 
 @FrameworkDsl
 inline fun <T> Array<T>.toArrayList(): ArrayList<T> {
-    return toCollection().toArrayList()
+    return ArrayList(toList())
 }
 
 @FrameworkDsl
 inline fun <T> Iterable<T>.toArrayList(): ArrayList<T> {
-    return toCollection().toArrayList()
+    return toIterator().toArrayList()
 }
 
 @FrameworkDsl
 inline fun <T> Iterator<T>.toArrayList(): ArrayList<T> {
-    return toCollection().toArrayList()
+    val self = this
+    return ArrayList<T>().also { list ->
+        self.forEach { list.add(it) }
+    }
 }
 
 @FrameworkDsl
 inline fun <T> Sequence<T>.toArrayList(): ArrayList<T> {
-    return toCollection().toArrayList()
+    return toIterator().toArrayList()
 }
 
 @FrameworkDsl
-inline fun <T> MutableList<T>.reset() {
-    clear()
+inline fun <T> ArrayList<T>.reset() {
+    locked(this) {
+        clear()
+        trimToSize()
+    }
 }
+
+@FrameworkDsl
+fun isJustArrayList(list: MutableList<*>): Boolean = list is ArrayList
+
+@FrameworkDsl
+fun isCopyArrayList(list: MutableList<*>): Boolean = list is CopyArrayList
+
+@FrameworkDsl
+fun isDeckArrayList(list: MutableList<*>): Boolean = list is DeckArrayList
+
+@FrameworkDsl
+fun isLinkArrayList(list: MutableList<*>): Boolean = list is LinkArrayList
 
 @FrameworkDsl
 inline fun <T> ArrayList<T>.trim(): ArrayList<T> {
-    trimToSize()
+    locked(this) {
+        trimToSize()
+    }
     return this
 }
 
@@ -89,13 +137,21 @@ inline fun Sized.rangecheckadd(index: Int): Int {
 }
 
 @FrameworkDsl
+inline fun Sized.isOverLimit(limit: Int): Boolean {
+    if (limit.isNegative()) {
+        return false
+    }
+    return sizeOf() >= 0 && sizeOf() > limit
+}
+
+@FrameworkDsl
 inline fun <T> ArrayList<T>.toArray(copy: Boolean): Array<T> {
     return (toArray() as Array<T>).toArray(copy.isTrue())
 }
 
 @FrameworkDsl
- fun <T> toArray(list: Collection<T>, copy: Boolean = false): Array<T> {
-    return list.toArrayList().toArray(copy.isTrue())
+inline fun <T> List<T>.toArray(copy: Boolean): Array<T> {
+    return toArrayList().toArray(copy.isTrue())
 }
 
 

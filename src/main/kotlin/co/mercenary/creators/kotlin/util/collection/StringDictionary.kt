@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
 
-open class StringDictionary @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY, factor: Double = DEFAULT_MAP_FACTOR, order: Boolean = false) : BasicDictionaryMap<String>(capacity, factor, order) {
+open class StringDictionary @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY, order: Boolean = false, capped: Boolean = false) : BasicDictionaryMap<String>(capacity, order, capped) {
 
     @FrameworkDsl
     constructor(k: String, v: String) : this() {
@@ -73,6 +73,13 @@ open class StringDictionary @JvmOverloads @FrameworkDsl constructor(capacity: In
     }
 
     @FrameworkDsl
+    constructor(args: StringDictionary) : this(order = args.isOrdered(), capped = args.isSizeCapped()) {
+        if (args.isNotExhausted()) {
+            append(args)
+        }
+    }
+
+    @FrameworkDsl
     override fun clone() = copyOf()
 
     @FrameworkDsl
@@ -91,6 +98,7 @@ open class StringDictionary @JvmOverloads @FrameworkDsl constructor(capacity: In
     }
 
     companion object {
+
         private const val serialVersionUID = 5L
     }
 }

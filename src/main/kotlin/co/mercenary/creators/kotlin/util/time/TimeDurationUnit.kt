@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,37 +20,37 @@ import co.mercenary.creators.kotlin.util.*
 
 enum class TimeDurationUnit {
 
-    @CreatorsDsl
+    @FrameworkDsl
     YEARS,
 
-    @CreatorsDsl
+    @FrameworkDsl
     WEEKS,
 
-    @CreatorsDsl
+    @FrameworkDsl
     DAYS,
 
-    @CreatorsDsl
+    @FrameworkDsl
     HOURS,
 
-    @CreatorsDsl
+    @FrameworkDsl
     MINUTES,
 
-    @CreatorsDsl
+    @FrameworkDsl
     SECONDS,
 
-    @CreatorsDsl
+    @FrameworkDsl
     MILLISECONDS,
 
-    @CreatorsDsl
+    @FrameworkDsl
     NANOSECONDS;
 
-    @CreatorsDsl
-    private val lows = name.toLowerTrimEnglish()
+    @FrameworkDsl
+    private val lows = name.toLowerCaseEnglish()
 
-    @CreatorsDsl
-    private val tail = name.toLowerTrimEnglish().tail()
+    @FrameworkDsl
+    private val tail = name.toLowerCaseEnglish().tail()
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun next(): TimeDurationUnit? = when (this) {
         MILLISECONDS -> NANOSECONDS
         SECONDS -> MILLISECONDS
@@ -62,7 +62,7 @@ enum class TimeDurationUnit {
         else -> null
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
-    fun toLowerCase(full: Boolean = true) = if (full) lows else tail
+    fun toLowerCase(full: Boolean = true) = if (full.isTrue()) lows else tail
 }

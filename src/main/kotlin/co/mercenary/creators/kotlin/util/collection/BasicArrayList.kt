@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,37 +21,34 @@ import co.mercenary.creators.kotlin.util.*
 open class BasicArrayList<T> @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_LIST_CAPACITY) : AbstractBasicMutableList<T, BasicArrayList<T>>(capacity) {
 
     @FrameworkDsl
-    constructor(args: T) : this() {
+    constructor(args: T) : this(DEFAULT_LIST_CAPACITY) {
         append(args)
     }
 
     @FrameworkDsl
-    constructor(vararg args: T) : this() {
+    constructor(args: Collection<T>) : this(args.sizeOf()) {
         if (args.isNotExhausted()) {
-            append(args.toCollection())
+            append(args)
         }
     }
 
     @FrameworkDsl
-    constructor(args: Iterator<T>) : this() {
-        if (args.isNotExhausted()) {
-            append(args.toCollection())
-        }
-    }
+    constructor(vararg args: T) : this(args.toCollection())
 
     @FrameworkDsl
-    constructor(args: Iterable<T>) : this() {
-        if (args.isNotExhausted()) {
-            append(args.toCollection())
-        }
-    }
+    constructor(args: Iterator<T>) : this(args.toCollection())
 
     @FrameworkDsl
-    constructor(args: Sequence<T>) : this() {
-        if (args.isNotExhausted()) {
-            append(args.toCollection())
-        }
-    }
+    constructor(args: Iterable<T>) : this(args.toCollection())
+
+    @FrameworkDsl
+    constructor(args: Sequence<T>) : this(args.toCollection())
+
+    @FrameworkDsl
+    constructor(args: BasicArrayList<T>) : this(args.toCollection())
+
+    @FrameworkDsl
+    override fun clone() = copyOf()
 
     @FrameworkDsl
     override fun copyOf() = BasicArrayList(this)
@@ -64,11 +61,12 @@ open class BasicArrayList<T> @JvmOverloads @FrameworkDsl constructor(capacity: I
 
     @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is BasicArrayList<*> -> other === this || sizeOf() == other.sizeOf() && super.equals(other)
+        is BasicArrayList<*> -> other === this || super.equals(other)
         else -> false
     }
 
     companion object {
+
         private const val serialVersionUID = 5L
     }
 }

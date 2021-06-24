@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
 class LogsTest : KotlinTest() {
+
     @Test
     fun test() {
         info { 16 }
@@ -40,7 +41,7 @@ class LogsTest : KotlinTest() {
         info { 16.toAtomic() }
         info { 1L.toAtomic() }
         info { loader["test.htm"] }
-        info { loader["http://jsonplaceholder.typicode.com/posts"] }
+        info { loader["https://jsonplaceholder.typicode.com/posts"] }
         info { 255.toBinaryString() }
         info { 255.toBinaryString().sizeOf() }
         info { 255.toBinaryString(0) }
@@ -48,20 +49,134 @@ class LogsTest : KotlinTest() {
         error { loggerOf().javaClass }
         error { loggerOf().underlyingLogger.javaClass }
         warn { dash() + BREAK_STRING + dash() }
-        timed {
-            repeat(100000000) {
-                Escapers.toEscapedString(CREATORS_AUTHOR_INFO, true)
-            }
+        error { dash() }
+        error { Common.getExposedMethods(MainDean, true) }
+        error { dash() }
+        dashes()
+        error { Common.getExposedMethods(MainData()) }
+        dashes()
+        error { Common.getExposedMethods(Encoders, true) }
+        dashes()
+        error { MainData().isDataClass() }
+        dashes()
+        toParameterizedTypeReference<List<Int>>().getType().also {
+            info { it.nameOf() }
+            dashes()
+            error { it is Class<*> }
+            dashes()
+            info { it.toErased().nameOf() }
+            dashes()
+            info { it.typeName }
+            dashes()
         }
-        timed {
-            repeat(100000000) {
-                Escapers.toEscapedString("Maël Hörz\n", true)
-            }
+        toParameterizedTypeReference<MainData>().getType().also {
+            info { it.nameOf() }
+            dashes()
+            error { it is Class<*> }
+            dashes()
+            info { it.toErased().nameOf() }
+            dashes()
+            info { it.typeName }
+            dashes()
         }
-        timed {
-            repeat(100000000) {
-                Escapers.toEscapedString(EMPTY_STRING, true)
-            }
+        toParameterizedTypeReference<Array<MainData>>().getType().also {
+            info { it.nameOf() }
+            dashes()
+            error { it is Class<*> }
+            dashes()
+            info { it.toErased().nameOf() }
+            dashes()
+            info { it.typeName }
+            dashes()
+        }
+        toParameterizedTypeReference<DoubleArray>().getType().also {
+            info { it.nameOf() }
+            dashes()
+            error { it is Class<*> }
+            dashes()
+            info { it.toErased().nameOf() }
+            dashes()
+            info { it.typeName }
+            dashes()
+        }
+        toParameterizedTypeReference<DoubleArray>().toJavaTypeOf().also {
+            warn { it.genericSignature }
+            dashes()
+            warn { it.rawClass.isKotlinClass() }
+            dashes()
+            warn { it.rawClass.name }
+            dashes()
+            warn { it.typeName }
+            dashes()
+            error { it.toCanonical() }
+        }
+        toParameterizedTypeReference<List<MainData>>().toJavaTypeOf().also {
+            warn { it.genericSignature }
+            dashes()
+            warn { it.rawClass.isKotlinClass() }
+            dashes()
+            warn { it.rawClass.name }
+            dashes()
+            warn { it.typeName }
+            dashes()
+            error { it.toCanonical() }
+        }
+        toParameterizedTypeReference<Array<MainData>>().toJavaTypeOf().also {
+            warn { it.genericSignature }
+            dashes()
+            warn { it.rawClass.isKotlinClass() }
+            dashes()
+            warn { it.rawClass.name }
+            dashes()
+            warn { it.typeName }
+            dashes()
+            error { it.toCanonical() }
+        }
+        toParameterizedTypeReference<TimeDuration>().toJavaTypeOf().also {
+            warn { it.genericSignature }
+            dashes()
+            warn { it.rawClass.isKotlinClass() }
+            dashes()
+            warn { it.rawClass.name }
+            dashes()
+            warn { it.typeName }
+            dashes()
+            error { it.toCanonical() }
+        }
+        toParameterizedTypeReference<Pair<String, TimeDuration>>().toJavaTypeOf().also {
+            warn { it.genericSignature }
+            dashes()
+            warn { it.rawClass.isKotlinClass() }
+            dashes()
+            warn { it.rawClass.name }
+            dashes()
+            warn { it.typeName }
+            dashes()
+            error { it.toCanonical() }
+        }
+        toParameterizedTypeReference<Sequence<Pair<String, TimeDuration>>>().toJavaTypeOf().also {
+            warn { it.genericSignature }
+            dashes()
+            warn { it.rawClass.isKotlinClass() }
+            dashes()
+            warn { it.rawClass.name }
+            dashes()
+            warn { it.typeName }
+            dashes()
+            error { it.toCanonical() }
+        }
+        DoubleArray::class.toJavaTypeOf().also {
+            error { it.genericSignature }
+            dashes()
+            error { it.rawClass.isKotlinClass() }
+            dashes()
+            error { it.rawClass.name }
+            dashes()
+            error { it.typeName }
+            dashes()
+            error { it.toCanonical() }
+            dashes()
+            error { it.isArrayType }
         }
     }
 }

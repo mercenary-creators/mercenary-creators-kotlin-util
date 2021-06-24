@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import co.mercenary.creators.kotlin.util.io.*
 import co.mercenary.creators.kotlin.util.logging.*
 import co.mercenary.creators.kotlin.util.logging.ILoggingBase
 import java.io.File
-import java.util.*
 import kotlin.reflect.KClass
 
 interface IKotlinTestBase : ILoggingBase {
@@ -45,7 +44,7 @@ interface IKotlinTestBase : ILoggingBase {
 
     @FrameworkDsl
     @IgnoreForSerialize
-    fun getConfigPropertiesBuilder(): () -> Properties
+    fun getConfigPropertiesBuilder(): Builder<SystemProperties>
 
     @FrameworkDsl
     fun dash(size: Int = 64): String
@@ -67,12 +66,6 @@ interface IKotlinTestBase : ILoggingBase {
 
     @FrameworkDsl
     fun setConfigProperties(args: Map<String, Any?>)
-
-    @FrameworkDsl
-    fun <T : Throwable> addThrowableAsFatal(type: Class<T>)
-
-    @FrameworkDsl
-    fun <T : Throwable> addThrowableAsFatal(type: KClass<T>)
 
     @FrameworkDsl
     fun here(): Map<String, Any>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 
-/*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 
 package co.mercenary.creators.kotlin.util.collection
 
@@ -41,23 +26,38 @@ open class ProxyMutableList<T> @JvmOverloads @FrameworkDsl constructor(self: Mut
     @FrameworkDsl
     constructor(capacity: Int = DEFAULT_LIST_CAPACITY) : this(capacity.toArrayList<T>(), false)
 
+    @JvmOverloads
     @FrameworkDsl
-    constructor(args: ProxyMutableList<T>) : this(args.toProxy(), false)
+    constructor(args: ProxyMutableList<T>, copy: Boolean = false) : this(args.toProxy(), copy.isTrue())
 
     @FrameworkDsl
     private val list = build(self, copy.isTrue())
 
     @FrameworkDsl
+    override fun sizeOf(): Int {
+        return list.sizeOf()
+    }
+
+    @FrameworkDsl
     override val size: Int
         @IgnoreForSerialize
-        get() = list.sizeOf()
+        get() = sizeOf()
 
     @FrameworkDsl
     internal fun toProxy() = list
 
     @FrameworkDsl
+    override fun trim() {
+        if (isArrayList()) {
+            if (list is ArrayList) {
+                list.trim()
+            }
+        }
+    }
+
+    @FrameworkDsl
     @IgnoreForSerialize
-    internal fun isArrayList(): Boolean {
+    override fun isArrayList(): Boolean {
         return list is ArrayList
     }
 
@@ -68,19 +68,20 @@ open class ProxyMutableList<T> @JvmOverloads @FrameworkDsl constructor(self: Mut
     }
 
     @FrameworkDsl
-    override fun trim() {
-        if (isArrayList()) {
-            when (list) {
-                is ArrayList -> synchronized(list) {
-                    list.trimToSize()
-                }
-            }
-        }
+    override fun clear() {
+        list.clear()
     }
 
     @FrameworkDsl
-    override fun clear() {
-        list.clear()
+    override fun reset() {
+        if (isArrayList()) {
+            if (list is ArrayList) {
+                list.reset()
+            }
+        }
+        else {
+            clear()
+        }
     }
 
     @FrameworkDsl
@@ -96,9 +97,17 @@ open class ProxyMutableList<T> @JvmOverloads @FrameworkDsl constructor(self: Mut
     @FrameworkDsl
     override fun pop(): T {
         if (isEmpty()) {
-            fail("${nameOf()}.pop()")
+            fail("${nameOf()}.pop() isEmpty()")
         }
         return removeAt(0)
+    }
+
+    @FrameworkDsl
+    override fun cut(): T {
+        if (isEmpty()) {
+            fail("${nameOf()}.cut() isEmpty()")
+        }
+        return removeAt(sizeOf() - 1)
     }
 
     @FrameworkDsl
@@ -110,9 +119,7 @@ open class ProxyMutableList<T> @JvmOverloads @FrameworkDsl constructor(self: Mut
     override fun clone() = copyOf()
 
     @FrameworkDsl
-    override fun copyOf(): ProxyMutableList<T> {
-        return ProxyMutableList(this)
-    }
+    override fun copyOf() = ProxyMutableList(this)
 
     @FrameworkDsl
     override fun indexOf(element: T): Int {
@@ -124,7 +131,7 @@ open class ProxyMutableList<T> @JvmOverloads @FrameworkDsl constructor(self: Mut
 
     @FrameworkDsl
     override operator fun iterator(): MutableIterator<T> {
-        return enhance(list.iterator())
+        return list.iterator()
     }
 
     @FrameworkDsl
@@ -163,22 +170,22 @@ open class ProxyMutableList<T> @JvmOverloads @FrameworkDsl constructor(self: Mut
 
     @FrameworkDsl
     override fun listIterator(): MutableListIterator<T> {
-        return enhance(list.listIterator())
+        return list.listIterator()
     }
 
     @FrameworkDsl
     override fun listIterator(index: Int): MutableListIterator<T> {
-        return enhance(list.listIterator(index))
+        return list.listIterator(index)
     }
 
     @FrameworkDsl
     override fun remove(element: T): Boolean {
-        return list.remove(element)
+        return isNotExhausted() && list.remove(element)
     }
 
     @FrameworkDsl
     override fun removeAll(elements: Collection<@UnsafeVariance T>): Boolean {
-        if (elements.isExhausted()) {
+        if (isExhausted() || elements.isExhausted()) {
             return false
         }
         return list.removeAll(elements)
@@ -201,7 +208,7 @@ open class ProxyMutableList<T> @JvmOverloads @FrameworkDsl constructor(self: Mut
 
     @FrameworkDsl
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> {
-        return enhance(list.subList(fromIndex, toIndex))
+        return list.subList(fromIndex, toIndex)
     }
 
     @FrameworkDsl
@@ -212,7 +219,7 @@ open class ProxyMutableList<T> @JvmOverloads @FrameworkDsl constructor(self: Mut
 
     @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is ProxyMutableList<*> -> other === this || sizeOf() == other.sizeOf() && SameAndHashCode.isSameAs(toProxy(), other.toProxy())
+        is ProxyMutableList<*> -> other === this || sizeOf() == other.sizeOf() && toProxy() isSameAs other.toProxy()
         else -> false
     }
 

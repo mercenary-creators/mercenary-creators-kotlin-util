@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,171 +14,179 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
+
 package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
 import java.math.BigDecimal
 import java.time.Duration
 
-class TimeDuration @CreatorsDsl private constructor(private val time: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable, Container {
+class TimeDuration @FrameworkDsl private constructor(private val time: Duration, private val unit: TimeDurationUnit) : Comparable<TimeDuration>, Copyable<TimeDuration>, Cloneable, Container {
 
-    @CreatorsDsl
+    @FrameworkDsl
     constructor(text: String) : this(parse(text))
 
-    @CreatorsDsl
-    constructor(self: TimeDuration) : this(self.time, self.unit)
+    @FrameworkDsl
+    constructor(self: TimeDuration) : this(self.time(), self.unit())
 
-    @CreatorsDsl
-    private val save: String by lazy {
-        text(time, unit).toTrimOr { text(unit) }
+    @FrameworkDsl
+    private val buff by lazy {
+        text(time(), unit()).toTrimOr { text(unit()) }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
+    internal inline fun time() = time
+
+    @FrameworkDsl
     fun unit() = unit
 
-    @CreatorsDsl
-    fun duration() = time.copyOf()
+    @FrameworkDsl
+    fun duration() = time().copyOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun plus(other: TimeDuration): TimeDuration {
-        return time.plus(other.time).build(unit)
+        return time().plus(other.time()).build(unit())
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun minus(other: TimeDuration): TimeDuration {
-        return time.minus(other.time).build(unit)
+        return time().minus(other.time()).build(unit())
     }
 
-    @CreatorsDsl
-    operator fun div(other: Int): TimeDuration = div(other.toDouble())
+    @FrameworkDsl
+    operator fun div(other: Int): TimeDuration = div(other.realOf())
 
-    @CreatorsDsl
-    operator fun div(other: Long): TimeDuration = div(other.toDouble())
+    @FrameworkDsl
+    operator fun div(other: Long): TimeDuration = div(other.realOf())
 
-    @CreatorsDsl
-    operator fun div(other: Short): TimeDuration = div(other.toDouble())
+    @FrameworkDsl
+    operator fun div(other: Short): TimeDuration = div(other.realOf())
 
-    @CreatorsDsl
-    operator fun div(other: Float): TimeDuration = div(other.toDouble())
+    @FrameworkDsl
+    operator fun div(other: Float): TimeDuration = div(other.realOf())
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun div(other: Double): TimeDuration {
         return when (other.toValidDivisor()) {
-            1.0 -> TimeDuration(time, unit)
-            else -> time.toBigDecimal().div(other).toDuration().build(unit)
+            1.0 -> TimeDuration(time(), unit())
+            else -> time().toBigDecimal().div(other).toDuration().build(unit())
         }
     }
 
-    @CreatorsDsl
-    operator fun times(other: Int): TimeDuration = times(other.toDouble())
+    @FrameworkDsl
+    operator fun times(other: Int): TimeDuration = times(other.realOf())
 
-    @CreatorsDsl
-    operator fun times(other: Long): TimeDuration = times(other.toDouble())
+    @FrameworkDsl
+    operator fun times(other: Long): TimeDuration = times(other.realOf())
 
-    @CreatorsDsl
-    operator fun times(other: Short): TimeDuration = times(other.toDouble())
+    @FrameworkDsl
+    operator fun times(other: Short): TimeDuration = times(other.realOf())
 
-    @CreatorsDsl
-    operator fun times(other: Float): TimeDuration = times(other.toDouble())
+    @FrameworkDsl
+    operator fun times(other: Float): TimeDuration = times(other.realOf())
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun times(other: Double): TimeDuration {
         return when (other.toFinite()) {
-            1.0 -> TimeDuration(time, unit)
-            0.0 -> TimeDuration(ZERO, unit)
-            else -> time.toBigDecimal().times(other).toDuration().build(unit)
+            1.0 -> TimeDuration(time(), unit())
+            0.0 -> TimeDuration(zero(), unit())
+            else -> time().toBigDecimal().times(other).toDuration().build(unit())
         }
     }
 
-    @CreatorsDsl
-    operator fun unaryPlus() = TimeDuration(time.abs(), unit)
+    @FrameworkDsl
+    operator fun unaryPlus() = TimeDuration(time().abs(), unit())
 
-    @CreatorsDsl
-    operator fun unaryMinus() = TimeDuration(time.negated(), unit)
+    @FrameworkDsl
+    operator fun unaryMinus() = TimeDuration(time().negated(), unit())
 
-    @CreatorsDsl
-    override operator fun compareTo(other: TimeDuration) = time.compareTo(other.time)
+    @FrameworkDsl
+    override operator fun compareTo(other: TimeDuration) = time().compareTo(other.time())
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clone() = copyOf()
 
-    @CreatorsDsl
-    override fun copyOf() = TimeDuration(time.copyOf(), unit)
+    @FrameworkDsl
+    override fun copyOf() = TimeDuration(duration(), unit())
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun isEmpty() = isEmpty(time)
+    override fun isEmpty() = isEmpty(time())
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is TimeDuration -> this === other || time == other.time
+        is TimeDuration -> this === other || time() == other.time()
         else -> false
     }
 
-    @CreatorsDsl
-    override fun hashCode() = time.hashCode()
+    @FrameworkDsl
+    override fun hashCode() = if (isEmpty()) HASH_NULL_VALUE else time().hashCode()
 
-    @CreatorsDsl
-    override fun toString() = save
+    @FrameworkDsl
+    override fun toString() = buff.copyOf()
 
     companion object {
 
-        @CreatorsDsl
+        @FrameworkDsl
         private const val NANOS_SHIFTED = 9
 
-        @CreatorsDsl
+        @FrameworkDsl
         private const val DAYS_PER_WEEK = 7L
 
-        @CreatorsDsl
+        @FrameworkDsl
         private const val DAYS_PER_YEAR = 365L
 
-        @CreatorsDsl
+        @FrameworkDsl
         private const val SECONDS_PER_TICK = 60L
 
-        @CreatorsDsl
+        @FrameworkDsl
         private const val MILLS_PER_SECOND = 1000L
 
-        @CreatorsDsl
+        @FrameworkDsl
         private const val NANOS_PER_SECOND = 1000000000L
 
-        @CreatorsDsl
+        @FrameworkDsl
         private const val SECONDS_PER_HOUR = SECONDS_PER_TICK * 60L
 
-        @CreatorsDsl
+        @FrameworkDsl
         private const val SECONDS_PER_DAYS = SECONDS_PER_HOUR * 24L
 
-        @CreatorsDsl
+        @FrameworkDsl
         private const val SECONDS_PER_WEEK = SECONDS_PER_DAYS * DAYS_PER_WEEK
 
-        @CreatorsDsl
+        @FrameworkDsl
         private const val SECONDS_PER_YEAR = SECONDS_PER_DAYS * DAYS_PER_YEAR
 
-        @CreatorsDsl
+        @FrameworkDsl
         private val NANOS_PER_SECOND_VALUE = NANOS_PER_SECOND.toBigInteger()
 
-        @CreatorsDsl
-        private val ZERO = Duration.ZERO
-
-        @CreatorsDsl
+        @FrameworkDsl
         private val GLOB = Regex("\\h+")
 
-        @CreatorsDsl
+        @FrameworkDsl
         private val HASH = atomicMapOf<String, TimeDuration>()
 
-        @CreatorsDsl
+        @FrameworkDsl
         private val Duration.nanos: Long
-            get() = nano.toLong()
+            get() = nano.longOf()
 
-        @CreatorsDsl
+        @FrameworkDsl
+        private fun zero() = Duration.ZERO
+
+        @FrameworkDsl
+        private fun cashe(text: String, block: (String) -> TimeDuration) = HASH.computeIfAbsent(text.toLowerTrimEnglish(), block)
+
+        @FrameworkDsl
         private fun Duration.copyOf(): Duration = Duration.ofSeconds(seconds, nanos)
 
-        @CreatorsDsl
+        @FrameworkDsl
         private fun Duration.build(unit: TimeDurationUnit): TimeDuration = TimeDuration(this, less(this, unit))
 
-        @CreatorsDsl
+        @FrameworkDsl
         private fun Duration.toBigDecimal(): BigDecimal = seconds.toBigDecimal().plus(BigDecimal.valueOf(nanos, NANOS_SHIFTED))
 
-        @CreatorsDsl
+        @FrameworkDsl
         private fun BigDecimal.toDuration(): Duration = movePointRight(NANOS_SHIFTED).toBigIntegerExact().let { nano ->
             nano.divideAndRemainder(NANOS_PER_SECOND_VALUE).let {
                 if (it[0].bitLength() > 63) throw MercenaryFatalExceptiion("invalid capacity $nano") else Duration.ofSeconds(it[0].toLong(), it[1].toInt().toLong())
@@ -186,19 +194,31 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
+        private fun isZero(time: Duration): Boolean {
+            return time.isZero
+        }
+
+        @JvmStatic
+        @FrameworkDsl
+        private fun isNegative(time: Duration): Boolean {
+            return time.isNegative
+        }
+
+        @JvmStatic
+        @FrameworkDsl
         private fun isEmpty(time: Duration): Boolean {
             return time.isZero || time.isNegative
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         private fun text(unit: TimeDurationUnit, time: Long = 0L): String {
             return "$time ${unit.toLowerCase(time.absOf() != 1L)}"
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         private fun text(time: Duration, unit: TimeDurationUnit): String {
             if (isEmpty(time)) {
                 return EMPTY_STRING
@@ -259,222 +279,218 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
         }
 
         @JvmStatic
-        @CreatorsDsl
-        fun days(time: Int) = days(time.toLong())
+        @FrameworkDsl
+        fun days(time: Int) = days(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun weeks(time: Int) = weeks(time.toLong())
+        @FrameworkDsl
+        fun weeks(time: Int) = weeks(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun years(time: Int) = years(time.toLong())
+        @FrameworkDsl
+        fun years(time: Int) = years(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun hours(time: Int) = hours(time.toLong())
+        @FrameworkDsl
+        fun hours(time: Int) = hours(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun minutes(time: Int) = minutes(time.toLong())
+        @FrameworkDsl
+        fun minutes(time: Int) = minutes(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun seconds(time: Int) = seconds(time.toLong())
+        @FrameworkDsl
+        fun seconds(time: Int) = seconds(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun nanoseconds(time: Int) = nanoseconds(time.toLong())
+        @FrameworkDsl
+        fun nanoseconds(time: Int) = nanoseconds(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun milliseconds(time: Int) = milliseconds(time.toLong())
+        @FrameworkDsl
+        fun milliseconds(time: Int) = milliseconds(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun days(time: Short) = days(time.toLong())
+        @FrameworkDsl
+        fun days(time: Short) = days(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun weeks(time: Short) = weeks(time.toLong())
+        @FrameworkDsl
+        fun weeks(time: Short) = weeks(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun years(time: Short) = years(time.toLong())
+        @FrameworkDsl
+        fun years(time: Short) = years(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun hours(time: Short) = hours(time.toLong())
+        @FrameworkDsl
+        fun hours(time: Short) = hours(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun minutes(time: Short) = minutes(time.toLong())
+        @FrameworkDsl
+        fun minutes(time: Short) = minutes(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun seconds(time: Short) = seconds(time.toLong())
+        @FrameworkDsl
+        fun seconds(time: Short) = seconds(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun nanoseconds(time: Short) = nanoseconds(time.toLong())
+        @FrameworkDsl
+        fun nanoseconds(time: Short) = nanoseconds(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun milliseconds(time: Short) = milliseconds(time.toLong())
+        @FrameworkDsl
+        fun milliseconds(time: Short) = milliseconds(time.longOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun days(time: Float) = days(time.toDouble())
+        @FrameworkDsl
+        fun days(time: Float) = days(time.realOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun weeks(time: Float) = weeks(time.toDouble())
+        @FrameworkDsl
+        fun weeks(time: Float) = weeks(time.realOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun years(time: Float) = years(time.toDouble())
+        @FrameworkDsl
+        fun years(time: Float) = years(time.realOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun hours(time: Float) = hours(time.toDouble())
+        @FrameworkDsl
+        fun hours(time: Float) = hours(time.realOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun minutes(time: Float) = minutes(time.toDouble())
+        @FrameworkDsl
+        fun minutes(time: Float) = minutes(time.realOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun seconds(time: Float) = seconds(time.toDouble())
+        @FrameworkDsl
+        fun seconds(time: Float) = seconds(time.realOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun nanoseconds(time: Float) = nanoseconds(time.toDouble())
+        @FrameworkDsl
+        fun nanoseconds(time: Float) = nanoseconds(time.realOf())
 
         @JvmStatic
-        @CreatorsDsl
-        fun milliseconds(time: Float) = milliseconds(time.toDouble())
+        @FrameworkDsl
+        fun milliseconds(time: Float) = milliseconds(time.realOf())
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun years(time: Long): TimeDuration {
             return Duration.ofDays(time * DAYS_PER_YEAR).build(TimeDurationUnit.YEARS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun weeks(time: Long): TimeDuration {
             return Duration.ofDays(time * DAYS_PER_WEEK).build(TimeDurationUnit.WEEKS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun days(time: Long): TimeDuration {
             return Duration.ofDays(time).build(TimeDurationUnit.DAYS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun hours(time: Long): TimeDuration {
             return Duration.ofHours(time).build(TimeDurationUnit.HOURS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun minutes(time: Long): TimeDuration {
             return Duration.ofMinutes(time).build(TimeDurationUnit.MINUTES)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun seconds(time: Long): TimeDuration {
             return Duration.ofSeconds(time).build(TimeDurationUnit.SECONDS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun nanoseconds(time: Long): TimeDuration {
             return Duration.ofNanos(time).build(TimeDurationUnit.NANOSECONDS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun milliseconds(time: Long): TimeDuration {
             return Duration.ofMillis(time).build(TimeDurationUnit.MILLISECONDS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun years(time: Double): TimeDuration {
             return secondsOf(time * SECONDS_PER_YEAR, TimeDurationUnit.YEARS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun weeks(time: Double): TimeDuration {
             return secondsOf(time * SECONDS_PER_WEEK, TimeDurationUnit.WEEKS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun days(time: Double): TimeDuration {
             return secondsOf(time * SECONDS_PER_DAYS, TimeDurationUnit.DAYS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun hours(time: Double): TimeDuration {
             return secondsOf(time * SECONDS_PER_HOUR, TimeDurationUnit.HOURS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun minutes(time: Double): TimeDuration {
             return secondsOf(time * SECONDS_PER_TICK, TimeDurationUnit.MINUTES)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun seconds(time: Double): TimeDuration {
             return secondsOf(time, TimeDurationUnit.SECONDS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun milliseconds(time: Double): TimeDuration {
             return secondsOf(time / MILLS_PER_SECOND, TimeDurationUnit.MILLISECONDS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun nanoseconds(time: Double): TimeDuration {
             return secondsOf(time / NANOS_PER_SECOND, TimeDurationUnit.NANOSECONDS)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun parse(text: String): TimeDuration {
-            return HASH.computeIfAbsent(text.toLowerTrimEnglish()) { buff ->
-                parseCharSequence(buff)
+            return cashe(text) {
+                parseCharSequence(it)
             }
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun parseCharSequence(text: CharSequence): TimeDuration {
             val list = text.toLowerTrimEnglish().split(GLOB)
-            val size = list.size
-            if (size == 0 || size % 2 == 1) {
+            val size = list.sizeOf()
+            if (size.isZero() || size.isNotEven()) {
                 throw MercenaryFatalExceptiion("invalid size $size")
             }
-            val data = TimeData()
-            for (i in 0 until size step 2) {
-                make(list[i], list[i + 1], data)
-            }
-            return data.build()
+            return TimeData().create(list)
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         private fun secondsOf(time: Double, unit: TimeDurationUnit): TimeDuration {
             val full = if (time.isValid()) time.absOf() else throw MercenaryFatalExceptiion("invalid time $time")
             val part = full.floorOf()
@@ -485,11 +501,11 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
             if (frac >= Long.MAX_VALUE) {
                 throw MercenaryFatalExceptiion("invalid frac $frac")
             }
-            return Duration.ofSeconds(part.toLong(), frac.toLong()).let { if (time.isNegative()) it.negated() else it }.let { TimeDuration(it, less(it, unit)) }
+            return Duration.ofSeconds(part.longOf(), frac.longOf()).let { if (time.isNegative()) it.negated() else it }.let { TimeDuration(it, less(it, unit)) }
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         private fun less(time: Duration, unit: TimeDurationUnit): TimeDurationUnit {
             if (isEmpty(time)) {
                 return unit
@@ -510,9 +526,9 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
         }
 
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         private fun make(buff: String, unit: String, data: TimeData) {
-            val time = data.time
+            val time = data.time()
             val plus = buff.toLongOrNull() ?: throw MercenaryFatalExceptiion("invalid time $buff")
             when (unit) {
                 "day", "days" -> data.make(plus, time::plusDays, TimeDurationUnit.DAYS)
@@ -527,19 +543,51 @@ class TimeDuration @CreatorsDsl private constructor(private val time: Duration, 
             }
         }
 
-        private class TimeData @CreatorsDsl constructor(var time: Duration = ZERO, var unit: TimeDurationUnit = TimeDurationUnit.NANOSECONDS) : Builder<TimeDuration> {
+        internal class TimeData @FrameworkDsl constructor() : Builder<TimeDuration> {
 
-            @CreatorsDsl
-            fun make(plus: Long, block: (Long) -> Duration, less: TimeDurationUnit) {
-                if (less < unit) {
-                    unit = less
-                }
-                time = block.invoke(plus)
+            @FrameworkDsl
+            private var time = zero()
+
+            @FrameworkDsl
+            private var unit = TimeDurationUnit.NANOSECONDS
+
+            @FrameworkDsl
+            inline fun time(): Duration {
+                return time
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
+            private fun time(args: Duration) {
+                time = args
+            }
+
+            @FrameworkDsl
+            inline fun unit() = unit
+
+            @FrameworkDsl
+            private fun unit(args: TimeDurationUnit) {
+                unit = args
+            }
+
+            @FrameworkDsl
+            fun make(plus: Long, block: (Long) -> Duration, less: TimeDurationUnit) {
+                if (less < unit()) {
+                    unit(less)
+                }
+                time(block(plus))
+            }
+
+            @FrameworkDsl
+            fun create(args: List<String>): TimeDuration {
+                args.forEachOther { a, b ->
+                    make(a, b, this)
+                }
+                return build()
+            }
+
+            @FrameworkDsl
             override fun build(): TimeDuration {
-                return TimeDuration(time, unit)
+                return TimeDuration(time(), unit())
             }
         }
     }

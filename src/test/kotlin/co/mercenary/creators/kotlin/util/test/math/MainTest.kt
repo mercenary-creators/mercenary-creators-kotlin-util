@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test
 import kotlin.math.pow
 
 class MainTest : KotlinTest() {
+
     @Test
     fun test() {
         val data = -0.0000101
@@ -40,5 +41,6 @@ class MainTest : KotlinTest() {
         warn { (-2).isEven() }
         warn { (-1.2).isEven() }
         warn { (-2.2).isEven() }
+        info { dash(128) }
     }
 }

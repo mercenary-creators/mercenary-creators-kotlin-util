@@ -21,15 +21,15 @@ import java.util.concurrent.TimeUnit
 
 interface TimeWindowMovingAverage : AverageWindow {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getMomentInTime(): Long
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getWaitTimeUnit(): TimeUnit
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getWindowHandle(): TimeWindowHandle
 }

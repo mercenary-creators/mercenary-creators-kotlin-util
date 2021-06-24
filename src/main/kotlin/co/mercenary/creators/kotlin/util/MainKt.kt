@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@
 
 package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.collection.BasicLinkedMap
+import co.mercenary.creators.kotlin.util.collection.*
 import co.mercenary.creators.kotlin.util.security.*
+import co.mercenary.creators.kotlin.util.type.ParameterizedTypeReference
+import java.lang.reflect.*
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
@@ -28,7 +30,7 @@ import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.atomic.*
 import java.util.stream.*
-import kotlin.collections.LinkedHashSet
+import kotlin.collections.ArrayDeque
 import kotlin.reflect.KClass
 import kotlin.streams.*
 
@@ -48,7 +50,13 @@ const val SPACE_LETTER = ' '
 const val MINUS_STRING = "-"
 
 @FrameworkDsl
-const val MINUS_LETTER = '-'
+const val SUB_LETTER = '-'
+
+@FrameworkDsl
+const val ADD_LETTER = '+'
+
+@FrameworkDsl
+const val DOT_LETTER = '.'
 
 @FrameworkDsl
 const val NULLS_STRING = "null"
@@ -63,13 +71,37 @@ const val KOTLIN_METAS = "kotlin.Metadata"
 const val DIGIT_STRING = "0123456789ABCDEF"
 
 @FrameworkDsl
-const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2020, Mercenary Creators Company."
+const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2021, Mercenary Creators Company."
+
+@FrameworkDsl
+const val CREATORS_VERSION_INFO = "9.9.8-SNAPSHOT"
 
 @FrameworkDsl
 const val DEFAULT_MAP_FACTOR = 0.75
 
 @FrameworkDsl
+const val DEFAULT_MAP_FACTOR_VALUE = 0.75f
+
+@FrameworkDsl
+const val DEFAULT_SET_FACTOR_VALUE = 0.75f
+
+@FrameworkDsl
 const val DEFAULT_MAP_CAPACITY = 16
+
+@FrameworkDsl
+const val MAXIMUM_INTS_POWER_OF_2 = 1 shl 30
+
+@FrameworkDsl
+const val MAXIMUM_LONG_POWER_OF_2 = 1L shl 62
+
+@FrameworkDsl
+const val MAXIMUM_MAP_CAPACITY = 1 shl 16
+
+@FrameworkDsl
+const val DEFAULT_SET_CAPACITY = 16
+
+@FrameworkDsl
+const val MAXIMUM_SET_CAPACITY = 1 shl 16
 
 @FrameworkDsl
 const val DEFAULT_LIST_CAPACITY = 10
@@ -81,7 +113,7 @@ const val DEFAULT_STRINGOF_CAPACITY = 16
 const val DEFAULT_LRU_THRESHOLD = DEFAULT_MAP_CAPACITY * 8
 
 @FrameworkDsl
-const val DEFAULT_LIST_THRESHOLD = DEFAULT_LIST_CAPACITY * 16
+const val DEFAULT_LIST_THRESHOLD = Int.MAX_VALUE - 8
 
 @FrameworkDsl
 const val HASH_NULL_VALUE = 0
@@ -128,6 +160,12 @@ typealias Manager = co.mercenary.creators.kotlin.util.system.Manager
 
 typealias Launcher = co.mercenary.creators.kotlin.util.system.Launcher
 
+typealias DeckArrayList<T> = ArrayDeque<T>
+
+typealias LinkArrayList<T> = LinkedList<T>
+
+typealias CopyArrayList<T> = java.util.concurrent.CopyOnWriteArrayList<T>
+
 typealias AtomicHashMap<K, V> = java.util.concurrent.ConcurrentHashMap<K, V>
 
 typealias AtomicHashMapKeysView<K, V> = java.util.concurrent.ConcurrentHashMap.KeySetView<K, V>
@@ -142,19 +180,20 @@ typealias StringDictionary = co.mercenary.creators.kotlin.util.collection.String
 
 typealias Dictionary<V> = Map<String, V>
 
-typealias AnyDictionary = Dictionary<Any?>
+typealias AnyDictionary = Dictionary<Maybe>
+
+typealias DictionaryMap = Dictionary<String>
 
 typealias MutableDictionary<V> = MutableMap<String, V>
 
-typealias MutableAnyDictionary = MutableDictionary<Any?>
+typealias MutableAnyDictionary = MutableDictionary<Maybe>
+
+typealias BasicAnyDictionary = BasicDictionaryMap<Any>
 
 typealias MessageDigestProxy = co.mercenary.creators.kotlin.util.security.Digests.MessageDigestProxy
 
 @FrameworkDsl
-fun <T : Any?> T.toSafeHashOf(): Int = this?.hashOf() ?: HASH_NULL_VALUE
-
-@FrameworkDsl
-fun <T : Any?> T.toSafeString(): String = Formatters.toSafeString { this }
+fun <T : Maybe> T.toSafeString(): String = Formatters.toSafeString { this }
 
 @FrameworkDsl
 inline fun Set<*>.isExhausted(): Boolean = isEmpty()
@@ -308,6 +347,42 @@ inline fun <K, V> Iterable<Pair<K, V>>.mapTo(): Map<K, V> = if (isExhausted()) t
 inline fun <K, V> Sequence<Pair<K, V>>.mapTo(): Map<K, V> = if (isExhausted()) toMapOf() else toMap()
 
 @FrameworkDsl
+inline fun <reified T : Any> toParameterizedTypeReference(): ParameterizedTypeReference<T> = object : ParameterizedTypeReference<T>() {}
+
+@FrameworkDsl
+inline fun <reified T : Any> kindOfType(): Class<out T> = T::class.java
+
+@FrameworkDsl
+inline fun <reified T : Any> castTo(args: Any): T = args as T
+
+@FrameworkDsl
+inline fun <reified T : Annotation> kindOfAnnotation(): Class<out T> = T::class.java
+
+@FrameworkDsl
+inline fun <reified T : Any> dictOfType(vararg args: Pair<String, Maybe>): AnyDictionary = dictOf("type" to T::class.java.name, *args)
+
+@FrameworkDsl
+inline fun <reified T> toArrayOf(vararg args: T): Array<T> = arrayOf(*args)
+
+@FrameworkDsl
+inline fun Array<*>.kindOfComponent(): Class<*> = javaClass.componentType
+
+@FrameworkDsl
+fun Class<*>.isAnnotationDefined(kind: Class<out Annotation>): Boolean {
+    return isAnnotationPresent(kind)
+}
+
+@FrameworkDsl
+inline fun <A : Annotation> Iterable<A>.isAnnotationDefined(kind: Class<*>): Boolean {
+    return isNotExhausted() && any { it.javaClass == kind }
+}
+
+@FrameworkDsl
+inline fun <A : Annotation> Iterable<A>.isAnnotationDefined(list: List<Class<*>>): Boolean {
+    return isNotExhausted() && any { it.javaClass in list }
+}
+
+@FrameworkDsl
 fun Iterator<*>.hashOf(): Int {
     if (isExhausted()) {
         return HASH_BASE_VALUE
@@ -332,7 +407,19 @@ fun Iterable<*>.hashOf(): Int {
 }
 
 @FrameworkDsl
-inline fun Set<*>.hashOf(): Int {
+fun Set<*>.hashOf(): Int {
+    if (isExhausted()) {
+        return HASH_NULL_VALUE
+    }
+    var code = HASH_NULL_VALUE
+    for (each in this) {
+        code += each.hashOf()
+    }
+    return code
+}
+
+@FrameworkDsl
+fun List<*>.hashOf(): Int {
     if (isExhausted()) {
         return HASH_BASE_VALUE
     }
@@ -344,19 +431,7 @@ inline fun Set<*>.hashOf(): Int {
 }
 
 @FrameworkDsl
-inline fun List<*>.hashOf(): Int {
-    if (isExhausted()) {
-        return HASH_BASE_VALUE
-    }
-    var code = HASH_BASE_VALUE
-    for (each in this) {
-        code = code * HASH_NEXT_VALUE + each.hashOf()
-    }
-    return code
-}
-
-@FrameworkDsl
-inline fun Map<*, *>.hashOf(): Int {
+fun Map<*, *>.hashOf(): Int {
     if (isExhausted()) {
         return HASH_BASE_VALUE
     }
@@ -369,6 +444,11 @@ inline fun Map<*, *>.hashOf(): Int {
 
 @FrameworkDsl
 inline fun <E : Enum<E>> E.toOrdinalLong(): Long = ordinal.longOf()
+
+@FrameworkDsl
+inline fun <T : Throwable> T.failed(): Nothing {
+    throw this
+}
 
 open class MercenaryExceptiion @FrameworkDsl constructor(text: String?, root: Throwable?) : RuntimeException(text, root) {
 
@@ -422,10 +502,38 @@ open class MercenaryAssertionExceptiion @FrameworkDsl constructor(text: String?,
 fun java.security.MessageDigest.proxyOf() = Digests.proxyOf(this)
 
 @FrameworkDsl
+fun Type.toErased(): Class<*> {
+    return SameAndHashCode.getErasedType(this)
+}
+
+@FrameworkDsl
 inline fun SystemProperties.toStringDictionary() = StringDictionary(this)
 
 @FrameworkDsl
-fun SystemProperties.mapTo(): Map<String, String> {
+fun StringDictionary.concat(args: AnyDictionary, push: Boolean = false, safe: Boolean = false): StringDictionary {
+    if (args.isNotExhausted()) {
+        for ((k, v) in args) {
+            if (isKeyDefined(k) && push.isNotTrue()) {
+                continue
+            }
+            if (v == null) {
+                if (safe && push) {
+                    this[k] = NULLS_STRING
+                }
+                continue
+            }
+            if (v is CharSequence) {
+                this[k] = v.toValid()
+            } else {
+                this[k] = if (safe.isTrue()) v.toSafeString() else v.toString()
+            }
+        }
+    }
+    return this
+}
+
+@FrameworkDsl
+fun SystemProperties.mapTo(): DictionaryMap {
     if (isExhausted()) {
         return toMapOf()
     }
@@ -444,19 +552,46 @@ fun SystemProperties.mapTo(): Map<String, String> {
 }
 
 @FrameworkDsl
-fun Int.toListCapacity(): Int = if (isNegative()) DEFAULT_LIST_CAPACITY else minOf(Int.MAX_VALUE - 1)
+inline fun <R> locked(lock: Any, func: () -> R): R {
+    return synchronized(lock, func)
+}
+
+@FrameworkDsl
+fun Int.toListCapacity(): Int = if (isNegative()) DEFAULT_LIST_CAPACITY else minOf(DEFAULT_LIST_THRESHOLD)
+
+@FrameworkDsl
+fun Int.toTabsCapacity(most: Int): Int {
+    if (isLessThan(2)) {
+        return 1
+    }
+    if (isLessThan(3)) {
+        return 2
+    }
+    if (isMoreSame(most)) {
+        return most
+    }
+    return Numeric.tabsOf(this, most)
+}
+
+@FrameworkDsl
+inline fun Int.toMapCapacity(): Int = toTabsCapacity(MAXIMUM_MAP_CAPACITY)
+
+@FrameworkDsl
+inline fun Int.toSetCapacity(): Int = toTabsCapacity(MAXIMUM_SET_CAPACITY)
 
 @FrameworkDsl
 fun Double.toMapFactorOrElse(value: Double = DEFAULT_MAP_FACTOR): Float = toFiniteOrElse(value.toFiniteOrElse(DEFAULT_MAP_FACTOR)).toFloat()
 
 @FrameworkDsl
 fun <K, V, T : MutableMap<in K, in V>> T.append(k: K, v: V): T {
-    return append(toMapOf(k, v))
+    put(k, v)
+    return this
 }
 
 @FrameworkDsl
 fun <K, V, T : MutableMap<in K, in V>> T.append(args: Pair<K, V>): T {
-    return append(toMapOf(args))
+    put(args.head(), args.tail())
+    return this
 }
 
 @FrameworkDsl
@@ -506,10 +641,10 @@ inline infix fun <K> Map<out K, *>.isKeyDefined(key: K): Boolean = containsKey(k
 inline infix fun <K> Map<out K, *>.isKeyNotDefined(key: K): Boolean = isKeyDefined(key).isNotTrue()
 
 @FrameworkDsl
-inline fun <K, V> toMapOf(): Map<K, V> = mapOf()
+inline fun <K, V> toMapOf(): Map<K, V> = emptyMap()
 
 @FrameworkDsl
-inline fun <K, V> toMapOf(k: K, v: V): Map<K, V> = toMapOf(k to v)
+inline fun <K, V> toMapOf(k: K, v: V): Map<K, V> = mapOf(Pair(k, v))
 
 @FrameworkDsl
 inline fun <K, V> toMapOf(args: Pair<K, V>): Map<K, V> = mapOf(args)
@@ -521,16 +656,93 @@ inline fun <K, V> Map<K, V>.toPairs(): List<Pair<K, V>> = if (isExhausted()) toL
 inline fun <K, V> toMapOf(vararg args: Pair<K, V>): Map<K, V> = if (args.isExhausted()) toMapOf() else args.mapTo()
 
 @FrameworkDsl
-inline fun <T> toListOf(): List<T> = listOf()
+inline fun <T> toSetOf(): Set<T> = emptySet()
 
 @FrameworkDsl
-fun <T> toListOf(args: T): List<T> = listOf(args)
+inline fun <T> toSetOf(args: T): Set<T> = setOf(args)
 
 @FrameworkDsl
-fun <T> toListOf(vararg args: T): List<T> = if (args.isExhausted()) toListOf() else args.toList()
+fun <T> toSetOf(vararg args: T): Set<T> {
+    return when (args.sizeOf()) {
+        0 -> toSetOf()
+        1 -> toSetOf(args[0])
+        else -> BasicLinkedSet(args.toCollection()).toReadOnly()
+    }
+}
+
+@FrameworkDsl
+fun <T> toSetOf(args: Iterator<T>): Set<T> = if (args.isExhausted()) toSetOf() else args.toList().toSet()
+
+@FrameworkDsl
+fun <T> toSetOf(args: Iterable<T>): Set<T> = if (args.isExhausted()) toSetOf() else toSetOf(args.toIterator())
+
+@FrameworkDsl
+fun <E, T : MutableSet<E>> T.append(args: E): T {
+    add(args)
+    return this
+}
+
+@FrameworkDsl
+fun <E, T : MutableSet<E>> T.append(vararg args: E): T {
+    if (args.isNotExhausted()) {
+        addAll(args.toCollection())
+    }
+    return this
+}
+
+@FrameworkDsl
+fun <E, T : MutableSet<E>> T.append(args: Iterator<E>): T {
+    if (args.isNotExhausted()) {
+        addAll(args.toCollection())
+    }
+    return this
+}
+
+@FrameworkDsl
+fun <E, T : MutableSet<E>> T.append(args: Iterable<E>): T {
+    if (args.isNotExhausted()) {
+        addAll(args.toCollection())
+    }
+    return this
+}
+
+@FrameworkDsl
+fun <E, T : MutableSet<E>> T.append(args: Sequence<E>): T {
+    if (args.isNotExhausted()) {
+        addAll(args.toCollection())
+    }
+    return this
+}
+
+@FrameworkDsl
+inline fun <T> toListOf(): List<T> = emptyList()
+
+@FrameworkDsl
+inline fun <T> toListOf(args: T): List<T> = listOf(args)
+
+@FrameworkDsl
+fun <T> toListOf(args: List<T>): List<T> {
+    return when (args.sizeOf()) {
+        0 -> toListOf()
+        1 -> toListOf(args[0])
+        else -> toListOf(args.toCollection())
+    }
+}
+
+@FrameworkDsl
+fun <T> toListOf(vararg args: T): List<T> = listOf(*args)
 
 @FrameworkDsl
 fun <T> toListOf(args: Stream<T>): List<T> = args.toList()
+
+@FrameworkDsl
+fun toListOf(args: IntStream): List<Int> = args.toArray().toList()
+
+@FrameworkDsl
+fun toListOf(args: LongStream): List<Long> = args.toArray().toList()
+
+@FrameworkDsl
+fun toListOf(args: DoubleStream): List<Double> = args.toArray().toList()
 
 @FrameworkDsl
 fun <T> toListOf(args: Iterable<T>): List<T> = if (args.isExhausted()) toListOf() else args.toList()
@@ -540,6 +752,15 @@ fun <T> toListOf(args: Iterator<T>): List<T> = if (args.isExhausted()) toListOf(
 
 @FrameworkDsl
 fun <T> toListOf(args: Sequence<T>): List<T> = toListOf(args.toIterator())
+
+@FrameworkDsl
+fun <T : Any> T.isDataClass(): Boolean {
+    return when (this) {
+        is KClass<*> -> isData.isTrue()
+        is Class<*> -> kotlin.isData.isTrue()
+        else -> javaClass.kotlin.isData.isTrue()
+    }
+}
 
 @FrameworkDsl
 fun MessageDigestProxy.update(vararg args: ByteArray): MessageDigestProxy {
@@ -582,9 +803,6 @@ fun MessageDigestProxy.update(args: Iterable<ByteBuffer>): MessageDigestProxy {
 }
 
 @FrameworkDsl
-fun Encoder<String, ByteArray>.toText(): Encoder<String, String> = Encoders.toText(this)
-
-@FrameworkDsl
 fun onExitOfProcess(push: Boolean = false, func: () -> Unit) {
     SecureAccess.onExitOfProcess(push, func)
 }
@@ -595,13 +813,18 @@ fun Class<*>.isKotlinClass(): Boolean {
 }
 
 @FrameworkDsl
+fun Class<*>.forEachMethod(action: (Method) -> Unit) {
+    declaredMethods.forEach(action)
+}
+
+@FrameworkDsl
 fun Class<*>.toPackageName(): String = this.`package`.name
 
 @FrameworkDsl
 fun KClass<*>.toPackageName(): String = java.`package`.name
 
 @FrameworkDsl
-inline fun <reified T : Any> packageNameOf(): String = T::class.java.`package`.name
+inline fun <reified T : Any> toPackageName(): String = T::class.java.`package`.name
 
 @FrameworkDsl
 inline infix fun <T : Maybe> T.isType(other: Maybe): Boolean {
@@ -632,7 +855,7 @@ fun <K, V> atomicMapOf(): AtomicHashMap<K, V> {
 
 @FrameworkDsl
 fun <K, V> atomicMapOf(size: Int): AtomicHashMap<K, V> {
-    return AtomicHashMap(size.maxOf(DEFAULT_MAP_CAPACITY))
+    return AtomicHashMap(size.toMapCapacity())
 }
 
 @FrameworkDsl
@@ -662,7 +885,7 @@ fun <K, V> Map<K, V>.toAtomic(): AtomicHashMap<K, V> {
 
 @FrameworkDsl
 fun <K, V> AtomicHashMap<K, V>.toMap(): Map<K, V> {
-    return if (isNotExhausted()) BasicLinkedMap(this).toMap() else toMapOf()
+    return if (isNotExhausted()) BasicLinkedMap(this).toReadOnly() else toMapOf()
 }
 
 @FrameworkDsl
@@ -671,18 +894,13 @@ fun <K, V> AtomicHashMap<K, V>.copyOf(): AtomicHashMap<K, V> {
 }
 
 @FrameworkDsl
-fun <K, V> AtomicHashMap<K, V>.computed(hash: K, threshold: Int, block: Convert<K, V>): V {
-    val save = computeIfAbsent(hash, block)
-    val most = threshold.boxIn(0, DEFAULT_MAP_CAPACITY + threshold.maxOf(DEFAULT_LRU_THRESHOLD))
-    if (sizeOf() > most) {
-        entries.drop(most)
-    }
-    return save
+fun <E> List<E>.ifNotEmptyList(block: List<E>.() -> Unit) {
+    if (isNotExhausted()) this.apply(block)
 }
 
 @FrameworkDsl
-fun <E> List<E>.whenNotEmpty(block: (List<E>) -> Unit) {
-    if (isNotExhausted()) block(this)
+fun <E> MutableList<E>.ifNotEmptyMutableList(block: MutableList<E>.() -> Unit) {
+    if (isNotExhausted()) this.apply(block)
 }
 
 @FrameworkDsl
@@ -736,6 +954,12 @@ fun getCurrentThreadName(): String = Thread.currentThread().name
 inline fun getProcessors(): Int = Runtime.getRuntime().availableProcessors()
 
 @FrameworkDsl
+inline fun CharSequence.codePointsOf(): Int = copyOf().codePointCount(0, sizeOf())
+
+@FrameworkDsl
+inline fun CharSequence.codePointsAt(index: Int): Int = copyOf().codePointAt(index)
+
+@FrameworkDsl
 inline fun CharSequence.isExhausted(): Boolean = sizeOf() == 0
 
 @FrameworkDsl
@@ -773,10 +997,13 @@ inline fun CharSequence?.toTrimOr(other: String = EMPTY_STRING): String = toTrim
 inline fun CharSequence?.toTrimOr(other: Factory<String>): String = toTrimOrNull(this) ?: other.create()
 
 @FrameworkDsl
-inline fun String.head(many: Int = 1): String = if (many >= 0) drop(many) else this
+inline fun CharSequence.headOf(): Char = if (isNotExhausted()) this[0] else fail(MATH_INVALID_SIZE_ERROR)
 
 @FrameworkDsl
-inline fun String.tail(many: Int = 1): String = if (many >= 0) dropLast(many) else this
+inline fun String.head(many: Int = 1): String = if (many > 0) drop(many) else this
+
+@FrameworkDsl
+inline fun String.tail(many: Int = 1): String = if (many > 0) dropLast(many) else this
 
 @FrameworkDsl
 fun String.filter(pads: Char = SPACE_LETTER, trim: Boolean = true): String = when (trim.isNotTrue()) {
@@ -790,7 +1017,7 @@ fun String.filter(pads: Char = SPACE_LETTER, trim: Boolean = true): String = whe
 }
 
 @FrameworkDsl
-fun String.padout(many: Int, pads: Char = SPACE_LETTER): String = if (many <= 0) this else padStart((length + many) / 2, pads).padEnd(many, pads)
+fun String.padout(many: Int, pads: Char = SPACE_LETTER): String = if (many <= 0) this else padStart((sizeOf() + many) / 2, pads).padEnd(many, pads)
 
 @FrameworkDsl
 fun String.center(many: Int, pads: Char = SPACE_LETTER, trim: Boolean = true): String = if (many <= 0) this else filter(pads, trim).padout(many, pads)
@@ -802,10 +1029,18 @@ inline fun CharSequence.isZeroCharPresent(): Boolean = any { it == Char.MIN_VALU
 inline fun CharSequence.isZeroCharNotPresent(): Boolean = none { it == Char.MIN_VALUE }
 
 @FrameworkDsl
-fun CharSequence.toChecked(): String {
+inline fun CharSequence.toValid(): String = filter { it != Char.MIN_VALUE }.toString()
+
+@FrameworkDsl
+inline fun CharSequence.toChecked(): String {
     return if (isZeroCharPresent())
         throw MercenaryFatalExceptiion("null byte present. there are no known legitimate use cases for such data, but several injection attacks may use it.")
     else toString()
+}
+
+@FrameworkDsl
+inline fun CharSequence.copyOf(): String {
+    return if (isExhausted()) EMPTY_STRING else toString()
 }
 
 @FrameworkDsl
@@ -818,16 +1053,16 @@ fun CharSequence.toSecureString(): SecureString = SecureString(toString())
 fun ByteArray.toSecureByteArray(copy: Boolean = true): SecureByteArray = SecureByteArray(toByteArray(copy))
 
 @FrameworkDsl
-fun ByteArray.toCharArray(charset: Charset = Charsets.UTF_8, copy: Boolean = true): CharArray = toByteArray(copy).toString(charset).toCharArray()
+fun ByteArray.toCharArray(charset: Charset = DEFAULT_CHARSET_UTF_8, copy: Boolean = true): CharArray = toByteArray(copy).toString(charset).toCharArray()
 
 @FrameworkDsl
 fun CharSequence.toSecureByteArray(): SecureByteArray = SecureByteArray(toString())
 
 @FrameworkDsl
-fun CharSequence.toLowerTrim(): String = if (isExhausted()) EMPTY_STRING else trim().toString().toLowerCase()
+fun CharSequence.toLowerTrim(): String = if (isExhausted()) EMPTY_STRING else trim().toString().lowercase(DEFAULT_LOCALE)
 
 @FrameworkDsl
-fun CharSequence.toUpperTrim(): String = if (isExhausted()) EMPTY_STRING else trim().toString().toUpperCase()
+fun CharSequence.toUpperTrim(): String = if (isExhausted()) EMPTY_STRING else trim().toString().uppercase(DEFAULT_LOCALE)
 
 @FrameworkDsl
 fun CharSequence.toLowerTrimEnglish(): String = if (isExhausted()) EMPTY_STRING else trim().toLowerCaseEnglish()
@@ -836,10 +1071,10 @@ fun CharSequence.toLowerTrimEnglish(): String = if (isExhausted()) EMPTY_STRING 
 fun CharSequence.toUpperTrimEnglish(): String = if (isExhausted()) EMPTY_STRING else trim().toUpperCaseEnglish()
 
 @FrameworkDsl
-fun CharSequence.toLowerCaseEnglish(): String = if (isExhausted()) EMPTY_STRING else toString().toLowerCase(Locale.ENGLISH)
+fun CharSequence.toLowerCaseEnglish(): String = if (isExhausted()) EMPTY_STRING else toString().lowercase(ENGLISH_LOCALE)
 
 @FrameworkDsl
-fun CharSequence.toUpperCaseEnglish(): String = if (isExhausted()) EMPTY_STRING else toString().toUpperCase(Locale.ENGLISH)
+fun CharSequence.toUpperCaseEnglish(): String = if (isExhausted()) EMPTY_STRING else toString().uppercase(ENGLISH_LOCALE)
 
 @FrameworkDsl
 inline fun CharSequence.toCharArray(copy: Boolean): CharArray {
@@ -859,7 +1094,7 @@ fun <T, R : Any> List<T>.whenNotNull(block: Convert<T, R?>): List<R> {
                 list.add(data)
             }
         }
-        return list.toList()
+        return list.toReadOnly()
     }
     return toListOf()
 }
@@ -1067,7 +1302,6 @@ infix fun AtomicLong.minOf(value: AtomicInteger): AtomicLong {
     return this
 }
 
-
 @FrameworkDsl
 fun AtomicLong.toBigInteger(): BigInteger = getValue().toBigInteger()
 
@@ -1261,6 +1495,9 @@ inline fun getAtomicNotTrue(): AtomicBoolean = false.toAtomic()
 inline fun Boolean.toAtomic() = AtomicBoolean(this)
 
 @FrameworkDsl
+inline fun Boolean.copyOf(): Boolean = this
+
+@FrameworkDsl
 inline fun Boolean.isTrue(): Boolean = this
 
 @FrameworkDsl
@@ -1291,13 +1528,16 @@ inline fun AtomicBoolean.toBoolean(): Boolean = get()
 inline fun AtomicBoolean.isTrue(): Boolean = get()
 
 @FrameworkDsl
+inline fun AtomicBoolean.getValue(): Boolean = get()
+
+@FrameworkDsl
 inline fun AtomicBoolean.isNotTrue(): Boolean = !get()
 
 @FrameworkDsl
-fun AtomicBoolean.isTrueToFalse(): Boolean = isUpdateTo(true.toBoolean(), false.toBoolean())
+fun AtomicBoolean.isTrueToFalse(): Boolean = isUpdateTo(true.isTrue(), false.toBoolean())
 
 @FrameworkDsl
-fun AtomicBoolean.isFalseToTrue(): Boolean = isUpdateTo(false.toBoolean(), true.toBoolean())
+fun AtomicBoolean.isFalseToTrue(): Boolean = isUpdateTo(false.toBoolean(), true)
 
 @FrameworkDsl
 fun AtomicBoolean.isUpdateTo(update: Boolean): Boolean = compareAndSet(toBoolean(), update)
@@ -1313,6 +1553,9 @@ fun AtomicBoolean.isUpdateTo(expect: AtomicBoolean, update: Boolean): Boolean = 
 
 @FrameworkDsl
 fun AtomicBoolean.isUpdateTo(expect: AtomicBoolean, update: AtomicBoolean): Boolean = isUpdateTo(expect.toBoolean(), update.toBoolean())
+
+@FrameworkDsl
+fun AtomicBoolean.setValue(value: Boolean): Boolean = toBoolean() != value && isUpdateTo(value)
 
 @FrameworkDsl
 fun AtomicBoolean.toFlip(): AtomicBoolean {
@@ -1401,13 +1644,16 @@ inline fun BooleanArray.hashOf(): Int = if (sizeOf() == 0) HASH_BASE_VALUE else 
 inline fun <T : Any?> T.hashOf() = if (this == null) HASH_NULL_VALUE else SameAndHashCode.hashOf(this)
 
 @FrameworkDsl
-fun <T : Any?> T.hashOf(vararg args: Any?) = SameAndHashCode.hashOf(hashOf().toAtomic(), *args)
-
-@FrameworkDsl
 inline fun <T : Any?> T.idenOf() = if (this == null) HASH_NULL_VALUE else SameAndHashCode.idenOf(this)
 
 @FrameworkDsl
 inline infix fun <B> String.to(that: B): Pair<String, B> = Pair(this, that)
+
+@FrameworkDsl
+inline fun <A> Pair<A, *>.head(): A = first
+
+@FrameworkDsl
+inline fun <B> Pair<*, B>.tail(): B = second
 
 @FrameworkDsl
 fun <V> dictOf(): Dictionary<V> = toMapOf()
@@ -1485,10 +1731,10 @@ fun StringBuilder.add(data: LongProgression): StringBuilder {
 }
 
 @FrameworkDsl
-inline fun Char.toCode(): Int = toInt()
+inline fun Char.toCode(): Int = code
 
 @FrameworkDsl
-inline fun Byte.toCode(): Int = toInt()
+inline fun Byte.toCode(): Int = toInt() and 0xF
 
 @FrameworkDsl
 inline infix fun Int.mask(bits: Int): Int = if (bits == 0) (this and 0xF) else ((this shr bits) and 0xF)
@@ -1526,7 +1772,7 @@ fun StringBuilder.push(data: String): StringBuilder {
 
 @FrameworkDsl
 fun StringBuilder.push(data: CharSequence): StringBuilder {
-    insert(0, data.toString())
+    insert(0, data.copyOf())
     return this
 }
 
@@ -1542,7 +1788,7 @@ fun StringBuilder.wrap(data: String): StringBuilder {
 
 @FrameworkDsl
 fun StringBuilder.wrap(data: CharSequence): StringBuilder {
-    return wrap(data.toString())
+    return wrap(data.copyOf())
 }
 
 @FrameworkDsl
@@ -1550,6 +1796,9 @@ inline fun StringBuilder.add(vararg args: Any?): StringBuilder = append(*args)
 
 @FrameworkDsl
 inline fun StringBuilder.add(vararg args: String?): StringBuilder = append(*args)
+
+@FrameworkDsl
+inline fun StringBuilder.formatted(text: String, vararg args: Any?): StringBuilder = append(text.format(*args))
 
 @FrameworkDsl
 inline fun StringBuilder.newline(): StringBuilder = add(BREAK_STRING)
@@ -1594,37 +1843,119 @@ inline fun Collection<*>.sizeOf(): Int = size
 inline fun Map<*, *>.sizeOf(): Int = size
 
 @FrameworkDsl
-operator fun <T> Set<T>.get(index: Int): T = elementAt(index)
-
-@FrameworkDsl
-operator fun <T> Collection<T>.get(index: Int): T = elementAt(index)
-
-@FrameworkDsl
 infix fun Array<*>.isSameArrayAs(args: Array<*>): Boolean = sizeOf() == args.sizeOf() && SameAndHashCode.isSameAs(this, args)
 
 @FrameworkDsl
-infix fun IntArray.isSameArrayAs(args: IntArray): Boolean = sizeOf() == args.sizeOf() && this contentEquals args
+infix fun IntArray.isSameArrayAs(args: IntArray): Boolean {
+    if (this === args) {
+        return true
+    }
+    if (sizeOf() != args.sizeOf()) {
+        return false
+    }
+    if (sizeOf() == 0) {
+        return true
+    }
+    return this.contentEquals(args)
+}
 
 @FrameworkDsl
-infix fun ByteArray.isSameArrayAs(args: ByteArray): Boolean = sizeOf() == args.sizeOf() && this contentEquals args
+infix fun ByteArray.isSameArrayAs(args: ByteArray): Boolean {
+    if (this === args) {
+        return true
+    }
+    if (sizeOf() != args.sizeOf()) {
+        return false
+    }
+    if (sizeOf() == 0) {
+        return true
+    }
+    return this.contentEquals(args)
+}
 
 @FrameworkDsl
-infix fun CharArray.isSameArrayAs(args: CharArray): Boolean = sizeOf() == args.sizeOf() && this contentEquals args
+infix fun CharArray.isSameArrayAs(args: CharArray): Boolean {
+    if (this === args) {
+        return true
+    }
+    if (sizeOf() != args.sizeOf()) {
+        return false
+    }
+    if (sizeOf() == 0) {
+        return true
+    }
+    return this.contentEquals(args)
+}
 
 @FrameworkDsl
-infix fun LongArray.isSameArrayAs(args: LongArray): Boolean = sizeOf() == args.sizeOf() && this contentEquals args
+infix fun LongArray.isSameArrayAs(args: LongArray): Boolean {
+    if (this === args) {
+        return true
+    }
+    if (sizeOf() != args.sizeOf()) {
+        return false
+    }
+    if (sizeOf() == 0) {
+        return true
+    }
+    return this.contentEquals(args)
+}
 
 @FrameworkDsl
-infix fun ShortArray.isSameArrayAs(args: ShortArray): Boolean = sizeOf() == args.sizeOf() && this contentEquals args
+infix fun ShortArray.isSameArrayAs(args: ShortArray): Boolean {
+    if (this === args) {
+        return true
+    }
+    if (sizeOf() != args.sizeOf()) {
+        return false
+    }
+    if (sizeOf() == 0) {
+        return true
+    }
+    return this.contentEquals(args)
+}
 
 @FrameworkDsl
-infix fun FloatArray.isSameArrayAs(args: FloatArray): Boolean = sizeOf() == args.sizeOf() && this contentEquals args
+infix fun FloatArray.isSameArrayAs(args: FloatArray): Boolean {
+    if (this === args) {
+        return true
+    }
+    if (sizeOf() != args.sizeOf()) {
+        return false
+    }
+    if (sizeOf() == 0) {
+        return true
+    }
+    return this.contentEquals(args)
+}
 
 @FrameworkDsl
-infix fun DoubleArray.isSameArrayAs(args: DoubleArray): Boolean = sizeOf() == args.sizeOf() && this contentEquals args
+infix fun DoubleArray.isSameArrayAs(args: DoubleArray): Boolean {
+    if (this === args) {
+        return true
+    }
+    if (sizeOf() != args.sizeOf()) {
+        return false
+    }
+    if (sizeOf() == 0) {
+        return true
+    }
+    return this.contentEquals(args)
+}
 
 @FrameworkDsl
-infix fun BooleanArray.isSameArrayAs(args: BooleanArray): Boolean = sizeOf() == args.sizeOf() && this contentEquals args
+infix fun BooleanArray.isSameArrayAs(args: BooleanArray): Boolean {
+    if (this === args) {
+        return true
+    }
+    if (sizeOf() != args.sizeOf()) {
+        return false
+    }
+    if (sizeOf() == 0) {
+        return true
+    }
+    return this.contentEquals(args)
+}
 
 @FrameworkDsl
 infix fun Array<*>.isNotSameArrayAs(args: Array<*>): Boolean = this.isSameArrayAs(args).isNotTrue()
@@ -1654,7 +1985,7 @@ infix fun DoubleArray.isNotSameArrayAs(args: DoubleArray): Boolean = this.isSame
 infix fun BooleanArray.isNotSameArrayAs(args: BooleanArray): Boolean = this.isSameArrayAs(args).isNotTrue()
 
 @FrameworkDsl
-inline fun CharSequence.hashOf(): Int = if (sizeOf() == 0) HASH_NULL_VALUE else toString().hashCode()
+inline fun CharSequence.hashOf(): Int = if (sizeOf() == 0) HASH_NULL_VALUE else copyOf().hashCode()
 
 @FrameworkDsl
 inline fun Double.hashOf(): Int = if (this == 0.0) HASH_NULL_VALUE else hashCode()
@@ -1667,69 +1998,102 @@ inline fun Iterator<String>.toNoEmptyChars(): List<String> {
     return toList().filter { it.isZeroCharNotPresent() }
 }
 
-open class MercenarySequence<out T> @FrameworkDsl constructor(private val iterator: Iterator<T>) : Sequence<T> {
+open class MercenarySequence<out T> @FrameworkDsl constructor(args: Iterator<T>) : Sequence<T> {
+
+    @FrameworkDsl
+    private val iterator = args
 
     @FrameworkDsl
     override operator fun iterator(): Iterator<T> = iterator
 
     @FrameworkDsl
-    constructor() : this(toListOf())
+    constructor() : this(EmptyIterator)
 
     @FrameworkDsl
-    constructor(vararg source: T) : this(source.toIterator())
+    constructor(vararg source: T) : this(source.iterator())
 
     @FrameworkDsl
-    constructor(source: Stream<T>) : this(source.toIterator())
+    constructor(source: Stream<T>) : this(source.iterator())
 
     @FrameworkDsl
-    constructor(source: Iterable<T>) : this(source.toIterator())
+    constructor(source: Iterable<T>) : this(source.iterator())
 
     @FrameworkDsl
-    constructor(source: Sequence<T>) : this(source.toIterator())
+    constructor(source: Sequence<T>) : this(source.iterator())
 }
 
 class MercenaryConstrainedSequence<out T> @FrameworkDsl constructor(source: Iterator<T>) : MercenarySequence<T>(source), Sequence<T>
 
 @FrameworkDsl
 inline fun <T> Sequence<T>.constrain(): Sequence<T> {
-    return if (this is MercenaryConstrainedSequence) this else MercenaryConstrainedSequence(constrainOnce().toIterator())
+    return if (this is MercenaryConstrainedSequence) this else MercenaryConstrainedSequence(constrainOnce().iterator())
 }
 
 @FrameworkDsl
-inline fun <T> Array<T>.toIterator(): Iterator<T> = iterator()
+inline fun IntArray.toIterator(): Iterator<Int> = if (isExhausted()) EmptyIterator else iterator()
 
 @FrameworkDsl
-inline fun <T> Stream<T>.toIterator(): Iterator<T> = iterator()
+inline fun ByteArray.toIterator(): Iterator<Byte> = if (isExhausted()) EmptyIterator else iterator()
 
 @FrameworkDsl
-inline fun <T> Sequence<T>.toIterator(): Iterator<T> = iterator()
+inline fun CharArray.toIterator(): Iterator<Char> = if (isExhausted()) EmptyIterator else iterator()
 
 @FrameworkDsl
-inline fun <T> Iterator<T>.toIterator(): Iterator<T> = iterator()
+inline fun LongArray.toIterator(): Iterator<Long> = if (isExhausted()) EmptyIterator else iterator()
 
 @FrameworkDsl
-inline fun <T> Iterable<T>.toIterator(): Iterator<T> = iterator()
+inline fun ShortArray.toIterator(): Iterator<Short> = if (isExhausted()) EmptyIterator else iterator()
 
 @FrameworkDsl
-inline fun <T> Enumeration<T>.toIterator(): Iterator<T> = iterator()
+inline fun FloatArray.toIterator(): Iterator<Float> = if (isExhausted()) EmptyIterator else iterator()
 
 @FrameworkDsl
-inline fun IntStream.toIterator(): Iterator<Int> = iterator()
+inline fun DoubleArray.toIterator(): Iterator<Double> = if (isExhausted()) EmptyIterator else iterator()
 
 @FrameworkDsl
-inline fun LongStream.toIterator(): Iterator<Long> = iterator()
+inline fun BooleanArray.toIterator(): Iterator<Boolean> = if (isExhausted()) EmptyIterator else iterator()
 
 @FrameworkDsl
-inline fun DoubleStream.toIterator(): Iterator<Double> = iterator()
+inline fun <T> Set<T>.toIterator(): Iterator<T> = if (isExhausted()) EmptyIterator else iterator()
 
 @FrameworkDsl
-inline fun <K, V> Map<out K, V>.toIterator(): Iterator<Map.Entry<K, V>> = iterator()
+inline fun <T> List<T>.toIterator(): Iterator<T> = if (isExhausted()) EmptyIterator else iterator()
+
+@FrameworkDsl
+inline fun <T> Array<T>.toIterator(): Iterator<T> = if (isExhausted()) EmptyIterator else iterator()
+
+@FrameworkDsl
+inline fun <T> Stream<T>.toIterator(): Iterator<T> = iterator().toIterator()
+
+@FrameworkDsl
+inline fun <T> Sequence<T>.toIterator(): Iterator<T> = iterator().toIterator()
+
+@FrameworkDsl
+inline fun <T> Iterator<T>.toIterator(): Iterator<T> = if (isExhausted()) EmptyIterator else this
+
+@FrameworkDsl
+inline fun <T> Iterable<T>.toIterator(): Iterator<T> = iterator().toIterator()
+
+@FrameworkDsl
+inline fun <T> Enumeration<T>.toIterator(): Iterator<T> = iterator().toIterator()
+
+@FrameworkDsl
+inline fun IntStream.toIterator(): Iterator<Int> = iterator().toIterator()
+
+@FrameworkDsl
+inline fun LongStream.toIterator(): Iterator<Long> = iterator().toIterator()
+
+@FrameworkDsl
+inline fun DoubleStream.toIterator(): Iterator<Double> = iterator().toIterator()
+
+@FrameworkDsl
+inline fun <K, V> Map<out K, V>.toIterator(): Iterator<Map.Entry<K, V>> = iterator().toIterator()
 
 @FrameworkDsl
 inline fun <T> Iterator<T>.toCollection(): Collection<T> = toListOf(this)
 
 @FrameworkDsl
-inline fun <T> Array<T>.toCollection(): Collection<T> = toList()
+inline fun <T> Array<T>.toCollection(): Collection<T> = if (isExhausted()) toListOf() else toList()
 
 @FrameworkDsl
 inline fun <T> Sequence<T>.toCollection(): Collection<T> = toList()
@@ -1738,16 +2102,19 @@ inline fun <T> Sequence<T>.toCollection(): Collection<T> = toList()
 inline fun <T> Iterable<T>.toCollection(): Collection<T> = if (this is Collection) this else toList()
 
 @FrameworkDsl
-fun <T> Array<T>.toIterable(): Iterable<T> = Iterable { toIterator() }
+fun <T> Array<T>.toIterable(): Iterable<T> = if (isExhausted()) toListOf() else toList()
 
 @FrameworkDsl
-fun <T> Sequence<T>.toIterable(): Iterable<T> = Iterable { toIterator() }
+fun <T> Stream<T>.toIterable(): Iterable<T> = toList()
 
 @FrameworkDsl
-fun <T> Iterator<T>.toIterable(): Iterable<T> = Iterable { toIterator() }
+fun <T> Sequence<T>.toIterable(): Iterable<T> = if (isExhausted()) toListOf() else toList()
 
 @FrameworkDsl
-fun <T> Iterator<T>.toList(): List<T> = toIterable().toList()
+fun <T> Iterator<T>.toIterable(): Iterable<T> = if (isExhausted()) toListOf() else toList()
+
+@FrameworkDsl
+fun <T> Iterator<T>.toList(): List<T> = toArrayList().toList()
 
 @FrameworkDsl
 inline fun <T> Sequence<T>.toStream(): Stream<T> = asStream()
@@ -1765,25 +2132,28 @@ fun sequenceOf(args: LongProgression): Sequence<Long> = args.toIterator().toSequ
 fun sequenceOf(args: CharProgression): Sequence<Char> = args.toIterator().toSequence()
 
 @FrameworkDsl
-fun IntStream.toSequence(): Sequence<Int> = toIterator().toSequence()
+fun IntStream.toSequence(): Sequence<Int> = MercenarySequence(iterator())
 
 @FrameworkDsl
-fun LongStream.toSequence(): Sequence<Long> = toIterator().toSequence()
+fun LongStream.toSequence(): Sequence<Long> = MercenarySequence(iterator())
 
 @FrameworkDsl
-fun DoubleStream.toSequence(): Sequence<Double> = toIterator().toSequence()
+fun DoubleStream.toSequence(): Sequence<Double> = MercenarySequence(iterator())
 
 @FrameworkDsl
-fun <T : Any> Stream<T>.toSequence(): Sequence<T> = toIterator().toSequence()
+inline fun <T> Stream<T>.toSequence(): Sequence<T> = MercenarySequence(this)
 
 @FrameworkDsl
-fun <T : Any> Iterable<T>.toSequence(): Sequence<T> = toIterator().toSequence()
+inline fun <T> Iterable<T>.toSequence(): Sequence<T> = MercenarySequence(this)
 
 @FrameworkDsl
-fun <T : Any> Iterator<T>.toSequence(): Sequence<T> = MercenarySequence(this)
+inline fun <T> Iterator<T>.toSequence(): Sequence<T> = MercenarySequence(this)
 
 @FrameworkDsl
-fun <T> sequenceOf(vararg args: T): Sequence<T> = MercenarySequence(args.toIterator())
+inline fun <T> Sequence<T>.toSequence(): Sequence<T> = MercenarySequence(this)
+
+@FrameworkDsl
+fun <T> sequenceOf(vararg args: T): Sequence<T> = MercenarySequence(args.iterator())
 
 @FrameworkDsl
 fun <T : Any> sequenceOf(next: () -> T?): Sequence<T> = MercenarySequence(generateSequence(next))
@@ -1798,6 +2168,31 @@ fun <T : Any> sequenceOf(seed: () -> T?, next: (T) -> T?): Sequence<T> = Mercena
 inline fun <T : Any> iteratorOf(vararg args: T): Iterator<T> = args.toIterator()
 
 @FrameworkDsl
+inline fun <K, V> Map<out K, V>.forEachIndexed(action: (index: Int, Map.Entry<K, V>) -> Unit) {
+    entries.forEachIndexed(action)
+}
+
+@FrameworkDsl
+inline fun <T> Stream<T>.forEachIndexed(action: (index: Int, T) -> Unit) {
+    toList().forEachIndexed(action)
+}
+
+@FrameworkDsl
+inline fun <T> Array<T>.forEachIndexed(action: (index: Int, T) -> Unit) {
+    asList().forEachIndexed(action)
+}
+
+@FrameworkDsl
+inline fun <T> Iterator<T>.forEachIndexed(action: (index: Int, T) -> Unit) {
+    toIterable().forEachIndexed(action)
+}
+
+@FrameworkDsl
+inline fun <T> Sequence<T>.forEachIndexed(action: (index: Int, T) -> Unit) {
+    toIterator().forEachIndexed(action)
+}
+
+@FrameworkDsl
 inline fun <T> Iterable<T>.unique(): List<T> {
     return when (this) {
         is Collection -> when (sizeOf()) {
@@ -1810,6 +2205,15 @@ inline fun <T> Iterable<T>.unique(): List<T> {
 }
 
 @FrameworkDsl
+inline fun <T> Array<out T>.unique(): List<T> {
+    return when (sizeOf()) {
+        0 -> toListOf()
+        1 -> toListOf(this[0])
+        else -> distinct()
+    }
+}
+
+@FrameworkDsl
 inline fun <T> List<T>.unique(): List<T> {
     return when (sizeOf().isLessThan(2)) {
         true -> this
@@ -1818,7 +2222,10 @@ inline fun <T> List<T>.unique(): List<T> {
 }
 
 @FrameworkDsl
-inline fun <T> Iterator<T>.unique(): List<T> = toList().unique()
+inline fun <T> Iterator<T>.unique(): Iterator<T> = toList().unique().toIterator()
+
+@FrameworkDsl
+inline fun <T> Sequence<T>.unique(): Sequence<T> = distinct().toSequence()
 
 @FrameworkDsl
 inline fun <T> Iterable<T>.tail(): T = last()
@@ -1827,7 +2234,11 @@ inline fun <T> Iterable<T>.tail(): T = last()
 inline fun <T> Iterable<T>.head(): T = first()
 
 @FrameworkDsl
-inline fun <T : Any> unique(vararg args: T): List<T> = args.toIterator().toList().distinct()
+fun <T> List<T>.forEachOther(block: (T, T) -> Unit) {
+    sizeOf().forEachOther { i, j ->
+        block(this[i], this[j])
+    }
+}
 
 @FrameworkDsl
 fun Sequence<String>.uniqueTrimmedOf(): List<String> = toIterable().uniqueTrimmedOf()
@@ -1836,10 +2247,51 @@ fun Sequence<String>.uniqueTrimmedOf(): List<String> = toIterable().uniqueTrimme
 fun Iterable<String>.uniqueTrimmedOf(): List<String> = mapNotNull { toTrimOrNull(it) }.distinct()
 
 @FrameworkDsl
-fun <T : Comparable<T>> Iterable<T>.toSortedListOf(): List<T> = sorted()
+inline fun String.withSizeOf(block: (String, Int) -> Unit) {
+    block(this, sizeOf())
+}
 
 @FrameworkDsl
-fun <T : Comparable<T>> Iterable<T>.toReverseSortedListOf(): List<T> = sorted().reversed()
+inline fun <R> String.withSize(block: (String, Int) -> R): R {
+    return block(this, sizeOf())
+}
+
+@FrameworkDsl
+inline fun <T : Comparable<T>> Array<T>.toSorted(reversed: Boolean = false): List<T> {
+    if (sizeOf() > 1) {
+        sort()
+        if (reversed.isTrue()) {
+            reverse()
+        }
+    }
+    return asList()
+}
+
+@FrameworkDsl
+inline fun <T : Comparable<T>> Collection<T>.toComparableTypedArray(): Array<T> {
+    return toTypedArray<Comparable<T>>() as Array<T>
+}
+
+@FrameworkDsl
+fun <T : Comparable<T>> List<T>.toSorted(reversed: Boolean = false): List<T> {
+    if (sizeOf() <= 1) {
+        return this
+    }
+    return toComparableTypedArray().toSorted(reversed)
+}
+
+@FrameworkDsl
+fun <T : Comparable<T>> Collection<T>.toSorted(reversed: Boolean = false): List<T> {
+    return if (sizeOf() <= 1) {
+        when (this) {
+            is List<*> -> this as List<T>
+            else -> if (sizeOf() == 0) toListOf() else toListOf(head())
+        }
+    } else toComparableTypedArray().toSorted(reversed)
+}
+
+@FrameworkDsl
+fun <T : Comparable<T>> Iterable<T>.toSorted(reversed: Boolean = false): List<T> = toCollection().toSorted(reversed)
 
 @FrameworkDsl
 fun <T : Any> Iterator<T>.toEnumeration(): Enumeration<T> = object : Enumeration<T> {
@@ -1883,7 +2335,10 @@ inline fun <T> withLoggingContext(args: Pair<String, Any>, block: () -> T): T {
 
 @FrameworkDsl
 inline fun <T> withLoggingContext(args: Map<String, Any>, block: () -> T): T {
-    val hash = LinkedHashMap<String, String>(args.sizeOf())
+    if (args.isExhausted()) {
+        return block()
+    }
+    val hash = StringDictionary(args.sizeOf())
     for ((k, v) in args) {
         hash[k] = v.toString()
     }
@@ -1892,7 +2347,7 @@ inline fun <T> withLoggingContext(args: Map<String, Any>, block: () -> T): T {
 
 @FrameworkDsl
 inline fun <T> withLoggingContext(vararg args: Pair<String, Any>, block: () -> T): T {
-    val hash = LinkedHashMap<String, String>(args.sizeOf())
+    val hash = StringDictionary(args.sizeOf())
     for ((k, v) in args) {
         hash[k] = v.toString()
     }

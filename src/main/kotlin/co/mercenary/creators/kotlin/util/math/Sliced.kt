@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import co.mercenary.creators.kotlin.util.*
 interface Sliced<B : Sliced<B>> : SizedContainer, Copyable<B>, Cloneable {
 
     @FrameworkDsl
-    fun headOf(): Int
+    fun head(): Int
 
     @FrameworkDsl
-    fun tailOf(): Int
+    fun tail(): Int
 
     @FrameworkDsl
     @IgnoreForSerialize
@@ -32,15 +32,19 @@ interface Sliced<B : Sliced<B>> : SizedContainer, Copyable<B>, Cloneable {
 
     @FrameworkDsl
     @IgnoreForSerialize
-    fun isNotSlice(): Boolean {
-        return isSlice().isNotTrue()
-    }
+    fun isNotSlice(): Boolean = isSlice().isNotTrue()
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isExhausted(): Boolean = isEmpty()
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isNotExhausted(): Boolean = isExhausted().isNotTrue()
 
     @FrameworkDsl
     fun slice(index: Int, place: Int): B
 
     @FrameworkDsl
-    override fun sizeOf(): Int {
-        return tailOf() - headOf()
-    }
+    override fun sizeOf(): Int = tail() - head()
 }

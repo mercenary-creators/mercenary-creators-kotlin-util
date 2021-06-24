@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,28 +19,32 @@ package co.mercenary.creators.kotlin.util.security
 import co.mercenary.creators.kotlin.util.*
 import javax.xml.bind.DatatypeConverter
 
+@FrameworkDsl
 @IgnoreForSerialize
-object Encoders {
+object Encoders : HasMapNames {
 
-    @CreatorsDsl
-    private fun String.convert(): ByteArray = DatatypeConverter.parseHexBinary(toLowerTrim())
+    @FrameworkDsl
+    private fun String.convert(): ByteArray = DatatypeConverter.parseHexBinary(toUpperTrimEnglish())
 
-    @CreatorsDsl
-    private fun ByteArray.convert(): String = DatatypeConverter.printHexBinary(this).toLowerTrim()
+    @FrameworkDsl
+    private fun ByteArray.convert(): String = DatatypeConverter.printHexBinary(this).toUpperCaseEnglish()
 
-    @CreatorsDsl
-    override fun toString() = nameOf()
+    @FrameworkDsl
+    override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
+    @FrameworkDsl
+    override fun toMapNames() = dictOfType<Encoders>("methods" to Common.getExposedMethods(Encoders, true))
+
+    @FrameworkDsl
     private val bhex = object : Encoder<String, ByteArray> {
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun toString() = "HexBinaryEncoder"
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun decode(data: String): ByteArray = data.convert()
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun encode(data: ByteArray): String = data.convert()
     }
 
@@ -51,20 +55,21 @@ object Encoders {
     }
 
     @JvmStatic
-    @CreatorsDsl
-    fun hex() = bhex
+    @FrameworkDsl
+    @FrameworkApi
+    fun hex(): Encoder<String, ByteArray> = bhex
 
     @JvmStatic
-    @CreatorsDsl
-    fun toText(base: Encoder<String, ByteArray>): Encoder<String, String> = object : Encoder<String, String> {
+    @FrameworkDsl
+    fun text(): Encoder<String, String> = object : Encoder<String, String> {
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun toString() = "HexStringEncoder"
 
-        @CreatorsDsl
-        override fun decode(data: String): String = base.decode(data).getContentText()
+        @FrameworkDsl
+        override fun decode(data: String): String = hex().decode(data).getContentText()
 
-        @CreatorsDsl
-        override fun encode(data: String): String = base.encode(data.getContentData())
+        @FrameworkDsl
+        override fun encode(data: String): String = hex().encode(data.getContentData())
     }
 }

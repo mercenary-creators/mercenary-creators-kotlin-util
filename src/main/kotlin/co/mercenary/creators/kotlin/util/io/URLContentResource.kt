@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,57 +20,60 @@ import co.mercenary.creators.kotlin.util.*
 import java.net.*
 
 @IgnoreForSerialize
-class URLContentResource @JvmOverloads @CreatorsDsl constructor(private val data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type), OutputContentResource {
+class URLContentResource @JvmOverloads @FrameworkDsl constructor(data: URL, private val type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.toString(), type), OutputContentResource {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
-    constructor(data: URI, type: String = DEFAULT_CONTENT_TYPE) : this(data.toURL(), type)
+    constructor(data: URI, type: String = DEFAULT_CONTENT_TYPE) : this(data.linkOf(), type)
 
-    @CreatorsDsl
+    @FrameworkDsl
+    private val link = data
+
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentKind() = data.protocol.orEmpty()
+    override fun getContentKind() = link.protocol.orEmpty()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun isContentThere() = IO.isContentThere(data)
+    override fun isContentThere() = IO.isContentThere(link)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentMime() = IO.getContentMime(data)
+    override fun getContentMime() = IO.getContentMime(link)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentSize() = IO.getContentSize(data)
+    override fun getContentSize() = IO.getContentSize(link)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentTime() = IO.getContentTime(data)
+    override fun getContentTime() = IO.getContentTime(link)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentType() = IO.getContentType(data, type)
+    override fun getContentType() = IO.getContentType(link, type)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getInputStream() = data.toInputStream()
+    override fun getInputStream() = link.toInputStream()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getOutputStream() = data.toOutputStream()
+    override fun getOutputStream() = link.toOutputStream()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentLook(): ContentResourceLookup = { data.toRelative(it).toContentResource() }
+    override fun getContentLook(): ContentResourceLookup = { link.toRelative(it).toContentResource() }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is URLContentResource -> this === other || data isSameAs other.data
+        is URLContentResource -> this === other || link == other.link
         else -> false
     }
 
-    @CreatorsDsl
-    override fun hashCode() = data.hashCode()
+    @FrameworkDsl
+    override fun hashCode() = link.hashOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = getDescription()
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,29 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.ByteArrayOutputStream
 import java.io.*
 import java.nio.charset.Charset
 
 @IgnoreForSerialize
-class BytesOutputStream @JvmOverloads @CreatorsDsl constructor(size: Int = DEFAULT_BUFFER_SIZE) : OutputStream(), SizedContainer, Clearable, Resetable, ByteArraySupplier, AutoCloseable, Flushable {
+class BytesOutputStream @JvmOverloads @FrameworkDsl constructor(size: Int = DEFAULT_BUFFERED_SIZE) : OutputStream(), AppendableStream<BytesOutputStream> {
 
     @FrameworkDsl
-    private val buff = ByteArrayOutputStream(size)
+    private val buff = ByteArrayOutputStream(size.maxOf(MINIMUM_BUFFERED_SIZE).minOf(MAXIMUM_BUFFERED_SIZE))
 
     @FrameworkDsl
     override fun sizeOf(): Int {
         return buff.size()
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentData(copy: Boolean): ByteArray {
         return toByteArray().toByteArray(copy)
     }
 
     @FrameworkDsl
-    fun toByteArray(): ByteArray {
-        return buff.toByteArray()
+    override fun toByteArray(): ByteArray {
+        return if (isEmpty()) EMPTY_BYTE_ARRAY else buff.toByteArray()
     }
 
     @FrameworkDsl
@@ -53,23 +52,26 @@ class BytesOutputStream @JvmOverloads @CreatorsDsl constructor(size: Int = DEFAU
         reset()
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = if (isEmpty()) HASH_BASE_VALUE else toByteArray().hashOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString(): String {
-        return toString(Charsets.UTF_8)
-    }
-
-    @CreatorsDsl
-    fun toString(name: String): String {
         return when (isEmpty()) {
             true -> EMPTY_STRING
-            else -> buff.toString(charset(name))
+            else -> toString(DEFAULT_CHARSET_UTF_8)
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
+    fun toString(name: String): String {
+        return when (isEmpty()) {
+            true -> EMPTY_STRING
+            else -> buff.toString(IO.getSupportedCharsetName(name, DEFAULT_CHARSET_UTF_8))
+        }
+    }
+
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is BytesOutputStream -> other === this
         else -> false
@@ -77,7 +79,10 @@ class BytesOutputStream @JvmOverloads @CreatorsDsl constructor(size: Int = DEFAU
 
     @FrameworkDsl
     fun toString(charset: Charset): String {
-        return toString(charset.toString())
+        return when (isEmpty()) {
+            true -> EMPTY_STRING
+            else -> buff.toString(IO.getSupportedCharsetName(charset, DEFAULT_CHARSET_UTF_8))
+        }
     }
 
     @FrameworkDsl
@@ -92,11 +97,16 @@ class BytesOutputStream @JvmOverloads @CreatorsDsl constructor(size: Int = DEFAU
 
     @FrameworkDsl
     override fun write(data: ByteArray) {
-        buff.write(data, 0, data.size)
+        if (data.isNotExhausted()) {
+            buff.write(data, 0, data.sizeOf())
+        }
     }
 
     @FrameworkDsl
     override fun write(data: ByteArray, head: Int, tail: Int) {
+        if (head < 0 || head > data.sizeOf() || tail < 0 || ((head + tail) - data.sizeOf()) > 0) {
+            throw MercenaryFatalExceptiion(MATH_INVALID_SIZE_ERROR)
+        }
         buff.write(data, head, tail)
     }
 
@@ -106,27 +116,31 @@ class BytesOutputStream @JvmOverloads @CreatorsDsl constructor(size: Int = DEFAU
     }
 
     @FrameworkDsl
-    fun append(b: Int): BytesOutputStream {
-        write(b)
+    override fun append(data: Int): BytesOutputStream {
+        write(data)
         return this
     }
 
     @FrameworkDsl
-    fun append(data: ByteArray, head: Int, tail: Int): BytesOutputStream {
+    override fun append(data: ByteArray, head: Int, tail: Int): BytesOutputStream {
         write(data, head, tail)
         return this
     }
 
     @FrameworkDsl
-    fun append(data: ByteArray): BytesOutputStream {
+    override fun append(data: ByteArray): BytesOutputStream {
         write(data)
         return this
     }
 
-    companion object {
-
-        @JvmStatic
-        @FrameworkDsl
-        fun charset(name: String): String = if (Charset.isSupported(name)) name else Charsets.UTF_8.toString()
+    @FrameworkDsl
+    override fun sendTo(data: OutputStream, flush: Boolean): BytesOutputStream {
+        if (isNotEmpty()) {
+            buff.writeTo(data)
+        }
+        if (flush.isTrue()) {
+            data.flush()
+        }
+        return this
     }
 }

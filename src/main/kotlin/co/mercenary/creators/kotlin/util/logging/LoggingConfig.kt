@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,13 @@ object LoggingConfig {
     @JvmOverloads
     internal fun getLoggingConfigServiceList(load: ClassLoader? = null): List<LoggingConfigService> {
         return try {
-            ServiceLoading.loaderOf(LoggingConfigService::class, load).toSortedListOf()
-        }
-        catch (cause: Throwable) {
+            ServiceLoading.loaderOf(LoggingConfigService::class, load).toSorted()
+        } catch (cause: Throwable) {
             toListOf()
         }
     }
 
+    @FrameworkDsl
     private val list: List<LoggingConfigService> by lazy {
         getLoggingConfigServiceList()
     }

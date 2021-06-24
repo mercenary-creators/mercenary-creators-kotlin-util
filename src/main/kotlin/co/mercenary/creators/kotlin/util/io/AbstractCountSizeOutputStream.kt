@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,60 +20,63 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 
 @IgnoreForSerialize
-abstract class AbstractCountSizeOutputStream @JvmOverloads constructor(proxy: OutputStream, private val flush: Boolean = false) : FilterOutputStream(proxy), OpenAutoClosable, HasContentSize, HasMapNames, Clearable {
+abstract class AbstractCountSizeOutputStream @JvmOverloads constructor(proxy: OutputStream, flush: Boolean = false) : FilterOutputStream(proxy), OpenAutoClosable, HasContentSize, HasMapNames, Clearable {
 
-    private val count = 0L.toAtomic()
+    @FrameworkDsl
+    private val save = flush.toAtomic()
 
-    private val state = getAtomicTrue()
+    @FrameworkDsl
+    private val many = 0L.toAtomic()
 
-    @CreatorsDsl
+    @FrameworkDsl
+    private val open = getAtomicTrue()
+
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun isOpen() = state.isTrue()
+    override fun isOpen() = open.isTrue()
 
     override fun write(b: Int) {
-        count.increment()
+        many.increment()
         super.write(b)
     }
 
     override fun write(b: ByteArray) {
-        count.plus(b.toContentSize())
+        many.plus(b.toContentSize())
         super.write(b)
     }
 
     override fun write(b: ByteArray, off: Int, len: Int) {
-        count.plus(len.maxOf(0))
+        many.plus(len.maxOf(0))
         super.write(b, off, len)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun close() {
-        if (state.isTrueToFalse()) {
-            if (flush.isTrue()) {
+        if (open.isTrueToFalse()) {
+            if (save.isTrue()) {
                 try {
                     super.flush()
-                }
-                catch (cause: Throwable) {
+                } catch (cause: Throwable) {
                     Throwables.thrown(cause)
                 }
             }
             try {
                 super.close()
-            }
-            catch (cause: Throwable) {
+            } catch (cause: Throwable) {
                 Throwables.thrown(cause)
             }
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun clear() {
-        count.setValue(0)
+        many.setValue(0)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentSize() = count.getValue().maxOf(0)
+    override fun getContentSize() = many.getValue().maxOf(0)
 
-    @CreatorsDsl
-    override fun toMapNames() = dictOf("name" to nameOf(), "open" to isOpen(), "size" to getContentSize(), "flush" to flush.isTrue())
+    @FrameworkDsl
+    override fun toMapNames() = dictOf("name" to nameOf(), "open" to isOpen(), "size" to getContentSize(), "flush" to save.isTrue())
 }

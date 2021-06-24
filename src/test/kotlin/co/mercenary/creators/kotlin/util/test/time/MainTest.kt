@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
 class MainTest : KotlinTest() {
+
     @Test
     fun test() {
         val time = 6.days + 3.hours + 1.minute + 4.weeks
@@ -53,32 +54,6 @@ class MainTest : KotlinTest() {
         val test = 1.year + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds + 8.milliseconds + 1.nanosecond
         info { test }
         warn { dash() }
-        measured(10) {
-            if (it.isNegative()) {
-                warn { it }
-            }
-            for (i in 1..100000) {
-                TimeDuration.parseCharSequence("1 second 100 nanoseconds")
-            }
-        }
-        warn { dash() }
-        measured(10) {
-            if (it.isNegative()) {
-                warn { it }
-            }
-            for (i in 1..100000) {
-                TimeDuration.parseCharSequence("3 hours 1 minute")
-            }
-        }
-        warn { dash() }
-        measured(10) {
-            if (it.isNegative()) {
-                warn { it }
-            }
-            for (i in 1..100000) {
-                TimeDuration.parseCharSequence("6 days 3 hours 1 minute")
-            }
-        }
         val buff = test.toString()
         warn { dash() }
         measured(10) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,20 @@ import java.security.Security
 data class Algorithm @FrameworkDsl constructor(val service: String, val algorithms: List<String>) : HasMapNames {
 
     @FrameworkDsl
+    override fun toString() = toMapNames().toSafeString()
+
+    @FrameworkDsl
     override fun toMapNames() = dictOf("service" to service, "algorithms" to algorithms)
+
+    @FrameworkDsl
+    fun forEach(block: (String) -> Unit) {
+        algorithms.forEach(block)
+    }
+
+    @FrameworkDsl
+    fun forEachIndexed(block: (Int, String) -> Unit) {
+        algorithms.forEachIndexed(block)
+    }
 
     companion object {
 

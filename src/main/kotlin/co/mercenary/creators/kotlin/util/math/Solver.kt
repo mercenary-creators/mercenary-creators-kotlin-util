@@ -1,4 +1,9 @@
 package co.mercenary.creators.kotlin.util.math
 
-interface Solver<T, R> {
+import co.mercenary.creators.kotlin.util.*
+
+interface Solver<T, R> : Validated {
+
+    @FrameworkDsl
+    operator fun invoke(data: T, vararg more: T): R
 }

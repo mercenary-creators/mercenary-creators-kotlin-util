@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,38 +22,38 @@ import co.mercenary.creators.kotlin.util.io.*
 @IgnoreForSerialize
 interface LaunchRunner : OpenAutoClosable, InputStreamSupplier, OutputStreamSupplier, ErrorInputStreamSupplier, Alive, HasMapNames {
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun codeOf(): Int
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun waitOn(): Int
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun waitOn(time: TimeDuration): Boolean
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun destroy(force: Boolean = true): Boolean
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getCommandLine(): List<String>
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getEnvironment(): Map<String, String>
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun isUnknownCode(code: Int): Boolean = code == UNKNOWN_CODE
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun isSuccessCode(code: Int): Boolean = code == SUCCESS_CODE
 
     companion object {
 
-        @CreatorsDsl
+        @FrameworkDsl
         const val SUCCESS_CODE = 0
 
-        @CreatorsDsl
+        @FrameworkDsl
         const val UNKNOWN_CODE = Int.MIN_VALUE
     }
 }

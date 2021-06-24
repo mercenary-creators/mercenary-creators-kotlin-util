@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import java.io.File
 import java.nio.file.Path
 
 @IgnoreForSerialize
-class FileContentResource @JvmOverloads @CreatorsDsl constructor(private val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type), OutputContentResource {
+class FileContentResource @JvmOverloads @FrameworkDsl constructor(private val data: File, type: String = DEFAULT_CONTENT_TYPE) : AbstractContentResource(data.path, type), OutputContentResource {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     constructor(data: Path, type: String = DEFAULT_CONTENT_TYPE) : this(data.toFile(), type)
 
@@ -31,47 +31,47 @@ class FileContentResource @JvmOverloads @CreatorsDsl constructor(private val dat
 
     private val kind = IO.PREFIX_FILES
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentKind() = kind
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentType() = type
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentSize() = data.length()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentTime() = data.lastModified()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isContentThere() = data.isValidToRead()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getInputStream() = data.toInputStream()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getOutputStream() = data.toOutputStream()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup = { data.toRelative(it).toContentResource() }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is FileContentResource -> this === other || data isSameFileAndData other.data
         else -> false
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = data.hashCode()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = getDescription()
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,58 +40,58 @@ interface ILogging {
     fun isLoggingErrorEnabled(): Boolean
 
     @LoggingInfoDsl
-    fun info(block: () -> Any?)
+    fun info(block: LazyMessage)
 
     @LoggingInfoDsl
-    fun info(cause: Throwable, block: () -> Any?)
+    fun info(cause: Throwable, block: LazyMessage)
 
     @LoggingInfoDsl
-    fun info(marker: IMarker, block: () -> Any?)
+    fun info(marker: IMarker, block: LazyMessage)
 
     @LoggingInfoDsl
-    fun info(cause: Throwable, marker: IMarker, block: () -> Any?)
+    fun info(cause: Throwable, marker: IMarker, block: LazyMessage)
 
     @LoggingWarnDsl
-    fun warn(block: () -> Any?)
+    fun warn(block: LazyMessage)
 
     @LoggingWarnDsl
-    fun warn(cause: Throwable, block: () -> Any?)
+    fun warn(cause: Throwable, block: LazyMessage)
 
     @LoggingWarnDsl
-    fun warn(marker: IMarker, block: () -> Any?)
+    fun warn(marker: IMarker, block: LazyMessage)
 
     @LoggingWarnDsl
-    fun warn(cause: Throwable, marker: IMarker, block: () -> Any?)
+    fun warn(cause: Throwable, marker: IMarker, block: LazyMessage)
 
     @CreatorsDsl
-    fun trace(block: () -> Any?)
+    fun trace(block: LazyMessage)
 
     @CreatorsDsl
-    fun trace(cause: Throwable, block: () -> Any?)
+    fun trace(cause: Throwable, block: LazyMessage)
 
     @CreatorsDsl
-    fun trace(marker: IMarker, block: () -> Any?)
+    fun trace(marker: IMarker, block: LazyMessage)
 
     @CreatorsDsl
-    fun trace(cause: Throwable, marker: IMarker, block: () -> Any?)
+    fun trace(cause: Throwable, marker: IMarker, block: LazyMessage)
 
     @CreatorsDsl
-    fun debug(block: () -> Any?)
+    fun debug(block: LazyMessage)
 
     @CreatorsDsl
-    fun debug(cause: Throwable, block: () -> Any?)
+    fun debug(cause: Throwable, block: LazyMessage)
 
     @CreatorsDsl
-    fun debug(marker: IMarker, block: () -> Any?)
+    fun debug(marker: IMarker, block: LazyMessage)
 
     @CreatorsDsl
-    fun debug(cause: Throwable, marker: IMarker, block: () -> Any?)
+    fun debug(cause: Throwable, marker: IMarker, block: LazyMessage)
 
-    fun error(block: () -> Any?)
+    fun error(block: LazyMessage)
 
-    fun error(cause: Throwable, block: () -> Any?)
+    fun error(marker: IMarker, block: LazyMessage)
 
-    fun error(marker: IMarker, block: () -> Any?)
+    fun error(cause: Throwable, block: LazyMessage)
 
-    fun error(cause: Throwable, marker: IMarker, block: () -> Any?)
+    fun error(cause: Throwable, marker: IMarker, block: LazyMessage)
 }

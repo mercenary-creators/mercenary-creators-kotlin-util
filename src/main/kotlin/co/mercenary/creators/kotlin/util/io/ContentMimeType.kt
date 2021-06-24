@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,18 +55,18 @@ class ContentMimeType @FrameworkDsl private constructor(private val mime: MimeBa
     @FrameworkDsl
     override fun toMapNames() = mime.toMapNames()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is ContentMimeType -> this === other || mime == other.mime
         else -> false
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     infix fun isMatchOf(other: String): Boolean {
         return mime isMatchOf other
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     infix fun isMatchOf(other: ContentMimeType): Boolean {
         return mime isMatchOf other.mime
     }
@@ -131,7 +131,7 @@ class ContentMimeType @FrameworkDsl private constructor(private val mime: MimeBa
                     list.names.toList().map { name: Any -> name.toString().toLowerTrimEnglish() }.sorted().forEach { name ->
                         self[name] = list[name]
                     }
-                }
+                }.toReadOnly()
             }
 
             val base: String
@@ -146,10 +146,10 @@ class ContentMimeType @FrameworkDsl private constructor(private val mime: MimeBa
                 @IgnoreForSerialize
                 get() = mime.primaryType
 
-            @CreatorsDsl
+            @FrameworkDsl
             override fun toMapNames(): Map<String, Any?> {
                 return dictOf("type" to type, "part" to part).let {
-                    if (list.isEmpty) it else it.plus("prop" to prop.toMap())
+                    if (list.isEmpty) it else it.plus("prop" to prop)
                 }
             }
 
@@ -167,11 +167,11 @@ class ContentMimeType @FrameworkDsl private constructor(private val mime: MimeBa
 
             @FrameworkDsl
             override fun equals(other: Any?) = when (other) {
-                is MimeBase -> this === other || toString() isSameAs other.toString()
+                is MimeBase -> this === other || toString() == other.toString()
                 else -> false
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             infix fun isMatchOf(other: String): Boolean = try {
                 mime.match(other)
             } catch (cause: Throwable) {
@@ -179,7 +179,7 @@ class ContentMimeType @FrameworkDsl private constructor(private val mime: MimeBa
                 false
             }
 
-            @CreatorsDsl
+            @FrameworkDsl
             infix fun isMatchOf(other: MimeBase): Boolean = try {
                 mime.match(other.mime)
             } catch (cause: Throwable) {

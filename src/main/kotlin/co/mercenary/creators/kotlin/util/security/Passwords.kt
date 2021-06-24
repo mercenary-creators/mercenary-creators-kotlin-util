@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,28 +18,39 @@ package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
 
+@FrameworkDsl
+@IgnoreForSerialize
 object Passwords {
 
+    @FrameworkDsl
     const val PART_SIZE = 8
 
+    @FrameworkDsl
     const val MIN_PARTS = 3
 
+    @FrameworkDsl
     const val MAX_PARTS = 31
 
+    @FrameworkDsl
     const val THE_PARTS = 15
 
+    @FrameworkDsl
     const val SEPARATOR = '-'
 
+    @FrameworkDsl
     const val SALT_SIZE = 64
 
+    @FrameworkDsl
     const val MIN_LOOPS = 16 * 1024
 
+    @FrameworkDsl
     const val MAX_LOOPS = 96 * 1024
 
+    @FrameworkDsl
     const val THE_LOOPS = 64 * 1024
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun getGeneratedSalt(loop: Int = THE_LOOPS): CharSequence {
         val hash = Digests.sha512().proxyOf()
@@ -52,7 +63,7 @@ object Passwords {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun getGeneratedPass(part: Int = THE_PARTS): CharSequence {
         val loop = part.boxIn(MIN_PARTS, MAX_PARTS)
@@ -60,11 +71,11 @@ object Passwords {
         for (i in 0 until loop) {
             buff.add(Randoms.getString(PART_SIZE)).add(SEPARATOR)
         }
-        return buff.add(CheckSums.crc32().encoder(buff.toString())).toString()
+        return buff.add(CheckSums.crc32().encoder(buff.copyOf())).copyOf()
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun isValid(pass: CharSequence, part: Int = THE_PARTS): Boolean {
         val loop = part.boxIn(MIN_PARTS, MAX_PARTS)
@@ -73,11 +84,11 @@ object Passwords {
             return false
         }
         val list = pass.split(SEPARATOR)
-        if (list.size != (loop + 1)) {
+        if (list.sizeOf() != (loop + 1)) {
             return false
         }
         for (i in 0 until loop) {
-            if (list[i].length != PART_SIZE) {
+            if (list[i].sizeOf() != PART_SIZE) {
                 return false
             }
         }

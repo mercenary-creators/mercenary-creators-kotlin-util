@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.*
 @IgnoreForSerialize
 object TimeAndDate : HasMapNames {
 
+    @FrameworkDsl
     private val formatter: DateTimeFormatter by lazy {
         DateTimeFormatterBuilder().appendPattern(TIME_DEFAULT_DATE_FORMAT).toFormatter()
     }
@@ -59,12 +60,26 @@ object TimeAndDate : HasMapNames {
     @JvmStatic
     @FrameworkDsl
     @IgnoreForSerialize
-    fun getDefaultTimeZoneId(): ZoneId = ZoneId.of(TIME_DEFAULT_ZONE_STRING)
+    fun getDefaultTimeZoneString(): String {
+        return TIME_DEFAULT_ZONE_STRING
+    }
 
     @JvmStatic
     @FrameworkDsl
     @IgnoreForSerialize
-    fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(TIME_DEFAULT_ZONE_STRING)
+    fun getDefaultDateFormatString(): String {
+        return TIME_DEFAULT_DATE_FORMAT
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun getDefaultTimeZoneId(): ZoneId = ZoneId.of(getDefaultTimeZoneString())
+
+    @JvmStatic
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun getDefaultTimeZone(): TimeZone = TimeZone.getTimeZone(getDefaultTimeZoneString())
 
     @JvmStatic
     @FrameworkDsl
@@ -77,7 +92,7 @@ object TimeAndDate : HasMapNames {
     @JvmStatic
     @FrameworkDsl
     @IgnoreForSerialize
-    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat(TIME_DEFAULT_DATE_FORMAT)
+    fun getDefaultDateFormat(): SimpleDateFormat = SimpleDateFormat(getDefaultDateFormatString())
 
     @JvmStatic
     @FrameworkDsl
@@ -121,7 +136,7 @@ object TimeAndDate : HasMapNames {
     @FrameworkDsl
     @JvmOverloads
     fun parseDate(text: CharSequence, safe: Boolean = true): Date {
-        return if (safe) getThreadLocalDefaultDateFormat().toValue().parse(text.toString()) else getDefaultDateFormatAndTimeZone().parse(text.toString())
+        return if (safe) getThreadLocalDefaultDateFormat().toValue().parse(text.copyOf()) else getDefaultDateFormatAndTimeZone().parse(text.copyOf())
     }
 
     @JvmStatic

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,12 @@ import co.mercenary.creators.kotlin.util.*
 @IgnoreForSerialize
 abstract class AbstractContentResource @JvmOverloads constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = 0L) : AbstractContentResourceBase(path, type, time) {
 
+    @FrameworkDsl
     private val cache: CachedContentResource by lazy {
         ByteArrayContentResource(getContentData(), getContentPath(), getContentType(), getContentTime(), getContentLook(), getContentKind())
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     protected fun resolved(): String {
         val keep = super.getContentType()
         if (keep.isDefaultContentType()) {
@@ -39,18 +40,18 @@ abstract class AbstractContentResource @JvmOverloads constructor(path: String, t
         return keep.toLowerTrim()
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toContentCache() = cache
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isContentCache() = false
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentData() = getInputStream().toByteArray()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentSize() = getInputStream().use { it.copyTo(EmptyOutputStream) }
 }

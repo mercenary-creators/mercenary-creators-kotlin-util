@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package co.mercenary.creators.kotlin.util.collection
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class LRUCacheMap<K, V> @JvmOverloads @FrameworkDsl constructor(threshold: Int = DEFAULT_LRU_THRESHOLD) : BasicLinkedMap<K, V>(DEFAULT_MAP_CAPACITY, DEFAULT_MAP_FACTOR, true), InsertLimited by threshold.toInsertLimited() {
+class LRUCacheMap<K, V> @JvmOverloads @FrameworkDsl constructor(threshold: Int = DEFAULT_LRU_THRESHOLD) : BasicLinkedMap<K, V>(DEFAULT_MAP_CAPACITY, true, true), InsertLimited by threshold.toInsertLimited() {
 
     @FrameworkDsl
     constructor(k: K, v: V) : this() {
@@ -74,7 +74,9 @@ class LRUCacheMap<K, V> @JvmOverloads @FrameworkDsl constructor(threshold: Int =
     }
 
     @FrameworkDsl
-    override fun removeEldestEntry(eldest: Map.Entry<K, V>) = isOrdered() && sizeOf() > getLimit()
+    override fun removeEldestEntry(eldest: Map.Entry<K, V>): Boolean {
+        return  (isOrdered() && isSizeCapped() && isOverLimit(getLimit()))
+    }
 
     @FrameworkDsl
     override fun clone() = copyOf()

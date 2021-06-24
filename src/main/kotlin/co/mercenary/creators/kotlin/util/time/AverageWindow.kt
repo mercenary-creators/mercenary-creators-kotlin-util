@@ -20,10 +20,10 @@ import co.mercenary.creators.kotlin.util.*
 
 interface AverageWindow {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getAverage(): Double
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun addAverage(delta: Double): Double
 }

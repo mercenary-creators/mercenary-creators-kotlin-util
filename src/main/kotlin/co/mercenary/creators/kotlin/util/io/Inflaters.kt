@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,24 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 import java.util.zip.*
 
-@CreatorsDsl
+@FrameworkDsl
 @IgnoreForSerialize
 object Inflaters {
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun gzip(): Inflater = GZIPInflater
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     private object GZIPInflater : Inflater {
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun inflate(data: InputStream, copy: OutputStream) = GZIPInputStream(NoCloseInputStream(data)).use { gzip ->
             gzip.copyTo(copy).also { copy.flush() }
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun deflate(data: InputStream, copy: OutputStream) = CountSizeOutputStream(copy).let { buff ->
             GZIPOutputStream(NoCloseOutputStream(buff)).use { gzip ->
                 data.copyTo(gzip)
@@ -45,10 +45,10 @@ object Inflaters {
             buff.getContentSize()
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun toString() = toMapNames().toSafeString()
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun toMapNames() = dictOf("type" to "GZIP")
     }
 }

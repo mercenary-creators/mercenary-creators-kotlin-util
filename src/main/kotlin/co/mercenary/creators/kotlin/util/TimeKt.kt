@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -292,6 +292,21 @@ val Double.nanoseconds: TimeDuration
     get() = TimeDuration.nanoseconds(this)
 
 @FrameworkDsl
+operator fun Int.times(value: TimeDuration): TimeDuration = value.times(this)
+
+@FrameworkDsl
+operator fun Long.times(value: TimeDuration): TimeDuration = value.times(this)
+
+@FrameworkDsl
+operator fun Short.times(value: TimeDuration): TimeDuration = value.times(this)
+
+@FrameworkDsl
+operator fun Float.times(value: TimeDuration): TimeDuration = value.times(toFiniteOrElse(1.0))
+
+@FrameworkDsl
+operator fun Double.times(value: TimeDuration): TimeDuration = value.times(toFiniteOrElse(1.0))
+
+@FrameworkDsl
 inline fun TimeDuration.getNanoSeconds(): Long = duration().toNanos()
 
 @FrameworkDsl
@@ -350,3 +365,10 @@ fun String.parseDate(zone: ZoneId = TimeAndDate.getDefaultTimeZoneId()): LocalDa
 
 @FrameworkDsl
 fun <T> timed(after: (String) -> Unit, block: () -> T): T = NanoTicker().let { block().also { after(it(false)) } }
+
+@FrameworkDsl
+fun elapsed(nano: Boolean = true, block: () -> Unit): Long {
+    val time = getTimeStamp(nano)
+    block()
+    return getTimeStamp(nano) - time
+}

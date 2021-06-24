@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,23 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class ByteArrayContentResource @JvmOverloads @CreatorsDsl constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp(), private val make: ContentResourceLookup? = null, private val kind: String = IO.PREFIX_BYTES) : AbstractCachedContentResource(data, path, type, time) {
+class ByteArrayContentResource @JvmOverloads @FrameworkDsl constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp(), private val make: ContentResourceLookup? = null, kind: String = IO.PREFIX_BYTES) : AbstractCachedContentResource(data, path, type, time, kind) {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup {
         return { make?.invoke(it)?.toContentCache() ?: this }
     }
 
-    @CreatorsDsl
-    @IgnoreForSerialize
-    override fun getContentKind() = kind
+    @FrameworkDsl
+    override fun toString() = super.toString()
 
-    @CreatorsDsl
+    @FrameworkDsl
+    override fun hashCode() = super.hashCode()
+
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is ByteArrayContentResource -> this === other || isPathSameAs(other) && isDataSameAs(other)
+        is ByteArrayContentResource -> this === other || super.equals(other)
         else -> false
     }
-
-    @CreatorsDsl
-    override fun hashCode() = toDataHashOf()
 }

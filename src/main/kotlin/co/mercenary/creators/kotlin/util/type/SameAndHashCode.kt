@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
+
 package co.mercenary.creators.kotlin.util.type
 
 import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.io.*
 import co.mercenary.creators.kotlin.util.io.BytesOutputStream
+import com.fasterxml.jackson.core.type.TypeReference
+import com.jayway.jsonpath.TypeRef
 import java.io.*
-import java.io.ByteArrayOutputStream
+import java.lang.reflect.*
 import java.math.*
 import java.net.*
 import java.nio.ByteBuffer
 import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 import java.util.concurrent.atomic.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
+import kotlin.reflect.jvm.*
+
 @FrameworkDsl
 @IgnoreForSerialize
 object SameAndHashCode {
@@ -35,6 +41,34 @@ object SameAndHashCode {
     @JvmStatic
     @FrameworkDsl
     fun isSameAs(value: Array<*>, other: Array<*>): Boolean {
+        if (value === other) {
+            return true
+        }
+        if (value.sizeOf() != other.sizeOf()) {
+            return false
+        }
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        for (i in value.indices) {
+            val v = value[i]
+            val o = other[i]
+            if (v === o) {
+                continue
+            }
+            if ((v == null) && (o != null)) {
+                return false
+            }
+            if (isSameAs(v, o)) {
+                continue
+            }
+        }
+        return true
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun isSameAs(value: List<*>, other: List<*>): Boolean {
         if (value === other) {
             return true
         }
@@ -72,35 +106,7 @@ object SameAndHashCode {
         if (value.sizeOf() == 0) {
             return true
         }
-        return isSameAs(value.toList(), other.toList())
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun isSameAs(value: List<*>, other: List<*>): Boolean {
-        if (value === other) {
-            return true
-        }
-        if (value.sizeOf() != other.sizeOf()) {
-            return false
-        }
-        if (value.sizeOf() == 0) {
-            return true
-        }
-        for (i in value.indices) {
-            val v = value[i]
-            val o = other[i]
-            if (v === o) {
-                continue
-            }
-            if ((v == null) && (o != null)) {
-                return false
-            }
-            if (isSameAs(v, o)) {
-                continue
-            }
-        }
-        return true
+        return value.containsAll(other)
     }
 
     @JvmStatic
@@ -115,7 +121,7 @@ object SameAndHashCode {
         if (value.sizeOf() == 0) {
             return true
         }
-        return isSameAs(value.toList(), other.toList())
+        return value.containsAll(other)
     }
 
     @JvmStatic
@@ -124,11 +130,13 @@ object SameAndHashCode {
         if (value === other) {
             return true
         }
+        if (value.isExhausted() != other.isExhausted()) {
+            return false
+        }
         return when (value) {
-            is Set<*> -> if (other is Set<*>) isSameAs(value, other) else false
             is List<*> -> if (other is List<*>) isSameAs(value, other) else false
             is Collection<*> -> if (other is Collection<*>) isSameAs(value, other) else false
-            else -> isSameAs(value.toList(), other.toList())
+            else -> isSameAs(value.toCollection(), other.toCollection())
         }
     }
 
@@ -184,20 +192,21 @@ object SameAndHashCode {
         return when (value) {
             null -> other == null
             is String -> if (other is String) value == other else false
-            is Set<*> -> if (other is Set<*>) isSameAs(value, other) else false
             is List<*> -> if (other is List<*>) isSameAs(value, other) else false
             is Array<*> -> if (other is Array<*>) isSameAs(value, other) else false
             is Map<*, *> -> if (other is Map<*, *>) isSameAs(value, other) else false
+            is Set<*> -> if (other is Set<*>) isSameAs(value, other) else false
+            is Collection<*> -> if (other is Collection<*>) isSameAs(value, other) else false
             is Iterable<*> -> if (other is Iterable<*>) isSameAs(value, other) else false
             is Map.Entry<*, *> -> if (other is Map.Entry<*, *>) isSameAs(value, other) else false
-            is IntArray -> if (other is IntArray) value isSameArrayAs other else false.toBoolean()
-            is ByteArray -> if (other is ByteArray) value isSameArrayAs other else false.toBoolean()
-            is CharArray -> if (other is CharArray) value isSameArrayAs other else false.toBoolean()
-            is LongArray -> if (other is LongArray) value isSameArrayAs other else false.toBoolean()
-            is ShortArray -> if (other is ShortArray) value isSameArrayAs other else false.toBoolean()
-            is FloatArray -> if (other is FloatArray) value isSameArrayAs other else false.toBoolean()
-            is DoubleArray -> if (other is DoubleArray) value isSameArrayAs other else false.toBoolean()
-            is BooleanArray -> if (other is BooleanArray) value isSameArrayAs other else false.toBoolean()
+            is IntArray -> if (other is IntArray) value isSameArrayAs other else false
+            is ByteArray -> if (other is ByteArray) value isSameArrayAs other else false
+            is CharArray -> if (other is CharArray) value isSameArrayAs other else false
+            is LongArray -> if (other is LongArray) value isSameArrayAs other else false
+            is ShortArray -> if (other is ShortArray) value isSameArrayAs other else false
+            is FloatArray -> if (other is FloatArray) value isSameArrayAs other else false
+            is DoubleArray -> if (other is DoubleArray) value isSameArrayAs other else false
+            is BooleanArray -> if (other is BooleanArray) value isSameArrayAs other else false
             is AtomicBoolean -> if (other is Boolean) value.toBoolean() == other else if (other is AtomicBoolean) value.toBoolean() == other.toBoolean() else false.toBoolean()
             is Boolean -> if (other is Boolean) value == other else if (other is AtomicBoolean) value == other.toBoolean() else false.toBoolean()
             is Number -> when (other) {
@@ -247,6 +256,7 @@ object SameAndHashCode {
         is Path -> true.toBoolean()
         is Reader -> true.toBoolean()
         is ByteArray -> true.toBoolean()
+        is CharArray -> true.toBoolean()
         is ByteBuffer -> true.toBoolean()
         is InputStream -> true.toBoolean()
         is CharSequence -> true.toBoolean()
@@ -264,16 +274,7 @@ object SameAndHashCode {
         if (value != null && other != null) {
             if (isContentCapable(value) && isContentCapable(other)) {
                 try {
-                    val v = contentOf(value)
-                    val o = contentOf(other)
-                    if (v.size == o.size) {
-                        for (i in v.indices) {
-                            if (v[i] != o[i]) {
-                                return false
-                            }
-                        }
-                        return true
-                    }
+                    return contentOf(value) isSameArrayAs contentOf(other)
                 } catch (cause: Throwable) {
                 }
             }
@@ -285,7 +286,7 @@ object SameAndHashCode {
     @FrameworkDsl
     fun isContentNotSameAs(value: Any?, other: Any?): Boolean = isContentSameAs(value, other).isNotTrue()
 
-    @JvmStatic
+    @JvmSynthetic
     @FrameworkDsl
     private fun contentOf(value: Any): ByteArray {
         return when (value) {
@@ -335,15 +336,6 @@ object SameAndHashCode {
 
     @JvmStatic
     @FrameworkDsl
-    fun hashOf(vararg args: Any?): Int {
-        return when (args.isExhausted()) {
-            true -> HASH_BASE_VALUE
-            else -> args.toIterator().hashOf()
-        }
-    }
-
-    @JvmStatic
-    @FrameworkDsl
     fun idenOf(value: Any?): Int {
         return when (value) {
             null -> HASH_NULL_VALUE
@@ -353,11 +345,36 @@ object SameAndHashCode {
 
     @JvmStatic
     @FrameworkDsl
+    fun clazOf(value: Any): Class<*> {
+        return when (value) {
+            is Class<*> -> value
+            is KClass<*> -> value.java
+            is Type -> getErasedType(value)
+            is TypeRef<*> -> clazOf(value.type)
+            is TypeReference<*> -> clazOf(value.type)
+            is ParameterizedTypeReference<*> -> clazOf(value.getType())
+            else -> value.javaClass
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
     fun nameOf(value: Any): String {
         return when (value) {
-            is Class<*> -> value.name
-            is KClass<*> -> value.java.name
-            else -> value.javaClass.name
+            is Class<*> -> {
+                if (value.isKotlinClass()) {
+                    value.kotlin.qualifiedName.otherwise("...")
+                }
+                else {
+                    value.name
+                }
+            }
+            is KClass<*> -> nameOf(value.java)
+            is Type -> value.typeName
+            is TypeRef<*> -> nameOf(value.type)
+            is TypeReference<*> -> nameOf(value.type)
+            is ParameterizedTypeReference<*> -> nameOf(value.getType())
+            else -> nameOf(value.javaClass)
         }
     }
 
@@ -369,5 +386,105 @@ object SameAndHashCode {
             is KClass<*> -> simpleNameOf(value.java)
             else -> simpleNameOf(value.javaClass)
         }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun isAssignable(base: Any, from: Any): Boolean {
+        return when (base) {
+            is Class<*> -> {
+                when (from) {
+                    is Class<*> -> isAssignableClass(base, from)
+                    is KClass<*> -> isAssignableClass(base, from.java)
+                    else -> isAssignableClass(base, from.javaClass)
+                }
+            }
+            is KClass<*> -> {
+                when (from) {
+                    is Class<*> -> isAssignableClass(base.java, from)
+                    is KClass<*> -> isAssignableClass(base.java, from.java)
+                    else -> isAssignableClass(base.java, from.javaClass)
+                }
+            }
+            else -> isAssignableClass(base.javaClass, from.javaClass)
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun isAssignableClass(base: Class<*>, from: Class<*>): Boolean {
+        return base.isAssignableFrom(from)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getParameterizedType(kind: Class<*>): Type {
+        return getParameterizedType(kind.genericSuperclass)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getParameterizedType(kind: Type): Type {
+        return when (kind) {
+            is Class<*> -> fail(kind.nameOf())
+            else -> (kind as ParameterizedType).actualTypeArguments[0]
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getParameterizedTypes(kind: Class<*>): List<Type> {
+        return getParameterizedTypes(kind.genericSuperclass)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getParameterizedTypes(kind: Type): List<Type> {
+        return when (kind) {
+            is Class<*> -> toListOf()
+            else -> (kind as ParameterizedType).actualTypeArguments.toList()
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getErasedType(kind: Type): Class<*> {
+        return when (kind) {
+            is Class<*> -> kind
+            is ParameterizedType -> getErasedType(kind.rawType)
+            is WildcardType -> getErasedType(kind.upperBounds[0])
+            is GenericArrayType -> getArrayType(getErasedType(kind.genericComponentType))
+            else -> Unit::class.java
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getErasedType(kind: KType): Class<*> {
+        return kind.jvmErasure.java
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    private fun getArrayType(kind: Class<*>): Class<*> {
+        return newArray(kind, 0).javaClass
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun <T : Any> getArrayOfNull(kind: KClass<T>, size: Int): Array<T?> {
+        return getArrayOfNull(kind.java, size)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun <T : Any> getArrayOfNull(kind: Class<T>, size: Int): Array<T?> {
+        return newArray(kind, size) as Array<T?>
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    private fun newArray(kind: Class<*>, size: Int): Any {
+        return java.lang.reflect.Array.newInstance(kind, size.maxOf(0))
     }
 }

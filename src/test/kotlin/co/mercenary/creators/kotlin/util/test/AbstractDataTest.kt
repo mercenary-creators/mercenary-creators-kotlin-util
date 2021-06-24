@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,29 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.logging.LoggingWarnDsl
 import java.io.File
 
 @IgnoreForSerialize
 abstract class AbstractDataTest : AbstractKotlinTest() {
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun file(name: String) = File(name)
 
-    @LoggingWarnDsl
+    @FrameworkDsl
     fun look(file: File) {
         dashes()
-        warn { file.path }
-        warn { file.exists() }
+        warn { file.getPathName() }
+        warn { file.isContentThere() }
         warn { file.isValidToRead() }
         warn { file.isValidToWrite() }
-        warn { file.length() }
-        val (d, f) = dateOf() to file.lastModified().toDate()
+        warn { file.getContentSize() }
+        val (d, f) = dateOf() to file.getContentDate()
         warn { f }
         warn { d }
         dashes()
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun File.data(data: ByteArray): ByteArray {
         inputStream().use { it.read(data) }
         return data

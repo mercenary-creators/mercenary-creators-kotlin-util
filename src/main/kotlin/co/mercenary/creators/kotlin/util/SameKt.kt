@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,89 +14,127 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmMultifileClass
-@file:kotlin.jvm.JvmName("TestKt")
+@file:kotlin.jvm.JvmName("SameKt")
 @file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 
 package co.mercenary.creators.kotlin.util
 
 @FrameworkDsl
-internal const val SHOULD_BE_SAME_ARRAY_FAILED = "shouldBeSameArray failed"
+const val SHOULD_BE_SAME_ARRAY_FAILED = "shouldBeSameArray failed"
 
 @FrameworkDsl
-internal const val SHOULD_NOT_BE_SAME_ARRAY_FAILED = "shouldNotBeSameArray failed"
+const val SHOULD_NOT_BE_SAME_ARRAY_FAILED = "shouldNotBeSameArray failed"
 
 @FrameworkDsl
-inline fun LazyMessage.toSafeString(): String = Formatters.toSafeString(this)
+fun LazyMessage.toSafeString(): String = Formatters.toSafeString { this }
 
 @FrameworkDsl
-inline fun fail(text: String): Nothing {
+fun fail(text: String): Nothing {
     throw MercenaryAssertionExceptiion(text)
 }
 
 @FrameworkDsl
-inline fun fail(func: LazyMessage): Nothing {
+fun fail(func: LazyMessage): Nothing {
     fail(func.toSafeString())
 }
 
 @FrameworkDsl
-inline fun shouldBeTrue(value: Boolean, text: String) {
+fun shouldBeTrue(value: Boolean, text: String) {
     if (value.isNotTrue()) {
         fail(text)
     }
 }
 
 @FrameworkDsl
-inline fun shouldBeTrue(value: Boolean, func: LazyMessage) {
+fun shouldBeTrue(value: Boolean, func: LazyMessage) {
     if (value.isNotTrue()) {
         fail(func)
     }
 }
 
 @FrameworkDsl
-inline fun shouldNotBeTrue(value: Boolean, text: String) {
+fun shouldNotBeTrue(value: Boolean, text: String) {
     if (value.isTrue()) {
         fail(text)
     }
 }
 
 @FrameworkDsl
-inline fun shouldNotBeTrue(value: Boolean, func: LazyMessage) {
+fun shouldNotBeTrue(value: Boolean, func: LazyMessage) {
     if (value.isTrue()) {
         fail(func)
     }
 }
 
 @FrameworkDsl
-inline fun shouldBeValid(value: Validated, text: String) {
+fun shouldBeValid(value: Validated, text: String) {
     if (value.isNotValid()) {
         fail(text)
     }
 }
 
 @FrameworkDsl
-inline fun shouldBeValid(value: Validated, func: LazyMessage) {
+fun shouldBeValid(value: Validated, func: LazyMessage) {
     if (value.isNotValid()) {
         fail(func)
     }
 }
 
 @FrameworkDsl
-inline fun shouldNotBeValid(value: Validated, text: String) {
+fun shouldNotBeValid(value: Validated, text: String) {
     if (value.isValid()) {
         fail(text)
     }
 }
 
 @FrameworkDsl
-inline fun shouldNotBeValid(value: Validated, func: LazyMessage) {
+fun shouldNotBeValid(value: Validated, func: LazyMessage) {
     if (value.isValid()) {
         fail(func)
+    }
+}
+
+@FrameworkDsl
+inline fun <reified T : Throwable> assumeThrows(crossinline block: () -> Unit) {
+    try {
+        block.invoke()
+    } catch (cause: Throwable) {
+        shouldBeTrue(cause is T) {
+            "assumeThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
+        }
+        return
+    }
+    fail("assumeThrows failed for ${T::class.java.name}")
+}
+
+@FrameworkDsl
+inline fun <reified T : Throwable> assumeNotThrows(crossinline block: () -> Unit) {
+    try {
+        block.invoke()
+    } catch (cause: Throwable) {
+        shouldNotBeTrue(cause is T) {
+            "assumeNotThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
+        }
     }
 }
 
 @FrameworkDsl
 infix fun Map<*, *>.isSameAs(value: Map<*, *>) = SameAndHashCode.isSameAs(this, value)
+
+@FrameworkDsl
+infix fun List<*>.isSameAs(value: List<*>) = SameAndHashCode.isSameAs(this, value)
+
+@FrameworkDsl
+infix fun Set<*>.isSameAs(value: Set<*>) = SameAndHashCode.isSameAs(this, value)
+
+@FrameworkDsl
+infix fun Collection<*>.isSameAs(value: Collection<*>) = SameAndHashCode.isSameAs(this, value)
+
+@FrameworkDsl
+infix fun CharSequence.isSameAs(value: CharSequence) = copyOf() == value.copyOf()
+
+@FrameworkDsl
+infix fun CharSequence.isNotSameAs(value: CharSequence) = copyOf() != value.copyOf()
 
 @FrameworkDsl
 infix fun <T : Any?> T.isSameAs(value: T) = SameAndHashCode.isSameAs(this, value)
@@ -221,33 +259,33 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @FrameworkDsl construct
 
     @FrameworkDsl
     fun append(cause: Throwable, vararg args: Throwable): MercenaryMultipleAssertionExceptiion {
-        list.add(cause)
+        list.append(cause)
         if (args.isNotExhausted()) {
-            list.add(args.toCollection())
+            list.append(args.toCollection())
         }
         return this
     }
 
     @FrameworkDsl
     fun append(args: Iterator<Throwable>): MercenaryMultipleAssertionExceptiion {
-        args.forEach {
-            list += it
+        if (args.isNotExhausted()) {
+            list.append(args.toCollection())
         }
         return this
     }
 
     @FrameworkDsl
     fun append(args: Iterable<Throwable>): MercenaryMultipleAssertionExceptiion {
-        args.forEach {
-            list += it
+        if (args.isNotExhausted()) {
+            list.append(args.toCollection())
         }
         return this
     }
 
     @FrameworkDsl
     fun append(args: Sequence<Throwable>): MercenaryMultipleAssertionExceptiion {
-        args.forEach {
-            list += it
+        if (args.isNotExhausted()) {
+            list.append(args.toCollection())
         }
         return this
     }
@@ -315,11 +353,13 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @FrameworkDsl construct
     }
 }
 
+typealias Assumption = () -> Unit
+
 @IgnoreForSerialize
 fun interface AssumptionContainer {
 
     @FrameworkDsl
-    fun assumeThat(block: () -> Unit)
+    fun assumeThat(block: Assumption)
 }
 
 @FrameworkDsl
@@ -331,7 +371,7 @@ fun assumeEach(block: AssumptionContainer.() -> Unit) {
 class AssumptionCollector @FrameworkDsl constructor(block: AssumptionCollector.() -> Unit) : AssumptionContainer {
 
     @FrameworkDsl
-    private val list = BasicArrayList<() -> Unit>()
+    private val list = BasicArrayList<Assumption>()
 
     init {
         block(this)
@@ -349,14 +389,14 @@ class AssumptionCollector @FrameworkDsl constructor(block: AssumptionCollector.(
                 }
             }
             if (look.isNotEmpty()) {
-                throw MercenaryMultipleAssertionExceptiion(look).suppress()
+                MercenaryMultipleAssertionExceptiion(look).suppress().failed()
             }
         }
     }
 
     @FrameworkDsl
-    override fun assumeThat(block: () -> Unit) {
-        list += block
+    override fun assumeThat(block: Assumption) {
+        list.add(block)
     }
 
     @FrameworkDsl

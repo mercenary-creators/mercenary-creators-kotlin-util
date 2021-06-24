@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,18 @@ import java.io.*
 import javax.crypto.SecretKey
 
 @IgnoreForSerialize
-class CipherEncryptingCopy @JvmOverloads @CreatorsDsl constructor(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherCopyStreams {
+class CipherEncryptingCopy @JvmOverloads @FrameworkDsl constructor(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherCopyStreams {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val proxy = Ciphers.copy(secret, algorithm)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun encrypt(data: InputStream, copy: OutputStream) = proxy.encrypt(data, copy)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun decrypt(data: InputStream, copy: OutputStream) = proxy.decrypt(data, copy)
 }

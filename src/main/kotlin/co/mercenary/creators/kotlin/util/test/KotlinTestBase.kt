@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,32 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.Logging
 import co.mercenary.creators.kotlin.util.logging.*
-import co.mercenary.creators.kotlin.util.logging.Logging
+
 import mu.KLogger
 import java.io.File
-import java.util.*
 import kotlin.reflect.KClass
 
 @IgnoreForSerialize
-open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
+open class KotlinTestBase @FrameworkDsl constructor(name: String?) : Logging(name), IKotlinTestBase {
 
     @FrameworkDsl
     constructor() : this(null)
 
-    private val nope = ArrayList<Class<*>>()
-
     init {
         Encoders
-        addThrowableAsFatal(OutOfMemoryError::class)
-        addThrowableAsFatal(StackOverflowError::class)
     }
 
-    private val conf: Properties by lazy {
-        getConfigPropertiesBuilder().invoke()
+    @FrameworkDsl
+    private val conf: SystemProperties by lazy {
+        getConfigPropertiesBuilder().build()
     }
+
+    @FrameworkDsl
+    private val config: SystemProperties
+        @IgnoreForSerialize
+        get() = conf
 
     @FrameworkDsl
     @IgnoreForSerialize
@@ -74,7 +76,7 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
 
     @FrameworkDsl
     @IgnoreForSerialize
-    override fun getConfigPropertiesBuilder(): () -> Properties = { Properties() }
+    override fun getConfigPropertiesBuilder(): Builder<SystemProperties> = Builder { SystemProperties() }
 
     @FrameworkDsl
     override fun dash(size: Int): String = "-".repeat(size.maxOf(0))
@@ -83,34 +85,25 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
     override fun uuid(): String = Randoms.uuid()
 
     @FrameworkDsl
-    override fun getConfigProperty(name: String, other: String): String = conf.getProperty(name, other)
+    override fun getConfigProperty(name: String, other: String): String = config.getProperty(name, other)
 
     @FrameworkDsl
-    override fun setConfigProperties(vararg args: Pair<String, Any?>) {
-        setConfigProperties(args.toMap())
+    override fun setConfigProperties(vararg args: Pair<String, Maybe>) {
+        if (args.isNotExhausted()) {
+            setConfigProperties(args.mapTo())
+        }
     }
 
     @FrameworkDsl
     override fun setConfigProperties(args: Map<String, Any?>) {
-        if (args.isNotEmpty()) {
-            val temp = conf
+        if (args.isNotExhausted()) {
             for ((k, v) in args) {
                 when (v == null) {
-                    true -> temp.remove(k)
-                    else -> temp.setProperty(k, v.toString())
+                    true -> config.remove(k)
+                    else -> config.setProperty(k, v.toString())
                 }
             }
         }
-    }
-
-    @CreatorsDsl
-    final override fun <T : Throwable> addThrowableAsFatal(type: Class<T>) {
-        nope += type
-    }
-
-    @CreatorsDsl
-    final override fun <T : Throwable> addThrowableAsFatal(type: KClass<T>) {
-        nope += type.java
     }
 
     @CreatorsDsl
@@ -119,11 +112,11 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
         val name = type.name
         val most = IS_NOT_FOUND.toAtomic()
         val mine = type.declaredMethods.map { it.name }
-        val list = ArrayList<MutableMap<String, Any>>()
+        val list = BasicArrayList<BasicAnyDictionary>()
         Exception().stackTrace.forEach { item ->
             if (item.className.startsWith(name)) {
                 if (item.methodName in mine) {
-                    list += dictOfMutable("func" to item.methodName, "type" to name, "file" to item.fileName, "line" to item.lineNumber)
+                    list.add(BasicAnyDictionary("func" to item.methodName, "type" to name, "file" to item.fileName.otherwise(DUNNO_STRING), "line" to item.lineNumber))
                 } else if (item.methodName == "invoke") {
                     // I'm coming from inside anonymous blocks that are not inlined,
                     // especially in logging where I am with AssumeEach, assumeThat,
@@ -132,7 +125,7 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
                 }
             }
         }
-        if (list.isEmpty()) {
+        if (list.isExhausted()) {
             return dictOf("func" to DUNNO_STRING, "type" to name, "file" to DUNNO_STRING, "line" to 0)
         }
         val line = most.getValue()
@@ -140,7 +133,7 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
         if (line > maps["line"] as Int) {
             maps["line"] = line
         }
-        return maps.toMap()
+        return maps.toReadOnly()
     }
 
     @FrameworkDsl
@@ -153,17 +146,14 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
 
     @LoggingInfoDsl
     override fun measured(size: Int, call: (Int) -> Unit) {
-        if (size > 0) {
-            val many = size + 4
-            val list = vectorOf(many)
-            for (loop in 0 until many) {
-                val time = TimeAndDate.nanos()
-                call.invoke(loop)
-                list[loop] = TimeAndDate.nanos() - time.toDouble()
+        if (size.isMoreThan(0)) {
+            val list = (size + 4).toDoubleArray()
+            for (loop in list.indices) {
+                list[loop] = elapsed(true) {
+                    call.invoke(loop)
+                }.realOf()
             }
-            list.sort()
-            val look = list.copyOfRange(2, list.size - 2).average().toLong()
-            info { TimeAndDate.toElapsedString(look) }
+            info { TimeAndDate.toElapsedString(list.sorted(false).average(2, list.sizeOf() - 2, 0.0).longOf()) }
         } else {
             warn { TimeAndDate.toElapsedString(0, "error ") }
         }
@@ -195,29 +185,5 @@ open class KotlinTestBase(name: String?) : Logging(name), IKotlinTestBase {
     @FrameworkDsl
     override fun loggerOf(): KLogger {
         return super.loggerOf()
-    }
-
-    @FrameworkDsl
-    inline fun <reified T : Throwable> assumeThrows(noinline block: () -> Unit) {
-        try {
-            block.invoke()
-        } catch (cause: Throwable) {
-            shouldBeTrue(cause is T) {
-                "assumeThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
-            }
-            return
-        }
-        fail("assumeThrows failed for ${T::class.java.name}")
-    }
-
-    @FrameworkDsl
-    inline fun <reified T : Throwable> assumeNotThrows(noinline block: () -> Unit) {
-        try {
-            block.invoke()
-        } catch (cause: Throwable) {
-            shouldNotBeTrue(cause is T) {
-                "assumeNotThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
-            }
-        }
     }
 }

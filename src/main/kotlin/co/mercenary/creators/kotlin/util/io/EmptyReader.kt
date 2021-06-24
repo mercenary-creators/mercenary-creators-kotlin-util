@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,37 +20,37 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.Reader
 import java.nio.CharBuffer as NIOSource
 
-@CreatorsDsl
+@FrameworkDsl
 @IgnoreForSerialize
 object EmptyReader : Reader(), HasMapNames {
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun ready() = true
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun reset() = Unit
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun close() = Unit
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun mark(mark: Int) = Unit
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun read(): Int = IS_NOT_FOUND
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun read(cbuf: NIOSource): Int = IS_NOT_FOUND
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun read(cbuf: CharArray): Int = IS_NOT_FOUND
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun read(cbuf: CharArray, off: Int, len: Int): Int = IS_NOT_FOUND
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = dictOf("type" to nameOf())
 }

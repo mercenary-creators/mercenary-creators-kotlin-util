@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,18 +29,18 @@ object CheckSums : HasMapNames {
     private const val ADL_32_NAME = "adl32"
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun crc32(): CheckSum = CheckSumFactory(CRC32(), CRC_32_NAME)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun adl32(): CheckSum = CheckSumFactory(Adler32(), ADL_32_NAME)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()
 
     @FrameworkDsl
-    override fun toMapNames() = dictOf("type" to nameOf(), "sums" to unique(CRC_32_NAME, ADL_32_NAME))
+    override fun toMapNames() = dictOfType<CheckSums>("methods" to Common.getExposedMethods(CheckSums, true))
 
     @IgnoreForSerialize
     private class CheckSumFactory @FrameworkDsl constructor(private val factory: Checksum, private val name: String) : CheckSum {

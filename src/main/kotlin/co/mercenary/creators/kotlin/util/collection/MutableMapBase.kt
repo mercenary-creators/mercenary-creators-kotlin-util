@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,7 @@ package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
 
-interface MutableMapBase<K, V, M : MutableMapBase<K, V, M>> : MutableBase<M>, MutableMap<K, V> {
-
-    @FrameworkDsl
-    override fun sizeOf(): Int {
-        return size.copyOf()
-    }
+interface MutableMapBase<K, V, M : MutableMapBase<K, V, M>> : MutableBase<M>, MutableMap<K, V>, MutableKeysContainer<K> {
 
     @FrameworkDsl
     @IgnoreForSerialize
@@ -32,15 +27,5 @@ interface MutableMapBase<K, V, M : MutableMapBase<K, V, M>> : MutableBase<M>, Mu
     }
 
     @FrameworkDsl
-    fun toMap(): Map<K, V> {
-        return when (sizeOf()) {
-            0 -> toMapOf()
-            else -> toPairs().mapTo()
-        }
-    }
-
-    @FrameworkDsl
-    fun enhance(base: MutableMap<K, V>): MutableMap<K, V> {
-        return base
-    }
+    fun toReadOnly(): Map<K, V> = toMap()
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmMultifileClass
 @file:kotlin.jvm.JvmName("TestKt")
 
 package co.mercenary.creators.kotlin.util
+
+import java.lang.reflect.Type
 
 typealias KotlinTest = co.mercenary.creators.kotlin.util.test.AbstractKotlinTest
 
 typealias KotlinDataTest = co.mercenary.creators.kotlin.util.test.AbstractDataTest
 
 typealias KotlinSecurityTest = co.mercenary.creators.kotlin.util.test.AbstractSecurityTest
+

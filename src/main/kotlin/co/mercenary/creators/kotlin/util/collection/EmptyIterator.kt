@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,51 +20,35 @@ import co.mercenary.creators.kotlin.util.*
 
 @FrameworkDsl
 @IgnoreForSerialize
-object EmptyIterator : ListIterator<Nothing>, SizedContainer, Copyable<EmptyIterator>, Cloneable, java.io.Serializable {
-
-    private const val serialVersionUID = 5L
+object EmptyIterator : ListIterator<Nothing> {
 
     @FrameworkDsl
-    override fun next() = fail("invalid next() on EmptyIterator")
+    override fun hasNext(): Boolean {
+        return false
+    }
 
     @FrameworkDsl
-    override fun previous() = fail("invalid previous() on EmptyIterator")
+    override fun next(): Nothing {
+        fail(nameOf())
+    }
 
     @FrameworkDsl
-    override fun hasNext() = false
+    override fun hasPrevious(): Boolean {
+        return false
+    }
 
     @FrameworkDsl
-    override fun hasPrevious() = false
-
-    @FrameworkDsl
-    override fun nextIndex() = sizeOf()
-
-    @FrameworkDsl
-    override fun previousIndex() = IS_NOT_FOUND
-
-    @FrameworkDsl
-    override fun sizeOf(): Int {
+    override fun nextIndex(): Int {
         return 0
     }
 
     @FrameworkDsl
-    override fun clone() = copyOf()
-
-    @FrameworkDsl
-    override fun copyOf() = EmptyIterator
-
-    @FrameworkDsl
-    override fun toString() = toListOf<Nothing>().toSafeString()
-
-    @FrameworkDsl
-    override fun hashCode() = HASH_BASE_VALUE
-
-    @FrameworkDsl
-    override fun equals(other: Any?) = when (other) {
-        is EmptyIterator -> this === other
-        else -> false
+    override fun previous(): Nothing {
+        fail(nameOf())
     }
 
     @FrameworkDsl
-    private fun readResolve(): Any = EmptyIterator
+    override fun previousIndex(): Int {
+        return IS_NOT_FOUND
+    }
 }

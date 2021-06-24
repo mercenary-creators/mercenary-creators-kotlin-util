@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,16 @@ import java.io.*
 import java.net.*
 import java.nio.channels.ReadableByteChannel
 import java.nio.charset.Charset
-import java.nio.file.*
-import java.util.*
+import java.nio.file.Path
+import kotlin.reflect.KClass
 
 @IgnoreForSerialize
-object IO : HasMapNames, Logging(IO::class.nameOf()) {
+object IO : HasMapNames {
+
+    @FrameworkDsl
+    val NULLS_BYTE_ARRAY = 4.toByteArray() {
+        NULLS_STRING[it].byteOf()
+    }
 
     @FrameworkDsl
     const val EXT_SEPARATOR_CHAR = '.'
@@ -47,15 +52,35 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
 
     @FrameworkDsl
     const val SINGLE_TILDE = SINGLE_PREFIX_CHAR.toString()
+
+    @FrameworkDsl
     const val SINGLE_SLASH = UNX_SEPARATOR_CHAR.toString()
+
+    @FrameworkDsl
     const val DOUBLE_SLASH = SINGLE_SLASH + SINGLE_SLASH
+
+    @FrameworkDsl
     const val TILDE_PREFIX = SINGLE_TILDE + SINGLE_SLASH
+
+    @FrameworkDsl
     const val PREFIX_TILDE = SINGLE_SLASH + SINGLE_TILDE
+
+    @FrameworkDsl
     const val SINGLE_MINUS = "-"
+
+    @FrameworkDsl
     const val PREFIX_COLON = ":"
+
+    @FrameworkDsl
     const val TYPE_IS_FILE = "file"
+
+    @FrameworkDsl
     const val PREFIX_FILES = "file:"
+
+    @FrameworkDsl
     const val PREFIX_BYTES = "data:"
+
+    @FrameworkDsl
     const val PREFIX_CLASS = "classpath:"
 
     @FrameworkDsl
@@ -64,11 +89,12 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     @FrameworkDsl
     private val OTHERS_SEPARATOR_CHAR = if (isSystemWindows()) UNX_SEPARATOR_CHAR else WIN_SEPARATOR_CHAR
 
+    @FrameworkDsl
     private val probe: ContentTypeProbe by lazy {
         DefaultContentTypeProbe()
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     private fun patch(path: String): String = path.trim().let { if (it.contains(DOUBLE_SLASH)) patch(it.replace(DOUBLE_SLASH, SINGLE_SLASH)) else it }
 
     @JvmStatic
@@ -89,7 +115,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     @JvmStatic
     @FrameworkDsl
     fun getFileExtension(file: File): String {
-        return getPathExtension(file.path)
+        return getPathExtension(file.getPathName())
     }
 
     @JvmStatic
@@ -144,18 +170,18 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getRelative(data: URL, path: String): URL {
         return when (val file = toFileOrNull(data)) {
-            null -> URL(data, getPathRelative(data.path, path).replace("#", "%23"))
-            else -> getRelative(file, path).toURI().toURL()
+            null -> URL(data, getPathRelative(data.getPathName(), path).replace("#", "%23"))
+            else -> getRelative(file, path).linkOf()
         }
     }
 
     @JvmStatic
     @FrameworkDsl
     fun getRelative(data: File, path: String): File {
-        return File(getPathRelative(data.path, path))
+        return File(getPathRelative(data.getPathName(), path))
     }
 
     @JvmStatic
@@ -234,6 +260,15 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
 
     @JvmStatic
     @FrameworkDsl
+    fun getInputStream(path: String, claz: KClass<*>): InputStream = try {
+        getInputStream(getResouce(path, claz.java)).otherwise(EmptyInputStream)
+    } catch (cause: Throwable) {
+        Throwables.thrown(cause)
+        EmptyInputStream
+    }
+
+    @JvmStatic
+    @FrameworkDsl
     fun getInputStream(data: URL?): InputStream? {
         if (data == null) {
             return null
@@ -254,18 +289,18 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getInputStream(data: URI?): InputStream? {
         if (data == null) {
             return null
         }
         try {
-            return Paths.get(data).toInputStream()
+            return data.pathOf().toInputStream()
         } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         try {
-            return data.toURL().toInputStream()
+            return data.linkOf().toInputStream()
         } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
@@ -273,21 +308,21 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
-    fun getInputStream(data: Reader, charset: Charset = Charsets.UTF_8): InputStream {
+    fun getInputStream(data: Reader, charset: Charset = DEFAULT_CHARSET_UTF_8): InputStream {
         return ReaderInputStream(data, charset)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
-    fun getOutputStream(data: Writer, charset: Charset = Charsets.UTF_8): OutputStream {
+    fun getOutputStream(data: Writer, charset: Charset = DEFAULT_CHARSET_UTF_8): OutputStream {
         return WriterOutputStream(data, charset)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getOutputStream(data: URL?): OutputStream? {
         if (data == null) {
             return null
@@ -312,18 +347,18 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getOutputStream(data: URI?): OutputStream? {
         if (data == null) {
             return null
         }
         try {
-            return Paths.get(data).toOutputStream()
+            return data.pathOf().toOutputStream()
         } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
         try {
-            return data.toURL().toOutputStream()
+            return data.linkOf().toOutputStream()
         } catch (cause: Throwable) {
             Throwables.thrown(cause)
         }
@@ -336,9 +371,9 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     fun toFileOrNull(data: URL, skip: Boolean = false): File? {
         try {
             if (skip || data.isFileURL()) {
-                val path = getPathNormalized(data.file).otherwise()
+                val path = getPathNormalized(data.getFileName()).otherwise()
                 if (path.isNotExhausted()) {
-                    return File(path)
+                    return path.fileOf()
                 }
             }
             return null
@@ -377,7 +412,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
         if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
-                return file.length()
+                return file.getContentSize()
             }
         } else {
             val conn = getHeadConnection(data)
@@ -394,24 +429,24 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
-    inline fun getContentSize(data: URL, func: () -> Long): Long {
+    @FrameworkDsl
+    inline fun getContentSize(data: URL, func: Factory<Long>): Long {
         if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
-                return file.length()
+                return file.getContentSize()
             }
         }
-        return func.invoke()
+        return func.create()
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentTime(data: URL): Long {
         if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
-                return file.lastModified()
+                return file.getContentTime()
             }
         } else {
             val conn = getHeadConnection(data)
@@ -433,11 +468,11 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: URL, type: String): String {
         if (type.isDefaultContentType()) {
             if (data.isFileURL()) {
-                val path = getPathNormalized(data.file).otherwise()
+                val path = getPathNormalized(data.getFileName()).otherwise()
                 if (path.isNotExhausted()) {
                     return getContentTypeProbe().getContentType(path, type)
                 }
@@ -474,7 +509,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     fun getContentType(data: URI, type: String): String {
         if (type.isDefaultContentType() && data.isAbsolutePath()) {
             try {
-                return getContentType(data.toURL(), type)
+                return getContentType(data.linkOf(), type)
             } catch (cause: Throwable) {
                 Throwables.thrown(cause)
             }
@@ -483,7 +518,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: ByteArray, type: String): String {
         if (type.isDefaultContentType()) {
             return getContentType(data.toInputStream(), type)
@@ -492,7 +527,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: ReadableByteChannel, type: String): String {
         if (type.isDefaultContentType()) {
             return getContentType(data.toInputStream(), type)
@@ -501,7 +536,7 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getContentType(data: InputStream, type: String): String {
         if (type.isDefaultContentType() && data.markSupported()) {
             val send = toTrimOrElse(HttpURLConnection.guessContentTypeFromStream(data)).toLowerTrim()
@@ -513,131 +548,111 @@ object IO : HasMapNames, Logging(IO::class.nameOf()) {
     }
 
     @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: Reader): Properties {
-        return getProperties(data, Properties())
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: InputStream): Properties {
-        return getProperties(data, Properties())
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: URI): Properties {
-        return getProperties(data, Properties())
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: URI, properties: Properties): Properties {
-        return getProperties(data.toInputStream(), properties)
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: URL): Properties {
-        return getProperties(data, Properties())
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: URL, properties: Properties): Properties {
-        return getProperties(data.toInputStream(), properties)
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: File): Properties {
-        return getProperties(data, Properties())
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: File, properties: Properties): Properties {
-        return getProperties(data.toInputStream(), properties)
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: Path): Properties {
-        return getProperties(data, Properties())
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: Path, properties: Properties): Properties {
-        return getProperties(data.toInputStream(), properties)
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: InputStreamSupplier): Properties {
-        return getProperties(data, Properties())
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: InputStreamSupplier, properties: Properties): Properties {
-        return getProperties(data.toInputStream(), properties)
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: ReadableByteChannel): Properties {
-        return getProperties(data, Properties())
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: ReadableByteChannel, properties: Properties): Properties {
-        return getProperties(data.toInputStream(), properties)
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: Reader, properties: Properties): Properties {
-        try {
-            data.use { look -> properties.load(look) }
-        } catch (cause: Throwable) {
-            Throwables.thrown(cause)
-        }
-        return properties
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: InputStream, properties: Properties): Properties {
-        try {
-            data.use { look -> properties.load(look) }
-        } catch (cause: Throwable) {
-            Throwables.thrown(cause)
-        }
-        return properties
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: CharSequence): Properties {
-        return getProperties(data, Properties())
-    }
-
-    @JvmStatic
-    @CreatorsDsl
-    fun getProperties(data: CharSequence, properties: Properties): Properties {
-        val name = data.toTrimOr(EMPTY_STRING)
-        if (name.isNotSameAs(EMPTY_STRING).isNotTrue()) {
-            try {
-                return getProperties(CONTENT_RESOURCE_LOADER[name], properties)
+    @FrameworkDsl
+    @JvmOverloads
+    fun getCharset(charset: CharSequence, default: Charset = DEFAULT_CHARSET_UTF_8): Charset {
+        if (Charset.isSupported(charset.copyOf())) {
+            return try {
+                Charset.forName(charset.copyOf())
             } catch (cause: Throwable) {
-                Throwables.thrown(cause)
+                Throwables.fatal(cause, default)
             }
         }
-        return properties
+        return default
     }
 
-    @CreatorsDsl
-    override fun toMapNames() = dictOf("name" to nameOf(), "unix" to isSystemUnixLike())
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun getSupportedCharsetName(charset: CharSequence, default: Charset = DEFAULT_CHARSET_UTF_8): String {
+        if (Charset.isSupported(charset.toChecked())) {
+            return charset.toChecked()
+        }
+        return default.toString()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun getSupportedCharsetName(charset: Charset, default: Charset = DEFAULT_CHARSET_UTF_8): String {
+        return getSupportedCharsetName(charset.toString(), default)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    private fun buffer(size: Long): Int {
+        return if (size.isMoreThan(4096)) 4096 else size.intsOf().maxOf(512)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun compare(value: Reader, other: Reader): Boolean {
+        if (value is EmptyReader && other is EmptyReader) {
+            return true
+        }
+        return compare(value.toInputStream(), other.toInputStream())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun compare(value: InputStream, other: InputStream): Boolean {
+        if (value is EmptyInputStream && other is EmptyInputStream) {
+            return true
+        }
+        return compare(value.toBufferedInputStream(DEFAULT_BUFFER_SIZE), other.toBufferedInputStream(DEFAULT_BUFFER_SIZE))
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun compare(value: Path, other: Path): Boolean {
+        return compare(value.fileOf(), other.fileOf())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun compare(value: File, other: File): Boolean {
+        if (value === other) {
+            return true
+        }
+        if (value isSameFile other) {
+            return true
+        }
+        if (value.isValidToRead() && other.isValidToRead()) {
+            if (value.getContentSize() == other.getContentSize()) {
+                return compare(value.toInputStream().toBufferedInputStream(buffer(value.getContentSize())), other.toInputStream().toBufferedInputStream(buffer(other.getContentSize())))
+            }
+        }
+        return false
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun compare(value: BufferedInputStream, other: BufferedInputStream): Boolean {
+        value.use { data ->
+            other.use { copy ->
+                do {
+                    try {
+                        data.read().let { byte ->
+                            copy.read().let { code ->
+                                if (code != byte) {
+                                    return false
+                                }
+                                if (code.isNegative()) {
+                                    return true
+                                }
+                            }
+                        }
+                    } catch (cause: Throwable) {
+                        return Throwables.fatal(cause, false)
+                    }
+                } while (true)
+            }
+        }
+    }
+
+    @FrameworkDsl
+    override fun toString() = toMapNames().toSafeString()
+
+    @FrameworkDsl
+    override fun toMapNames() = dictOfType<IO>()
 }

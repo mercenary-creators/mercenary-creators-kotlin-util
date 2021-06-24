@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,19 @@ import co.mercenary.creators.kotlin.util.*
 import java.security.SecureRandom
 
 @IgnoreForSerialize
-class SimpleCipherKeysFactory private constructor(private val size: Int, private val rand: () -> SecureRandom) : CipherKeysFactory, HasMapNames {
+class SimpleCipherKeysFactory private constructor(private val size: Int, private val rand: Factory<SecureRandom>) : CipherKeysFactory, HasMapNames {
 
-    @CreatorsDsl
-    constructor(cipher: CipherAlgorithm) : this(cipher.getFactoryKeysSize(), cipher::getFactoryKeysRand)
+    @FrameworkDsl
+    constructor(cipher: CipherAlgorithm) : this(cipher.getFactoryKeysSize(), cipher.getFactoryKeysRand())
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getSize(): Int = size
+    override fun getSize(): Int = size.copyOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getKeys(): ByteArray = Randoms.getByteArray(rand.invoke(), getSize())
+    override fun getKeys(): ByteArray = Randoms.getByteArray(rand.create(), getSize())
 
-    override fun toMapNames() = dictOf("type" to javaClass.name)
+    @FrameworkDsl
+    override fun toMapNames() = dictOfType<SimpleCipherKeysFactory>()
 }

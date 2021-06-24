@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
 class SequenceTest : KotlinDataTest() {
+
     @Test
     fun test() {
         val size = 10
@@ -49,7 +50,7 @@ class SequenceTest : KotlinDataTest() {
         16 forEach {
             info { maps }
             val temp = "%04d".format(it)
-            error { temp }
+            debug { temp }
             maps[temp] = temp
             info { maps.sizeOf() }
             dashes()
@@ -61,5 +62,40 @@ class SequenceTest : KotlinDataTest() {
         info { maps.sizeOf() }
         info { maps }
         dashes()
+        val prim = sequenceOf(2) {
+            if (it < (1 shl 30)) it * 2 else null
+        }.getIntArray()
+        warn { prim }
+        warn { prim.sizeOf() }
+        error { dash(100) }
+        info { 1 shl 15 }
+        info { 1 shl 16 }
+        info { 1 shl 20 }
+        info { 1 shl 30 }
+        dashes()
+        val more = sequenceOf(2L) {
+            if (it < (1L shl 62)) it * 2L else null
+        }.getLongArray()
+        error { dash(100) }
+        warn { more }
+        warn { more.sizeOf() }
+        error { dash(100) }
+        info { 1L shl 60 }
+        info { 1L shl 61 }
+        info { 1L shl 62 }
+        info { 1L shl 63 }
+        info { Long.MAX_VALUE }
+        error { dash(100) }
+        info { 5 distTo 10 }
+        info { 10 distTo 5 }
+        error { dash(100) }
+        info { 5 diffOf 10 }
+        info { 10 diffOf 5 }
+        info { dash(100) }
+        info { 1L shl 60 }
+        info { 1L shl 61 }
+        info { 1L shl 62 }
+        info { 1L shl 63 }
+        info { Long.MAX_VALUE }
     }
 }

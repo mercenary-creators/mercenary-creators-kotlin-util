@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,17 @@ package co.mercenary.creators.kotlin.util.text
 
 import co.mercenary.creators.kotlin.util.*
 
+@IgnoreForSerialize
 object Formatters {
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
+    @IgnoreForSerialize
     fun getFormatterList(load: ClassLoader? = null): List<StringFormatterService> {
         return try {
-            ServiceLoading.loaderOf(StringFormatterService::class, load).toReverseSortedListOf()
-        }
-        catch (cause: Throwable) {
+            ServiceLoading.loaderOf(StringFormatterService::class, load).toSorted(true)
+        } catch (cause: Throwable) {
             toListOf()
         }
     }
@@ -39,22 +40,28 @@ object Formatters {
 
     @JvmStatic
     @FrameworkDsl
-    fun toSafeString(func: Factory<Maybe>): String {
-        return try {
-            when (val data = func.create()) {
-                null -> NULLS_STRING
-                else -> {
-                    list.forEach {
-                        if (it.isValidClass(data)) {
-                            return it.toSafeString(data)
-                        }
+    private fun safe(data: Any?): String {
+        return when (data) {
+            null -> NULLS_STRING
+            else -> {
+                list.forEach {
+                    if (it.isValidClass(data)) {
+                        return it.toSafeString(data)
                     }
-                    data.toString()
                 }
+                data.toString()
             }
         }
-        catch (cause: Throwable) {
-            "toSafeString() failed ${cause.message}"
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun toSafeString(func: LazyMessage): String {
+        return try {
+            safe(func.create())
+        } catch (cause: Throwable) {
+            cause.printStackTrace(getStandardError())
+            "toSafeString() failed ${cause.nameOf()}"
         }
     }
 }

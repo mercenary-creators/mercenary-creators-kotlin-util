@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-open class BaseCachedContentResourceLoader @JvmOverloads @CreatorsDsl constructor(name: String = EMPTY_STRING, loader: ClassLoader? = null) : BaseContentResourceLoader(name, loader), CachedContentResourceLoader {
+open class BaseCachedContentResourceLoader @JvmOverloads @FrameworkDsl constructor(name: String = EMPTY_STRING, loader: ClassLoader? = null) : BaseContentResourceLoader(name, loader), CachedContentResourceLoader {
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val maps = atomicMapOf<String, CachedContentResource>()
 
     override operator fun get(path: String): CachedContentResource {
@@ -30,53 +30,53 @@ open class BaseCachedContentResourceLoader @JvmOverloads @CreatorsDsl constructo
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isContentCache() = true
 
-    @CreatorsDsl
+    @FrameworkDsl
     override val keys: MutableCachedKeys
         @IgnoreForSerialize
         get() = ViewOfKeys(maps)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()
 
-    @CreatorsDsl
-    override fun hashCode() = toMapNames().toSafeHashOf()
+    @FrameworkDsl
+    override fun hashCode() = toMapNames().hashOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is BaseCachedContentResourceLoader -> this === other || toMapNames() isSameAs other.toMapNames()
         else -> false
     }
 
-    private class ViewOfKeys @CreatorsDsl constructor(maps: AtomicHashMap<String, CachedContentResource>) : MutableCachedKeys {
+    private class ViewOfKeys @FrameworkDsl constructor(maps: AtomicHashMap<String, CachedContentResource>) : MutableCachedKeys {
 
-        @CreatorsDsl
+        @FrameworkDsl
         private val view: AtomicHashMapKeysView<String, CachedContentResource> = maps.keys
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun sizeOf(): Int {
-            return view.size
+            return view.sizeOf()
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         override operator fun iterator() = view.iterator()
 
-        @CreatorsDsl
+        @FrameworkDsl
         override operator fun contains(data: String): Boolean = view.contains(data)
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun clear() = view.clear()
 
-        @CreatorsDsl
-        override fun hashCode() = view.hashCode()
+        @FrameworkDsl
+        override fun hashCode() = iterator().hashOf()
 
-        @CreatorsDsl
-        override fun toString() = view.toString()
+        @FrameworkDsl
+        override fun toString() = view.toSafeString()
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun equals(other: Any?) = when (other) {
             is ViewOfKeys -> this === other || view == other.view
             else -> false
@@ -85,7 +85,7 @@ open class BaseCachedContentResourceLoader @JvmOverloads @CreatorsDsl constructo
 
     companion object {
 
-        @CreatorsDsl
+        @FrameworkDsl
         val INSTANCE: CachedContentResourceLoader by lazy {
             BaseCachedContentResourceLoader()
         }

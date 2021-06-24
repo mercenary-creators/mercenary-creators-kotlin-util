@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
 
-open class BasicDictionaryMap<V> @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY, factor: Double = DEFAULT_MAP_FACTOR, order: Boolean = false) : BasicLinkedMap<String, V>(capacity, factor, order) {
+open class BasicDictionaryMap<V> @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_MAP_CAPACITY, order: Boolean = false, capped: Boolean = false) : BasicLinkedMap<String, V>(capacity, order, capped) {
 
     @FrameworkDsl
     constructor(k: String, v: V) : this() {
@@ -59,14 +59,17 @@ open class BasicDictionaryMap<V> @JvmOverloads @FrameworkDsl constructor(capacit
     }
 
     @FrameworkDsl
+    constructor(args: BasicDictionaryMap<V>) : this(order = args.isOrdered(), capped = args.isSizeCapped()) {
+        if (args.isNotExhausted()) {
+            append(args)
+        }
+    }
+
+    @FrameworkDsl
     override fun clone() = copyOf()
 
     @FrameworkDsl
     override fun copyOf() = BasicDictionaryMap(this)
-
-    @FrameworkDsl
-    @IgnoreForSerialize
-    override fun isEmpty() = sizeOf().isExhausted()
 
     @FrameworkDsl
     override fun hashCode() = super.hashCode()
@@ -76,11 +79,12 @@ open class BasicDictionaryMap<V> @JvmOverloads @FrameworkDsl constructor(capacit
 
     @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is BasicDictionaryMap<*> -> this === other || super.equals(other)
+        is BasicDictionaryMap<*> -> this === other || sizeOf() == other.sizeOf() && super.equals(other)
         else -> false
     }
 
     companion object {
+
         private const val serialVersionUID = 4L
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ class Vector @FrameworkDsl internal constructor(base: DoubleArray, copy: Boolean
     constructor(size: Int) : this(size.toDoubleArray(), false)
 
     @FrameworkDsl
-    constructor(base: Vector) : this(base.data, true, base.headOf(), base.tailOf())
+    constructor(base: Vector) : this(base.data, true, base.head(), base.tail())
 
     @FrameworkDsl
     constructor(size: Int, init: VectorInitializer) : this(init.initialize(size), false)
@@ -37,19 +37,19 @@ class Vector @FrameworkDsl internal constructor(base: DoubleArray, copy: Boolean
     internal val data = base.toDoubleArray(copy)
 
     init {
-        if (headOf().isNegative() || headOf().isLessThan(tailOf())) {
-            throw MercenaryMathExceptiion("Vector.headOf(${headOf()})")
+        if (head().isNegative() || head().isLessThan(tail())) {
+            throw MercenaryMathExceptiion("Vector.headOf(${head()})")
         }
-        if (tailOf().isNegative() || tailOf().isMoreThan(data.sizeOf())) {
-            throw MercenaryMathExceptiion("Vector.tailOf(${tailOf()})")
+        if (tail().isNegative() || tail().isMoreThan(data.sizeOf())) {
+            throw MercenaryMathExceptiion("Vector.tailOf(${tail()})")
         }
     }
 
     @FrameworkDsl
-    override fun headOf(): Int = head.copyOf()
+    override fun head(): Int = head.copyOf()
 
     @FrameworkDsl
-    override fun tailOf(): Int = tail.copyOf()
+    override fun tail(): Int = tail.copyOf()
 
     @FrameworkDsl
     @IgnoreForSerialize
@@ -57,7 +57,7 @@ class Vector @FrameworkDsl internal constructor(base: DoubleArray, copy: Boolean
 
     @FrameworkDsl
     internal fun offsetOf(index: Int): Int {
-        return (index + headOf()).boxIn(0, data.sizeOf())
+        return (index + head()).boxIn(0, data.sizeOf())
     }
 
     @FrameworkDsl
@@ -183,10 +183,10 @@ class Vector @FrameworkDsl internal constructor(base: DoubleArray, copy: Boolean
         @JvmStatic
         @FrameworkDsl
         internal fun sameAs(self: Vector, base: Vector): Boolean {
-            if (self.headOf() != base.headOf()) {
+            if (self.head() != base.head()) {
                 return false
             }
-            if (self.tailOf() != base.tailOf()) {
+            if (self.tail() != base.tail()) {
                 return false
             }
             if (self.sizeOf() != base.sizeOf()) {

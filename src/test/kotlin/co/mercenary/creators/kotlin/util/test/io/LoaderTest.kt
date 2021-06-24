@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import co.mercenary.creators.kotlin.util.io.*
 import org.junit.jupiter.api.Test
 
 class LoaderTest : KotlinDataTest() {
+
     @Test
     fun test() {
         info { loader["test.zip"] }
@@ -29,7 +30,7 @@ class LoaderTest : KotlinDataTest() {
         info { loader["test.doc"] }
         info { loader["test.htm"] }
         info { loader["test.htm"].toRelativePath("../test.txt") }
-        info { loader["http://jsonplaceholder.typicode.com/posts"] }
+        info { loader["https://jsonplaceholder.typicode.com/posts"] }
         val path = getTempFileNamedPath(uuid(), ".json")
         info { loader[path] }
         val temp = getTempFileNamedPath(uuid(), ".yaml")
@@ -53,8 +54,8 @@ class LoaderTest : KotlinDataTest() {
         info { data == EmptyContentResource }
         //info { data isSameAs EmptyContentResource }
         data shouldBe EmptyContentResource
-        info { loader["http://jsonplaceholder.typicode.com/posts"].toRelativePath("../todos") }
-        info { loader["http://jsonplaceholder.typicode.com/todos"]["../posts"] }
+        info { loader["https://jsonplaceholder.typicode.com/posts"].toRelativePath("../todos") }
+        info { loader["https://jsonplaceholder.typicode.com/todos"]["../posts"] }
         info { dash() }
         info { cached["test.htm"] }
         info { cached["test.htm"].toRelativePath("../test.txt") }
@@ -67,8 +68,8 @@ class LoaderTest : KotlinDataTest() {
         info { cached["test.pdf"].toRelativePath("../test.doc") }
         error { cached.keys }
         cached.keys.sizeOf() shouldNotBe 0
-        warn { loader["http://jsonplaceholder.typicode.com/posts"].getContentMime() }
-        info { ContentMimeType(loader["http://jsonplaceholder.typicode.com/posts"].getContentType()) }
+        warn { loader["https://jsonplaceholder.typicode.com/posts"].getContentMime() }
+        info { ContentMimeType(loader["https://jsonplaceholder.typicode.com/posts"].getContentType()) }
         info { ContentMimeType() }
         info { ContentMimeType(EMPTY_STRING) }
     }

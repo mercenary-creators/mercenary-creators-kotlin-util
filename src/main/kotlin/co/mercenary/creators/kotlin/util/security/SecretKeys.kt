@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,25 +23,25 @@ import javax.crypto.spec.*
 object SecretKeys {
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getSecret(pass: CharArray, salt: ByteArray, algorithm: CipherAlgorithm): SecretKey {
         return SecretKeySpec(SecretKeyFactory.getInstance(algorithm.getCipherSecretKey()).generateSecret(PBEKeySpec(pass.toCharArray(), salt.toByteArray(), algorithm.getCipherIteration(), algorithm.getCipherKeyLength())).encoded, algorithm.getCipherAlgorithm())
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getSecret(pass: ByteArray, salt: ByteArray, algorithm: CipherAlgorithm): SecretKey {
         return getSecret(pass.toCharArray(), salt.toByteArray(), algorithm)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getSecret(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm): SecretKey {
-        return getSecret(pass.toString().toCharArray(), Encoders.hex().decode(salt.toString()), algorithm)
+        return getSecret(pass.toCharArray(true), Encoders.hex().decode(salt.copyOf()), algorithm)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getAlgorithms(): Algorithm = Algorithm.forName("SecretKeyFactory")
 }

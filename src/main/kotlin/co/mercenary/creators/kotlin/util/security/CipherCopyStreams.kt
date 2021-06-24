@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,105 +26,105 @@ import java.nio.file.Path
 @IgnoreForSerialize
 interface CipherCopyStreams {
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: InputStream, copy: OutputStream)
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: InputStream, copy: OutputStream)
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: URL, copy: OutputStream) = data.toInputStream().use { read -> encrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: URL, copy: OutputStream) = data.toInputStream().use { read -> decrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: File, copy: OutputStream) = data.toInputStream().use { read -> encrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: File, copy: OutputStream) = data.toInputStream().use { read -> decrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: Path, copy: OutputStream) = data.toInputStream().use { read -> encrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: Path, copy: OutputStream) = data.toInputStream().use { read -> decrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: ByteArray, copy: OutputStream) = data.toInputStream().use { read -> encrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: ByteArray, copy: OutputStream) = data.toInputStream().use { read -> decrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: ReadableByteChannel, copy: OutputStream) = data.toInputStream().use { read -> encrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: ReadableByteChannel, copy: OutputStream) = data.toInputStream().use { read -> decrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: InputStreamSupplier, copy: OutputStream) = data.toInputStream().use { read -> encrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: InputStreamSupplier, copy: OutputStream) = data.toInputStream().use { read -> decrypt(read, copy) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: URL, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> encrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: URL, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> decrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: File, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> encrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: File, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> decrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: Path, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> encrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: Path, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> decrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: ReadableByteChannel, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> encrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: ReadableByteChannel, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> decrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: InputStreamSupplier, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> encrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: InputStreamSupplier, copy: File) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> decrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: URL, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> encrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: URL, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> decrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: File, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> encrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: File, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> decrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: Path, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> encrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: Path, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> decrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: ReadableByteChannel, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> encrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: ReadableByteChannel, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> decrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun encrypt(data: InputStreamSupplier, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> encrypt(read, send) } }
 
-    @CreatorsDsl
+    @FrameworkDsl
     fun decrypt(data: InputStreamSupplier, copy: Path) = copy.toOutputStream().use { send -> data.toInputStream().use { read -> decrypt(read, send) } }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,39 +21,50 @@ import co.mercenary.creators.kotlin.util.*
 @IgnoreForSerialize
 abstract class AbstractContentResourceBase @JvmOverloads constructor(private val path: String, private val type: String = DEFAULT_CONTENT_TYPE, private val time: Long = 0L) : ContentResource {
 
+    @FrameworkDsl
     private val kind: String by lazy {
         getContentKind().toLowerTrim().let { if (getContentPath().startsWith(it, true)) EMPTY_STRING else it }
     }
 
+    @FrameworkDsl
     private val desc: String by lazy {
         "${nameOf()}($kind${getContentPath()}, ${getContentType()}, ${isContentCache()})"
     }
 
-    @CreatorsDsl
-    override fun toMapNames():AnyDictionary {
+    @FrameworkDsl
+    override fun toMapNames(): AnyDictionary {
         return dictOf("name" to nameOf(), "path" to "$kind${getContentPath()}", "type" to getContentType(), "time" to getContentTime().toDate())
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = getDescription()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentPath() = path
+    override fun getContentPath() = path.toChecked()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentTime() = time
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getDescription() = desc
+    override fun getDescription() = desc.toChecked()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentType() = type.toLowerTrim()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentMime() = ContentMimeType(getContentType())
+
+    @FrameworkDsl
+    override fun hashCode() = getContentPath().hashOf()
+
+    @FrameworkDsl
+    override fun equals(other: Any?) = when (other) {
+        is AbstractContentResourceBase -> this === other && getContentPath() == other.getContentPath()&& isContentCache() == other.isContentCache()
+        else -> false
+    }
 }

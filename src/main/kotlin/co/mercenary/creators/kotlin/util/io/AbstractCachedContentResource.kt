@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,17 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-abstract class AbstractCachedContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp()) : AbstractContentResourceBase(path, type, time), CachedContentResource {
+abstract class AbstractCachedContentResource @JvmOverloads constructor(data: ByteArray, path: String, type: String = DEFAULT_CONTENT_TYPE, time: Long = getTimeStamp(), sort: String = EMPTY_STRING) : AbstractContentResourceBase(path, type, time), CachedContentResource {
+
+    @FrameworkDsl
+    private val kind = sort.copyOf()
 
     @FrameworkDsl
     private val save = data.toByteArray()
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    override fun getContentKind() = kind.copyOf()
 
     @FrameworkDsl
     @IgnoreForSerialize
@@ -48,11 +55,11 @@ abstract class AbstractCachedContentResource @JvmOverloads constructor(data: Byt
     override fun toContentCache() = this
 
     @FrameworkDsl
-    protected fun toDataHashOf() = getContentPath().hashOf(save)
+    override fun hashCode() = save.hashOf() * HASH_NEXT_VALUE + super.hashCode()
 
     @FrameworkDsl
-    protected fun isDataSameAs(data: AbstractCachedContentResource) = save isSameArrayAs data.save
-
-    @FrameworkDsl
-    protected fun isPathSameAs(data: AbstractCachedContentResource) = getContentPath() == data.getContentPath()
+    override fun equals(other: Any?) = when (other) {
+        is AbstractCachedContentResource -> this === other || getContentPath() == other.getContentPath() && save isSameArrayAs other.save
+        else -> false
+    }
 }

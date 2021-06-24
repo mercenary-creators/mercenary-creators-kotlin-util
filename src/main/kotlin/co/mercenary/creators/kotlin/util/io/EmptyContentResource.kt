@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 
-@CreatorsDsl
+@FrameworkDsl
 @IgnoreForSerialize
 object EmptyContentResource : CachedContentResource {
 
@@ -30,63 +30,63 @@ object EmptyContentResource : CachedContentResource {
         "${nameOf()}(${getContentPath()}, ${getContentType()}, ${isContentCache()})"
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames(): Map<String, Any?> {
         return dictOf("name" to nameOf(), "path" to getContentPath(), "type" to getContentType(), "time" to getContentTime().toDate())
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = getDescription()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentSize() = 0L
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentTime() = TimeAndDate.getTimeStamp()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentPath() = path
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getDescription() = desc
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentKind() = EMPTY_STRING
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isContentCache() = true
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isContentThere() = true
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentData() = EMPTY_BYTE_ARRAY
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getInputStream() = EmptyInputStream
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun toContentCache() = EmptyContentResource
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentType() = DEFAULT_CONTENT_TYPE
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentMime() = ContentMimeType.getDefaultContentMimeType()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup = { _ -> EmptyContentResource }
 }

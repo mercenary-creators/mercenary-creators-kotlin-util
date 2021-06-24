@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class ClassPathContentResource @JvmOverloads @CreatorsDsl constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, private val claz: Class<*>?, private val load: ClassLoader?) : AbstractContentResource(path, type) {
+class ClassPathContentResource @JvmOverloads @FrameworkDsl constructor(path: String, type: String = DEFAULT_CONTENT_TYPE, private val claz: Class<*>?, private val load: ClassLoader?) : AbstractContentResource(path, type) {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     constructor(path: String, type: String = DEFAULT_CONTENT_TYPE) : this(getPathNormalizedNoTail(path, true), type, null, IO.getDefaultClassLoader())
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     constructor(path: String, claz: Class<*>, type: String = DEFAULT_CONTENT_TYPE) : this(getPathNormalizedNoTail(path, false), type, claz, null)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     constructor(path: String, claz: kotlin.reflect.KClass<*>, type: String = DEFAULT_CONTENT_TYPE) : this(path, claz.java, type)
 
@@ -37,7 +37,7 @@ class ClassPathContentResource @JvmOverloads @CreatorsDsl constructor(path: Stri
 
     private val resource = IO.getResouce(getContentPath(), claz, load)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isContentThere(): Boolean {
         if (resource != null) {
@@ -46,11 +46,11 @@ class ClassPathContentResource @JvmOverloads @CreatorsDsl constructor(path: Stri
         return false
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentLook(): ContentResourceLookup = { ClassPathContentResource(IO.getPathRelative(getContentPath(), it), DEFAULT_CONTENT_TYPE, claz, load) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentTime(): Long {
         val time = super.getContentTime()
@@ -63,7 +63,7 @@ class ClassPathContentResource @JvmOverloads @CreatorsDsl constructor(path: Stri
         return time
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentSize(): Long {
         if (resource != null) {
@@ -74,27 +74,27 @@ class ClassPathContentResource @JvmOverloads @CreatorsDsl constructor(path: Stri
         throw MercenaryExceptiion(getDescription())
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentType() = resolved
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getContentKind() = IO.PREFIX_CLASS
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getInputStream() = when (val data = IO.getInputStream(resource)) {
         null -> throw MercenaryExceptiion(getDescription())
         else -> data
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is ClassPathContentResource -> this === other || getContentPath() isSameAs other.getContentPath() && claz isSameAs other.claz && load isSameAs other.load
         else -> false
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = getContentPath().hashCode()
 }

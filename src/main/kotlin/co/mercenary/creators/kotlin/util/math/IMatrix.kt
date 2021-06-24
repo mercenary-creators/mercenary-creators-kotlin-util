@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,21 @@ package co.mercenary.creators.kotlin.util.math
 
 import co.mercenary.creators.kotlin.util.*
 
-interface IMatrix<R : IVector<R>, M : IMatrix<R, M>> : SizedContainer, Copyable<M>, Cloneable, Iterable<R> {
+interface IMatrix<R : IVector<R>, M : IMatrix<R, M>> : Sliced<M>, Iterable<R> {
 
     @FrameworkDsl
-    val indices: IntRange
+    fun rows(): Int
+
+    @FrameworkDsl
+    fun cols(): Int
 
     @FrameworkDsl
     @IgnoreForSerialize
-    fun isSubMatrix(): Boolean
+    fun isSquare(): Boolean
 
     @FrameworkDsl
     @IgnoreForSerialize
-    fun isNotSubMatrix(): Boolean = isSubMatrix().isNotTrue()
-
-    @FrameworkDsl
-    fun matrix(index: Int, place: Int): M
+    fun isNotSquare(): Boolean = isSquare().isNotTrue()
 
     @FrameworkDsl
     operator fun get(index: Int): R

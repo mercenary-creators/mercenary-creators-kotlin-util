@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,55 +18,268 @@ package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
 import java.io.InputStream
-import java.util.*
 
 @IgnoreForSerialize
-class ChainInputStream @CreatorsDsl constructor(args: Iterator<InputStream>) : AbstractChainInputStream(args) {
+class ChainInputStream @FrameworkDsl constructor(args: List<InputStream>) : InputStream(), Exhausted, SizedContainer, OpenAutoClosable, HasMapNames {
 
     @FrameworkDsl
-    constructor(args: Iterable<InputStream>) : this(args.toIterator())
+    constructor(args: Iterator<InputStream>) : this(args.toIterator().toList())
 
     @FrameworkDsl
-    constructor(args: Sequence<InputStream>) : this(args.toIterator())
+    constructor(args: Iterable<InputStream>) : this(args.toIterator().toList())
 
     @FrameworkDsl
-    constructor(args: Enumeration<InputStream>) : this(args.toIterator())
+    constructor(args: Sequence<InputStream>) : this(args.toIterator().toList())
 
     @FrameworkDsl
-    constructor(head: InputStream, next: InputStream, vararg more: InputStream) : this(append(head).append(next).append(more.toIterable()).toIterable())
+    constructor(head: InputStream, next: InputStream, vararg more: InputStream) : this(toListOf(head, next, *more))
 
     @FrameworkDsl
-    override fun hashCode() = super.hashCode()
+    private val open = getAtomicTrue()
 
     @FrameworkDsl
-    override fun toString() = super.toString()
+    private val list = BasicArrayList(args)
+
+    @FrameworkDsl
+    private val many = args.sizeOf().copyOf()
+
+    @FrameworkDsl
+    private fun manyOf() = many.toListCapacity()
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    override fun isOpen() = open.isTrue()
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    override fun isExhausted(): Boolean {
+        return isClosed() || isEmpty()
+    }
+
+    @FrameworkDsl
+    override fun sizeOf() = list.sizeOf()
+
+    init {
+        if (sizeOf() < 2) {
+            fail(MATH_INVALID_SIZE_ERROR)
+        }
+    }
+
+    @FrameworkDsl
+    override fun hashCode() = idenOf()
+
+    @FrameworkDsl
+    override fun toString() = toMapNames().toSafeString()
+
+    @FrameworkDsl
+    override fun toMapNames() = dictOf("type" to nameOf(), "open" to isOpen(), "size" to sizeOf(), "many" to manyOf())
 
     @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is ChainInputStream -> this === other || super.equals(other)
+        is ChainInputStream -> this === other
         else -> false
     }
 
-    companion object Companion {
+    @FrameworkDsl
+    private fun bump() {
+        if (sizeOf() > 0) {
+            use { list.pop() }
+        }
+    }
+
+    @FrameworkDsl
+    override fun read(): Int {
+        while (sizeOf() > 0) {
+            try {
+                val read = list[0].read()
+                if (read != IS_NOT_FOUND) {
+                    return read
+                }
+            } catch (cause: Throwable) {
+                Throwables.thrown(cause)
+            }
+            bump()
+        }
+        return IS_NOT_FOUND
+    }
+
+    @FrameworkDsl
+    override fun read(buff: ByteArray): Int {
+        return read(buff, 0, buff.sizeOf())
+    }
+
+    @FrameworkDsl
+    override fun read(buff: ByteArray, off: Int, len: Int): Int {
+        if (isEmpty()) {
+            return IS_NOT_FOUND
+        }
+        if (off < 0 || len < 0 || len > (buff.sizeOf() - off)) {
+            fail(MATH_INVALID_SIZE_ERROR)
+        }
+        if (len == 0) {
+            return 0
+        }
+        do {
+            try {
+                val read = list[0].read(buff, off, len)
+                if (read > 0) {
+                    return read
+                }
+            } catch (cause: Throwable) {
+                Throwables.thrown(cause)
+            }
+            bump()
+        } while (sizeOf() > 0)
+        return IS_NOT_FOUND
+    }
+
+    @FrameworkDsl
+    override fun close() {
+        if (open.isTrueToFalse()) {
+            do {
+                try {
+                    bump()
+                } catch (cause: Throwable) {
+                    Throwables.thrown(cause)
+                }
+            } while (sizeOf() > 0)
+            list.reset()
+        } else {
+            logsOf<ChainInputStream>().warn { "closed()" }
+        }
+    }
+
+    @FrameworkDsl
+    override fun mark(read: Int) {
+        fail("${nameOf()}.mark() not supported")
+    }
+
+    @FrameworkDsl
+    override fun reset() {
+        fail("${nameOf()}.reset() not supported")
+    }
+
+    @FrameworkDsl
+    override fun available(): Int {
+        return if (isExhausted()) 0 else list[0].available()
+    }
+
+    @IgnoreForSerialize
+    class ChainInputStreamBuilder @FrameworkDsl internal constructor(args: Iterable<InputStream>) : MutableSizedContainer, Builder<ChainInputStream>, HasMapNames {
 
         @FrameworkDsl
-        private val list = BasicArrayList<InputStream>(2)
+        private val list = BasicArrayList(args)
 
         @FrameworkDsl
-        fun append(data: InputStream): Companion {
-            list.add(data)
+        operator fun contains(element: InputStream): Boolean {
+            if (isEmpty()) {
+                return false
+            }
+            list.forEach { input ->
+                if (input === element) {
+                    return true
+                }
+            }
+            return list.contains(element)
+        }
+
+        @FrameworkDsl
+        fun append(element: InputStream, vararg args: InputStream): ChainInputStreamBuilder {
+            list.add(element)
+            return append(args.toCollection())
+        }
+
+        @FrameworkDsl
+        fun append(element: InputStreamSupplier, vararg args: InputStreamSupplier): ChainInputStreamBuilder {
+            list.add(element.toInputStream())
+            if (args.isNotExhausted()) {
+                args.forEach { input ->
+                    list.add(input.toInputStream())
+                }
+            }
             return this
         }
 
         @FrameworkDsl
-        fun append(data: Iterable<InputStream>): Companion {
-            list.add(data)
+        fun append(args: Iterable<InputStream>): ChainInputStreamBuilder {
+            list.append(args)
             return this
         }
 
         @FrameworkDsl
-        fun toIterable(): Iterable<InputStream> {
-            return list.toList().also { list.clear() }
+        fun append(args: Iterator<InputStream>): ChainInputStreamBuilder {
+            list.append(args)
+            return this
         }
+
+        @FrameworkDsl
+        fun append(args: Sequence<InputStream>): ChainInputStreamBuilder {
+            list.append(args)
+            return this
+        }
+
+        @FrameworkDsl
+        override fun build(): ChainInputStream {
+            if (sizeOf() < 2) {
+                fail(MATH_INVALID_SIZE_ERROR)
+            }
+            return ChainInputStream(list)
+        }
+
+        @FrameworkDsl
+        @IgnoreForSerialize
+        override fun isEmpty(): Boolean {
+            return sizeOf() == 0
+        }
+
+        @FrameworkDsl
+        override fun clear() {
+            list.clear()
+        }
+
+        @FrameworkDsl
+        override fun reset() {
+            list.reset()
+        }
+
+        @FrameworkDsl
+        override fun sizeOf(): Int {
+            return list.sizeOf()
+        }
+
+        @FrameworkDsl
+        override fun hashCode() = idenOf()
+
+        @FrameworkDsl
+        override fun toString() = toMapNames().toSafeString()
+
+        @FrameworkDsl
+        override fun equals(other: Any?) = when (other) {
+            is ChainInputStreamBuilder -> this === other
+            else -> false
+        }
+
+        @FrameworkDsl
+        override fun toMapNames() = dictOf("type" to nameOf(), "size" to sizeOf())
+    }
+
+    companion object {
+
+        @JvmStatic
+        @JvmOverloads
+        @FrameworkDsl
+        fun builder(args: Iterable<InputStream> = toListOf()) = ChainInputStreamBuilder(args)
+
+        @JvmStatic
+        @FrameworkDsl
+        fun builder(args: Iterator<InputStream>) = ChainInputStreamBuilder(args.toCollection())
+
+        @JvmStatic
+        @FrameworkDsl
+        fun builder(args: Sequence<InputStream>) = ChainInputStreamBuilder(args.toCollection())
+
+        @JvmStatic
+        @FrameworkDsl
+        fun builder(head: InputStream, next: InputStream, vararg more: InputStream) = ChainInputStreamBuilder(toListOf(head, next, *more))
     }
 }

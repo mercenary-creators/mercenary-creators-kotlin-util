@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,27 +18,30 @@ package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.math.*
+import kotlin.math.exp
 
 abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constructor(window: Long, private val wait: TimeUnit = TimeUnit.MILLISECONDS, unit: TimeUnit = TimeUnit.MILLISECONDS, private val moment: () -> Long = TimeAndDate::mills) : TimeWindowMovingAverage {
 
     @Volatile
+    @FrameworkDsl
     private var ticker = 0L
 
     @Volatile
+    @FrameworkDsl
     private var moving = 0.0
 
-    private val window = wait.convert(window.maxOf(1L), unit).toDouble()
+    @FrameworkDsl
+    private val window = wait.convert(window.maxOf(1L), unit).realOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getAverage() = moving
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getWaitTimeUnit() = wait
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getMomentInTime() = moment.invoke()
 
@@ -47,7 +50,7 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constr
     override fun addAverage(delta: Double): Double {
         getMomentInTime().also { clock ->
             if (ticker < 1) moving = delta
-            else exp(-1.0 * ((clock - ticker).toDouble() / window)).also { timed ->
+            else exp(-1.0 * ((clock - ticker).realOf() / window)).also { timed ->
                 moving = ((1.0 - timed) * delta) + (timed * moving)
             }
             ticker = clock
@@ -63,10 +66,12 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constr
     override fun getWindowHandle(): TimeWindowHandle = DefaultTimeWindowHandle(this, getMomentInTime())
 
     @IgnoreForSerialize
-    protected open inner class DefaultTimeWindowHandle @CreatorsDsl constructor(private val self: TimeWindowMovingAverage, private val time: Long) : TimeWindowHandle {
+    protected open inner class DefaultTimeWindowHandle @FrameworkDsl constructor(private val self: TimeWindowMovingAverage, private val time: Long) : TimeWindowHandle {
 
+        @FrameworkDsl
         private val open = true.toAtomic()
 
+        @FrameworkDsl
         override fun close() {
             if (open.isTrueToFalse()) {
                 self.getMomentInTime().minus(time).toDouble().also { diff ->
@@ -74,8 +79,7 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constr
                         if (it > 0) {
                             try {
                                 self.getWaitTimeUnit().sleep(it)
-                            }
-                            catch (cause: Throwable) {
+                            } catch (cause: Throwable) {
                                 Throwables.thrown(cause)
                             }
                         }

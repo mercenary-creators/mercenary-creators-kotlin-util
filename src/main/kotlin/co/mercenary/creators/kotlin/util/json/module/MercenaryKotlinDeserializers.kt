@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.test
+package co.mercenary.creators.kotlin.util.json.module
 
 import co.mercenary.creators.kotlin.util.*
+import com.fasterxml.jackson.databind.*
+import com.fasterxml.jackson.databind.deser.Deserializers
 
+@FrameworkDsl
 @IgnoreForSerialize
-interface IAssumeCollector : Clearable {
-
-    @FrameworkDsl
-    fun assumeThat(block: () -> Unit)
+object MercenaryKotlinDeserializers : Deserializers.Base() {
+    override fun findBeanDeserializer(type: JavaType, config: DeserializationConfig, bean: BeanDescription): JsonDeserializer<*>? = when {
+        type.hasRawClass(TimeDuration::class.java) -> TimeDurationDeserializer
+        else -> null
+    }
 }

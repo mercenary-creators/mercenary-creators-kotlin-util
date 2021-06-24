@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,67 +21,96 @@ import java.security.SecureRandom
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.spec.*
 
-interface CipherAlgorithm {
+@IgnoreForSerialize
+interface CipherAlgorithm : HasMapNames {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getFactoryKeysSize(): Int
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getCipherKeyLength(): Int
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getCipherIteration(): Int
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getCipherSecretKey(): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getCipherAlgorithm(): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getCipherTransform(): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    fun getFactoryKeysRand(): SecureRandom
+    fun getFactoryKeysRand(): Factory<SecureRandom>
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getAlgorithmParams(vector: ByteArray): AlgorithmParameterSpec
 
     companion object {
 
-        @CreatorsDsl
+        @FrameworkDsl
         val GCM = CipherAlgorithmFactory("AES/GCM/NoPadding") { vector ->
             GCMParameterSpec(128, vector)
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         val CBC = CipherAlgorithmFactory("AES/CBC/PKCS5Padding") { vector ->
             IvParameterSpec(vector)
         }
 
         @IgnoreForSerialize
-        class CipherAlgorithmFactory @JvmOverloads @CreatorsDsl constructor(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: (ByteArray) -> AlgorithmParameterSpec) : CipherAlgorithm {
+        class CipherAlgorithmFactory @JvmOverloads @FrameworkDsl constructor(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: Convert<ByteArray, AlgorithmParameterSpec>) : CipherAlgorithm {
 
-            private val rand: SecureRandom by lazy {
-                SecureRandom()
-            }
+            @FrameworkDsl
+            @IgnoreForSerialize
+            override fun getFactoryKeysSize() = size.copyOf()
 
-            override fun getFactoryKeysSize() = size
-            override fun getCipherKeyLength() = leng
-            override fun getCipherIteration() = iter
-            override fun getCipherSecretKey() = type
-            override fun getCipherAlgorithm() = algo
-            override fun getCipherTransform() = tran
-            override fun getFactoryKeysRand() = rand
-            override fun getAlgorithmParams(vector: ByteArray) = factory.invoke(vector)
+            @FrameworkDsl
+            @IgnoreForSerialize
+            override fun getCipherKeyLength() = leng.copyOf()
+
+            @FrameworkDsl
+            @IgnoreForSerialize
+            override fun getCipherIteration() = iter.copyOf()
+
+            @FrameworkDsl
+            @IgnoreForSerialize
+            override fun getCipherSecretKey() = type.copyOf()
+
+            @FrameworkDsl
+            @IgnoreForSerialize
+            override fun getCipherAlgorithm() = algo.copyOf()
+
+            @FrameworkDsl
+            @IgnoreForSerialize
+            override fun getCipherTransform() = tran.copyOf()
+
+            @FrameworkDsl
+            @IgnoreForSerialize
+            override fun getFactoryKeysRand() = Randoms.getStrongInstanceFactory()
+
+            @FrameworkDsl
+            @IgnoreForSerialize
+            override fun getAlgorithmParams(vector: ByteArray) = factory.convert(vector)
+
+            @FrameworkDsl
+            override fun toString() = toMapNames().toSafeString()
+
+            @FrameworkDsl
+            override fun hashCode() = idenOf()
+
+            @FrameworkDsl
+            override fun toMapNames() = dictOfType<CipherAlgorithmFactory>("transform" to getCipherTransform())
         }
     }
 }

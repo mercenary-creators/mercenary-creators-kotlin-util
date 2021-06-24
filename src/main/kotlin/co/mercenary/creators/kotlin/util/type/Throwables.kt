@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,28 @@
 package co.mercenary.creators.kotlin.util.type
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.collection.BasicLinkedSet
 import kotlin.reflect.KClass
 
 @FrameworkDsl
 @IgnoreForSerialize
 object Throwables {
 
-    enum class Mode { FAILURE, IGNORED }
+    enum class Mode {
+        @FrameworkDsl
+        FAILURE,
+        @FrameworkDsl
+        IGNORED }
 
     @FrameworkDsl
-    private val failure = LinkedHashSet<Class<*>>()
+    private val failure = BasicLinkedSet<Class<*>>()
 
     @FrameworkDsl
-    private val ignored = LinkedHashSet<Class<*>>()
+    private val ignored = BasicLinkedSet<Class<*>>()
 
+    @FrameworkDsl
     private val logger: ILogging by lazy {
-        LoggingFactory.logger(Throwables::class)
+        logsOf<Throwables>()
     }
 
     init {
@@ -43,14 +49,13 @@ object Throwables {
     @FrameworkDsl
     fun thrown(cause: Throwable?) {
         if (cause != null) {
-            val type = cause.javaClass
-            if (type in ignored) {
+            if (isIgnored(cause)) {
                 logger.debug {
-                    "${type.name}(${cause.message}) IGNORED."
+                    "${cause.nameOf()}(${cause.message}) IGNORED."
                 }
-            } else if (type in failure) {
+            } else if (isFailure(cause)) {
                 logger.error {
-                    "${type.name}(${cause.message}) FAILURE."
+                    "${cause.nameOf()}(${cause.message}) FAILURE."
                 }
                 throw cause
             }
@@ -164,7 +169,7 @@ object Throwables {
     @JvmOverloads
     fun reset(defaults: Boolean = true) {
         clear()
-        if (defaults) {
+        if (defaults.isTrue()) {
             defaults()
         }
     }

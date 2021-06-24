@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.collection.StringSet
 
 @IgnoreForSerialize
 abstract class LoggingConfigService(protected val order: Int) : Comparable<LoggingConfigService> {
@@ -37,7 +38,7 @@ abstract class LoggingConfigService(protected val order: Int) : Comparable<Loggi
     @IgnoreForSerialize
     abstract fun getIgnoring(): List<String>
 
-    @CreatorsDsl
+    @FrameworkDsl
     override operator fun compareTo(other: LoggingConfigService): Int {
         return order.compareTo(other.order)
     }
@@ -46,10 +47,17 @@ abstract class LoggingConfigService(protected val order: Int) : Comparable<Loggi
 
         @JvmStatic
         @FrameworkDsl
-        fun toIgnoring(args: String) = listOf(args).uniqueTrimmedOf()
+        fun toIgnoring(args: String): List<String> {
+            return args.toTrimOr(EMPTY_STRING).let { if (it.isEmptyOrBlank()) toListOf() else toListOf(it) }
+        }
 
         @JvmStatic
         @FrameworkDsl
-        fun toIgnoring(vararg args: String) = listOf(*args).uniqueTrimmedOf()
+        fun toIgnoring(vararg args: String): List<String> {
+            if (args.isExhausted()) {
+                return toListOf()
+            }
+            return StringSet(args.mapNotNull { toTrimOrNull(it) }).getList()
+        }
     }
 }

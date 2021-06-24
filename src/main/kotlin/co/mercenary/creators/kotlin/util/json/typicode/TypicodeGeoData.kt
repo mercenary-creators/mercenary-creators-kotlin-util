@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.math
+package co.mercenary.creators.kotlin.util.json.typicode
 
 import co.mercenary.creators.kotlin.util.*
 
-interface CloseEnough<T> {
-    @CreatorsDsl
-    fun closeEnough(value: T, precision: Double = Numeric.DEFAULT_PRECISION_DELTA): Boolean
+data class TypicodeGeoData @FrameworkDsl constructor(val lat: String, val lng: String) : TypicodeBase<TypicodeGeoData> {
+
+    @FrameworkDsl
+    override fun clone() = copyOf()
+
+    @FrameworkDsl
+    override fun copyOf() = toDeepCopy()
+
+    @FrameworkDsl
+    override fun toString() = toJSONString()
 }

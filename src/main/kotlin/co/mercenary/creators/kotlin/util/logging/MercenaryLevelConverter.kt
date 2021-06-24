@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,19 @@ package co.mercenary.creators.kotlin.util.logging
 
 import ch.qos.logback.classic.pattern.ClassicConverter
 import ch.qos.logback.classic.spi.ILoggingEvent
-import java.util.*
+import co.mercenary.creators.kotlin.util.*
 
 open class MercenaryLevelConverter : ClassicConverter() {
+
+    @FrameworkDsl
     override fun convert(event: ILoggingEvent): String {
-        val text = event.level.toString().toUpperCase(Locale.ENGLISH)
-        return when {
-            text.length < 4 -> text.padEnd(4)
-            text.length > 4 -> text.substring(0, 4)
-            else -> text
+        return event.level.toString().toUpperCaseEnglish().withSize { data, size ->
+            when {
+                size < 4 -> data.padEnd(4)
+                size > 4 -> data.substring(0, 4)
+                else -> data
+            }
         }
+
     }
 }

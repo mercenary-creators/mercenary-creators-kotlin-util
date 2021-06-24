@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ class EncodersTest : KotlinSecurityTest() {
     @Test
     fun test() {
         val name = getGeneratedText()
-        val code = Encoders.hex().toText()
+        val code = Encoders.text()
         warn { code }
         info { name }
         val data = timed {
@@ -69,7 +69,7 @@ class EncodersTest : KotlinSecurityTest() {
         info { dean.toString() }
         info { dean.toCharArray() }
         info { dean.toCharArray(false) }
-        val look = 4.toIntArray()
+        val look = 4.toIntArray() { it }
         warn { dash() }
         warn { look }
         warn { look.asIterable().shuffled() }

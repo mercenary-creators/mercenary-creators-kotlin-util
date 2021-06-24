@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,15 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.OutputStream
 
 @IgnoreForSerialize
-class SplitOutputStream @JvmOverloads @CreatorsDsl constructor(head: OutputStream, next: OutputStream, flush: Boolean = false) : AbstractCountSizeOutputStream(org.apache.commons.io.output.TeeOutputStream(head, next), flush) {
+class SplitOutputStream @JvmOverloads @FrameworkDsl constructor(head: OutputStream, next: OutputStream, flush: Boolean = false) : AbstractCountSizeOutputStream(org.apache.commons.io.output.TeeOutputStream(head, next), flush) {
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = nameOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun hashCode() = idenOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
         is SplitOutputStream -> this === other
         else -> false

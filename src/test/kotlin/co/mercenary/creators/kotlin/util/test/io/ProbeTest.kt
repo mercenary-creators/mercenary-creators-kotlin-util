@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,13 @@ import co.mercenary.creators.kotlin.util.*
 import org.junit.jupiter.api.Test
 
 class ProbeTest : KotlinDataTest() {
+
     @Test
     fun test() {
         val type = prober["test.zip"]
         info { type }
         type shouldBe "application/zip"
-        warn { loader["http://jsonplaceholder.typicode.com/posts"].getContentMime() }
-        warn { loader["http://jsonplaceholder.typicode.com/todos"].getContentMime().toMapNames().plus("size" to 6) }
+        warn { loader["https://jsonplaceholder.typicode.com/posts"].getContentMime() }
+        warn { loader["https://jsonplaceholder.typicode.com/todos"].getContentMime().toMapNames().plus("size" to 6) }
     }
 }

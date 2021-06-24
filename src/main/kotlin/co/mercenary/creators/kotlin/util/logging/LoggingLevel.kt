@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import ch.qos.logback.classic.Level
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-enum class LoggingLevel(private val value: Level) {
+enum class LoggingLevel(value: Level) {
 
     @CreatorsDsl
     OFF(Level.OFF),
@@ -43,37 +43,35 @@ enum class LoggingLevel(private val value: Level) {
     @CreatorsDsl
     ERROR(Level.ERROR);
 
-    @CreatorsDsl
-    fun toLevel() = value
+    @FrameworkDsl
+    private val level = value
 
-    @CreatorsDsl
-    fun toInteger() = toLevel().toInt()
+    @FrameworkDsl
+    fun toLevel() = level
 
-    @CreatorsDsl
-    fun isEqualTo(level: LoggingLevel) = toInteger() isSameAs level.toInteger()
+    @FrameworkDsl
+    fun getValue() = toLevel().getValue()
 
-    @CreatorsDsl
-    fun isNotEqualTo(level: LoggingLevel) = toInteger() isNotSameAs level.toInteger()
-
-    @CreatorsDsl
-    fun isLessThan(level: LoggingLevel) = toInteger() < level.toInteger()
-
-    @CreatorsDsl
-    fun isLessThanOrEqual(level: LoggingLevel) = toInteger() <= level.toInteger()
-
-    @CreatorsDsl
-    fun isMoreThan(level: LoggingLevel) = toInteger() > level.toInteger()
-
-    @CreatorsDsl
-    fun isMoreThanOrEqual(level: LoggingLevel) = toInteger() >= level.toInteger()
-
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = name.toUpperCaseEnglish()
+
+    @FrameworkDsl
+    operator fun compareTo(value: Int): Int {
+        return getValue().compareTo(value)
+    }
+
+    @FrameworkDsl
+    operator fun compareTo(value: Level): Int {
+        return compareTo(value.getValue())
+    }
 
     companion object {
 
+        @FrameworkDsl
+        fun Level.getValue(): Int = toInt()
+
         @JvmStatic
-        @CreatorsDsl
+        @FrameworkDsl
         fun from(level: Int) = when (level) {
             Level.OFF_INT -> OFF
             Level.ALL_INT -> ALL
@@ -86,11 +84,11 @@ enum class LoggingLevel(private val value: Level) {
         }
 
         @JvmStatic
-        @CreatorsDsl
-        fun from(level: Level) = from(level.toInt())
+        @FrameworkDsl
+        fun from(level: Level) = from(level.getValue())
 
         @JvmStatic
-        @CreatorsDsl
-        fun from(level: String) = from(Level.valueOf(level))
+        @FrameworkDsl
+        fun from(level: CharSequence) = from(Level.toLevel(level.toValid()))
     }
 }

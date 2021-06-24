@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,26 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName")
+
 package co.mercenary.creators.kotlin.util.collection
 
 import co.mercenary.creators.kotlin.util.*
 
-interface MutableListBase<T, B : MutableListBase<T, B>> : MutableBase<B>, MutableList<T> {
-
-    @FrameworkDsl
-    override fun sizeOf(): Int {
-        return size
-    }
+interface MutableListBase<T, B : MutableListBase<T, B>> : MutableBase<B>, MutableList<T>, RandomAccess {
 
     @FrameworkDsl
     fun trim()
 
     @FrameworkDsl
-    fun toList(): List<T> {
-        return when (sizeOf()) {
-            0 -> toListOf()
-            1 -> toListOf(this[0])
-            else -> toListOf(this)
-        }
-    }
+    @IgnoreForSerialize
+    fun isArrayList(): Boolean
 
     @FrameworkDsl
     fun pop(): T
+
+    @FrameworkDsl
+    fun cut(): T
 
     @FrameworkDsl
     fun add(args: Array<T>): Boolean {
@@ -89,6 +84,7 @@ interface MutableListBase<T, B : MutableListBase<T, B>> : MutableBase<B>, Mutabl
         if (args.isExhausted()) {
             return false
         }
+        rangecheckadd(index)
         return add(index, args.toCollection())
     }
 
@@ -97,6 +93,7 @@ interface MutableListBase<T, B : MutableListBase<T, B>> : MutableBase<B>, Mutabl
         if (args.isExhausted()) {
             return false
         }
+        rangecheckadd(index)
         return add(index, args.toCollection())
     }
 
@@ -105,6 +102,16 @@ interface MutableListBase<T, B : MutableListBase<T, B>> : MutableBase<B>, Mutabl
         if (args.isExhausted()) {
             return false
         }
+        rangecheckadd(index)
+        return add(index, args.toCollection())
+    }
+
+    @FrameworkDsl
+    fun add(index: Int, args: Sequence<T>): Boolean {
+        if (args.isExhausted()) {
+            return false
+        }
+        rangecheckadd(index)
         return add(index, args.toCollection())
     }
 
@@ -122,25 +129,8 @@ interface MutableListBase<T, B : MutableListBase<T, B>> : MutableBase<B>, Mutabl
     }
 
     @FrameworkDsl
-    fun add(index: Int, args: Sequence<T>): Boolean {
-        if (args.isExhausted()) {
-            return false
-        }
-        return add(index, args.toCollection())
-    }
+    fun toReadOnly(): List<T> = toList()
 
     @FrameworkDsl
-    fun enhance(base: MutableList<T>): MutableList<T> {
-        return base
-    }
-
-    @FrameworkDsl
-    fun enhance(base: MutableIterator<T>): MutableIterator<T> {
-        return base
-    }
-
-    @FrameworkDsl
-    fun enhance(base: MutableListIterator<T>): MutableListIterator<T> {
-        return base
-    }
+    fun toSequence(): Sequence<T> = asSequence()
 }

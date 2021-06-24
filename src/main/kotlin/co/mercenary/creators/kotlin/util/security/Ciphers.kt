@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,14 @@ import javax.crypto.*
 object Ciphers : HasMapNames {
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun text(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<String, String> {
         return text(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun text(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<String, String> {
         val proxy = data(secret, algorithm)
@@ -43,73 +43,96 @@ object Ciphers : HasMapNames {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun data(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<ByteArray, ByteArray> {
         return data(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun data(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherEncrypting<ByteArray, ByteArray> {
         return InternalEncryptingData(algorithm, getCipher(algorithm), getCipher(algorithm), secret, SimpleCipherKeysFactory(algorithm))
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun copy(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherCopyStreams {
         return copy(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     fun copy(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC): CipherCopyStreams {
         return InternalEncryptingCopy(algorithm, getCipher(algorithm), getCipher(algorithm), secret, SimpleCipherKeysFactory(algorithm))
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getAlgorithms(): Algorithm = Algorithm.forName("Cipher")
 
-    @CreatorsDsl
+    @JvmStatic
+    @FrameworkDsl
+    fun getMaxKeySize(algorithm: String): Int {
+        return SecureAccess.doPrivileged { Cipher.getMaxAllowedKeyLength(algorithm) }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getMaxKeySize(algorithm: CipherAlgorithm): Int {
+        return getMaxKeySize(algorithm.getCipherTransform())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getMaxAlgorithmParameterSpec(algorithm: String): AlgorithmParameterSpec? {
+        return SecureAccess.doPrivileged { Cipher.getMaxAllowedParameterSpec(algorithm) }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getMaxAlgorithmParameterSpec(algorithm: CipherAlgorithm): AlgorithmParameterSpec? {
+        return getMaxAlgorithmParameterSpec(algorithm.getCipherTransform())
+    }
+
+    @FrameworkDsl
     override fun toString() = nameOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = dictOf("type" to nameOf(), "ciphers" to getAlgorithms())
 
-    @CreatorsDsl
+    @FrameworkDsl
     private fun getCipher(algorithm: CipherAlgorithm): Cipher = Cipher.getInstance(algorithm.getCipherTransform())
 
-    @CreatorsDsl
+    @FrameworkDsl
     private fun setCypher(cipher: Cipher, mode: Int, secret: SecretKey, parameter: AlgorithmParameterSpec): Cipher = cipher.also { it.init(mode, secret, parameter) }
 
-    @CreatorsDsl
+    @FrameworkDsl
     private fun getParams(algorithm: CipherAlgorithm, vector: ByteArray): AlgorithmParameterSpec = algorithm.getAlgorithmParams(vector)
 
     @IgnoreForSerialize
-    private class InternalEncryptingData @CreatorsDsl constructor(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherEncrypting<ByteArray, ByteArray> {
+    private class InternalEncryptingData @FrameworkDsl constructor(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherEncrypting<ByteArray, ByteArray> {
 
-        @CreatorsDsl
-        override fun encrypt(data: ByteArray): ByteArray = synchronized(encrypt) {
-            data.copyInto(ByteArray(data.size))
+        @FrameworkDsl
+        override fun encrypt(data: ByteArray): ByteArray = locked(encrypt) {
             factory.getKeys().let { vector -> vector + setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(data) }
         }
 
-        @CreatorsDsl
-        override fun decrypt(data: ByteArray): ByteArray = synchronized(decrypt) {
-            data.copyOfRange(0, factory.getSize()).let { vector -> setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(data.copyOfRange(vector.size, data.size)) }
+        @FrameworkDsl
+        override fun decrypt(data: ByteArray): ByteArray = locked(decrypt) {
+            data.copyOfRange(0, factory.getSize()).let { vector -> setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)).doFinal(data.copyOfRange(vector.sizeOf(), data.sizeOf())) }
         }
     }
 
     @IgnoreForSerialize
-    private class InternalEncryptingCopy @CreatorsDsl constructor(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherCopyStreams {
+    private class InternalEncryptingCopy @FrameworkDsl constructor(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherCopyStreams {
 
-        @CreatorsDsl
-        override fun encrypt(data: InputStream, copy: OutputStream) = synchronized(encrypt) {
+        @FrameworkDsl
+        override fun encrypt(data: InputStream, copy: OutputStream) = locked(encrypt) {
             val buffer = data.getBufferSize()
             val vector = factory.getKeys().also { copy.write(it) }
             val output = FastCipherOutputStream(copy, setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)))
@@ -117,8 +140,8 @@ object Ciphers : HasMapNames {
             output.close()
         }
 
-        @CreatorsDsl
-        override fun decrypt(data: InputStream, copy: OutputStream) = synchronized(decrypt) {
+        @FrameworkDsl
+        override fun decrypt(data: InputStream, copy: OutputStream) = locked(decrypt) {
             val buffer = data.getBufferSize()
             val vector = ByteArray(factory.getSize()).also { data.read(it) }
             val output = FastCipherOutputStream(copy, setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)))
@@ -127,29 +150,39 @@ object Ciphers : HasMapNames {
         }
     }
 
-    @IgnoreForSerialize
-    private class FastCipherOutputStream @CreatorsDsl constructor(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream() {
+    @FrameworkDsl
+    private fun ByteArray.push(b: Int): ByteArray {
+        this[0] = b.byteOf()
+        return this
+    }
 
+    @IgnoreForSerialize
+    private class FastCipherOutputStream @FrameworkDsl constructor(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream() {
+
+        @FrameworkDsl
         private var obuf: ByteArray? = null
 
-        private val sbuf: ByteArray = ByteArray(1)
+        @FrameworkDsl
+        private val sbuf: ByteArray = 1.toByteArray()
 
+        @FrameworkDsl
         override fun write(b: Int) {
-            sbuf[0] = b.toByte()
-            obuf = cipher.update(sbuf, 0, 1)
+            obuf = cipher.update(sbuf.push(b), 0, 1)
             update()
         }
 
+        @FrameworkDsl
         override fun write(b: ByteArray) {
-            write(b, 0, b.size)
+            write(b, 0, b.sizeOf())
         }
 
+        @FrameworkDsl
         override fun write(b: ByteArray, off: Int, len: Int) {
             obuf = cipher.update(b, off, len)
             update()
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         private fun update() {
             if (obuf != null) {
                 proxy.write(obuf!!)
@@ -157,13 +190,13 @@ object Ciphers : HasMapNames {
             }
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun flush() {
             update()
             proxy.flush()
         }
 
-        @CreatorsDsl
+        @FrameworkDsl
         override fun close() {
             obuf = try {
                 cipher.doFinal()

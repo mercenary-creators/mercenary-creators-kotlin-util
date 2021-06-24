@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,11 @@ package co.mercenary.creators.kotlin.util.text
 
 import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.Formatters
+import java.lang.reflect.Field
 import java.time.LocalDateTime
 import java.util.*
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.*
+import kotlin.reflect.KClass
 
 @IgnoreForSerialize
 class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
@@ -37,38 +39,51 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
             is String -> data
             is CharArray -> data.getContentText(false)
             is ByteArray -> Encoders.hex().encode(data)
-            is Map<*, *> -> joinTo(data.toMap())
-            is Array<*> -> joinTo(data.toList())
-            is Iterable<*> -> joinTo(data.toList())
-            is Sequence<*> -> joinTo(data.toList())
-            is IntArray -> joinTo(data.toList())
-            is LongArray -> joinTo(data.toList())
-            is ShortArray -> joinTo(data.toList())
-            is FloatArray -> joinTo(data.toList())
-            is DoubleArray -> joinTo(data.toList())
-            is BooleanArray -> joinTo(data.toList())
+            is Map<*, *> -> joined(data)
+            is Array<*> -> joined(data.toIterator(), false)
+            is Iterable<*> -> joined(data.toIterator(), false)
+            is Sequence<*> -> joined(data.toIterator(), false)
+            is Iterator<*> -> joined(data.toIterator(), false)
+            is IntArray -> joined(data.toIterator(), true)
+            is LongArray -> joined(data.toIterator(), true)
+            is ShortArray -> joined(data.toIterator(), true)
+            is FloatArray -> joined(data.toIterator(), false)
+            is DoubleArray -> joined(data.toIterator(), false)
+            is BooleanArray -> joined(data.toIterator(), true)
             is Date -> data.formatDate()
             is LocalDateTime -> data.formatDate()
             is Function0<*> -> Formatters.toSafeString(data)
             is Map.Entry<*, *> -> stringOf {
-                val (k, v) = data
-                add(escape(k), ": ", escape(v))
+                entry(data)
             }
             is HasMapNames -> format(data.toMapNames())
             is Pair<*, *> -> format(toMapOf(data))
-            else -> data.toString()
+            is AtomicLong -> format(data.getValue())
+            is AtomicBoolean -> format(data.getValue())
+            is AtomicInteger -> format(data.getValue())
+            is Class<*> -> toString(data.nameOf())
+            is KClass<*> -> toString(data.nameOf())
+            else -> {
+                if (data.isDataClass()) {
+                    format(toMapNames(data))
+                }
+                data.toString()
+            }
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun isValidClass(data: Any): Boolean {
         return when (data) {
             is String -> true
             is Number -> true
             is Boolean -> true
+            is Class<*> -> true
             is Array<*> -> true
+            is KClass<*> -> true
             is Map<*, *> -> true
             is Iterable<*> -> true
+            is Iterator<*> -> true
             is Sequence<*> -> true
             is IntArray -> true
             is ByteArray -> true
@@ -80,13 +95,62 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
             is BooleanArray -> true
             is Date -> true
             is LocalDateTime -> true
+            is AtomicLong -> true
+            is AtomicInteger -> true
             is AtomicBoolean -> true
             is Function0<*> -> true
             is Map.Entry<*, *> -> true
             is HasMapNames -> true
             is CharSequence -> true
-            is Pair<*, *> -> true
+            else -> data.isDataClass()
+        }
+    }
+
+    @FrameworkDsl
+    private fun toMapNames(data: Any): Map<String, Class<*>> {
+        if (data.isDataClass().isNotTrue()) {
+            fail(data.nameOf())
+        }
+
+        return data.javaClass.declaredFields.map { it.name to data.javaClass }.mapTo()
+    }
+
+    @FrameworkDsl
+    private fun toFieldValue(data: Any, look:Field): Any? {
+        if (data.isDataClass().isNotTrue()) {
+            fail(data.nameOf())
+        }
+        return look.type.kotlin.objectInstance
+    }
+
+    @FrameworkDsl
+    private fun isPrimitive(data: Any?): Boolean {
+        return when (data) {
+            null -> true
+            is Int -> true
+            is Byte -> true
+            is Char -> true
+            is Long -> true
+            is Short -> true
+            is Boolean -> true
             else -> false
+        }
+    }
+
+    @FrameworkDsl
+    private fun isString(data: Any?): Boolean {
+        return when (data) {
+            is String -> true
+            is CharSequence -> true
+            else -> false
+        }
+    }
+
+    @FrameworkDsl
+    private fun toString(data: Any?): String {
+        return when (data) {
+            is CharSequence -> Escapers.toEscapedString(data.copyOf(), true)
+            else -> format(data)
         }
     }
 
@@ -100,43 +164,40 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
         return if (look.isTrue()) Escapers.toEscapedString(next, flag.isTrue()) else next
     }
 
-    @CreatorsDsl
-    private fun joinTo(data: List<*>): String {
-        return when (val size = data.size) {
-            0 -> "[]"
-            else -> {
-                stringOf("[") {
-                    for (i in 0 until size) {
-                        if (i > 0) {
-                            add(", ")
-                        }
-                        add(format(data[i]))
-                    }
-                    add("]")
+    @FrameworkDsl
+    private fun joined(data: Iterator<*>, prim: Boolean): String {
+        if (data.isExhausted()) {
+            return "[]"
+        }
+        return stringOf("[") {
+            data.forEachIndexed { index, value ->
+                if (index > 0) {
+                    add(", ")
                 }
+                if (prim.isTrue()) add(value) else if (isPrimitive(value)) add(value) else if (isString(value)) add(toString(value)) else add(format(value))
             }
+            add("]")
         }
     }
 
-    @CreatorsDsl
-    private fun joinTo(data: Map<*, *>): String {
+    @FrameworkDsl
+    private fun StringBuilder.entry(data: Map.Entry<*, *>): StringBuilder {
+        return add(escape(data.key), ": ", escape(data.value))
+    }
+
+    @FrameworkDsl
+    private fun joined(data: Map<*, *>): String {
         if (data.isExhausted()) {
             return "{}"
         }
-        val list = data.entries.toList()
-        return when (val size = list.sizeOf()) {
-            0 -> "{}"
-            else -> {
-                stringOf("{") {
-                    for (i in 0 until size) {
-                        if (i > 0) {
-                            add(", ")
-                        }
-                        add(format(list[i]))
-                    }
-                    add("}")
+        return stringOf("{") {
+            data.forEachIndexed { index, entry ->
+                if (index > 0) {
+                    add(", ")
                 }
+                entry(entry)
             }
+            add("}")
         }
     }
 
@@ -145,8 +206,8 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
         return when (data) {
             null -> false
             is String -> true
-            is Number -> false
-            is Boolean -> false
+            is Number -> true
+            is Boolean -> true
             is Array<*> -> false
             is Map<*, *> -> false
             is Iterable<*> -> false
@@ -159,7 +220,7 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
             is FloatArray -> false
             is DoubleArray -> false
             is BooleanArray -> false
-            is AtomicBoolean -> false
+            is AtomicBoolean -> true
             is Date -> true
             is LocalDateTime -> true
             is Function0<*> -> false

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,40 +23,40 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 
 @IgnoreForSerialize
-class MimeContentTypeProbe @JvmOverloads @CreatorsDsl constructor(private val maps: ContentFileTypeMap = ContentTypeProbe.getDefaultFileTypeMap()) : ContentTypeProbe {
+class MimeContentTypeProbe @JvmOverloads @FrameworkDsl constructor(private val maps: ContentFileTypeMap = ContentTypeProbe.getDefaultFileTypeMap()) : ContentTypeProbe {
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getContentType(data: ByteArray, type: String): String {
         return IO.getContentType(data, type)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getContentType(data: InputStream, type: String): String {
         return IO.getContentType(data, type)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getContentType(data: ReadableByteChannel, type: String): String {
         return IO.getContentType(data, type)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getContentType(data: URI, type: String): String {
         return IO.getContentType(data, type)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getContentType(data: URL, type: String): String {
         return IO.getContentType(data, type)
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getContentType(data: File, type: String): String = getContentType(data.name, type)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getContentType(data: Path, type: String): String = getContentType(data.toFile(), type)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun getContentType(name: String, type: String): String {
         if (type.isDefaultContentType()) {
             val path = getPathNormalizedOrElse(name)
@@ -69,7 +69,7 @@ class MimeContentTypeProbe @JvmOverloads @CreatorsDsl constructor(private val ma
         return type.toLowerTrim()
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun getFileTypeMap(): ContentFileTypeMap = maps
 }

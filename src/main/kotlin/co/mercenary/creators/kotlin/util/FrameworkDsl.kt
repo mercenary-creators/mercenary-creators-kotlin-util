@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package co.mercenary.creators.kotlin.util
 
+import kotlin.annotation.AnnotationTarget.*
+
 @DslMarker
 @Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.LOCAL_VARIABLE, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
+@Target(LOCAL_VARIABLE, FUNCTION, PROPERTY_GETTER, PROPERTY, VALUE_PARAMETER, CONSTRUCTOR, CLASS, FIELD, TYPE_PARAMETER, PROPERTY_SETTER, TYPEALIAS)
 annotation class FrameworkDsl

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 
 package co.mercenary.creators.kotlin.util.collection
 
@@ -30,11 +28,12 @@ abstract class AbstractBasicMutableList<T, M : AbstractBasicMutableList<T, M>> @
 
     @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is AbstractBasicMutableList<*, *> -> other === this || sizeOf() == other.sizeOf() && super.equals(other)
+        is AbstractBasicMutableList<*, *> -> other === this || super.equals(other)
         else -> false
     }
 
     companion object {
+
         private const val serialVersionUID = 4L
     }
 }

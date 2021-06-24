@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import co.mercenary.creators.kotlin.util.*
 import java.io.*
 
 @IgnoreForSerialize
-class NoCloseWriter @JvmOverloads @CreatorsDsl constructor(data: Writer, private val done: Boolean = true) : FilterWriter(data), OpenAutoClosable {
-
+class NoCloseWriter @JvmOverloads @FrameworkDsl constructor(data: Writer, private val done: Boolean = true) : FilterWriter(data), OpenAutoClosable {
+    @FrameworkDsl
     private val open = true.toAtomic()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun close() {
         if (open.isTrueToFalse()) {
             try {
@@ -38,7 +38,7 @@ class NoCloseWriter @JvmOverloads @CreatorsDsl constructor(data: Writer, private
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isOpen() = open.isTrue()
 }

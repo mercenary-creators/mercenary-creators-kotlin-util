@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,27 +20,27 @@ import co.mercenary.creators.kotlin.util.*
 
 interface ContentResourceLoader : HasMapNames {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getLoadersName(): String
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getClassLoader(): ClassLoader?
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun get(path: String): ContentResource
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun plusAssign(args: ContentProtocolResolver)
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun minusAssign(args: ContentProtocolResolver)
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun isContentCache(): Boolean
 
-    @CreatorsDsl
+    @FrameworkDsl
     operator fun contains(args: ContentProtocolResolver): Boolean
 }

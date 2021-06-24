@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@ package co.mercenary.creators.kotlin.util.test.type
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-open class BaseType @JvmOverloads @CreatorsDsl constructor(val look: Boolean = true) : HasMapNames {
-    @CreatorsDsl
-    override fun toMapNames(): Map<String, Any?> {
-        return dictOf("look" to look)
-    }
+open class BaseType<K, V> @FrameworkDsl constructor(vararg pair: Pair<K, V>) : HasMapNames {
+
+    @FrameworkDsl
+    private val args = pair.toArray()
+
+    @FrameworkDsl
+    override fun toMapNames() = dictOf("look" to args)
 }

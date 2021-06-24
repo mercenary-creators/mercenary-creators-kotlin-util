@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,33 +24,37 @@ import org.slf4j.*
 import org.slf4j.bridge.SLF4JBridgeHandler
 import kotlin.reflect.KClass
 
+typealias LoggerContext = ch.qos.logback.classic.LoggerContext
+
+@FrameworkDsl
 @IgnoreForSerialize
 object LoggingFactory : HasMapNames {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     const val KE = "$"
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     const val KT = "Kt$"
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     const val ROOT_LOGGER_NAME = Logger.ROOT_LOGGER_NAME
 
+    @FrameworkDsl
     private val open = false.toAtomic()
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val auto = LoggingConfig.isAutoStart()
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val stop = LoggingConfig.isAutoClose()
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val juli = LoggingConfig.isBridgeing()
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val list = LoggingConfig.getIgnoring()
 
     init {
@@ -69,7 +73,7 @@ object LoggingFactory : HasMapNames {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun start(): Boolean {
         if (isStarted().isNotTrue()) {
             context().start()
@@ -84,7 +88,7 @@ object LoggingFactory : HasMapNames {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun close(): Boolean {
         if (isStarted()) {
             context().stop()
@@ -98,35 +102,35 @@ object LoggingFactory : HasMapNames {
         return false
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toString() = nameOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun toMapNames() = dictOf("type" to nameOf(), "open" to open.isTrue(), "started" to isStarted(), "bridge" to LoggingBridge.isStarted(), "conf" to dictOf("list" to list, "auto" to auto, "stop" to stop))
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    fun isStarted(): Boolean = context().isStarted
+    fun isStarted(): Boolean = context().isStarted.isTrue()
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun logger(name: String): ILogging = Logging(name)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun logger(type: Class<*>): ILogging = logger(type.name)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun logger(type: KClass<*>): ILogging = logger(type.java)
 
     @JvmStatic
-    @CreatorsDsl
-    fun logger(self: Any): ILogging = logger(self.javaClass)
+    @FrameworkDsl
+    fun logger(self: Any): ILogging = logger(self.nameOf())
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     inline fun logger(noinline func: () -> Unit): ILogging {
         val name = func.nameOf()
         return when {
@@ -137,7 +141,7 @@ object LoggingFactory : HasMapNames {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     inline fun marker(noinline func: () -> Unit): IMarker {
         val name = func.nameOf()
         return when {
@@ -147,7 +151,7 @@ object LoggingFactory : HasMapNames {
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     internal inline fun markerOf(noinline func: () -> Unit): mu.Marker {
         val name = func.nameOf()
         return when {
@@ -157,49 +161,49 @@ object LoggingFactory : HasMapNames {
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     internal inline fun markerOf(name: String): mu.Marker = KMarkerFactory.getMarker(name)
 
-    @CreatorsDsl
+    @FrameworkDsl
     internal inline fun Logger.loggerOf(): KLogger = KotlinLogging.logger(this)
 
-    @CreatorsDsl
+    @FrameworkDsl
     internal fun loggerOf(name: String): KLogger = LoggerFactory.getLogger(name).loggerOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     internal fun loggerOf(type: Class<*>): KLogger = LoggerFactory.getLogger(type).loggerOf()
 
-    @CreatorsDsl
+    @FrameworkDsl
     internal fun loggerOf(type: Any): KLogger = LoggerFactory.getLogger(type.javaClass).loggerOf()
 
-    @CreatorsDsl
-    internal fun context() = LoggerFactory.getILoggerFactory() as ch.qos.logback.classic.LoggerContext
+    @FrameworkDsl
+    internal fun context() = LoggerFactory.getILoggerFactory() as LoggerContext
 
-    @CreatorsDsl
+    @FrameworkDsl
     internal fun classic(name: CharSequence) = when (name.toUpperCaseEnglish() == ROOT_LOGGER_NAME) {
         true -> context().getLogger(ROOT_LOGGER_NAME)
         else -> context().exists(name.toString())
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getLevel() = getLevel(ROOT_LOGGER_NAME)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getLevel(type: KLogger) = getLevel(type.name)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getLevel(type: Class<*>) = getLevel(type.name)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getLevel(type: KClass<*>) = getLevel(type.java)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun getLevel(name: CharSequence): LoggingLevel {
         return when (val classic = classic(name).level) {
             null -> getLevel(ROOT_LOGGER_NAME)
@@ -208,53 +212,59 @@ object LoggingFactory : HasMapNames {
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun setLevel(level: LoggingLevel) = setLevel(ROOT_LOGGER_NAME, level)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun setLevel(type: KLogger, level: LoggingLevel) = setLevel(type.name, level)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun setLevel(type: Class<*>, level: LoggingLevel) = setLevel(type.name, level)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun setLevel(type: KClass<*>, level: LoggingLevel) = setLevel(type.java, level)
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun setLevel(name: CharSequence, level: LoggingLevel) {
         classic(name).level = level.toLevel()
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
+    fun <R> withContext(block: LoggerContext.() -> R): R {
+        return scope(context(), block)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
     fun withLevel(using: LoggingLevel, block: () -> Unit) {
         withLevel(ROOT_LOGGER_NAME, using, block)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun withLevel(type: Class<*>, using: LoggingLevel, block: () -> Unit) {
         withLevel(type.name, using, block)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun withLevel(type: KClass<*>, using: LoggingLevel, block: () -> Unit) {
         withLevel(type.java, using, block)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun withLevel(type: KLogger, using: LoggingLevel, block: () -> Unit) {
         withLevel(type.name, using, block)
     }
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     fun withLevel(name: CharSequence, using: LoggingLevel, block: () -> Unit) {
         scope(classic(name.whenRoot())) {
             val saved = level
@@ -270,15 +280,16 @@ object LoggingFactory : HasMapNames {
         }
     }
 
-    @CreatorsDsl
+    @FrameworkDsl
     private fun CharSequence.whenRoot(): CharSequence = if (toUpperCaseEnglish() == ROOT_LOGGER_NAME) ROOT_LOGGER_NAME else this
 
     @JvmStatic
-    @CreatorsDsl
-    fun toSafeString(func: () -> Any?): String {
+    @FrameworkDsl
+    fun toSafeString(func: LazyMessage): String {
         return Formatters.toSafeString(func)
     }
 
+    @FrameworkDsl
     @IgnoreForSerialize
     private object LoggingBridge {
 

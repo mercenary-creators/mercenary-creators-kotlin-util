@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@ open class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
         PatternLayout()
     }
 
-    private val flags = true.toAtomic()
+    private val flags = getAtomicTrue()
 
-    private var descr: String = EMPTY_STRING
+    private var descr: String = CREATORS_VERSION_INFO
 
     var description: String
         @JvmName("getDescription")
@@ -59,13 +59,13 @@ open class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
     @CreatorsDsl
     open fun colorOf(): String {
         return when (newlines.isNotTrue()) {
-            true -> MercenaryHighlightingCompositeConverter::class.nameOf()
-            else -> MercenaryHighlightingBodyCompositeConverter::class.nameOf()
+            true -> MercenaryHighlightingCompositeConverter::class.java.name
+            else -> MercenaryHighlightingBodyCompositeConverter::class.java.name
         }
     }
 
     @CreatorsDsl
-    open fun levelOf(): String = MercenaryLevelConverter::class.nameOf()
+    open fun levelOf(): String = MercenaryLevelConverter::class.java.name
 
     override fun start() {
         PatternLayout.defaultConverterMap["_color_"] = colorOf()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,37 +21,31 @@ import co.mercenary.creators.kotlin.util.*
 class StringArrayList @JvmOverloads @FrameworkDsl constructor(capacity: Int = DEFAULT_LIST_CAPACITY) : AbstractBasicMutableList<String, StringArrayList>(capacity) {
 
     @FrameworkDsl
-    constructor(args: String) : this() {
+    constructor(args: String) : this(DEFAULT_LIST_CAPACITY) {
         append(args)
     }
 
     @FrameworkDsl
-    constructor(vararg args: String) : this() {
+    constructor(args: Collection<String>) : this(args.sizeOf()) {
         if (args.isNotExhausted()) {
-            append(args.toCollection())
+            append(args)
         }
     }
 
     @FrameworkDsl
-    constructor(args: Iterator<String>) : this() {
-        if (args.isNotExhausted()) {
-            append(args.toCollection())
-        }
-    }
+    constructor(vararg args: String) : this(args.toCollection())
 
     @FrameworkDsl
-    constructor(args: Iterable<String>) : this() {
-        if (args.isNotExhausted()) {
-            append(args.toCollection())
-        }
-    }
+    constructor(args: Iterator<String>) : this(args.toCollection())
 
     @FrameworkDsl
-    constructor(args: Sequence<String>) : this() {
-        if (args.isNotExhausted()) {
-            append(args.toCollection())
-        }
-    }
+    constructor(args: Iterable<String>) : this(args.toCollection())
+
+    @FrameworkDsl
+    constructor(args: Sequence<String>) : this(args.toCollection())
+
+    @FrameworkDsl
+    override fun clone() = copyOf()
 
     @FrameworkDsl
     override fun copyOf() = StringArrayList(this)
@@ -69,6 +63,7 @@ class StringArrayList @JvmOverloads @FrameworkDsl constructor(capacity: Int = DE
     }
 
     companion object {
+
         private const val serialVersionUID = 6L
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,17 +81,20 @@ class ListPointer<T> @JvmOverloads @FrameworkDsl constructor(value: List<T>, ind
     }
 
     @FrameworkDsl
+    override fun clone() = copyOf()
+
+    @FrameworkDsl
     override fun copyOf() = ListPointer(this)
 
     @FrameworkDsl
-    override fun hashCode() = toMapNames().toSafeHashOf()
+    override fun hashCode() = idenOf()
 
     @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()
 
     @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is ListPointer<*> -> other === this || isEmpty() == other.isEmpty()
+        is ListPointer<*> -> other === this || sizeOf() == other.sizeOf()
         else -> false
     }
 
