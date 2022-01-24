@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,55 +16,54 @@
 
 buildscript {
     ext {
-        set('kotlinLibraryVersion', '1.5.20')
-        set('jacksonLibraryVersion', '2.12.3')
+        set('kotlin_version', '1.6.10')
+        set('jacksonLibraryVersion', '2.13.1')
+        set('kotlinx_coroutines_version', '1.6.0')
+        set('kotlinx_arrow_libs_version', '1.0.1')
     }
     repositories {
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            url 'https://maven.pkg.jetbrains.space/mipt-npm/p/mipt-npm/maven'
+        }
     }
     dependencies {
         classpath(group: 'org.ajoberstar', name: 'grgit', version: '1.7.2')
         classpath(group: 'org.owasp', name: 'dependency-check-gradle', version: '6.0.2')
-        classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: kotlinLibraryVersion)
+        classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: kotlin_version)
     }
 }
 
 apply plugin: 'idea'
 apply plugin: 'java'
-apply plugin: 'maven'
 apply plugin: 'kotlin'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'signing'
 apply plugin: 'org.owasp.dependencycheck'
 
-import org.apache.tools.ant.filters.FixCrLfFilter
-import org.apache.tools.ant.filters.ReplaceTokens
 import java.text.SimpleDateFormat
 
-sourceCompatibility = 1.8
-
-targetCompatibility = 1.8
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(15)
+    }
+}
 
 group = 'co.mercenary-creators'
 
-version = '9.9.8-SNAPSHOT'
+version = '9.9.9-SNAPSHOT'
 
 task doJavaDocs(type: Javadoc) {
     source = sourceSets.main.allJava
     classpath = sourceSets.main.compileClasspath + buildscript.configurations.classpath
     destinationDir = project.file("${buildDir}/docs/javadoc")
-    includes = ['co/mercenary/creators/**']
-    excludes = ['co/mercenary/creators/kotlin/**']
+    include('co/mercenary/creators/**')
+    exclude('co/mercenary/creators/kotlin/**')
     title = "${getProjectCommonName()}"
     (options as StandardJavadocDocletOptions).with {
         links = getJavaDocLinks()
-        bottom = "<div><h4 class=\"footer\"><a href=\"${getBuildGITHomeURL()}\" target=\"_blank\">${getProjectCommonName()} - Copyright &copy; 2021, Mercenary Creators Company</a> - <a href=\"${getBuildGITCommitHash()}\" target=\"_blank\">${getBuildModuleVersion()}</a> - <a href=\"mailto:deansjones@gmail.com\">Author: Dean S. Jones</a></h4></div>"
-    }
-}
-
-jar {
-    manifest {
-        attributes 'Implementation-Title': getProjectTitle(), 'Implementation-Version': getBuildModuleVersion()
+        bottom = "<div><h4 class=\"footer\"><a href=\"${getBuildGITHomeURL()}\" target=\"_blank\">${getProjectCommonName()} - Copyright &copy; 2022, Mercenary Creators Company</a> - <a href=\"${getBuildGITCommitHash()}\" target=\"_blank\">${getBuildModuleVersion()}</a> - <a href=\"mailto:deansjones@gmail.com\">Author: Dean S. Jones</a></h4></div>"
     }
 }
 
@@ -74,24 +73,17 @@ task deleteConfigs(type: Delete) {
     }
 }
 
-task filterConfigs(dependsOn: deleteConfigs, type: Copy) {
-    from sourceSets.main.resources
-    into "${buildDir}/resources/main"
-    filter(FixCrLfFilter)
-    filter(ReplaceTokens, tokens: getFilterTokens())
-}
-
 compileKotlin {
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict', '-Xjvm-default=compatibility', '-Xopt-in=kotlin.RequiresOptIn', "-Xopt-in=kotlin.contracts.ExperimentalContracts"]
-        jvmTarget = '1.8'
+        jvmTarget = '15'
     }
 }
 
 compileTestKotlin {
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict', '-Xjvm-default=compatibility', '-Xopt-in=kotlin.RequiresOptIn', "-Xopt-in=kotlin.contracts.ExperimentalContracts"]
-        jvmTarget = '1.8'
+        jvmTarget = '15'
     }
 }
 
@@ -127,29 +119,52 @@ repositories {
 }
 
 dependencies {
-    compile(group: 'commons-io', name: 'commons-io', version: '2.6')
-    compile(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30')
-    compile(group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.30')
-    compile(group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.30')
-    compile(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3')
-    compile(group: 'io.github.microutils', name: 'kotlin-logging-jvm', version: '2.0.8')
-    compile(group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinLibraryVersion)
-    compile(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlinLibraryVersion)
-    compile(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jacksonLibraryVersion)
-    compile(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonLibraryVersion)
-    compile(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jacksonLibraryVersion)
-    compile(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: jacksonLibraryVersion)
-    compile(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: jacksonLibraryVersion)
-    compile(group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jacksonLibraryVersion) {
-        exclude(group: 'org.jetbrains.kotlin')
-    }
-    compile(group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: jacksonLibraryVersion)
-    compile(group: 'com.jayway.jsonpath', name: 'json-path', version: '2.4.0')
-    testCompile(group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1')
-    testCompile(group: 'junit', name: 'junit', version: '4.13.2')
-    testCompile(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit5', version: kotlinLibraryVersion)
-    testCompile(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.2')
-    testRuntime(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.2')
+    implementation(group: 'commons-io', name: 'commons-io', version: '2.11.0')
+    implementation(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32')
+    implementation(group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.32')
+    implementation(group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.32')
+    implementation(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.7')
+    implementation(group: 'org.jetbrains.kotlinx', name: 'multik-api', version: '0.1.1')
+    implementation(group: 'io.projectreactor.kotlin', name: 'reactor-kotlin-extensions', version: '1.1.5')
+    implementation(group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1')
+    implementation(group: 'io.github.microutils', name: 'kotlin-logging-jvm', version: '2.1.21')
+    implementation 'space.kscience:kmath-core:0.2.1'
+    implementation 'space.kscience:kmath-geometry:0.2.1'
+    implementation 'space.kscience:kmath-complex:0.2.1'
+    implementation 'space.kscience:kmath-coroutines:0.2.1'
+    implementation 'space.kscience:kmath-dimensions:0.2.1'
+    implementation 'space.kscience:kmath-for-real:0.2.1'
+    implementation 'space.kscience:kmath-functions:0.2.1'
+    kapt(group: 'io.arrow-kt', name: 'arrow-meta', version: '1.0.1')
+    implementation(group: 'io.arrow-kt', name: 'arrow-core', version: '1.0.1')
+    implementation(group: 'io.arrow-kt', name: 'arrow-optics', version: '1.0.1')
+    implementation(group: 'io.arrow-kt', name: 'arrow-fx-stm', version: '1.0.1')
+    implementation(group: 'io.arrow-kt', name: 'arrow-fx-coroutines', version: '1.0.1')
+    implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.6.10')
+    implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: '1.6.10')
+    implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-script-runtime', version: '1.6.10')
+    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.6.0')
+    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: '1.6.0')
+    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk9', version: '1.6.0')
+    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-reactor', version: '1.6.0')
+    implementation(group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2')
+    implementation(group: 'javax.activation', name: 'activation', version: '1.1.1')
+    implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.1')
+    implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.1')
+    implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.13.1')
+    implementation(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.13.1')
+    implementation(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.1')
+    implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.13.1')
+    implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: '2.13.1')
+    implementation(group: 'com.jayway.jsonpath', name: 'json-path', version: '2.6.0')
+    implementation(group: 'org.jetbrains.kotlinx', name: 'atomicfu-jvm', version: '0.17.0')
+    implementation(group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12')
+    testImplementation(group: 'io.projectreactor', name: 'reactor-test', version: '3.4.12')
+    testImplementation(group: 'junit', name: 'junit', version: '4.13.2')
+    testImplementation(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit5', version: '1.6.10')
+    testImplementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-test', version: '1.6.0')
+    testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2')
+    testRuntimeOnly(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.2')
 }
 
 artifacts {
@@ -233,6 +248,7 @@ Map<String, String> getFilterTokens() {
     [GRADLE_BUILD_ARTIFACT_ID: getProjectArtifactID(), GRADLE_BUILD_PROJECT_TITLE: getProjectTitle(), GRADLE_BUILD_USER: getBuildUser(), GRADLE_BUILD_DATE: getBuildDate(), GRADLE_JAVA_VERSION: getJavaVersion(), GRADLE_GIT_COMMIT_HASH: getBuildGITCommitHash(), GRADLE_GIT_COMMIT_USER: getBuildGITCommitUser(), GRADLE_GIT_COMMIT_MESSAGE: getBuildGITCommitMessage(), GRADLE_BUILD_SERVER_HOST: getBuildServerHost(), GRADLE_BUILD_SERVER_BUILD: getBuildServerBuild(), GRADLE_BUILD_MODULE_VERSION: getBuildModuleVersion()]
 }
 
+/*
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -266,6 +282,8 @@ uploadArchives {
         }
     }
 }
+
+ */
 
 List<String> getJavaDocLinks() {
     def list = []
