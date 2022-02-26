@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import co.mercenary.creators.kotlin.util.*
 open class StringSet @FrameworkDsl @JvmOverloads constructor(capacity: Int = DEFAULT_SET_CAPACITY) : BasicLinkedSet<String>(capacity.toSetCapacity()) {
 
     @FrameworkDsl
-    constructor(args: String) : this() {
+    constructor(args: String) : this(DEFAULT_SET_CAPACITY) {
         append(args)
     }
 
@@ -46,7 +46,7 @@ open class StringSet @FrameworkDsl @JvmOverloads constructor(capacity: Int = DEF
 
     @FrameworkDsl
     constructor(args: StringSet) : this(args.sizeOf()) {
-        if (args.isNotExhausted()) {
+        if (args.isNotEmpty()) {
             append(args)
         }
     }
@@ -73,17 +73,17 @@ open class StringSet @FrameworkDsl @JvmOverloads constructor(capacity: Int = DEF
 
     @FrameworkDsl
     override operator fun contains(element: String): Boolean {
-        return if (isExhausted()) false else super.contains(element)
+        return if (isEmpty()) false else super.contains(element)
     }
 
     @FrameworkDsl
     operator fun contains(element: CharSequence): Boolean {
-        return if (isExhausted()) false else contains(element.copyOf())
+        return if (isEmpty()) false else contains(element.copyOf())
     }
 
     @FrameworkDsl
     override fun remove(element: String): Boolean {
-        return isNotExhausted() && super.remove(element)
+        return isNotEmpty() && super.remove(element)
     }
 
     @FrameworkDsl
@@ -96,7 +96,7 @@ open class StringSet @FrameworkDsl @JvmOverloads constructor(capacity: Int = DEF
 
     @FrameworkDsl
     override fun containsAll(elements: Collection<String>): Boolean {
-        if (isExhausted() || elements.isExhausted()) {
+        if (isEmpty() || elements.isExhausted()) {
             return false
         }
         return super.containsAll(elements)

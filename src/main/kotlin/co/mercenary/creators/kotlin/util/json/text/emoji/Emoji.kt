@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,19 @@ package co.mercenary.creators.kotlin.util.json.text.emoji
 import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.json.base.JSONStringAware
 
-interface Emoji : Descriptive, UnicodeString, JSONStringAware {
+interface Emoji : UnicodeString, JSONStringAware, Comparable<Emoji> {
+
+    @FrameworkDsl
+    fun id(): Long
 
     @FrameworkDsl
     fun getTags(): List<String>
 
     @FrameworkDsl
     fun getAliases(): List<String>
+
+    @FrameworkDsl
+    fun getDescription(): String
 
     @FrameworkDsl
     fun isFitzpatrick(): Boolean

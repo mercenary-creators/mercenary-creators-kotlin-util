@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,14 +68,14 @@ class LRUCacheMap<K, V> @JvmOverloads @FrameworkDsl constructor(threshold: Int =
 
     @FrameworkDsl
     constructor(args: LRUCacheMap<K, V>) : this(args.getLimit()) {
-        if (args.isNotExhausted()) {
+        if (args.isNotEmpty()) {
             append(args)
         }
     }
 
     @FrameworkDsl
     override fun removeEldestEntry(eldest: Map.Entry<K, V>): Boolean {
-        return  (isOrdered() && isSizeCapped() && isOverLimit(getLimit()))
+        return (isOrdered() && isSizeCapped() && isOverLimit(getLimit()))
     }
 
     @FrameworkDsl

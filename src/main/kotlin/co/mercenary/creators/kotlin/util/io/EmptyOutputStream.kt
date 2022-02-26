@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import java.io.OutputStream
 
 @FrameworkDsl
 @IgnoreForSerialize
-object EmptyOutputStream : OutputStream() {
+object EmptyOutputStream : OutputStream(), Copyable<EmptyOutputStream>, Cloneable {
 
     @FrameworkDsl
     override fun close() = Unit
@@ -37,6 +37,12 @@ object EmptyOutputStream : OutputStream() {
 
     @FrameworkDsl
     override fun write(b: ByteArray, off: Int, len: Int) = Unit
+
+    @FrameworkDsl
+    override fun clone() = copyOf()
+
+    @FrameworkDsl
+    override fun copyOf() = EmptyOutputStream
 
     @FrameworkDsl
     override fun toString() = dictOf("type" to nameOf()).toSafeString()

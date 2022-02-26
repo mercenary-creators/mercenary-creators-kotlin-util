@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ open class BaseContentResourceLoader @JvmOverloads @FrameworkDsl constructor(pri
     private val list = BasicArrayList<ContentProtocolResolver>()
 
     @FrameworkDsl
-    override operator fun get(path: String): ContentResource {
-        if (list.isNotExhausted()) {
+    override operator fun get(path: CharSequence): ContentResource {
+        if (list.isNotEmpty()) {
             list.forEach { resolver ->
                 val data = resolver.resolve(path, this)
                 if (data != null) {
@@ -38,7 +38,7 @@ open class BaseContentResourceLoader @JvmOverloads @FrameworkDsl constructor(pri
             return getContentResourceByPath(IO.getPathNormalized(path).otherwise(EMPTY_STRING))
         }
         if (path.startsWith(IO.PREFIX_CLASS)) {
-            return ClassPathContentResource(path.removePrefix(IO.PREFIX_CLASS), DEFAULT_CONTENT_TYPE, null, getClassLoader())
+            return ClassPathContentResource(path.removePrefix(IO.PREFIX_CLASS).copyOf(), DEFAULT_CONTENT_TYPE, null, getClassLoader())
         }
         if (path.contains(IO.PREFIX_COLON)) {
             try {
@@ -50,12 +50,11 @@ open class BaseContentResourceLoader @JvmOverloads @FrameworkDsl constructor(pri
                     }
                 }
                 return data.toContentResource()
-            }
-            catch (cause: Throwable) {
+            } catch (cause: Throwable) {
                 Throwables.thrown(cause)
             }
         }
-        return getContentResourceByPath(path)
+        return this.getContentResourceByClassLoader(path.copyOf())
     }
 
     @FrameworkDsl
@@ -71,15 +70,14 @@ open class BaseContentResourceLoader @JvmOverloads @FrameworkDsl constructor(pri
     override fun getLoadersName() = name.toTrimOr { nameOf() }
 
     @FrameworkDsl
-    protected open fun getContentResourceByPath(path: String): ContentResource {
+    protected open fun getContentResourceByClassLoader(path: String): ContentResource {
         if (path.startsWith(IO.SINGLE_SLASH)) {
             try {
                 val file = path.toFileURL().toFileOrNull()
                 if (file != null) {
                     return file.toContentResource()
                 }
-            }
-            catch (cause: Throwable) {
+            } catch (cause: Throwable) {
                 Throwables.thrown(cause)
             }
         }
@@ -110,7 +108,7 @@ open class BaseContentResourceLoader @JvmOverloads @FrameworkDsl constructor(pri
 
     @FrameworkDsl
     override operator fun contains(args: ContentProtocolResolver): Boolean {
-        if (list.isNotExhausted()) {
+        if (list.isNotEmpty()) {
             if (list.contains(args)) {
                 return true
             }

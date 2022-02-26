@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,13 @@ object ServiceLoading {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun <T : Any> loaderOf(type: Class<T>, load: ClassLoader? = null): ServiceLoader<T> = SecureAccess.doPrivileged {
-        serviceOf(type, load)
-    }
+    fun <T : Any> loaderOf(type: Class<T>, load: ClassLoader? = null): ServiceLoader<T> = serviceOf(type, load)
+
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun <T : Any> loaderOf(type: KClass<T>, load: ClassLoader? = null): ServiceLoader<T> = loaderOf(type.java, load)
+    fun <T : Any> loaderOf(type: KClass<T>, load: ClassLoader? = null): ServiceLoader<T> = serviceOf(type.java, load)
 
     @JvmStatic
     @FrameworkDsl

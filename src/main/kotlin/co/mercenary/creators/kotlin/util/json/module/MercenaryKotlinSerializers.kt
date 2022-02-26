@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ser.Serializers
 @IgnoreForSerialize
 object MercenaryKotlinSerializers : Serializers.Base() {
     override fun findSerializer(config: SerializationConfig, type: JavaType, bean: BeanDescription): JsonSerializer<*>? = when {
-        type.hasRawClass(TimeDuration::class.java) -> TimeDurationSerializer
+        type.hasRawClass(CreatorsTimeDuration::class.java) -> TimeDurationSerializer
         else -> null
     }
 }

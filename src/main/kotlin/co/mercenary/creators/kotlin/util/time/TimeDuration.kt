@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,9 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
     private val buff by lazy {
         text(time(), unit()).toTrimOr { text(unit()) }
     }
+
+    @FrameworkDsl
+    internal inline fun data() = buff
 
     @FrameworkDsl
     internal inline fun time() = time
@@ -108,11 +111,11 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
     override fun clone() = copyOf()
 
     @FrameworkDsl
-    override fun copyOf() = TimeDuration(duration(), unit())
+    override fun copyOf() = TimeDuration(this)
 
     @FrameworkDsl
     @IgnoreForSerialize
-    override fun isEmpty() = isEmpty(time())
+    override fun isEmpty() = time().isEmpty()
 
     @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
@@ -121,10 +124,10 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
     }
 
     @FrameworkDsl
-    override fun hashCode() = if (isEmpty()) HASH_NULL_VALUE else time().hashCode()
+    override fun hashCode() = time().hashOf()
 
     @FrameworkDsl
-    override fun toString() = buff.copyOf()
+    override fun toString() = data().copyOf()
 
     companion object {
 
@@ -147,16 +150,16 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
         private const val NANOS_PER_SECOND = 1000000000L
 
         @FrameworkDsl
-        private const val SECONDS_PER_HOUR = SECONDS_PER_TICK * 60L
+        private const val SECONDS_PER_HOUR = 3600L
 
         @FrameworkDsl
-        private const val SECONDS_PER_DAYS = SECONDS_PER_HOUR * 24L
+        private const val SECONDS_PER_DAYS = 86400L
+
+        @FrameworkDsl
+        private const val SECONDS_PER_YEAR = 31556952L
 
         @FrameworkDsl
         private const val SECONDS_PER_WEEK = SECONDS_PER_DAYS * DAYS_PER_WEEK
-
-        @FrameworkDsl
-        private const val SECONDS_PER_YEAR = SECONDS_PER_DAYS * DAYS_PER_YEAR
 
         @FrameworkDsl
         private val NANOS_PER_SECOND_VALUE = NANOS_PER_SECOND.toBigInteger()
@@ -207,7 +210,7 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
 
         @JvmStatic
         @FrameworkDsl
-        private fun isEmpty(time: Duration): Boolean {
+        fun isEmpty(time: Duration): Boolean {
             return time.isZero || time.isNegative
         }
 
@@ -220,7 +223,7 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
         @JvmStatic
         @FrameworkDsl
         private fun text(time: Duration, unit: TimeDurationUnit): String {
-            if (isEmpty(time)) {
+            if (time.isEmpty()) {
                 return EMPTY_STRING
             }
             var copy = time
@@ -277,6 +280,11 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
                 }
             }
         }
+
+        @JvmStatic
+        @FrameworkDsl
+        @JvmOverloads
+        fun from(time: Duration, unit: TimeDurationUnit = TimeDurationUnit.YEARS) = time.build(unit)
 
         @JvmStatic
         @FrameworkDsl
@@ -377,13 +385,13 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
         @JvmStatic
         @FrameworkDsl
         fun years(time: Long): TimeDuration {
-            return Duration.ofDays(time * DAYS_PER_YEAR).build(TimeDurationUnit.YEARS)
+            return make(time, TimeDurationUnit.YEARS)
         }
 
         @JvmStatic
         @FrameworkDsl
         fun weeks(time: Long): TimeDuration {
-            return Duration.ofDays(time * DAYS_PER_WEEK).build(TimeDurationUnit.WEEKS)
+            return make(time, TimeDurationUnit.WEEKS)
         }
 
         @JvmStatic
@@ -523,6 +531,12 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
                 time.toMillis() > 0 -> TimeDurationUnit.MILLISECONDS
                 else -> TimeDurationUnit.NANOSECONDS
             }
+        }
+
+        @JvmStatic
+        @FrameworkDsl
+        private fun make(time: Long, unit: TimeDurationUnit): TimeDuration {
+            return Duration.of(time, unit.toSystemTimeUnit()).build(unit)
         }
 
         @JvmStatic

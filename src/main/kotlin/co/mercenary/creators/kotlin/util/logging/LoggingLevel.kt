@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import ch.qos.logback.classic.Level
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-enum class LoggingLevel(value: Level) {
+enum class LoggingLevel(classic: Level) : Copyable<LoggingLevel> {
 
     @CreatorsDsl
     OFF(Level.OFF),
@@ -44,31 +44,41 @@ enum class LoggingLevel(value: Level) {
     ERROR(Level.ERROR);
 
     @FrameworkDsl
-    private val level = value
+    private val level = classic
+
+    @FrameworkDsl
+    private val value = classic.toInt()
+
+    @FrameworkDsl
+    private val named = name.toUpperCaseEnglish()
+
+    @FrameworkDsl
+    override fun copyOf(): LoggingLevel {
+        return this
+    }
 
     @FrameworkDsl
     fun toLevel() = level
 
     @FrameworkDsl
-    fun getValue() = toLevel().getValue()
+    fun getValue() = value
 
     @FrameworkDsl
-    override fun toString() = name.toUpperCaseEnglish()
+    override fun toString() = named
 
     @FrameworkDsl
-    operator fun compareTo(value: Int): Int {
-        return getValue().compareTo(value)
+    operator fun compareTo(other: Int): Int {
+        return value.compareTo(other)
     }
 
     @FrameworkDsl
-    operator fun compareTo(value: Level): Int {
-        return compareTo(value.getValue())
+    operator fun compareTo(other: Level): Int {
+        return compareTo(other.intsOf())
     }
 
     companion object {
 
-        @FrameworkDsl
-        fun Level.getValue(): Int = toInt()
+
 
         @JvmStatic
         @FrameworkDsl
@@ -85,10 +95,10 @@ enum class LoggingLevel(value: Level) {
 
         @JvmStatic
         @FrameworkDsl
-        fun from(level: Level) = from(level.getValue())
+        fun from(level: Level) = from(level.intsOf())
 
         @JvmStatic
         @FrameworkDsl
-        fun from(level: CharSequence) = from(Level.toLevel(level.toValid()))
+        fun from(level: CharSequence) = from(Level.toLevel(level.toValid().toUpperCaseEnglish()))
     }
 }

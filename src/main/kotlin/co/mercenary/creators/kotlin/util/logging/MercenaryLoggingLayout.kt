@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,8 +68,8 @@ open class MercenaryLoggingLayout : LayoutBase<ILoggingEvent>() {
     open fun levelOf(): String = MercenaryLevelConverter::class.java.name
 
     override fun start() {
-        PatternLayout.defaultConverterMap["_color_"] = colorOf()
-        PatternLayout.defaultConverterMap["_level_"] = levelOf()
+        PatternLayout.DEFAULT_CONVERTER_MAP["_color_"] = colorOf()
+        PatternLayout.DEFAULT_CONVERTER_MAP["_level_"] = levelOf()
         proxy.pattern = "%yellow([%d{\"yyyy-MM-dd HH:mm:ss,SSS z\",\"UTC\"}]) %blue([%_level_]) %magenta([%c]) %cyan([${description}] -) %_color_(%m) %n"
         proxy.start()
         super.start()

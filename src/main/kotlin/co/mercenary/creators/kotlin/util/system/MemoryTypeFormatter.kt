@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,32 +52,32 @@ fun interface MemoryTypeFormatter {
         @JvmStatic
         @FrameworkDsl
         fun format(size: Long): String {
-            return "${size.maxOf(0L)} bytes"
+            return sized(stringBuilderOf(), size.maxOf(0L)).finish()
         }
 
         @FrameworkDsl
         internal fun StringBuilder.finish(): String {
-            return removeSuffix(CLOSE_LINE).toUpperTrimEnglish()
+            return removeSuffix(CLOSE_LINE).toLowerTrimEnglish()
         }
 
         @FrameworkDsl
-        internal fun append(builder: StringBuilder, size: Long): StringBuilder {
+        internal fun sized(builder: StringBuilder, size: Long): StringBuilder {
             when {
                 size >= TERA_BYTES -> {
-                    builder.add(START_CHAR, size / TERA_BYTES, SPACE_STRING, "TB", CLOSE_CHAR, CLOSE_LINE)
-                    append(builder, size % TERA_BYTES)
+                    builder.add(START_CHAR, size / TERA_BYTES, SPACE_STRING, "TERA_BYTES", CLOSE_CHAR, CLOSE_LINE)
+                    sized(builder, size % TERA_BYTES)
                 }
                 size >= GIGA_BYTES -> {
-                    builder.add(START_CHAR, size / GIGA_BYTES, SPACE_STRING, "GB", CLOSE_CHAR, CLOSE_LINE)
-                    append(builder, size % GIGA_BYTES)
+                    builder.add(START_CHAR, size / GIGA_BYTES, SPACE_STRING, "GIGA_BYTES", CLOSE_CHAR, CLOSE_LINE)
+                    sized(builder, size % GIGA_BYTES)
                 }
                 size >= MEGA_BYTES -> {
-                    builder.add(START_CHAR, size / MEGA_BYTES, SPACE_STRING, "MB", CLOSE_CHAR, CLOSE_LINE)
-                    append(builder, size % MEGA_BYTES)
+                    builder.add(START_CHAR, size / MEGA_BYTES, SPACE_STRING, "MEGA_BYTES", CLOSE_CHAR, CLOSE_LINE)
+                    sized(builder, size % MEGA_BYTES)
                 }
                 size >= KILO_BYTES -> {
-                    builder.add(START_CHAR, size / KILO_BYTES, SPACE_STRING, "KB", CLOSE_CHAR, CLOSE_LINE)
-                    append(builder, size % KILO_BYTES)
+                    builder.add(START_CHAR, size / KILO_BYTES, SPACE_STRING, "KILO_BYTES", CLOSE_CHAR, CLOSE_LINE)
+                    sized(builder, size % KILO_BYTES)
                 }
                 size > 0 -> {
                     builder.add(START_CHAR, size, SPACE_STRING, "BYTES", CLOSE_CHAR, CLOSE_LINE)

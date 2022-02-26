@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,15 +57,15 @@ class MemoryUsageData @FrameworkDsl constructor(private val type: MemoryType, pr
     }
 
     @FrameworkDsl
-    private fun Long.format(): String = getType().invoke(this)
+    private fun Long.formatToSizes(): String = getType().invoke(this)
 
     @FrameworkDsl
-    override fun toMapNames() = dictOf("type" to getType(), "used" to getUsed().format(), "initial" to getInitial().format(), "maximum" to getMaximum().format(), "committed" to getComitted().format())
+    override fun toMapNames() = dictOf("type" to getType(), "used" to getUsed().formatToSizes(), "initial" to getInitial().formatToSizes(), "maximum" to getMaximum().formatToSizes(), "committed" to getComitted().formatToSizes())
 
     private companion object {
 
         @FrameworkDsl
-        private infix fun MemoryUsageData.isEverySame(other: MemoryUsageData): Boolean {
+        infix fun MemoryUsageData.isEverySame(other: MemoryUsageData): Boolean {
             if (getType() != other.getType()) {
                 return false
             }

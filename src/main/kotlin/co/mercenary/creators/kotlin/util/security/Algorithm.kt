@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,18 +30,22 @@ data class Algorithm @FrameworkDsl constructor(val service: String, val algorith
 
     @FrameworkDsl
     fun forEach(block: (String) -> Unit) {
-        algorithms.forEach(block)
+        if (algorithms.isNotExhausted()) {
+            algorithms.forEach(block)
+        }
     }
 
     @FrameworkDsl
     fun forEachIndexed(block: (Int, String) -> Unit) {
-        algorithms.forEachIndexed(block)
+        if (algorithms.isNotExhausted()) {
+            algorithms.forEachIndexed(block)
+        }
     }
 
     companion object {
 
         @JvmStatic
         @FrameworkDsl
-        fun forName(name: String): Algorithm = Algorithm(name, Security.getAlgorithms(name).toList())
+        fun forName(name: String): Algorithm = Algorithm(name, Security.getAlgorithms(name).toSorted())
     }
 }

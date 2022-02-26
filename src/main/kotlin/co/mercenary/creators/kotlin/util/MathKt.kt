@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("MathKt")
-@file:Suppress("NOTHING_TO_INLINE")
+@file:JvmName("MathKt")
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util
 
@@ -40,6 +40,18 @@ const val MATH_NEGATIVE_ONE = -1.0
 const val MATH_NEGATIVE_TWO = -2.0
 
 @FrameworkDsl
+const val MATH_POSITIVE_ZERO = 0.0
+
+@FrameworkDsl
+const val MATH_NEGATIVE_ZERO = -0.0
+
+@FrameworkDsl
+const val MATH_POSITIVE_THREE = 3.0
+
+@FrameworkDsl
+const val MATH_NEGATIVE_THREE = -3.0
+
+@FrameworkDsl
 const val MATH_INVALID_SIZE_ERROR = "invalid size"
 
 @FrameworkDsl
@@ -47,6 +59,9 @@ const val MATH_ZERO_DIVISOR_ERROR = "can't divide by zero"
 
 @FrameworkDsl
 const val MATH_OVERFLOW_FOR_ERROR = "overflow for operation"
+
+@FrameworkDsl
+const val MIN_PARALLEL_SORT_SIZE = 4 shl 10
 
 @FrameworkDsl
 fun gcdOf(value: Int, vararg args: Int): Int = Numeric.gcdOf(intArrayOf(value, *args))
@@ -124,8 +139,8 @@ fun lcmOf(value: Int, other: Long): Long = Numeric.lcmOf(value, other)
 fun lcmOf(value: Long, other: Int): Long = Numeric.lcmOf(value, other)
 
 @FrameworkDsl
-fun byteOf(high: Int, lows: Int): Byte {
-    if (high.isNegative() || lows.isNegative()) {
+inline fun byteOf(high: Int, lows: Int): Byte {
+    if (high == IS_NOT_FOUND || lows == IS_NOT_FOUND) {
         fail("byteOf($high, $lows) bad arguments")
     }
     return (high * 16 + lows).byteOf()
@@ -260,11 +275,81 @@ fun Sequence<Double>.getDoubleArray(): DoubleArray {
 }
 
 @FrameworkDsl
+inline fun Double.bitsOf(base: Boolean = true): Long = if (base.isTrue()) toRawBits() else toBits()
+
+@FrameworkDsl
+inline fun isSameBits(value: Double, other: Double): Boolean = (value.bitsOf() == other.bitsOf())
+
+@FrameworkDsl
+inline fun isNotSameBits(value: Double, other: Double): Boolean = (value.bitsOf() != other.bitsOf())
+
+@FrameworkDsl
+inline fun Float.bitsOf(base: Boolean = true): Int = if (base.isTrue()) toRawBits() else toBits()
+
+@FrameworkDsl
+inline fun isSameBits(value: Float, other: Float): Boolean = (value.bitsOf() == other.bitsOf())
+
+@FrameworkDsl
+inline fun isNotSameBits(value: Float, other: Float): Boolean = (value.bitsOf() != other.bitsOf())
+
+@FrameworkDsl
+inline fun IntArray.getArray(): Array<Int> = toTypedArray()
+
+@FrameworkDsl
+inline fun ByteArray.getArray(): Array<Byte> = toTypedArray()
+
+@FrameworkDsl
+inline fun CharArray.getArray(): Array<Char> = toTypedArray()
+
+@FrameworkDsl
+inline fun LongArray.getArray(): Array<Long> = toTypedArray()
+
+@FrameworkDsl
+inline fun ShortArray.getArray(): Array<Short> = toTypedArray()
+
+@FrameworkDsl
+inline fun FloatArray.getArray(): Array<Float> = toTypedArray()
+
+@FrameworkDsl
+inline fun DoubleArray.getArray(): Array<Double> = toTypedArray()
+
+@FrameworkDsl
+inline fun BooleanArray.getArray(): Array<Boolean> = toTypedArray()
+
+@FrameworkDsl
+fun Double.isEmpty(): Boolean {
+    return isNotValid() || absOf() != 0.0
+}
+
+@FrameworkDsl
+inline fun Double.squared(): Double = this * this
+
+@FrameworkDsl
 inline fun Int.isPowerOf2(): Boolean {
     if (isLessThan(1) || isMoreThan(MAXIMUM_INTS_POWER_OF_2)) {
         return false
     }
     return ((this and this.negOf()) == this)
+}
+
+@FrameworkDsl
+inline fun Int.toHighestOneBitShift(bits: Int = 2): Int = takeHighestOneBit() shl bits.absOf()
+
+@FrameworkDsl
+inline fun Int.toNextPowerOf2(): Int {
+    if (isNegative()) {
+        return absOf().toHighestOneBitShift() minOf MAXIMUM_INTS_POWER_OF_2
+    }
+    if (isMoreSame(MAXIMUM_INTS_POWER_OF_2)) {
+        return MAXIMUM_INTS_POWER_OF_2
+    }
+    if (isLessThan(1)) {
+        return 2
+    }
+    if (isLessThan(3)) {
+        return 4
+    }
+    return toHighestOneBitShift() minOf MAXIMUM_INTS_POWER_OF_2
 }
 
 @FrameworkDsl
@@ -307,6 +392,11 @@ inline infix fun Long.ushrOr(bits: Int): Long {
 }
 
 @FrameworkDsl
+inline infix fun Long.ushrNotOr(bits: Int): Long {
+    return this xor (this ushr bits)
+}
+
+@FrameworkDsl
 inline infix fun Int.calcTo(calc: Convert<Int, Int>): Int {
     return calc.convert(this)
 }
@@ -318,6 +408,16 @@ inline infix fun Int.compareOf(other: Int): Int {
 
 @FrameworkDsl
 inline infix fun Int.diffOf(other: Int): Int {
+    return (other - this).absOf()
+}
+
+@FrameworkDsl
+inline infix fun Long.diffOf(other: Long): Long {
+    return (other - this).absOf()
+}
+
+@FrameworkDsl
+inline infix fun Double.diffOf(other: Double): Double {
     return (other - this).absOf()
 }
 
@@ -342,8 +442,24 @@ inline fun Int.absOf(): Int {
 }
 
 @FrameworkDsl
+fun Int.evenUp(): Int {
+    if (this == Int.MAX_VALUE || this == Int.MIN_VALUE) {
+        return Int.MAX_VALUE - 8
+    }
+    return absOf().let { if (it.isEven()) it else (it + 1) }
+}
+
+@FrameworkDsl
+fun Int.halfUp(): Int {
+    if (this == Int.MAX_VALUE || this == Int.MIN_VALUE) {
+        return Int.MAX_VALUE - 8
+    }
+    return absOf().plus(1).div(2)
+}
+
+@FrameworkDsl
 inline fun Int.negOf(): Int {
-    return if (this == 0) this else -this
+    return if (this == 0) 0 else -this
 }
 
 @FrameworkDsl
@@ -395,6 +511,21 @@ inline fun AtomicInteger.intsOf(): Int = getValue()
 inline fun AtomicLong.intsOf(): Int = getValue().intsOf()
 
 @FrameworkDsl
+inline fun Int.bigsOf(): BigInteger = toBigInteger()
+
+@FrameworkDsl
+inline fun Long.bigsOf(): BigInteger = toBigInteger()
+
+@FrameworkDsl
+inline fun AtomicInteger.bigsOf(): BigInteger = intsOf().toBigInteger()
+
+@FrameworkDsl
+inline fun Float.bigsOf(): BigDecimal = BigDecimal(this.realOf())
+
+@FrameworkDsl
+inline fun AtomicLong.bigsOf(): BigInteger = longOf().toBigInteger()
+
+@FrameworkDsl
 inline fun Char.copyOf(): Char = this
 
 @FrameworkDsl
@@ -414,6 +545,9 @@ inline fun Char.longOf(): Long = toCode().longOf()
 
 @FrameworkDsl
 inline fun Short.longOf(): Long = toLong()
+
+@FrameworkDsl
+inline fun Double.longOf(): Long = toLong()
 
 @FrameworkDsl
 inline fun Int.realOf(): Double = toDouble()
@@ -452,6 +586,9 @@ inline fun AtomicLong.realOf(): Double = toDouble()
 inline fun AtomicInteger.realOf(): Double = toDouble()
 
 @FrameworkDsl
+inline fun IntRange.longOf(): LongRange = LongRange(start.longOf(), endInclusive.longOf())
+
+@FrameworkDsl
 inline fun Float.longOf(default: Long = 0L): Long = toFiniteOrElse(default.realOf()).toLong()
 
 @FrameworkDsl
@@ -469,6 +606,11 @@ inline operator fun Long.plus(other: Char): Long = this + other.intsOf()
 @FrameworkDsl
 inline fun Int.isNegative(): Boolean {
     return this < 0
+}
+
+@FrameworkDsl
+inline fun Int.isPositive(): Boolean {
+    return this >= 0
 }
 
 @FrameworkDsl
@@ -512,6 +654,30 @@ inline fun Int.isNotEven(): Boolean {
 }
 
 @FrameworkDsl
+inline infix fun Int.rotlOf(bits: Int): Int = rotateLeft(bits)
+
+@FrameworkDsl
+inline infix fun Int.rotrOf(bits: Int): Int = rotateRight(bits)
+
+@FrameworkDsl
+inline infix fun Byte.rotlOf(bits: Int): Byte = rotateLeft(bits)
+
+@FrameworkDsl
+inline infix fun Byte.rotrOf(bits: Int): Byte = rotateRight(bits)
+
+@FrameworkDsl
+inline infix fun Long.rotlOf(bits: Int): Long = rotateLeft(bits)
+
+@FrameworkDsl
+inline infix fun Long.rotrOf(bits: Int): Long = rotateRight(bits)
+
+@FrameworkDsl
+inline infix fun Short.rotlOf(bits: Int): Short = rotateLeft(bits)
+
+@FrameworkDsl
+inline infix fun Short.rotrOf(bits: Int): Short = rotateRight(bits)
+
+@FrameworkDsl
 inline infix fun Int.minOf(other: Int): Int {
     return if (this < other) this else other
 }
@@ -538,12 +704,17 @@ inline fun Long.absOf(): Long {
 
 @FrameworkDsl
 inline fun Long.negOf(): Long {
-    return if (this == 0L) this else -this
+    return if (this == 0L) 0L else -this
 }
 
 @FrameworkDsl
 inline fun Long.isNegative(): Boolean {
-    return this < 0
+    return this < 0L
+}
+
+@FrameworkDsl
+inline fun Long.isPositive(): Boolean {
+    return this >= 0L
 }
 
 @FrameworkDsl
@@ -622,6 +793,9 @@ inline fun Long.boxIn(range: ClosedRange<Long>): Long {
 }
 
 @FrameworkDsl
+inline fun expOf(value: Double): Double = exp(value)
+
+@FrameworkDsl
 inline fun Double.absOf(): Double {
     return Numeric.absOf(this)
 }
@@ -649,6 +823,16 @@ inline fun Double.boxIn(min: Double, max: Double): Double {
 @FrameworkDsl
 inline fun Double.boxIn(range: ClosedFloatingPointRange<Double>): Double {
     return toFinite().coerceIn(range)
+}
+
+@FrameworkDsl
+inline infix fun Double.lessOf(other: Double): Double {
+    return if (isLessSame(other)) this else other
+}
+
+@FrameworkDsl
+inline infix fun Double.moreOf(other: Double): Double {
+    return if (isMoreSame(other)) this else other
 }
 
 @FrameworkDsl
@@ -740,7 +924,7 @@ inline fun Long.isValidDivisor(): Boolean {
 
 @FrameworkDsl
 inline fun Double.isValidDivisor(): Boolean {
-    return (toFinite().absOf() != 0.0)
+    return (isValid() && absOf() != 0.0)
 }
 
 @FrameworkDsl
@@ -888,7 +1072,7 @@ inline infix fun Double.dividedBy(x: Double): Double = toFinite() / x.toValidDiv
 inline fun Double.toFinite(): Double = if (isValid()) this else throw MercenaryFatalExceptiion("invalid value $this")
 
 @FrameworkDsl
-inline fun Double.toFiniteOrElse(value: Double = 0.0): Double = if (isValid()) this else value
+inline fun Double.toFiniteOrElse(value: Double = MATH_POSITIVE_ZERO): Double = if (isValid()) this else value
 
 @FrameworkDsl
 inline fun Double.toFiniteOrElse(block: Factory<Double>): Double = if (isValid()) this else block.create()
@@ -897,20 +1081,86 @@ inline fun Double.toFiniteOrElse(block: Factory<Double>): Double = if (isValid()
 inline fun Float.toFiniteOrElse(value: Float = 0.0f): Float = if (isValid()) this else value
 
 @FrameworkDsl
-inline fun Float.toFiniteOrElse(value: Double = 0.0): Float = if (isValid()) this else toFiniteOrElse(value.toFloat())
+inline fun Float.toFiniteOrElse(value: Double = MATH_POSITIVE_ZERO): Float = if (isValid()) this else toFiniteOrElse(value.toFloat())
 
 @FrameworkDsl
 inline fun Float.toFiniteOrElse(block: Factory<Float>): Float = if (isValid()) this else block.create()
 
 @FrameworkDsl
-fun DoubleArray.sorted(descending: Boolean = false): DoubleArray {
-    if (sizeOf() > 1) {
-        sort()
-        if (descending.isTrue()) {
-            reverse()
+fun DoubleArray.isSorted(reversed: Boolean = false): Boolean {
+    return when (sizeOf() > 1) {
+        true -> when (reversed.isNotTrue()) {
+            true -> Numeric.isSorted(this)
+            else -> Numeric.isSorted(toReversed(false))
         }
+        else -> true
+    }
+}
+
+@FrameworkDsl
+fun DoubleArray.sorted(reversed: Boolean = false): DoubleArray {
+    if (sizeOf() < 2) {
+        return this
+    }
+    if (isSorted(reversed)) {
+        return this
+    }
+    sort()
+    if (reversed.isTrue()) {
+        reverse()
     }
     return this
+}
+
+@FrameworkDsl
+fun DoubleArray.parallelsorted(reversed: Boolean = false): DoubleArray {
+    if (sizeOf() < 2) {
+        return this
+    }
+    if (isSorted(reversed)) {
+        return this
+    }
+    if (sizeOf() <= MIN_PARALLEL_SORT_SIZE) {
+        sort()
+    } else {
+        java.util.Arrays.parallelSort(this)
+    }
+    if (reversed.isTrue()) {
+        reverse()
+    }
+    return this
+}
+
+@FrameworkDsl
+fun DoubleArray.toParallelSorted(copy: Boolean = true): DoubleArray {
+    if (isSorted(false)) {
+        return toDoubleArray(copy)
+    }
+    if (sizeOf() > 1) {
+        toDoubleArray(copy).also { args ->
+            return when (sizeOf() <= MIN_PARALLEL_SORT_SIZE) {
+                true -> args.sorted(false)
+                else -> args.parallelsorted(false)
+            }
+        }
+    }
+    return toDoubleArray(copy)
+}
+
+@FrameworkDsl
+fun DoubleArray.toParallelSortedReversed(copy: Boolean = true): DoubleArray {
+    if (isSorted(true)) {
+        return toDoubleArray(copy)
+    }
+    return toParallelSorted(copy).toReversed(copy.isNotTrue())
+}
+
+@FrameworkDsl
+fun DoubleArray.toReversed(copy: Boolean = true): DoubleArray {
+    if (sizeOf() > 1) {
+        return toDoubleArray(copy).also { reverse() }
+    }
+    return toDoubleArray(copy)
 }
 
 @FrameworkDsl
@@ -950,21 +1200,13 @@ inline fun DoubleArray.reduce(index: Int, place: Int, reducer: (Double, Double) 
 }
 
 @FrameworkDsl
-inline fun Int.isValidRange(from: Int, last: Int): Boolean {
-    return when {
-        from.isLessThan(0) -> false
-        from.isMoreThan(last) -> false
-        else -> last.isMoreThan(copyOf())
-    }
-}
+fun Int.isValidRange(from: Int, last: Int): Boolean = isNotValidRange(from, last).isNotTrue()
 
 @FrameworkDsl
-inline fun Int.isNotValidRange(from: Int, last: Int): Boolean {
-    return when {
-        from.isLessThan(0) -> true
-        from.isMoreThan(last) -> true
-        else -> last.isMoreThan(copyOf()).isNotTrue()
-    }
+fun Int.isNotValidRange(from: Int, last: Int): Boolean = when {
+    from < 0 -> true
+    from > last -> true
+    else -> last > this
 }
 
 @FrameworkDsl
@@ -1132,12 +1374,10 @@ inline fun CharSequence.toLongOrElse(other: Long = 0L) = toTrimOr("0").toLongOrN
 inline fun CharSequence.toIntOrElse(other: Int = 0) = toTrimOr("0").toIntOrNull().otherwise(other)
 
 @FrameworkDsl
-inline fun Int.toDoubleArray(): DoubleArray = if (isLessSame(0)) EMPTY_REAL_ARRAY else DoubleArray(this)
+inline fun Int.toDoubleArray(init: Double = MATH_POSITIVE_ZERO): DoubleArray = if (isLessSame(0)) EMPTY_REAL_ARRAY else DoubleArray(maxOf(0)) { init }
 
 @FrameworkDsl
-inline fun Int.toDoubleArray(convert: Convert<Int, Double>): DoubleArray = DoubleArray(maxOf(0)) { index ->
-    convert.convert(index)
-}
+fun Int.toDoubleArray(init: (Int) -> Double): DoubleArray = DoubleArray(maxOf(0), init)
 
 @FrameworkDsl
 fun DoubleArray.filled(value: Int): DoubleArray {
@@ -1150,15 +1390,40 @@ fun DoubleArray.filled(value: Long): DoubleArray {
 }
 
 @FrameworkDsl
-fun DoubleArray.filled(value: Double): DoubleArray {
+fun DoubleArray.filled(value: Double, from: Int = 0, last: Int = sizeOf()): DoubleArray {
     if (isNotExhausted()) {
-        when (sizeOf()) {
-            1 -> this[0] = value
-            else -> indices.forEach { this[it] = value }
-        }
+        fill(value, from, last)
     }
     return this
 }
 
 @FrameworkDsl
 inline fun DoubleArray.toDoubleArray(copy: Boolean = true): DoubleArray = if (copy.isTrue() && sizeOf() > 0) copyOf() else this
+
+@FrameworkDsl
+inline fun DoubleArray.isNaN(): Boolean = when (sizeOf()) {
+    0 -> false
+    1 -> this[0].isNaN()
+    else -> any { it.isNaN() }
+}
+
+@FrameworkDsl
+inline fun DoubleArray.isInfinite(): Boolean = when (sizeOf()) {
+    0 -> false
+    1 -> this[0].isInfinite()
+    else -> any { it.isInfinite() }
+}
+
+@FrameworkDsl
+inline fun DoubleArray.isValidDivisor(): Boolean = when (sizeOf()) {
+    0 -> true
+    1 -> this[0].isValidDivisor()
+    else -> all { it.isValidDivisor() }
+}
+
+@FrameworkDsl
+inline fun DoubleArray.isFinite(): Boolean = when (sizeOf()) {
+    0 -> true
+    1 -> this[0].isFinite()
+    else -> all { it.isFinite() }
+}

@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
-import java.util.concurrent.TimeUnit
 
 interface TimeWindowMovingAverage : AverageWindow {
 
@@ -27,7 +26,7 @@ interface TimeWindowMovingAverage : AverageWindow {
 
     @FrameworkDsl
     @IgnoreForSerialize
-    fun getWaitTimeUnit(): TimeUnit
+    fun getWaitTimeUnit(): SystemTimeUnit
 
     @FrameworkDsl
     @IgnoreForSerialize

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,12 @@ object Ciphers : HasMapNames {
     @JvmStatic
     @FrameworkDsl
     fun getMaxKeySize(algorithm: String): Int {
-        return SecureAccess.doPrivileged { Cipher.getMaxAllowedKeyLength(algorithm) }
+        return try {
+            Cipher.getMaxAllowedKeyLength(algorithm)
+        }
+        catch (cause: Throwable) {
+            Throwables.fatal(cause, IS_NOT_FOUND)
+        }
     }
 
     @JvmStatic
@@ -90,7 +95,12 @@ object Ciphers : HasMapNames {
     @JvmStatic
     @FrameworkDsl
     fun getMaxAlgorithmParameterSpec(algorithm: String): AlgorithmParameterSpec? {
-        return SecureAccess.doPrivileged { Cipher.getMaxAllowedParameterSpec(algorithm) }
+        return try {
+            Cipher.getMaxAllowedParameterSpec(algorithm)
+        }
+        catch (cause: Throwable) {
+            Throwables.fatal(cause, null)
+        }
     }
 
     @JvmStatic
@@ -157,13 +167,16 @@ object Ciphers : HasMapNames {
     }
 
     @IgnoreForSerialize
-    private class FastCipherOutputStream @FrameworkDsl constructor(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream() {
+    private class FastCipherOutputStream @FrameworkDsl constructor(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream(),OpenCloseState {
 
         @FrameworkDsl
         private var obuf: ByteArray? = null
 
         @FrameworkDsl
         private val sbuf: ByteArray = 1.toByteArray()
+
+        @FrameworkDsl
+        private val open = getAtomicTrue()
 
         @FrameworkDsl
         override fun write(b: Int) {
@@ -204,6 +217,10 @@ object Ciphers : HasMapNames {
                 null
             }
             flush()
+        }
+
+        override fun isOpen(): Boolean {
+            TODO("Not yet implemented")
         }
     }
 }

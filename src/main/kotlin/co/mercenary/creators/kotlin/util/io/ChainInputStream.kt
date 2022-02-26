@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,9 @@ class ChainInputStream @FrameworkDsl constructor(args: List<InputStream>) : Inpu
     private fun manyOf() = many.toListCapacity()
 
     @FrameworkDsl
+    private fun headOf() = list[0]
+
+    @FrameworkDsl
     @IgnoreForSerialize
     override fun isOpen() = open.isTrue()
 
@@ -91,7 +94,7 @@ class ChainInputStream @FrameworkDsl constructor(args: List<InputStream>) : Inpu
     override fun read(): Int {
         while (sizeOf() > 0) {
             try {
-                val read = list[0].read()
+                val read = headOf().read()
                 if (read != IS_NOT_FOUND) {
                     return read
                 }
@@ -121,7 +124,7 @@ class ChainInputStream @FrameworkDsl constructor(args: List<InputStream>) : Inpu
         }
         do {
             try {
-                val read = list[0].read(buff, off, len)
+                val read = headOf().read(buff, off, len)
                 if (read > 0) {
                     return read
                 }
@@ -145,7 +148,7 @@ class ChainInputStream @FrameworkDsl constructor(args: List<InputStream>) : Inpu
             } while (sizeOf() > 0)
             list.reset()
         } else {
-            logsOf<ChainInputStream>().warn { "closed()" }
+            logsOfType<ChainInputStream>().warn { "closed()" }
         }
     }
 
@@ -161,7 +164,7 @@ class ChainInputStream @FrameworkDsl constructor(args: List<InputStream>) : Inpu
 
     @FrameworkDsl
     override fun available(): Int {
-        return if (isExhausted()) 0 else list[0].available()
+        return if (isEmpty()) 0 else headOf().getAvailableSize()
     }
 
     @IgnoreForSerialize
@@ -186,7 +189,12 @@ class ChainInputStream @FrameworkDsl constructor(args: List<InputStream>) : Inpu
         @FrameworkDsl
         fun append(element: InputStream, vararg args: InputStream): ChainInputStreamBuilder {
             list.add(element)
-            return append(args.toCollection())
+            if (args.isNotExhausted()) {
+                args.forEach { input ->
+                    list.add(input)
+                }
+            }
+            return this
         }
 
         @FrameworkDsl
@@ -202,19 +210,31 @@ class ChainInputStream @FrameworkDsl constructor(args: List<InputStream>) : Inpu
 
         @FrameworkDsl
         fun append(args: Iterable<InputStream>): ChainInputStreamBuilder {
-            list.append(args)
+            if (args.isNotExhausted()) {
+                args.forEach { input ->
+                    list.add(input)
+                }
+            }
             return this
         }
 
         @FrameworkDsl
         fun append(args: Iterator<InputStream>): ChainInputStreamBuilder {
-            list.append(args)
+            if (args.isNotExhausted()) {
+                args.forEach { input ->
+                    list.add(input)
+                }
+            }
             return this
         }
 
         @FrameworkDsl
         fun append(args: Sequence<InputStream>): ChainInputStreamBuilder {
-            list.append(args)
+            if (args.isNotExhausted()) {
+                args.forEach { input ->
+                    list.add(input)
+                }
+            }
             return this
         }
 
@@ -272,14 +292,14 @@ class ChainInputStream @FrameworkDsl constructor(args: List<InputStream>) : Inpu
 
         @JvmStatic
         @FrameworkDsl
-        fun builder(args: Iterator<InputStream>) = ChainInputStreamBuilder(args.toCollection())
+        fun builder(args: Iterator<InputStream>) = builder(args.toIterable())
 
         @JvmStatic
         @FrameworkDsl
-        fun builder(args: Sequence<InputStream>) = ChainInputStreamBuilder(args.toCollection())
+        fun builder(args: Sequence<InputStream>) = builder(args.toIterable())
 
         @JvmStatic
         @FrameworkDsl
-        fun builder(head: InputStream, next: InputStream, vararg more: InputStream) = ChainInputStreamBuilder(toListOf(head, next, *more))
+        fun builder(head: InputStream, next: InputStream, vararg more: InputStream) = builder(toListOf(head, next, *more))
     }
 }

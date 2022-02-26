@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class BasicArrayDeck<E> @FrameworkDsl constructor(args: Collection<E>) : Mutable
     constructor(args: Sequence<E>) : this(args.toCollection())
 
     @FrameworkDsl
-    private val list = args.toLinkedDeque()
+    private val list = args.toLinkedDequeList()
 
     @FrameworkDsl
     override val size: Int
@@ -45,7 +45,7 @@ class BasicArrayDeck<E> @FrameworkDsl constructor(args: Collection<E>) : Mutable
 
     @FrameworkDsl
     override operator fun contains(element: E): Boolean {
-        return list.contains(element)
+        return if (list.sizeOf() == 0) false else list.contains(element)
     }
 
     @FrameworkDsl
@@ -80,18 +80,23 @@ class BasicArrayDeck<E> @FrameworkDsl constructor(args: Collection<E>) : Mutable
     }
 
     @FrameworkDsl
+    override fun reset() {
+        clear()
+    }
+
+    @FrameworkDsl
     override fun remove(element: E): Boolean {
         return list.remove(element)
     }
 
     @FrameworkDsl
     override fun removeAll(elements: Collection<E>): Boolean {
-        return list.removeAll(elements)
+        return list.removeAll(elements.toSet())
     }
 
     @FrameworkDsl
     override fun retainAll(elements: Collection<E>): Boolean {
-        return list.retainAll(elements)
+        return list.retainAll(elements.toSet())
     }
 
     @FrameworkDsl
@@ -135,33 +140,35 @@ class BasicArrayDeck<E> @FrameworkDsl constructor(args: Collection<E>) : Mutable
     }
 
     @FrameworkDsl
-    override fun pollFirst(): E {
+    override fun pollFirst(): E? {
         return list.pollFirst()
     }
 
     @FrameworkDsl
-    override fun pollLast(): E {
+    override fun pollLast(): E? {
         return list.pollLast()
     }
 
     @FrameworkDsl
+    @IgnoreForSerialize
     override fun getFirst(): E {
         return list.first
     }
 
     @FrameworkDsl
+    @IgnoreForSerialize
     override fun getLast(): E {
         return list.last
     }
 
     @FrameworkDsl
-    override fun peekFirst(): E {
+    override fun peekFirst(): E? {
         return list.peekFirst()
     }
 
     @FrameworkDsl
-    override fun peekLast(): E {
-        return list.peekFirst()
+    override fun peekLast(): E? {
+        return list.peekLast()
     }
 
     @FrameworkDsl
@@ -180,12 +187,12 @@ class BasicArrayDeck<E> @FrameworkDsl constructor(args: Collection<E>) : Mutable
     }
 
     @FrameworkDsl
-    override fun poll(): E {
+    override fun poll(): E? {
         return list.poll()
     }
 
     @FrameworkDsl
-    override fun peek(): E {
+    override fun peek(): E? {
         return list.peek()
     }
 
@@ -223,7 +230,7 @@ class BasicArrayDeck<E> @FrameworkDsl constructor(args: Collection<E>) : Mutable
 
     @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is BasicArrayDeck<*> -> this === other || sizeOf() == other.sizeOf() && this isSameAs other
+        is BasicArrayDeck<*> -> this === other || list.isSameAs(other.list)
         else -> false
     }
 

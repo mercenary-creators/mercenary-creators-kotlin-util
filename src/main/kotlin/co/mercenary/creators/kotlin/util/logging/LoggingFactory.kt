@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,24 @@
 
 package co.mercenary.creators.kotlin.util.logging
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.spi.ILoggingEvent
 import co.mercenary.creators.kotlin.util.*
 import mu.*
 import org.slf4j.*
 import org.slf4j.bridge.SLF4JBridgeHandler
 import kotlin.reflect.KClass
 
-typealias LoggerContext = ch.qos.logback.classic.LoggerContext
+internal typealias LoggerContext = ch.qos.logback.classic.LoggerContext
+
+@FrameworkDsl
+fun Level.intsOf(): Int = toInt().absOf()
+
+@FrameworkDsl
+fun ILoggingEvent.levelOf(): Level = level
+
+@FrameworkDsl
+fun ILoggingEvent.intsOf(): Int = levelOf().intsOf()
 
 @FrameworkDsl
 @IgnoreForSerialize
@@ -103,7 +114,7 @@ object LoggingFactory : HasMapNames {
     }
 
     @FrameworkDsl
-    override fun toString() = nameOf()
+    override fun toString() = toMapNames().toSafeString()
 
     @FrameworkDsl
     override fun toMapNames() = dictOf("type" to nameOf(), "open" to open.isTrue(), "started" to isStarted(), "bridge" to LoggingBridge.isStarted(), "conf" to dictOf("list" to list, "auto" to auto, "stop" to stop))
@@ -115,15 +126,15 @@ object LoggingFactory : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
-    fun logger(name: String): ILogging = Logging(name)
+    fun logger(name: CharSequence): ILogging = Logging(name.copyOf())
 
     @JvmStatic
     @FrameworkDsl
-    fun logger(type: Class<*>): ILogging = logger(type.name)
+    fun logger(type: Class<*>): ILogging = logger(type.nameOf())
 
     @JvmStatic
     @FrameworkDsl
-    fun logger(type: KClass<*>): ILogging = logger(type.java)
+    fun logger(type: KClass<*>): ILogging = logger(type.nameOf())
 
     @JvmStatic
     @FrameworkDsl
@@ -131,7 +142,7 @@ object LoggingFactory : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
-    inline fun logger(noinline func: () -> Unit): ILogging {
+    inline fun logger(noinline func: Factory<Unit>): ILogging {
         val name = func.nameOf()
         return when {
             name.contains(KT) -> logger(name.substringBefore(KT))
@@ -162,13 +173,13 @@ object LoggingFactory : HasMapNames {
     }
 
     @FrameworkDsl
-    internal inline fun markerOf(name: String): mu.Marker = KMarkerFactory.getMarker(name)
+    internal inline fun markerOf(name: CharSequence): mu.Marker = KMarkerFactory.getMarker(name.copyOf())
 
     @FrameworkDsl
     internal inline fun Logger.loggerOf(): KLogger = KotlinLogging.logger(this)
 
     @FrameworkDsl
-    internal fun loggerOf(name: String): KLogger = LoggerFactory.getLogger(name).loggerOf()
+    internal fun loggerOf(name: CharSequence): KLogger = LoggerFactory.getLogger(name.copyOf()).loggerOf()
 
     @FrameworkDsl
     internal fun loggerOf(type: Class<*>): KLogger = LoggerFactory.getLogger(type).loggerOf()
@@ -182,7 +193,19 @@ object LoggingFactory : HasMapNames {
     @FrameworkDsl
     internal fun classic(name: CharSequence) = when (name.toUpperCaseEnglish() == ROOT_LOGGER_NAME) {
         true -> context().getLogger(ROOT_LOGGER_NAME)
-        else -> context().exists(name.toString())
+        else -> context().exists(name.copyOf())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun isLoggerDefined(type: Class<*>): Boolean {
+        return isLoggerDefined(type.nameOf())
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun isLoggerDefined(name: CharSequence): Boolean {
+        return context().exists(name.copyOf()) != null
     }
 
     @JvmStatic
@@ -196,11 +219,11 @@ object LoggingFactory : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
-    fun getLevel(type: Class<*>) = getLevel(type.name)
+    fun getLevel(type: Class<*>) = getLevel(type.nameOf())
 
     @JvmStatic
     @FrameworkDsl
-    fun getLevel(type: KClass<*>) = getLevel(type.java)
+    fun getLevel(type: KClass<*>) = getLevel(type.nameOf())
 
     @JvmStatic
     @FrameworkDsl
@@ -221,11 +244,11 @@ object LoggingFactory : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
-    fun setLevel(type: Class<*>, level: LoggingLevel) = setLevel(type.name, level)
+    fun setLevel(type: Class<*>, level: LoggingLevel) = setLevel(type.nameOf(), level)
 
     @JvmStatic
     @FrameworkDsl
-    fun setLevel(type: KClass<*>, level: LoggingLevel) = setLevel(type.java, level)
+    fun setLevel(type: KClass<*>, level: LoggingLevel) = setLevel(type.nameOf(), level)
 
     @JvmStatic
     @FrameworkDsl
@@ -236,7 +259,7 @@ object LoggingFactory : HasMapNames {
     @JvmStatic
     @FrameworkDsl
     fun <R> withContext(block: LoggerContext.() -> R): R {
-        return scope(context(), block)
+        return context().withIn(block)
     }
 
     @JvmStatic
@@ -248,13 +271,13 @@ object LoggingFactory : HasMapNames {
     @JvmStatic
     @FrameworkDsl
     fun withLevel(type: Class<*>, using: LoggingLevel, block: () -> Unit) {
-        withLevel(type.name, using, block)
+        withLevel(type.nameOf(), using, block)
     }
 
     @JvmStatic
     @FrameworkDsl
     fun withLevel(type: KClass<*>, using: LoggingLevel, block: () -> Unit) {
-        withLevel(type.java, using, block)
+        withLevel(type.nameOf(), using, block)
     }
 
     @JvmStatic
@@ -266,7 +289,7 @@ object LoggingFactory : HasMapNames {
     @JvmStatic
     @FrameworkDsl
     fun withLevel(name: CharSequence, using: LoggingLevel, block: () -> Unit) {
-        scope(classic(name.whenRoot())) {
+        classic(name.whenRoot()).withIn {
             val saved = level
             level = using.toLevel()
             try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,10 @@ interface LaunchRunner : OpenAutoClosable, InputStreamSupplier, OutputStreamSupp
     fun waitOn(): Int
 
     @FrameworkDsl
-    fun waitOn(time: TimeDuration): Boolean
+    fun waitOn(time: KotlinTimeDuration): Boolean
+
+    @FrameworkDsl
+    fun waitOn(time: CreatorsTimeDuration): Boolean
 
     @FrameworkDsl
     fun destroy(force: Boolean = true): Boolean

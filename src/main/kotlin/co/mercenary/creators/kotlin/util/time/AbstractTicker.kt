@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,24 @@ package co.mercenary.creators.kotlin.util.time
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-abstract class AbstractTicker @FrameworkDsl constructor(private val tick: Factory<Long>) : Ticker {
+abstract class AbstractTicker @FrameworkDsl constructor(tick: Factory<Long>) : Ticker {
 
     @FrameworkDsl
-    private var time = tick.create()
+    private val make = tick
 
     @FrameworkDsl
-    @Synchronized
+    private val time = make.create().toAtomic()
+
+    @FrameworkDsl
     override fun reset() {
-        time = tick.create()
+        time.putValue(make.create())
     }
 
     @FrameworkDsl
-    override fun since(): Long = tick.create() - time
+    override fun since(): Long = make.create() - time.getValue()
+
+    @FrameworkDsl
+    override fun toString(): String = toElapsedString()
 
     @FrameworkDsl
     override fun toElapsedString(): String = TimeAndDate.toElapsedString(since())
@@ -39,4 +44,13 @@ abstract class AbstractTicker @FrameworkDsl constructor(private val tick: Factor
     @FrameworkDsl
     @JvmOverloads
     operator fun invoke(reset: Boolean = false): String = toString().also { if (reset.isTrue()) reset() }
+
+    @FrameworkDsl
+    override fun hashCode() = idenOf()
+
+    @FrameworkDsl
+    override fun equals(other: Any?) = when (other) {
+        is AbstractTicker -> this === other
+        else -> false
+    }
 }

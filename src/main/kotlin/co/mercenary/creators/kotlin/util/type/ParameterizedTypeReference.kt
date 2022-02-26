@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ abstract class ParameterizedTypeReference<T> : Comparable<ParameterizedTypeRefer
 
     @FrameworkDsl
     override fun toString(): String {
-        return getType().nameOf()
+        return type.typeName
     }
 
     protected companion object {
@@ -45,7 +45,7 @@ abstract class ParameterizedTypeReference<T> : Comparable<ParameterizedTypeRefer
         @JvmStatic
         @FrameworkDsl
         fun getParameterizedType(kind: Class<*>): Type {
-            return SameAndHashCode.getParameterizedType(kind)
+            return TypeTools.getParameterizedType(kind)
         }
     }
 }

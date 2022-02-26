@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,32 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util.math
 
 import co.mercenary.creators.kotlin.util.*
+import org.apache.commons.math3.stat.StatUtils
+import org.apache.commons.math3.stat.descriptive.rank.Median
 import java.math.RoundingMode
 import kotlin.math.*
 
 object Numeric {
 
     @FrameworkDsl
-    const val PI_2 = PI * 2.0
+    const val PI_1 = PI * MATH_POSITIVE_ONE
 
     @FrameworkDsl
-    const val PI_4 = PI * 4.0
+    const val PI_2 = PI_1 * MATH_POSITIVE_TWO
+
+    @FrameworkDsl
+    const val PI_4 = PI_2 * MATH_POSITIVE_TWO
 
     @FrameworkDsl
     const val INVALID_NUMBER = Double.NaN
+
+    @FrameworkDsl
+    const val MAXIMUM_DOUBLE_VALUE = Double.POSITIVE_INFINITY
 
     @FrameworkDsl
     const val DEFAULT_PRECISION_SCALE = 3
@@ -39,15 +47,47 @@ object Numeric {
     @FrameworkDsl
     const val DEFAULT_PRECISION_DELTA = 0.0000001
 
+    @FrameworkDsl
+    private val POWER_OF_2_ARRAY: List<Int> by lazy {
+        sequenceOf(1) {
+            if (it.isLessThan(MAXIMUM_INTS_POWER_OF_2)) it * 2 else null
+        }.getIntArray().getArray().toArrayList().toSorted()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    private fun powerOf2ArraySizeOf(): Int = POWER_OF_2_ARRAY.sizeOf()
+
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun tabsOf(args: Int, most: Int = MAXIMUM_INTS_POWER_OF_2): Int {
-        val tabs = ushrOf(args - 1)
+    fun findLessIndex(power: Int, extra: Int = 0): Int {
+        return 0.toAtomic().let { keep ->
+            POWER_OF_2_ARRAY.withEachIndexed { index, value ->
+                if (value.isLessThan(power)) {
+                    keep.setValue(index)
+                }
+            }
+            keep.plus(extra.absOf()).getValue().maxOf(1).minOf(powerOf2ArraySizeOf() - 1)
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun findMoreIndex(power: Int): Int {
+        return findLessIndex(power, 1).minOf(powerOf2ArraySizeOf() - 1)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun tabsOf(capacity: Int, maximum: Int = MAXIMUM_INTS_POWER_OF_2): Int {
+        val result = ushrOf(capacity - 1)
         return when {
-            tabs.isLessThan(0) -> 1
-            tabs.isMoreSame(most) -> most
-            else -> tabs + 1
+            result.isLessThan(0) -> 1
+            result.isMoreSame(MAXIMUM_INTS_POWER_OF_2) -> MAXIMUM_INTS_POWER_OF_2
+            result.isMoreSame(maximum) -> maximum
+            else -> result + 1
         }
     }
 
@@ -61,15 +101,15 @@ object Numeric {
 
     @JvmStatic
     @FrameworkDsl
-    inline fun absOf(value: Int): Int = if (value < 0) -value else value
+    inline fun absOf(value: Int): Int = abs(value)
 
     @JvmStatic
     @FrameworkDsl
-    inline fun absOf(value: Long): Long = if (value < 0L) -value else value
+    inline fun absOf(value: Long): Long = abs(value)
 
     @JvmStatic
     @FrameworkDsl
-    inline fun absOf(value: Double): Double = if (value.toFinite() <= 0.0) 0.0 - value else value
+    inline fun absOf(value: Double): Double = abs(value.toFinite())
 
     @JvmStatic
     @FrameworkDsl
@@ -200,32 +240,32 @@ object Numeric {
     @JvmStatic
     @FrameworkDsl
     fun toDegrees(radians: Double): Double {
-        return radians.toFiniteOrElse(0.0).let { value ->
-            if (value == 0.0) 0.0 else degreesOf((value * 180.0) / PI)
+        return radians.toFiniteOrElse(MATH_POSITIVE_ZERO).let { value ->
+            if (value == MATH_POSITIVE_ZERO) value * MATH_POSITIVE_ZERO else degreesOf((value * 180.0) / PI_1)
         }
     }
 
     @JvmStatic
     @FrameworkDsl
     fun toRadians(degrees: Double): Double {
-        return degrees.toFiniteOrElse(0.0).let { value ->
-            if (value == 0.0) 0.0 else ((degreesOf(value) / 180.0) * PI)
+        return degrees.toFiniteOrElse(MATH_POSITIVE_ZERO).let { value ->
+            if (value == MATH_POSITIVE_ZERO) value * MATH_POSITIVE_ZERO else ((degreesOf(value) / 180.0) * PI_1)
         }
     }
 
     @JvmStatic
     @FrameworkDsl
     fun degreesOf(degrees: Double): Double {
-        return degrees.toFiniteOrElse(0.0).let { value ->
-            if (value == 0.0) 0.0 else value.rem(360.0).let { if (it == 0.0) 0.0 else it }
+        return degrees.toFiniteOrElse(MATH_POSITIVE_ZERO).let { value ->
+            if (value == MATH_POSITIVE_ZERO) value * MATH_POSITIVE_ZERO else value.rem(360.0).let { if (it == MATH_POSITIVE_ZERO) it * MATH_POSITIVE_ZERO else it }
         }
     }
 
     @JvmStatic
     @FrameworkDsl
     fun radiansOf(radians: Double): Double {
-        return radians.toFiniteOrElse(0.0).let { value ->
-            if (value == 0.0) 0.0 else toRadians(toDegrees(value))
+        return radians.toFiniteOrElse(MATH_POSITIVE_ZERO).let { value ->
+            if (value == MATH_POSITIVE_ZERO) value * MATH_POSITIVE_ZERO else toRadians(toDegrees(value))
         }
     }
 
@@ -247,21 +287,42 @@ object Numeric {
 
     @JvmStatic
     @FrameworkDsl
-    fun isSameBits(value: Double, other: Double): Boolean = (value.toBits() == other.toBits())
+    fun differenceOf(value: Int, other: Int): Int = absOf(subExactOrElse(value, other))
 
     @JvmStatic
     @FrameworkDsl
-    inline fun isNotSameBits(value: Double, other: Double): Boolean = (value.toBits() != other.toBits())
+    fun differenceOf(value: Long, other: Long): Long = absOf(subExactOrElse(value, other))
 
     @JvmStatic
     @FrameworkDsl
-    inline fun diffOf(value: Double, other: Double): Double = absOf(value - other)
+    fun differenceOf(value: Double, other: Double): Double = absOf(value - other)
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun delta(value: Int, other: Int, absolute: Boolean = false): Int = (subExactOrElse(value, other)).let { diff ->
+        if (diff == 0) 0 else if (absolute.isTrue()) absOf(diff) else diff
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun delta(value: Long, other: Long, absolute: Boolean = false): Long = (subExactOrElse(value, other)).let { diff ->
+        if (diff == 0L) 0L else if (absolute.isTrue()) absOf(diff) else diff
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun delta(value: Double, other: Double, absolute: Boolean = false): Double = (value - other).toFiniteOrElse(MATH_POSITIVE_ZERO).let { diff ->
+        if (diff == MATH_POSITIVE_ZERO && diff.isNegative() && absolute.isNotTrue()) diff * MATH_POSITIVE_ZERO else if (absolute.isTrue()) absOf(diff) else diff
+    }
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
     fun closeEnough(value: Double, other: Double, precision: Double = DEFAULT_PRECISION_DELTA): Boolean {
-        return if (isNotSameBits(value, other)) (diffOf(value, other) <= precision.deltaOf()) else true
+        return if (isNotSameBits(value, other)) (delta(value, other, true) <= precision.deltaOf()) else true
     }
 
     @JvmStatic
@@ -271,14 +332,12 @@ object Numeric {
         if (value.sizeOf() != other.sizeOf()) {
             return false
         }
-        val delta = precision.deltaOf()
-        for (i in value.indices) {
-            val v = value[i]
-            val o = other[i]
-            if (isNotSameBits(v, o)) {
-                if (diffOf(v, o) > delta) {
-                    return false
-                }
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        value.forEachIndexed { i, d ->
+            if (closeEnough(d, other[i], precision).isNotTrue()) {
+                return false
             }
         }
         return true
@@ -291,7 +350,15 @@ object Numeric {
         if (value.sizeOf() != other.sizeOf()) {
             return false
         }
-        return closeEnough(value, other.getDoubleArray(), precision)
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        value.forEachIndexed { i, d ->
+            if (closeEnough(d, other[i], precision).isNotTrue()) {
+                return false
+            }
+        }
+        return true
     }
 
     @JvmStatic
@@ -301,7 +368,15 @@ object Numeric {
         if (value.sizeOf() != other.sizeOf()) {
             return false
         }
-        return closeEnough(value.getDoubleArray(), other.getDoubleArray(), precision)
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        value.toDoubleArray().forEachIndexed { i, d ->
+            if (closeEnough(d, other[i], precision).isNotTrue()) {
+                return false
+            }
+        }
+        return true
     }
 
     @JvmStatic
@@ -311,8 +386,11 @@ object Numeric {
         if (value.sizeOf() != other.sizeOf()) {
             return false
         }
-        for (i in value.indices) {
-            if (closeEnough(value[i], other[i], precision).isNotTrue()) {
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        value.forEachIndexed { i, d ->
+            if (closeEnough(d, other[i], precision).isNotTrue()) {
                 return false
             }
         }
@@ -326,8 +404,11 @@ object Numeric {
         if (value.sizeOf() != other.sizeOf()) {
             return false
         }
-        for (i in value.indices) {
-            if (closeEnough(value[i], other[i], precision).isNotTrue()) {
+        if (value.sizeOf() == 0) {
+            return true
+        }
+        value.forEachIndexed { i, d ->
+            if (closeEnough(d, other[i], precision).isNotTrue()) {
                 return false
             }
         }
@@ -445,13 +526,37 @@ object Numeric {
     @JvmStatic
     @FrameworkDsl
     fun powerOf(data: Double, mult: Int): Double {
-        return powerOf(data, mult.realOf())
+        if (data.isNotValid()) {
+            return INVALID_NUMBER
+        }
+        if (data == MATH_NEGATIVE_ONE) {
+            return if (mult.isEven()) MATH_POSITIVE_ONE else MATH_NEGATIVE_ONE
+        }
+        return when (mult) {
+            0 -> 1.0
+            1 -> data
+            2 -> data * data
+            3 -> data * data * data
+            else -> data.pow(mult.realOf())
+        }
     }
 
     @JvmStatic
     @FrameworkDsl
     fun powerOf(data: Double, mult: Long): Double {
-        return powerOf(data, mult.realOf())
+        if (data.isNotValid()) {
+            return INVALID_NUMBER
+        }
+        if (data == MATH_NEGATIVE_ONE) {
+            return if (mult.isEven()) MATH_POSITIVE_ONE else MATH_NEGATIVE_ONE
+        }
+        return when (mult) {
+            0L -> 1.0
+            1L -> data
+            2L -> data * data
+            3L -> data * data * data
+            else -> data.pow(mult.realOf())
+        }
     }
 
     @JvmStatic
@@ -465,7 +570,8 @@ object Numeric {
                 0.0 -> 1.0
                 1.0 -> data
                 2.0 -> data * data
-                else -> data.pow(mult)
+                3.0 -> data * data * data
+                else -> data.pow(mult.realOf())
             }
         }
         return INVALID_NUMBER
@@ -502,11 +608,12 @@ object Numeric {
     @JvmOverloads
     fun rounded(value: Double, scale: Int = DEFAULT_PRECISION_SCALE): Double {
         return try {
-            val round = value.toBigDecimal().setScale(absOf(scale), RoundingMode.HALF_UP).realOf()
-            if (round == 0.0) round * 0.0 else round
+            value.toBigDecimal().setScale(absOf(scale), RoundingMode.HALF_UP).realOf().let {
+                if (it == MATH_POSITIVE_ZERO) it * MATH_POSITIVE_ZERO else it
+            }
         } catch (cause: Throwable) {
-            Throwables.thrown(cause)
-            INVALID_NUMBER
+            Throwables.fatal(cause,INVALID_NUMBER )
+
         }
     }
 
@@ -567,6 +674,150 @@ object Numeric {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
+    fun IntArray.toReversed(copy: Boolean = true): IntArray {
+        if (sizeOf() > 1) {
+            return toIntArray(copy).also { reverse() }
+        }
+        return toIntArray(copy)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun ByteArray.toReversed(copy: Boolean = true): ByteArray {
+        if (sizeOf() > 1) {
+            return toByteArray(copy).also { reverse() }
+        }
+        return toByteArray(copy)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun CharArray.toReversed(copy: Boolean = true): CharArray {
+        if (sizeOf() > 1) {
+            return toCharArray(copy).also { reverse() }
+        }
+        return toCharArray(copy)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun DoubleArray.toReversed(copy: Boolean = true): DoubleArray {
+        if (sizeOf() > 1) {
+            return toDoubleArray(copy).also { reverse() }
+        }
+        return toDoubleArray(copy)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    tailrec fun isSorted(args: IntArray, index: Int = args.sizeOf()): Boolean {
+        if (args.sizeOf() <= 1 || index == 1) {
+            return true
+        }
+        if (args[index - 1] < args[index - 2]) {
+            return false
+        }
+        return isSorted(args, index - 1)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    tailrec fun isSorted(args: ByteArray, index: Int = args.sizeOf()): Boolean {
+        if (args.sizeOf() <= 1 || index == 1) {
+            return true
+        }
+        if (args[index - 1] < args[index - 2]) {
+            return false
+        }
+        return isSorted(args, index - 1)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    tailrec fun isSorted(args: CharArray, index: Int = args.sizeOf()): Boolean {
+        if (args.sizeOf() <= 1 || index == 1) {
+            return true
+        }
+        if (args[index - 1] < args[index - 2]) {
+            return false
+        }
+        return isSorted(args, index - 1)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    tailrec fun isSorted(args: LongArray, index: Int = args.sizeOf()): Boolean {
+        if (args.sizeOf() <= 1 || index == 1) {
+            return true
+        }
+        if (args[index - 1] < args[index - 2]) {
+            return false
+        }
+        return isSorted(args, index - 1)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    tailrec fun isSorted(args: FloatArray, index: Int = args.sizeOf()): Boolean {
+        if (args.sizeOf() <= 1 || index == 1) {
+            return true
+        }
+        if (args[index - 1] < args[index - 2]) {
+            return false
+        }
+        return isSorted(args, index - 1)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    tailrec fun isSorted(args: DoubleArray, index: Int = args.sizeOf()): Boolean {
+        if (args.sizeOf() <= 1 || index == 1) {
+            return true
+        }
+        if (args[index - 1] < args[index - 2]) {
+            return false
+        }
+        return isSorted(args, index - 1)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun meanOf(args: DoubleArray, from: Int = 0, last: Int = args.sizeOf()): Double {
+        if (args.sizeOf() == 0) {
+            return INVALID_NUMBER
+        }
+        return StatUtils.mean(args, from, last)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun meanOf(values: DoubleArray, weights:DoubleArray, from: Int = 0, last: Int = values.sizeOf()): Double {
+        if (values.sizeOf() == 0) {
+            return INVALID_NUMBER
+        }
+        if (values.sizeOf() != weights.sizeOf()) {
+            return INVALID_NUMBER
+        }
+        if (weights.isFinite().isNotTrue()) {
+            return INVALID_NUMBER
+        }
+        return StatUtils.mean(values, from, last)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
     fun swapOf(data: IntArray, i: Int, j: Int = i + 1) {
         if (i != j) {
             val tmp = data[i]
@@ -599,22 +850,20 @@ object Numeric {
 
     @JvmStatic
     @FrameworkDsl
-    @JvmOverloads
-    internal fun sortOf(args: DoubleArray, copy: Boolean = false): DoubleArray {
-        val data = args.toDoubleArray(copy)
-        if (data.sizeOf() > 1) {
-            var flip = false
+    internal fun sortOf(args: DoubleArray): DoubleArray {
+        if (args.sizeOf() > 1) {
+            val flip = false.toAtomic()
             do {
-                for (i in data.indices) {
+                for (i in args.indices) {
                     val j = i + 1
-                    if (((data[j] >= 0) && (data[i] > data[j])) || ((data[i] < 0) && (data[j] >= 0))) {
-                        flip = true
-                        swapOf(data, i, j)
+                    if (((args[j] >= 0) && (args[i] > args[j])) || ((args[i] < 0) && (args[j] >= 0))) {
+                        flip.toTrue()
+                        swapOf(args, i, j)
                     }
                 }
-            } while (flip)
+            } while (flip.isTrue())
         }
-        return data
+        return args
     }
 
     @JvmStatic
@@ -624,34 +873,35 @@ object Numeric {
             throw MercenaryMathExceptiion(MATH_INVALID_SIZE_ERROR)
         }
         val z = args[0].toFinite()
-        if (closeEnough(z, 0.0, 0.000001)) {
+        if (closeEnough(z, MATH_POSITIVE_ZERO, 0.000001)) {
             return quadraticDerivitiveRootsOf(args)
         }
         val a = args[1] dividedBy z
         val b = args[2] dividedBy z
         val c = args[3] dividedBy z
-        val q = ((b * 3.0) - powerOf(a, 2.0)) / 9.0
-        val r = ((9.0 * a * b) - (27.0 * c) - (2.0 * powerOf(a, 3.0))) / 57.0
-        val d = powerOf(q, 3.0) + powerOf(r, 2.0)
+        val q = ((b * MATH_POSITIVE_THREE) - powerOf(a, 2)) / 9.0
+        val r = ((9.0 * a * b) - (27.0 * c) - (MATH_POSITIVE_TWO * powerOf(a, 3))) / 57.0
+        val d = powerOf(q, 3) + powerOf(r, 2)
         val data = 3.toDoubleArray()
-        if (d >= 0.0) {
+        if (d >= MATH_POSITIVE_ZERO) {
             val x = sqrtOf(d)
-            val s = toSign(r + x) * powerOf(absOf(r + x), 1.0 / 3.0)
-            val t = toSign(r - x) * powerOf(absOf(r - x), 1.0 / 3.0)
+            val s = toSign(r + x) * powerOf(absOf(r + x), MATH_POSITIVE_ONE / MATH_POSITIVE_THREE)
+            val t = toSign(r - x) * powerOf(absOf(r - x), MATH_POSITIVE_ONE / MATH_POSITIVE_THREE)
             data[0] = s + t
-            data[1] = (negOf(a) / 3.0) - ((s + t) / 2.0)
+            data[1] = (negOf(a) / MATH_POSITIVE_THREE) - ((s + t) / MATH_POSITIVE_TWO)
             data[2] = data[1]
-            if (absOf((sqrtOf(3.0) * (s - t)) / 2.0) != 0.0) {
+            if (absOf((sqrtOf(MATH_POSITIVE_THREE) * (s - t)) / MATH_POSITIVE_TWO) != MATH_POSITIVE_ZERO) {
                 data[1] = MATH_NEGATIVE_ONE
                 data[2] = MATH_NEGATIVE_ONE
             }
         } else {
-            val t = acosOf(r / sqrtOf(powerOf(q, 3.0).negOf()))
-            data[0] = (2.0 * sqrtOf(q.negOf()) * cosOf(t / 3.0)) - (a / 3.0)
-            data[1] = (2.0 * sqrtOf(q.negOf()) * cosOf((t + PI_2) / 3.0)) - (a / 3.0)
-            data[2] = (2.0 * sqrtOf(q.negOf()) * cosOf((t + PI_4) / 3.0)) - (a / 3.0)
+            val s = sqrtOf(q.negOf())
+            val t = acosOf(r / sqrtOf(powerOf(q, 3).negOf()))
+            data[0] = (MATH_POSITIVE_TWO * s * cosOf(t / MATH_POSITIVE_THREE)) - (a / MATH_POSITIVE_THREE)
+            data[1] = (MATH_POSITIVE_TWO * s * cosOf((t + PI_2) / MATH_POSITIVE_THREE)) - (a / MATH_POSITIVE_THREE)
+            data[2] = (MATH_POSITIVE_TWO * s * cosOf((t + PI_4) / MATH_POSITIVE_THREE)) - (a / MATH_POSITIVE_THREE)
             for (i in data.indices) {
-                if (data[i] < 0.0 || data[i] > 1.0) {
+                if (data[i] < MATH_POSITIVE_ZERO || data[i] > MATH_POSITIVE_ONE) {
                     data[i] = MATH_NEGATIVE_ONE
                 }
             }
@@ -671,23 +921,23 @@ object Numeric {
     @JvmStatic
     @FrameworkDsl
     internal fun quadraticRootsOf(a: Double, b: Double, c: Double): DoubleArray {
-        if (closeEnough(a.toFinite(), 0.0, 0.000001)) {
+        if (closeEnough(a.toFinite(), MATH_POSITIVE_ZERO, 0.000001)) {
             return linearRootsOf(b, c)
         }
-        val data = 3.toDoubleArray().filled(MATH_NEGATIVE_ONE)
+        val data = 3.toDoubleArray(MATH_NEGATIVE_ONE)
         val q = (b * b) - (4.0 * a * c)
         if (q > 0) {
             val r = sqrtOf(q)
-            var t = (b.negOf() + r) / (2.0 * a)
+            var t = (b.negOf() + r) / (MATH_POSITIVE_TWO * a)
             if ((0 < t) && (t < 1)) {
                 data[0] = t
             }
-            t = (b.negOf() - r) / (2.0 * a)
+            t = (b.negOf() - r) / (MATH_POSITIVE_TWO * a)
             if ((0 < t) && (t < 1)) {
                 data[1] = t
             }
-        } else if (closeEnough(q, 0.0, 0.000001)) {
-            data[0] = b.negOf() / (2.0 * a)
+        } else if (closeEnough(q, MATH_POSITIVE_ZERO, 0.000001)) {
+            data[0] = b.negOf() / (MATH_POSITIVE_TWO * a)
             data[1] = data[0]
         }
         return data
@@ -696,14 +946,36 @@ object Numeric {
     @JvmStatic
     @FrameworkDsl
     internal fun linearRootsOf(a: Double, b: Double): DoubleArray {
-        val data = 3.toDoubleArray().filled(MATH_NEGATIVE_ONE)
-        if (closeEnough(a.toFinite(), 0.0, 0.000001).isNotTrue()) {
+        val data = 3.toDoubleArray(MATH_NEGATIVE_ONE)
+        if (closeEnough(a.toFinite(), MATH_POSITIVE_ZERO, 0.000001).isNotTrue()) {
             val t = b.negOf() dividedBy a
             if ((0 < t) && (t < 1)) {
                 data[0] = t
             }
         }
         return data
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun getMedianSorted(args: DoubleArray, default: Double = MATH_POSITIVE_ZERO): Double {
+        return when (args.sizeOf()) {
+            0 -> default
+            1 -> args[0].toFiniteOrElse(default)
+            else -> getMedianSorted(args, 0, args.sizeOf(), default).toFiniteOrElse(default)
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun getMedianSorted(args: DoubleArray, from: Int, last: Int, default: Double = MATH_POSITIVE_ZERO): Double {
+        return when (args.sizeOf()) {
+            0 -> default
+            1 -> args[0].toFiniteOrElse(default)
+            else -> Median().evaluate(args.toParallelSorted(), from, last).toFiniteOrElse(default)
+        }
     }
 
     internal object TailRecursiveFunctions {

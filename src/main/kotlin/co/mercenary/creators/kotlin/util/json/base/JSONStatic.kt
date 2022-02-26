@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,6 +120,7 @@ object JSONStatic {
         is Array<*> -> true
         is Sequence<*> -> true
         is Iterable<*> -> true
+        is CharArray -> true
         else -> false
     }
 
@@ -392,7 +393,8 @@ object JSONStatic {
 
     @JvmStatic
     @FrameworkDsl
-    fun <T : Any> jsonReadOf(data: ByteArray, type: TypeReference<T>) = NORMAL.jsonRead(data, type)
+    @JvmOverloads
+    fun <T : Any> jsonReadOf(data: ByteArray, type: TypeReference<T>, copy: Boolean = false) = NORMAL.jsonRead(data, type, copy)
 
     @JvmStatic
     @FrameworkDsl
@@ -529,12 +531,12 @@ object JSONStatic {
     fun toJavaType(data: Any): JavaType {
         return when (data) {
             is JavaType -> data
-            is Type -> NORMAL.constructType(data)
-            is KClass<*> -> NORMAL.constructType(data)
-            is TypeRef<*> -> NORMAL.constructType(data)
-            is TypeReference<*> -> NORMAL.constructType(data)
-            is ParameterizedTypeReference<*> -> NORMAL.constructType(data)
-            else -> NORMAL.constructType(data.javaClass)
+            is Type -> NORMAL.constructTypeOf(data)
+            is KClass<*> -> NORMAL.constructTypeOf(data)
+            is TypeRef<*> -> NORMAL.constructTypeOf(data)
+            is TypeReference<*> -> NORMAL.constructTypeOf(data)
+            is ParameterizedTypeReference<*> -> NORMAL.constructTypeOf(data)
+            else -> NORMAL.constructTypeOf(data.javaClass)
         }
     }
 
@@ -574,8 +576,9 @@ object JSONStatic {
 
     @JvmStatic
     @FrameworkDsl
-    fun <T : Any> toJSONReader(data: ByteArray, type: TypeReference<T>): JSONReader<T> {
-        return JSONReader { jsonReadOf(data, type) }
+    @JvmOverloads
+    fun <T : Any> toJSONReader(data: ByteArray, type: TypeReference<T>, copy: Boolean = false): JSONReader<T> {
+        return JSONReader { jsonReadOf(data, type, copy) }
     }
 
     @JvmStatic

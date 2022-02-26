@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,50 +22,50 @@ import org.junit.jupiter.api.Test
 class TimeTest : KotlinTest() {
     @Test
     fun test() {
-        info { 0.5.years }
-        info { 1.0.years }
-        info { 1.5.years }
+        info { 0.5.Years }
+        info { 1.0.Years }
+        info { 1.5.Years }
         warn { dash() }
-        info { 0.5.weeks }
-        info { 1.0.weeks }
-        info { 1.5.weeks }
+        info { 0.5.Weeks }
+        info { 1.0.Weeks }
+        info { 1.5.Weeks }
         warn { dash() }
-        info { 0.5.days }
-        info { 1.0.days }
-        info { 1.5.days }
+        info { 0.5.Days }
+        info { 1.0.Days }
+        info { 1.5.Days }
         warn { dash() }
-        info { 0.5.hours }
-        info { 1.0.hours }
-        info { 1.5.hours }
+        info { 0.5.Hours }
+        info { 1.0.Hours }
+        info { 1.5.Hours }
         warn { dash() }
-        info { 0.5.minutes }
-        info { 1.0.minutes }
-        info { 1.5.minutes }
+        info { 0.5.Minutes }
+        info { 1.0.Minutes }
+        info { 1.5.Minutes }
         warn { dash() }
-        info { 0.5.seconds }
-        info { 1.0.seconds }
-        info { 1.5.seconds }
+        info { 0.5.Seconds }
+        info { 1.0.Seconds }
+        info { 1.5.Seconds }
         warn { dash() }
-        info { 1.millisecond / 2 }
+        info { 1.Millisecond / 2 }
         warn { dash() }
-        info { 0.5.milliseconds }
-        info { 1.0.milliseconds }
-        info { 1.5.milliseconds }
+        info { 0.5.Milliseconds }
+        info { 1.0.Milliseconds }
+        info { 1.5.Milliseconds }
         warn { dash() }
-        info { 0.5.nanoseconds }
-        info { 1.0.nanoseconds }
-        info { 1.5.nanoseconds }
+        info { 0.5.Nanoseconds }
+        info { 1.0.Nanoseconds }
+        info { 1.5.Nanoseconds }
         warn { dash() }
-        info { 1.year * 0.5 }
-        info { 1.year * 1.0 }
-        info { 1.year * 1.5 }
+        info { 1.Year * 0.5 }
+        info { 1.Year * 1.0 }
+        info { 1.Year * 1.5 }
         warn { dash() }
-        info { 1.year / 0.5 }
-        info { 1.year / 1.0 }
-        info { 1.year / 1.5 }
-        info { 1.year / 2.0 }
+        info { 1.Year / 0.5 }
+        info { 1.Year / 1.0 }
+        info { 1.Year / 1.5 }
+        info { 1.Year / 2.0 }
         warn { dash() }
-        val oops = 1.year * IS_NOT_FOUND.toDouble()
+        val oops = 1.Year * IS_NOT_FOUND
         info { oops }
         info { +oops }
         info { -oops }

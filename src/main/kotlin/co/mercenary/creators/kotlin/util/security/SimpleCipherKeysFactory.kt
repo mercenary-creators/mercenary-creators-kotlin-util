@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,5 +34,5 @@ class SimpleCipherKeysFactory private constructor(private val size: Int, private
     override fun getKeys(): ByteArray = Randoms.getByteArray(rand.create(), getSize())
 
     @FrameworkDsl
-    override fun toMapNames() = dictOfType<SimpleCipherKeysFactory>()
+    override fun toMapNames() = dictOf("type" to nameOf())
 }

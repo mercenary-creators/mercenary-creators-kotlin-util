@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ class LogsTest : KotlinTest() {
         info { sequenceOf(4, 5, 6) }
         info { toDoubleArrayOf(4, 5, 6) }
         info { TimeAndDate.nanosOf() }
-        info { dictOf("name" to author, "time" to 56.5.years, "date" to dateOf(), "horz" to "Maël Hörz\n", "size" to 1, "code" to String(CharArray(16) { it.toChar() })) }
+        info { dictOf("name" to author, "time" to 56.5.Years, "date" to dateOf(), "horz" to "Maël Hörz\n", "size" to 1, "code" to String(CharArray(16) { it.toChar() })) }
         info { false }
         info { true.toAtomic() }
         info { 16.toAtomic() }
@@ -59,7 +59,7 @@ class LogsTest : KotlinTest() {
         dashes()
         error { MainData().isDataClass() }
         dashes()
-        toParameterizedTypeReference<List<Int>>().getType().also {
+        toParameterizedTypeReference<BasicArrayList<Int>>().getType().also {
             info { it.nameOf() }
             dashes()
             error { it is Class<*> }
@@ -80,25 +80,34 @@ class LogsTest : KotlinTest() {
             dashes()
         }
         toParameterizedTypeReference<Array<MainData>>().getType().also {
-            info { it.nameOf() }
+            warn { it.nameOf() }
             dashes()
-            error { it is Class<*> }
+            warn { it is Class<*> }
             dashes()
-            info { it.toErased().nameOf() }
+            info { it.isArrayType() }
             dashes()
-            info { it.typeName }
+            warn { it.toErased().nameOf() }
             dashes()
+            warn { it.typeName }
+            dashes()
+        }
+        error { dash() }
+        kindOfType<DoubleArray>().also {
+            error { it.nameOf() }
         }
         toParameterizedTypeReference<DoubleArray>().getType().also {
             info { it.nameOf() }
             dashes()
-            error { it is Class<*> }
+            info { it is Class<*> }
+            dashes()
+            info { it.isArrayType() }
             dashes()
             info { it.toErased().nameOf() }
             dashes()
             info { it.typeName }
             dashes()
         }
+        error { dash() }
         toParameterizedTypeReference<DoubleArray>().toJavaTypeOf().also {
             warn { it.genericSignature }
             dashes()
@@ -132,7 +141,7 @@ class LogsTest : KotlinTest() {
             dashes()
             error { it.toCanonical() }
         }
-        toParameterizedTypeReference<TimeDuration>().toJavaTypeOf().also {
+        toParameterizedTypeReference<CreatorsTimeDuration>().toJavaTypeOf().also {
             warn { it.genericSignature }
             dashes()
             warn { it.rawClass.isKotlinClass() }
@@ -143,7 +152,7 @@ class LogsTest : KotlinTest() {
             dashes()
             error { it.toCanonical() }
         }
-        toParameterizedTypeReference<Pair<String, TimeDuration>>().toJavaTypeOf().also {
+        toParameterizedTypeReference<Pair<String, CreatorsTimeDuration>>().toJavaTypeOf().also {
             warn { it.genericSignature }
             dashes()
             warn { it.rawClass.isKotlinClass() }
@@ -154,7 +163,7 @@ class LogsTest : KotlinTest() {
             dashes()
             error { it.toCanonical() }
         }
-        toParameterizedTypeReference<Sequence<Pair<String, TimeDuration>>>().toJavaTypeOf().also {
+        toParameterizedTypeReference<Sequence<Pair<String, CreatorsTimeDuration>>>().toJavaTypeOf().also {
             warn { it.genericSignature }
             dashes()
             warn { it.rawClass.isKotlinClass() }
@@ -165,6 +174,7 @@ class LogsTest : KotlinTest() {
             dashes()
             error { it.toCanonical() }
         }
+        error { dash() }
         DoubleArray::class.toJavaTypeOf().also {
             error { it.genericSignature }
             dashes()

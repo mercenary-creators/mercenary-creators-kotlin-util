@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,8 +95,6 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
             is BooleanArray -> true
             is Date -> true
             is LocalDateTime -> true
-            is AtomicLong -> true
-            is AtomicInteger -> true
             is AtomicBoolean -> true
             is Function0<*> -> true
             is Map.Entry<*, *> -> true
@@ -111,12 +109,11 @@ class DefaultStringFormatterService : StringFormatterService(Int.MIN_VALUE) {
         if (data.isDataClass().isNotTrue()) {
             fail(data.nameOf())
         }
-
         return data.javaClass.declaredFields.map { it.name to data.javaClass }.mapTo()
     }
 
     @FrameworkDsl
-    private fun toFieldValue(data: Any, look:Field): Any? {
+    private fun toFieldValue(data: Any, look: Field): Any? {
         if (data.isDataClass().isNotTrue()) {
             fail(data.nameOf())
         }

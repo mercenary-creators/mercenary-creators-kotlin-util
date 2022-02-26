@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,10 +45,10 @@ interface MutableDoubleEndedQueue<E> : MutableSingleEndedQueue<E> {
     fun removeLastOccurrence(element: E): Boolean
 
     @FrameworkDsl
-    fun pollFirst(): E
+    fun pollFirst(): E?
 
     @FrameworkDsl
-    fun pollLast(): E
+    fun pollLast(): E?
 
     @FrameworkDsl
     @IgnoreForSerialize
@@ -59,10 +59,10 @@ interface MutableDoubleEndedQueue<E> : MutableSingleEndedQueue<E> {
     fun getLast(): E
 
     @FrameworkDsl
-    fun peekFirst(): E
+    fun peekFirst(): E?
 
     @FrameworkDsl
-    fun peekLast(): E
+    fun peekLast(): E?
 
     @FrameworkDsl
     fun push(element: E)

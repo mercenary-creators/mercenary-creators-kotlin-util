@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
+import jakarta.activation.MimetypesFileTypeMap
 import java.io.File
-import javax.activation.MimetypesFileTypeMap
 
 @IgnoreForSerialize
 class ContentFileTypeMap : HasMapNames {

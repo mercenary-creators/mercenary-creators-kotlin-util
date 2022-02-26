@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 @FrameworkDsl
 @IgnoreForSerialize
-object TimeDurationSerializer : StdSerializer<TimeDuration>(TimeDuration::class.java) {
-    override fun serialize(value: TimeDuration, generator: JsonGenerator, provider: SerializerProvider) = provider.defaultSerializeValue(value.toString(), generator)
+object TimeDurationSerializer : StdSerializer<CreatorsTimeDuration>(CreatorsTimeDuration::class.java) {
+    override fun serialize(value: CreatorsTimeDuration, generator: JsonGenerator, provider: SerializerProvider) = provider.defaultSerializeValue(value.toString(), generator)
 }

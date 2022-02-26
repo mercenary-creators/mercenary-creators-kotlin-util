@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.collection.StringSet
 
 @IgnoreForSerialize
 abstract class LoggingConfigService(protected val order: Int) : Comparable<LoggingConfigService> {
@@ -57,7 +56,7 @@ abstract class LoggingConfigService(protected val order: Int) : Comparable<Loggi
             if (args.isExhausted()) {
                 return toListOf()
             }
-            return StringSet(args.mapNotNull { toTrimOrNull(it) }).getList()
+            return args.mapNotNull { toTrimOrNull(it) }.unique()
         }
     }
 }

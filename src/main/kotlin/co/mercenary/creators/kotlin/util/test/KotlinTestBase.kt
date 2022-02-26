@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ open class KotlinTestBase @FrameworkDsl constructor(name: String?) : Logging(nam
 
     @FrameworkDsl
     @IgnoreForSerialize
-    override val loader = CONTENT_RESOURCE_LOADER
+    override val loader = DEFAULT_CONTENT_RESOURCE_LOADER
 
     @FrameworkDsl
     @IgnoreForSerialize
@@ -67,7 +67,7 @@ open class KotlinTestBase @FrameworkDsl constructor(name: String?) : Logging(nam
 
     @FrameworkDsl
     override fun getTempFileNamedPath(name: String, suff: String): String {
-        return getTempFileNamed(name, suff).path
+        return getTempFileNamed(name, suff).getPathName()
     }
 
     @FrameworkDsl
@@ -95,7 +95,7 @@ open class KotlinTestBase @FrameworkDsl constructor(name: String?) : Logging(nam
     }
 
     @FrameworkDsl
-    override fun setConfigProperties(args: Map<String, Any?>) {
+    override fun setConfigProperties(args: Map<String, Maybe>) {
         if (args.isNotExhausted()) {
             for ((k, v) in args) {
                 when (v == null) {
@@ -125,11 +125,11 @@ open class KotlinTestBase @FrameworkDsl constructor(name: String?) : Logging(nam
                 }
             }
         }
-        if (list.isExhausted()) {
+        if (list.isEmpty()) {
             return dictOf("func" to DUNNO_STRING, "type" to name, "file" to DUNNO_STRING, "line" to 0)
         }
-        val line = most.getValue()
-        val maps = list.head()
+        val line = most.intsOf()
+        val maps = list.headOf()
         if (line > maps["line"] as Int) {
             maps["line"] = line
         }

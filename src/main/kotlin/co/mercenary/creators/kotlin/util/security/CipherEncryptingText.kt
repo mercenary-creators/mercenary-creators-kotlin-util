@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,18 @@ import co.mercenary.creators.kotlin.util.*
 import javax.crypto.SecretKey
 
 @IgnoreForSerialize
-class CipherEncryptingText @JvmOverloads @CreatorsDsl constructor(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherEncrypting<String, String> {
+class CipherEncryptingText @JvmOverloads @FrameworkDsl constructor(secret: SecretKey, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : CipherEncrypting<String, String> {
 
-    @CreatorsDsl
+    @FrameworkDsl
     @JvmOverloads
     constructor(pass: CharSequence, salt: CharSequence, algorithm: CipherAlgorithm = CipherAlgorithm.CBC) : this(SecretKeys.getSecret(pass, salt, algorithm), algorithm)
 
-    @CreatorsDsl
+    @FrameworkDsl
     private val proxy = Ciphers.text(secret, algorithm)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun encrypt(data: String): String = proxy.encrypt(data)
 
-    @CreatorsDsl
+    @FrameworkDsl
     override fun decrypt(data: String): String = proxy.decrypt(data)
 }

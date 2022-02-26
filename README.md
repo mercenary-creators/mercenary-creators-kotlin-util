@@ -22,7 +22,7 @@ dependencies {
 
 License:
 
-Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
 
 Mercenary Creators Kotlin Util is released under version 2.0 of the Apache License.
 

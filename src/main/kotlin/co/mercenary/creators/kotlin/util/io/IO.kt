@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.collection.EmptyIterator
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.input.ReaderInputStream
 import org.apache.commons.io.output.WriterOutputStream
@@ -120,7 +121,7 @@ object IO : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
-    fun getPathNormalized(path: String?): String? {
+    fun getPathNormalized(path: CharSequence?): String? {
         val temp = toTrimOrNull(path)
         if (temp != null) {
             val norm = toTrimOrNull(FilenameUtils.normalizeNoEndSeparator(patch(temp), true))
@@ -167,6 +168,16 @@ object IO : HasMapNames {
     @FrameworkDsl
     fun toFileURL(path: String): URL {
         return PREFIX_FILES.plus(SINGLE_SLASH).plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).otherwise().removePrefix(SINGLE_SLASH).trim()).linkOf()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun toURI(path: CharSequence): URI {
+        try {
+            return URI(path.copyOf())
+        } catch (cause: Throwable) {
+            fatal(cause)
+        }
     }
 
     @JvmStatic
@@ -599,7 +610,7 @@ object IO : HasMapNames {
         if (value is EmptyInputStream && other is EmptyInputStream) {
             return true
         }
-        return compare(value.toBufferedInputStream(DEFAULT_BUFFER_SIZE), other.toBufferedInputStream(DEFAULT_BUFFER_SIZE))
+        return compare(value.toBufferedInputStream(DEFAULT_BUFFERED_DATA_SIZE), other.toBufferedInputStream(DEFAULT_BUFFERED_DATA_SIZE))
     }
 
     @JvmStatic
@@ -650,9 +661,37 @@ object IO : HasMapNames {
         }
     }
 
+    fun lines(args: Reader): Sequence<String> {
+        return args.buffered(DEFAULT_BUFFERED_DATA_SIZE).use { data ->
+            sequence {
+                try {
+                    data.readLine().let { line ->
+                        if (line == null) yieldAll(EmptyIterator) else yield(line)
+                    }
+                } catch (cause: Throwable) {
+                    yieldAll(EmptyIterator)
+                }
+            }
+        }
+    }
+
+    fun lines(args: BufferedReader): Sequence<String> {
+        return args.use { data ->
+            sequence {
+                try {
+                    data.readLine().let { line ->
+                        if (line == null) yieldAll(EmptyIterator) else yield(line)
+                    }
+                } catch (cause: Throwable) {
+                    yieldAll(EmptyIterator)
+                }
+            }
+        }
+    }
+
     @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()
 
     @FrameworkDsl
-    override fun toMapNames() = dictOfType<IO>()
+    override fun toMapNames() = dictOf("type" to nameOf())
 }

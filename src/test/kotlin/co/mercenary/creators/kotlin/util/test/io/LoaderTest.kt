@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,14 +35,11 @@ class LoaderTest : KotlinDataTest() {
         info { loader[path] }
         val temp = getTempFileNamedPath(uuid(), ".yaml")
         info { loader[temp] }
-        val look = object : ContentProtocolResolver {
-            @CreatorsDsl
-            override fun resolve(path: String, load: ContentResourceLoader): ContentResource? {
-                if (load.isContentCache()) {
-                    info { path }
-                }
-                return null
+        val look = ContentProtocolResolver { buff, load ->
+            if (load.isContentCache()) {
+                info { buff }
             }
+            null
         }
         info { look in cached }
         false shouldBe (look in cached)
@@ -52,7 +49,6 @@ class LoaderTest : KotlinDataTest() {
         val data = EmptyContentResource
         info { EmptyContentResource }
         info { data == EmptyContentResource }
-        //info { data isSameAs EmptyContentResource }
         data shouldBe EmptyContentResource
         info { loader["https://jsonplaceholder.typicode.com/posts"].toRelativePath("../todos") }
         info { loader["https://jsonplaceholder.typicode.com/todos"]["../posts"] }

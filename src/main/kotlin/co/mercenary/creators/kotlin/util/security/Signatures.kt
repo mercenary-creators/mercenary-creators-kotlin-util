@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,24 @@
 package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
-import java.security.*
+import java.security.Signature
 
+@FrameworkDsl
+@IgnoreForSerialize
 object Signatures {
 
     @JvmStatic
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
     fun getAlgorithms(): Algorithm = Algorithm.forName("Signature")
 
     @JvmStatic
+    @FrameworkDsl
     fun data(name: String, keys: SignerKeysFactory): Signer<ByteArray, ByteArray> = InternalSigner(name, keys)
 
     private class InternalSigner(private val name: String, private val keys: SignerKeysFactory) : Signer<ByteArray, ByteArray> {
 
+        @FrameworkDsl
         override fun signed(data: ByteArray): ByteArray {
             val signature = Signature.getInstance(name)
             signature.initSign(keys.getSignerKey())
@@ -38,6 +42,7 @@ object Signatures {
             return signature.sign()
         }
 
+        @FrameworkDsl
         override fun verify(data: ByteArray): Boolean {
             val signature = Signature.getInstance(name)
             signature.initVerify(keys.getVerifyKey())

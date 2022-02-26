@@ -1,7 +1,7 @@
 package co.mercenary.creators.kotlin.util.test.main
 
 import co.mercenary.creators.kotlin.util.*
-import co.mercenary.creators.kotlin.util.security.Encoder
+import co.mercenary.creators.kotlin.util.Encoder
 
 @FrameworkDsl
 object MainDean {

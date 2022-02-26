@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature.*
 import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
 import com.jayway.jsonpath.TypeRef
 import java.io.*
+import java.lang.reflect.Type
 import java.net.*
 import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
@@ -132,10 +133,25 @@ open class JSONMapper : ObjectMapper, StandardInterfaces<JSONMapper>, JSONVersio
     fun canSerializeClass(type: Class<*>?) = canSerialize(type)
 
     @FrameworkDsl
+    fun canSerializeClass(type: JavaType?) = if (null == type) false else canSerializeClass(type.rawClass)
+
+    @FrameworkDsl
     fun canSerializeClass(type: KClass<*>?) = if (null == type) false else canSerializeClass(type.java)
 
     @FrameworkDsl
     fun canSerializeValue(value: Any?) = if (null == value) false else canSerializeClass(value.javaClass)
+
+    @FrameworkDsl
+    fun canDeserializeValue(value: Any?) = when (value) {
+        null -> false
+        is JavaType -> canDeserialize(constructTypeOf(value))
+        is Class<*> -> canDeserialize(constructTypeOf(value))
+        is KClass<*> -> canDeserialize(constructTypeOf(value))
+        is TypeRef<*> -> canDeserialize(constructTypeOf(value))
+        is TypeReference<*> -> canDeserialize(constructTypeOf(value))
+        is ParameterizedTypeReference<*> -> canDeserialize(constructTypeOf(value))
+        else -> canDeserialize(constructTypeOf(value.javaClass))
+    }
 
     @FrameworkDsl
     fun toByteArray(data: Any): ByteArray = writeValueAsBytes(data)
@@ -144,13 +160,22 @@ open class JSONMapper : ObjectMapper, StandardInterfaces<JSONMapper>, JSONVersio
     fun toJSONString(data: Any): String = writeValueAsString(data)
 
     @FrameworkDsl
-    fun constructType(type: KClass<*>): JavaType = constructType(type.java)
+    fun constructTypeOf(type: Type): JavaType = constructType(type)
 
     @FrameworkDsl
-    fun constructType(type: TypeRef<*>): JavaType = constructType(type.type)
+    fun constructTypeOf(type: KClass<*>): JavaType = constructType(type.java)
 
     @FrameworkDsl
-    fun constructType(type: ParameterizedTypeReference<*>): JavaType = constructType(type.getType())
+    fun constructTypeOf(type: JavaType): JavaType = type
+
+    @FrameworkDsl
+    fun constructTypeOf(type: TypeRef<*>): JavaType = constructType(type.type)
+
+    @FrameworkDsl
+    fun constructTypeOf(type: TypeReference<*>): JavaType = constructType(type)
+
+    @FrameworkDsl
+    fun constructTypeOf(type: ParameterizedTypeReference<*>): JavaType = constructType(type.getType())
 
     @FrameworkDsl
     fun <T : Any> toDataType(value: Any, type: Class<T>): T = convertValue(value, type)
@@ -183,7 +208,8 @@ open class JSONMapper : ObjectMapper, StandardInterfaces<JSONMapper>, JSONVersio
     fun <T : Any> jsonRead(value: CharSequence, type: TypeReference<T>): T = readerFor(type).readValue(value.copyOf())
 
     @FrameworkDsl
-    fun <T : Any> jsonRead(value: ByteArray, type: TypeReference<T>): T = readerFor(type).readValue(value)
+    @JvmOverloads
+    fun <T : Any> jsonRead(value: ByteArray, type: TypeReference<T>, copy: Boolean = false): T = readerFor(type).readValue(value.toByteArray(copy))
 
     @FrameworkDsl
     fun <T : Any> jsonRead(value: File, type: TypeReference<T>): T = value.toInputStream().use { readerFor(type).readValue(it) }

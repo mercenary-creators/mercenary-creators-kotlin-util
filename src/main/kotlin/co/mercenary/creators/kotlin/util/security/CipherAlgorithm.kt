@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,15 @@ interface CipherAlgorithm : HasMapNames {
         }
 
         @IgnoreForSerialize
-        class CipherAlgorithmFactory @JvmOverloads @FrameworkDsl constructor(private val tran: String, private val type: String = "PBKDF2WithHmacSHA512", private val size: Int = 16, private val leng: Int = 256, private val iter: Int = 4096, private val algo: String = "AES", private val factory: Convert<ByteArray, AlgorithmParameterSpec>) : CipherAlgorithm {
+        class CipherAlgorithmFactory @JvmOverloads @FrameworkDsl constructor(
+            private val tran: String,
+            private val type: String = "PBKDF2WithHmacSHA512",
+            private val size: Int = 16,
+            private val leng: Int = 256,
+            private val iter: Int = 4096,
+            private val algo: String = "AES",
+            private val factory: Convert<ByteArray, AlgorithmParameterSpec>
+        ) : CipherAlgorithm {
 
             @FrameworkDsl
             @IgnoreForSerialize
@@ -110,7 +118,24 @@ interface CipherAlgorithm : HasMapNames {
             override fun hashCode() = idenOf()
 
             @FrameworkDsl
-            override fun toMapNames() = dictOfType<CipherAlgorithmFactory>("transform" to getCipherTransform())
+            override fun toMapNames() = dictOf("type" to nameOf(), "transform" to getCipherTransform())
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (javaClass != other?.javaClass) return false
+
+                other as CipherAlgorithmFactory
+
+                if (tran != other.tran) return false
+                if (type != other.type) return false
+                if (size != other.size) return false
+                if (leng != other.leng) return false
+                if (iter != other.iter) return false
+                if (algo != other.algo) return false
+                if (factory != other.factory) return false
+
+                return true
+            }
         }
     }
 }

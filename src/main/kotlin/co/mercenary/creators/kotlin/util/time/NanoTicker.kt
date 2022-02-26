@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,14 @@ import co.mercenary.creators.kotlin.util.*
 class NanoTicker @FrameworkDsl constructor() : AbstractTicker(TimeAndDate.nanosOf()) {
 
     @FrameworkDsl
-    override fun hashCode() = idenOf()
+    override fun hashCode() = super.hashCode()
 
     @FrameworkDsl
-    override fun toString() = toElapsedString()
+    override fun toString() = super.toString()
 
     @FrameworkDsl
     override fun equals(other: Any?) = when (other) {
-        is NanoTicker -> this === other
+        is NanoTicker -> this === other && super.equals(other)
         else -> false
     }
 }

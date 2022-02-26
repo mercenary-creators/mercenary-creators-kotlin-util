@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ class FileContentResource @JvmOverloads @FrameworkDsl constructor(private val da
 
     @FrameworkDsl
     @JvmOverloads
-    constructor(data: Path, type: String = DEFAULT_CONTENT_TYPE) : this(data.toFile(), type)
+    constructor(data: Path, type: String = DEFAULT_CONTENT_TYPE) : this(data.fileOf(), type)
 
     private val type = resolved()
 
@@ -41,11 +41,11 @@ class FileContentResource @JvmOverloads @FrameworkDsl constructor(private val da
 
     @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentSize() = data.length()
+    override fun getContentSize() = data.getContentSize()
 
     @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentTime() = data.lastModified()
+    override fun getContentTime() = data.getContentTime()
 
     @FrameworkDsl
     @IgnoreForSerialize

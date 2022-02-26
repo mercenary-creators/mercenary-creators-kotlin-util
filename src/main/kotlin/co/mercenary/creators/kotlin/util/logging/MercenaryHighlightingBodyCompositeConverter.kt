@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,25 +20,27 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import co.mercenary.creators.kotlin.util.*
 
 open class MercenaryHighlightingBodyCompositeConverter : MercenaryHighlightingCompositeConverter() {
+
     @CreatorsDsl
     override fun transform(event: ILoggingEvent, data: String?): String {
-        val color = getForegroundColorCode(event)
-        return stringOf {
-            when {
-                data == null -> {
-                    add(START, color, CLOSE, NULLS_STRING, RESET)
-                }
-                data.contains(BREAK_STRING) -> {
-                    val list = data.split(BREAK_STRING)
-                    val last = list.size.minus(1)
-                    list.forEachIndexed { line, text ->
-                        add(START, color, CLOSE, text, if (line < last) BREAK_STRING else EMPTY_STRING, RESET)
-                    }
-                }
-                else -> {
-                    add(START, color, CLOSE, data, RESET)
-                }
-            }
+         getForegroundColorCode(event).also { color ->
+             return stringOf {
+                 when {
+                     data == null -> {
+                         add(START, color, CLOSE, NULLS_STRING, RESET)
+                     }
+                     data.contains(BREAK_STRING) -> {
+                         val list = data.split(BREAK_STRING)
+                         list.forEachIndexed { line, text ->
+                             add(START, color, CLOSE, text, if (line < list.lastIndex) BREAK_STRING else EMPTY_STRING, RESET)
+                         }
+                     }
+                     else -> {
+                         add(START, color, CLOSE, data, RESET)
+                     }
+                 }
+             }
         }
+
     }
 }

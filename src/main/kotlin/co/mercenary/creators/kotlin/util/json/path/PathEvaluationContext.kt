@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import co.mercenary.creators.kotlin.util.*
 import com.jayway.jsonpath.TypeRef
 import kotlin.reflect.KClass
 
-interface PathEvaluationContext : Copyable<PathEvaluationContext>, Cloneable {
+sealed interface PathEvaluationContext : Copyable<PathEvaluationContext>, Cloneable {
 
     @FrameworkDsl
     fun <T : Any> root(): T
@@ -93,8 +93,8 @@ interface PathEvaluationContext : Copyable<PathEvaluationContext>, Cloneable {
     fun put(path: CompiledPath, name: String, data: Maybe): PathEvaluationContext
 
     @FrameworkDsl
-    fun map(path: String, func: (Any, PathEvaluationContext) -> Any): PathEvaluationContext
+    fun map(path: String, func: (Maybe, PathEvaluationContext) -> Maybe): PathEvaluationContext
 
     @FrameworkDsl
-    fun map(path: CompiledPath, func: (Any, PathEvaluationContext) -> Any): PathEvaluationContext
+    fun map(path: CompiledPath, func: (Maybe, PathEvaluationContext) -> Maybe): PathEvaluationContext
 }

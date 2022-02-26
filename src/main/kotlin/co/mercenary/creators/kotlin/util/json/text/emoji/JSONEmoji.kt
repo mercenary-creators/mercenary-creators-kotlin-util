@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,19 @@ class JSONEmoji @FrameworkDsl constructor(private val unicode: String, private v
 
     @FrameworkDsl
     private val nick = aliases.unique().toSorted()
+
+    @FrameworkDsl
+    private val next = next().copyOf()
+
+    @FrameworkDsl
+    override fun compareTo(other: Emoji): Int {
+        return id().compareTo(other.id())
+    }
+
+    @FrameworkDsl
+    override fun id(): Long {
+        return next
+    }
 
     @FrameworkDsl
     override fun getTags(): List<String> {
@@ -84,5 +97,15 @@ class JSONEmoji @FrameworkDsl constructor(private val unicode: String, private v
     override fun equals(other: Any?) = when (other) {
         is JSONEmoji -> this === other || getUnicode() == other.getUnicode() && getDescription() == other.getDescription() && isFitzpatrick() == other.isFitzpatrick() && getTags() isSameAs other.getTags() && getAliases() isSameAs other.getAliases()
         else -> false
+    }
+
+    companion object {
+
+        @FrameworkDsl
+        private val data = 1L.toAtomic()
+
+        @JvmStatic
+        @FrameworkDsl
+        internal fun next(): Long = data.increment().getValue()
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("SameKt")
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
+@file:JvmName("SameKt")
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util
+
+import kotlin.contracts.contract
 
 @FrameworkDsl
 const val SHOULD_BE_SAME_ARRAY_FAILED = "shouldBeSameArray failed"
@@ -26,41 +28,63 @@ const val SHOULD_BE_SAME_ARRAY_FAILED = "shouldBeSameArray failed"
 const val SHOULD_NOT_BE_SAME_ARRAY_FAILED = "shouldNotBeSameArray failed"
 
 @FrameworkDsl
-fun LazyMessage.toSafeString(): String = Formatters.toSafeString { this }
+inline fun LazyMessage.toSafeString(): String = Formatters.toSafeString { this }
 
 @FrameworkDsl
-fun fail(text: String): Nothing {
-    throw MercenaryAssertionExceptiion(text)
+inline fun fatal(text: String): Nothing {
+    MercenaryFatalExceptiion(text).failed()
 }
 
 @FrameworkDsl
-fun fail(func: LazyMessage): Nothing {
+inline fun fatal(cause: Throwable): Nothing {
+    MercenaryFatalExceptiion(Throwables.check(cause)).failed()
+}
+
+@FrameworkDsl
+inline fun fail(text: String): Nothing {
+    MercenaryAssertionExceptiion(text).failed()
+}
+
+@FrameworkDsl
+inline fun fail(func: LazyMessage): Nothing {
     fail(func.toSafeString())
 }
 
 @FrameworkDsl
-fun shouldBeTrue(value: Boolean, text: String) {
+inline fun shouldBeTrue(value: Boolean, text: String) {
+    contract {
+        returns() implies value
+    }
     if (value.isNotTrue()) {
         fail(text)
     }
 }
 
 @FrameworkDsl
-fun shouldBeTrue(value: Boolean, func: LazyMessage) {
+inline fun shouldBeTrue(value: Boolean, func: LazyMessage) {
+    contract {
+        returns() implies value
+    }
     if (value.isNotTrue()) {
         fail(func)
     }
 }
 
 @FrameworkDsl
-fun shouldNotBeTrue(value: Boolean, text: String) {
+inline fun shouldNotBeTrue(value: Boolean, text: String) {
+    contract {
+        returns() implies !value
+    }
     if (value.isTrue()) {
         fail(text)
     }
 }
 
 @FrameworkDsl
-fun shouldNotBeTrue(value: Boolean, func: LazyMessage) {
+inline fun shouldNotBeTrue(value: Boolean, func: LazyMessage) {
+    contract {
+        returns() implies !value
+    }
     if (value.isTrue()) {
         fail(func)
     }
@@ -99,10 +123,10 @@ inline fun <reified T : Throwable> assumeThrows(crossinline block: () -> Unit) {
     try {
         block.invoke()
     } catch (cause: Throwable) {
-        shouldBeTrue(cause is T) {
-            "assumeThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
+        when (cause is T) {
+            true -> return
+            else -> fail("assumeThrows failed ${cause.javaClass.name} not ${T::class.java.name}")
         }
-        return
     }
     fail("assumeThrows failed for ${T::class.java.name}")
 }
@@ -112,8 +136,9 @@ inline fun <reified T : Throwable> assumeNotThrows(crossinline block: () -> Unit
     try {
         block.invoke()
     } catch (cause: Throwable) {
-        shouldNotBeTrue(cause is T) {
-            "assumeNotThrows failed ${cause.javaClass.name} not ${T::class.java.name}"
+        when (cause !is T) {
+            true -> return
+            else -> fail("assumeNotThrows failed ${cause.javaClass.name} not ${T::class.java.name}")
         }
     }
 }
@@ -261,7 +286,7 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @FrameworkDsl construct
     fun append(cause: Throwable, vararg args: Throwable): MercenaryMultipleAssertionExceptiion {
         list.append(cause)
         if (args.isNotExhausted()) {
-            list.append(args.toCollection())
+            list.append(*args)
         }
         return this
     }
@@ -269,7 +294,7 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @FrameworkDsl construct
     @FrameworkDsl
     fun append(args: Iterator<Throwable>): MercenaryMultipleAssertionExceptiion {
         if (args.isNotExhausted()) {
-            list.append(args.toCollection())
+            list.append(args)
         }
         return this
     }
@@ -277,7 +302,7 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @FrameworkDsl construct
     @FrameworkDsl
     fun append(args: Iterable<Throwable>): MercenaryMultipleAssertionExceptiion {
         if (args.isNotExhausted()) {
-            list.append(args.toCollection())
+            list.append(args)
         }
         return this
     }
@@ -285,7 +310,7 @@ class MercenaryMultipleAssertionExceptiion @JvmOverloads @FrameworkDsl construct
     @FrameworkDsl
     fun append(args: Sequence<Throwable>): MercenaryMultipleAssertionExceptiion {
         if (args.isNotExhausted()) {
-            list.append(args.toCollection())
+            list.append(args)
         }
         return this
     }

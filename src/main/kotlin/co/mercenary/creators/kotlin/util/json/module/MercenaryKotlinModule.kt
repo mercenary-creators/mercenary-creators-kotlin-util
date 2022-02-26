@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,21 @@ import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
 
 @IgnoreForSerialize
-class MercenaryKotlinModule : SimpleModule("MercenaryKotlinModule", MercenaryPackageVersion.version()) {
+class MercenaryKotlinModule : SimpleModule(MODULE_NAME, MercenaryPackageVersion.version()) {
+
     override fun setupModule(context: SetupContext) {
         super.setupModule(context)
         if (context.isEnabled(MapperFeature.USE_ANNOTATIONS).isNotTrue()) {
-            throw IllegalStateException("$moduleName requires USE_ANNOTATIONS to be true or it cannot function")
+            fail("$MODULE_NAME requires USE_ANNOTATIONS to be true or it cannot function")
         }
         context.addSerializers(MercenaryKotlinSerializers)
         context.addDeserializers(MercenaryKotlinDeserializers)
         context.appendAnnotationIntrospector(MercenaryKotlinAnnotationIntrospector)
+    }
+
+    companion object {
+
+        @FrameworkDsl
+        const val MODULE_NAME = "MercenaryKotlinModule"
     }
 }

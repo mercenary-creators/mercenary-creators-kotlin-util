@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,10 @@ class ClassPathContentResource @JvmOverloads @FrameworkDsl constructor(path: Str
     @JvmOverloads
     constructor(path: String, claz: kotlin.reflect.KClass<*>, type: String = DEFAULT_CONTENT_TYPE) : this(path, claz.java, type)
 
+    @FrameworkDsl
     private val resolved = resolved()
 
+    @FrameworkDsl
     private val resource = IO.getResouce(getContentPath(), claz, load)
 
     @FrameworkDsl
@@ -76,7 +78,7 @@ class ClassPathContentResource @JvmOverloads @FrameworkDsl constructor(path: Str
 
     @FrameworkDsl
     @IgnoreForSerialize
-    override fun getContentType() = resolved
+    override fun getContentType() = resolved.copyOf()
 
     @FrameworkDsl
     @IgnoreForSerialize

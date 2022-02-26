@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import co.mercenary.creators.kotlin.util.*
 open class BasicLinkedSet<T> @FrameworkDsl @JvmOverloads constructor(capacity: Int = DEFAULT_SET_CAPACITY) : LinkedHashSet<T>(capacity.toSetCapacity()), MutableSetBase<T, BasicLinkedSet<T>> {
 
     @FrameworkDsl
-    constructor(args: T) : this() {
+    constructor(args: T) : this(DEFAULT_SET_CAPACITY) {
         append(args)
     }
 
@@ -46,7 +46,7 @@ open class BasicLinkedSet<T> @FrameworkDsl @JvmOverloads constructor(capacity: I
 
     @FrameworkDsl
     constructor(args: BasicLinkedSet<T>) : this(args.sizeOf()) {
-        if (args.isNotExhausted()) {
+        if (args.isNotEmpty()) {
             append(args)
         }
     }
@@ -78,7 +78,7 @@ open class BasicLinkedSet<T> @FrameworkDsl @JvmOverloads constructor(capacity: I
 
     @FrameworkDsl
     override operator fun contains(element: @UnsafeVariance T): Boolean {
-        return if (isExhausted()) false else super.contains(element)
+        return if (isNotEmpty()) false else super.contains(element)
     }
 
     @FrameworkDsl
@@ -96,10 +96,10 @@ open class BasicLinkedSet<T> @FrameworkDsl @JvmOverloads constructor(capacity: I
 
     @FrameworkDsl
     override fun removeAll(elements: Collection<@UnsafeVariance T>): Boolean {
-        if (isExhausted() || elements.isExhausted()) {
+        if (isEmpty() || elements.isExhausted()) {
             return false
         }
-        return super.removeAll(elements)
+        return super.removeAll(elements.toSet())
     }
 
     @FrameworkDsl
@@ -107,12 +107,12 @@ open class BasicLinkedSet<T> @FrameworkDsl @JvmOverloads constructor(capacity: I
         if (elements.isExhausted()) {
             return false
         }
-        return super.retainAll(elements)
+        return super.retainAll(elements.toSet())
     }
 
     @FrameworkDsl
     override fun containsAll(elements: Collection<@UnsafeVariance T>): Boolean {
-        if (isExhausted() || elements.isExhausted()) {
+        if (isEmpty() || elements.isExhausted()) {
             return false
         }
         return super.containsAll(elements)
@@ -120,7 +120,7 @@ open class BasicLinkedSet<T> @FrameworkDsl @JvmOverloads constructor(capacity: I
 
     @FrameworkDsl
     override fun remove(element: T): Boolean {
-        return isNotExhausted() && super.remove(element)
+        return isNotEmpty() && super.remove(element)
     }
 
     @FrameworkDsl

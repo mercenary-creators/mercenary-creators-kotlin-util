@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,13 @@ package co.mercenary.creators.kotlin.util.type
 import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.io.*
 import co.mercenary.creators.kotlin.util.io.BytesOutputStream
-import com.fasterxml.jackson.core.type.TypeReference
-import com.jayway.jsonpath.TypeRef
 import java.io.*
-import java.lang.reflect.*
 import java.math.*
 import java.net.*
 import java.nio.ByteBuffer
 import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 import java.util.concurrent.atomic.*
-import kotlin.reflect.*
-import kotlin.reflect.jvm.*
 
 @FrameworkDsl
 @IgnoreForSerialize
@@ -56,7 +51,7 @@ object SameAndHashCode {
             if (v === o) {
                 continue
             }
-            if ((v == null) && (o != null)) {
+            if (v == null) {
                 return false
             }
             if (isSameAs(v, o)) {
@@ -84,7 +79,7 @@ object SameAndHashCode {
             if (v === o) {
                 continue
             }
-            if ((v == null) && (o != null)) {
+            if (v == null) {
                 return false
             }
             if (isSameAs(v, o)) {
@@ -161,7 +156,7 @@ object SameAndHashCode {
                 if (o === v) {
                     continue
                 }
-                if (v == null && o != null) {
+                if (v == null) {
                     return false
                 }
                 if (isSameAs(v, o)) {
@@ -190,7 +185,6 @@ object SameAndHashCode {
             return true
         }
         return when (value) {
-            null -> other == null
             is String -> if (other is String) value == other else false
             is List<*> -> if (other is List<*>) isSameAs(value, other) else false
             is Array<*> -> if (other is Array<*>) isSameAs(value, other) else false
@@ -207,22 +201,22 @@ object SameAndHashCode {
             is FloatArray -> if (other is FloatArray) value isSameArrayAs other else false
             is DoubleArray -> if (other is DoubleArray) value isSameArrayAs other else false
             is BooleanArray -> if (other is BooleanArray) value isSameArrayAs other else false
-            is AtomicBoolean -> if (other is Boolean) value.toBoolean() == other else if (other is AtomicBoolean) value.toBoolean() == other.toBoolean() else false.toBoolean()
-            is Boolean -> if (other is Boolean) value == other else if (other is AtomicBoolean) value == other.toBoolean() else false.toBoolean()
+            is AtomicBoolean -> if (other is Boolean) value.toBoolean() == other else if (other is AtomicBoolean) value.toBoolean() == other.toBoolean() else false
+            is Boolean -> if (other is Boolean) value == other else if (other is AtomicBoolean) value == other.toBoolean() else false
+            is Int -> if (other is Int) value == other else if (other is AtomicInteger) value == other.intsOf() else if (other is BigInteger) value.bigsOf() == other else false
+            is Byte -> if (other is Byte) value == other else false
+            is Char -> if (other is Char) value == other else false
+            is Short -> if (other is Short) value == other else false
+            is Float -> if (other is Float) value == other else if (other is BigDecimal) value.toBigDecimal() == other else false
+            is Double -> if (other is Double) value == other else false
             is Number -> when (other) {
                 is Number -> when (value) {
-                    is Int -> if (other is Int) value == other else if (other is AtomicInteger) value == other.toInt() else if (other is BigInteger) value.toBigInteger() == other else false.toBoolean()
-                    is Byte -> if (other is Byte) value == other else false.toBoolean()
-                    is Char -> if (other is Char) value == other else false.toBoolean()
-                    is Short -> if (other is Short) value == other else false.toBoolean()
-                    is Float -> if (other is Float) value.toBits() == other.toBits() else if (other is BigDecimal) value.toBigDecimal() == other else false.toBoolean()
-                    is Double -> if (other is Double) value.toBits() == other.toBits() else if (other is BigDecimal) value.toBigDecimal() == other else false.toBoolean()
-                    is Long -> if (other is Long) value == other else if (other is AtomicLong) value == other.toLong() else if (other is BigInteger) value.toBigInteger() == other else false.toBoolean()
+                    is Long -> if (other is Long) value == other else if (other is AtomicLong) value == other.longOf() else if (other is BigInteger) value.toBigInteger() == other else false
                     is BigDecimal -> when (other) {
                         is Float -> other.toBigDecimal() == value
                         is Double -> other.toBigDecimal() == value
                         is BigDecimal -> value == other
-                        else -> false.toBoolean()
+                        else -> false
                     }
                     is BigInteger -> when (other) {
                         is Int -> other.toBigInteger() == value
@@ -230,13 +224,13 @@ object SameAndHashCode {
                         is AtomicLong -> other.toBigInteger() == value
                         is AtomicInteger -> other.toBigInteger() == value
                         is BigInteger -> value == other
-                        else -> false.toBoolean()
+                        else -> false
                     }
-                    is AtomicLong -> if (other is Long) value.toLong() == other else if (other is AtomicLong) value == other else if (other is BigInteger) value.toBigInteger() == other else false.toBoolean()
-                    is AtomicInteger -> if (other is Int) value.toInt() == other else if (other is AtomicInteger) value.toInt() == other.toInt() else if (other is BigInteger) value.toBigInteger() == other else false.toBoolean()
-                    else -> false.toBoolean()
+                    is AtomicLong -> if (other is Long) value.longOf() == other else if (other is AtomicLong) value == other else if (other is BigInteger) value.toBigInteger() == other else false
+                    is AtomicInteger -> if (other is Int) value.intsOf() == other else if (other is AtomicInteger) value.intsOf() == other.intsOf() else if (other is BigInteger) value.toBigInteger() == other else false
+                    else -> false
                 }
-                else -> false.toBoolean()
+                else -> false
             }
             else -> value == other
         }
@@ -273,9 +267,10 @@ object SameAndHashCode {
     fun isContentSameAs(value: Any?, other: Any?): Boolean {
         if (value != null && other != null) {
             if (isContentCapable(value) && isContentCapable(other)) {
-                try {
-                    return contentOf(value) isSameArrayAs contentOf(other)
+                return try {
+                    contentOf(value) isSameArrayAs contentOf(other)
                 } catch (cause: Throwable) {
+                    Throwables.fatal(cause, false)
                 }
             }
         }
@@ -341,150 +336,5 @@ object SameAndHashCode {
             null -> HASH_NULL_VALUE
             else -> System.identityHashCode(value)
         }
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun clazOf(value: Any): Class<*> {
-        return when (value) {
-            is Class<*> -> value
-            is KClass<*> -> value.java
-            is Type -> getErasedType(value)
-            is TypeRef<*> -> clazOf(value.type)
-            is TypeReference<*> -> clazOf(value.type)
-            is ParameterizedTypeReference<*> -> clazOf(value.getType())
-            else -> value.javaClass
-        }
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun nameOf(value: Any): String {
-        return when (value) {
-            is Class<*> -> {
-                if (value.isKotlinClass()) {
-                    value.kotlin.qualifiedName.otherwise("...")
-                }
-                else {
-                    value.name
-                }
-            }
-            is KClass<*> -> nameOf(value.java)
-            is Type -> value.typeName
-            is TypeRef<*> -> nameOf(value.type)
-            is TypeReference<*> -> nameOf(value.type)
-            is ParameterizedTypeReference<*> -> nameOf(value.getType())
-            else -> nameOf(value.javaClass)
-        }
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun simpleNameOf(value: Any): String {
-        return when (value) {
-            is Class<*> -> if (value.isKotlinClass()) "kotlin." + value.simpleName else value.simpleName
-            is KClass<*> -> simpleNameOf(value.java)
-            else -> simpleNameOf(value.javaClass)
-        }
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun isAssignable(base: Any, from: Any): Boolean {
-        return when (base) {
-            is Class<*> -> {
-                when (from) {
-                    is Class<*> -> isAssignableClass(base, from)
-                    is KClass<*> -> isAssignableClass(base, from.java)
-                    else -> isAssignableClass(base, from.javaClass)
-                }
-            }
-            is KClass<*> -> {
-                when (from) {
-                    is Class<*> -> isAssignableClass(base.java, from)
-                    is KClass<*> -> isAssignableClass(base.java, from.java)
-                    else -> isAssignableClass(base.java, from.javaClass)
-                }
-            }
-            else -> isAssignableClass(base.javaClass, from.javaClass)
-        }
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun isAssignableClass(base: Class<*>, from: Class<*>): Boolean {
-        return base.isAssignableFrom(from)
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun getParameterizedType(kind: Class<*>): Type {
-        return getParameterizedType(kind.genericSuperclass)
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun getParameterizedType(kind: Type): Type {
-        return when (kind) {
-            is Class<*> -> fail(kind.nameOf())
-            else -> (kind as ParameterizedType).actualTypeArguments[0]
-        }
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun getParameterizedTypes(kind: Class<*>): List<Type> {
-        return getParameterizedTypes(kind.genericSuperclass)
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun getParameterizedTypes(kind: Type): List<Type> {
-        return when (kind) {
-            is Class<*> -> toListOf()
-            else -> (kind as ParameterizedType).actualTypeArguments.toList()
-        }
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun getErasedType(kind: Type): Class<*> {
-        return when (kind) {
-            is Class<*> -> kind
-            is ParameterizedType -> getErasedType(kind.rawType)
-            is WildcardType -> getErasedType(kind.upperBounds[0])
-            is GenericArrayType -> getArrayType(getErasedType(kind.genericComponentType))
-            else -> Unit::class.java
-        }
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun getErasedType(kind: KType): Class<*> {
-        return kind.jvmErasure.java
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    private fun getArrayType(kind: Class<*>): Class<*> {
-        return newArray(kind, 0).javaClass
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun <T : Any> getArrayOfNull(kind: KClass<T>, size: Int): Array<T?> {
-        return getArrayOfNull(kind.java, size)
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun <T : Any> getArrayOfNull(kind: Class<T>, size: Int): Array<T?> {
-        return newArray(kind, size) as Array<T?>
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    private fun newArray(kind: Class<*>, size: Int): Any {
-        return java.lang.reflect.Array.newInstance(kind, size.maxOf(0))
     }
 }

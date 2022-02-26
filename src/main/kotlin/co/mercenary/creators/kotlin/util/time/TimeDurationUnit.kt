@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,32 +17,34 @@
 package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
+import java.time.Duration
+import java.time.temporal.ChronoUnit
 
-enum class TimeDurationUnit {
-
-    @FrameworkDsl
-    YEARS,
-
-    @FrameworkDsl
-    WEEKS,
+enum class TimeDurationUnit(private val system: ChronoUnit) {
 
     @FrameworkDsl
-    DAYS,
+    YEARS(ChronoUnit.YEARS),
 
     @FrameworkDsl
-    HOURS,
+    WEEKS(ChronoUnit.WEEKS),
 
     @FrameworkDsl
-    MINUTES,
+    DAYS(ChronoUnit.DAYS),
 
     @FrameworkDsl
-    SECONDS,
+    HOURS(ChronoUnit.HOURS),
 
     @FrameworkDsl
-    MILLISECONDS,
+    MINUTES(ChronoUnit.MINUTES),
 
     @FrameworkDsl
-    NANOSECONDS;
+    SECONDS(ChronoUnit.SECONDS),
+
+    @FrameworkDsl
+    MILLISECONDS(ChronoUnit.MILLIS),
+
+    @FrameworkDsl
+    NANOSECONDS(ChronoUnit.NANOS);
 
     @FrameworkDsl
     private val lows = name.toLowerCaseEnglish()
@@ -61,6 +63,12 @@ enum class TimeDurationUnit {
         DAYS -> HOURS
         else -> null
     }
+
+    @FrameworkDsl
+    fun toSystemTimeUnit(): ChronoUnit = system
+
+    @FrameworkDsl
+    fun toSystemDuration(): Duration = system.duration
 
     @FrameworkDsl
     @JvmOverloads

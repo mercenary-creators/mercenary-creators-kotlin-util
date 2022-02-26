@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ open class BasicLinkedMap<K, V> @JvmOverloads @FrameworkDsl constructor(capacity
 
     @FrameworkDsl
     constructor(args: BasicLinkedMap<K, V>) : this(order = args.isOrdered(), capped = args.isSizeCapped()) {
-        if (args.isNotExhausted()) {
+        if (args.isNotEmpty()) {
             append(args)
         }
     }
@@ -114,12 +114,12 @@ open class BasicLinkedMap<K, V> @JvmOverloads @FrameworkDsl constructor(capacity
 
     @FrameworkDsl
     override fun containsKey(key: K): Boolean {
-        return isNotExhausted() && super.containsKey(key)
+        return isNotEmpty() && super.containsKey(key)
     }
 
     @FrameworkDsl
     override fun containsValue(value: V): Boolean {
-        return isNotExhausted() && super.containsValue(value)
+        return isNotEmpty() && super.containsValue(value)
     }
 
     @FrameworkDsl

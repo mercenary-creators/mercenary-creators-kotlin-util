@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ object Digests : HasMapNames {
         override fun toString() = toMapNames().toSafeString()
 
         @FrameworkDsl
-        override fun hashCode() = toMapNames().hashOf()
+        override fun hashCode() = idenOf()
 
         @FrameworkDsl
         override fun equals(other: Any?) = when (other) {
@@ -66,7 +66,7 @@ object Digests : HasMapNames {
         }
 
         @FrameworkDsl
-        override fun toMapNames() = dictOf("type" to nameOf(), "algorithm" to algorithm, "provider" to dictOf("name" to provider.name, "version" to provider.version))
+        override fun toMapNames() = dictOf("type" to nameOf(), "algorithm" to algorithm, "provider" to dictOf("name" to provider.name, "version" to provider.versionStr))
 
         @FrameworkDsl
         @JvmOverloads

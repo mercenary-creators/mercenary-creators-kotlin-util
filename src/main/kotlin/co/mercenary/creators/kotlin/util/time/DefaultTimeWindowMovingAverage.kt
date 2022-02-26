@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,14 @@
 
 package co.mercenary.creators.kotlin.util.time
 
-import java.util.concurrent.TimeUnit
+import co.mercenary.creators.kotlin.util.*
 
-open class DefaultTimeWindowMovingAverage @JvmOverloads constructor(time: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) : AbstractTimeWindowMovingAverage(time, TimeUnit.MILLISECONDS, unit)
+@IgnoreForSerialize
+open class DefaultTimeWindowMovingAverage @JvmOverloads @FrameworkDsl constructor(time: Long, unit: SystemTimeUnit = SYSTEM_TIME_UNIT_MILLISECONDS) : AbstractTimeWindowMovingAverage(time, unit) {
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    override fun getWaitTimeUnit(): SystemTimeUnit {
+        return SYSTEM_TIME_UNIT_MILLISECONDS
+    }
+}

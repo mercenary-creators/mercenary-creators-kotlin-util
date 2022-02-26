@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,11 +38,11 @@ object Manager : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
-    fun uptime(): TimeDuration {
+    fun uptime(): CreatorsTimeDuration {
         return try {
-            ManagementFactory.getRuntimeMXBean().uptime.milliseconds
+            ManagementFactory.getRuntimeMXBean().uptime.Milliseconds
         } catch (cause: Throwable) {
-            0L.milliseconds
+            0L.Milliseconds
         }
     }
 

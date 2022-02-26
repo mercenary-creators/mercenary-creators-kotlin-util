@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
+
 package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
 import java.security.SecureRandom
 import java.util.*
+import java.util.random.*
 import kotlin.random.*
+
 
 @IgnoreForSerialize
 object Randoms {
@@ -74,22 +78,23 @@ object Randoms {
     }
 
     @FrameworkDsl
+    private inline fun secure() = RANDOM
+
+    @FrameworkDsl
     private val STRONG: SecureRandom by lazy {
         getStrongInstance()
     }
 
     @FrameworkDsl
+    private inline fun strong() = STRONG
+
+    @FrameworkDsl
     private val KOTLIN: kotlin.random.Random by lazy {
-        RANDOM.asKotlinRandom()
+        secure().asKotlinRandom()
     }
 
     @FrameworkDsl
-    private val random: SecureRandom
-        get() = RANDOM
-
-    @FrameworkDsl
-    private val kotlin: kotlin.random.Random
-        get() = KOTLIN
+    private inline fun kotlin() = KOTLIN
 
     @JvmStatic
     @FrameworkDsl
@@ -110,40 +115,60 @@ object Randoms {
 
     @JvmStatic
     @FrameworkDsl
+    @JvmOverloads
+    fun randomGenerator(name: CharSequence, best: Boolean = true): RandomGenerator {
+        return try {
+            RandomGenerator.of(name.copyOf().toTrimOr { if (best.isTrue()) "SecureRandom" else "Random" })
+        } catch (cause: Throwable) {
+            return randomGenerator(best)
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    fun randomGenerator(best: Boolean): RandomGenerator {
+        return when (best.isNotTrue()) {
+            true -> RandomGeneratorFactory.getDefault().create()
+            else -> RandomGeneratorFactory.all().toList().also { it.sortWith(Comparator.comparingInt(RandomGeneratorFactory<RandomGenerator>::stateBits).reversed()) }.firstOrNull().otherwise { RandomGeneratorFactory.of("SecureRandom") }.create()
+        }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
     fun randomOf(seed: Long) = randomOf().seedToLong(seed)
 
     @JvmStatic
     @FrameworkDsl
     @IgnoreForSerialize
-    fun getInteger() = random.nextInt()
+    fun getInteger() = secure().nextInt()
 
     @JvmStatic
     @FrameworkDsl
-    fun getInteger(bound: Int) = random.nextInt(bound)
-
-    @JvmStatic
-    @FrameworkDsl
-    @IgnoreForSerialize
-    fun getDouble() = random.nextDouble()
+    fun getInteger(bound: Int) = secure().nextInt(bound)
 
     @JvmStatic
     @FrameworkDsl
     @IgnoreForSerialize
-    fun getBoolean() = random.nextBoolean()
+    fun getDouble() = secure().nextDouble()
 
     @JvmStatic
     @FrameworkDsl
     @IgnoreForSerialize
-    fun getLongValue() = random.nextLong()
+    fun getBoolean() = secure().nextBoolean()
 
     @JvmStatic
     @FrameworkDsl
-    fun getByteArray(sized: Int) = getByteArray(sized.toByteArray(), false)
+    @IgnoreForSerialize
+    fun getLongValue() = secure().nextLong()
+
+    @JvmStatic
+    @FrameworkDsl
+    fun getByteArray(sized: Int) = getByteArray(secure(), sized.maxOf(0))
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun getByteArray(bytes: ByteArray, copy: Boolean = false) = getByteArray(random, bytes, copy)
+    fun getByteArray(bytes: ByteArray, copy: Boolean = false) = kotlin().nextBytes(bytes).toByteArray(copy)
 
     @JvmStatic
     @FrameworkDsl
@@ -156,11 +181,11 @@ object Randoms {
 
     @JvmStatic
     @FrameworkDsl
-    fun getInteger(range: IntRange) = kotlin.nextInt(range)
+    fun getInteger(range: IntRange) = kotlin().nextInt(range)
 
     @JvmStatic
     @FrameworkDsl
-    fun getInteger(lower: Int, upper: Int) = kotlin.nextInt(lower, upper)
+    fun getInteger(lower: Int, upper: Int) = kotlin().nextInt(lower, upper)
 
     @JvmStatic
     @FrameworkDsl
@@ -168,15 +193,15 @@ object Randoms {
 
     @JvmStatic
     @FrameworkDsl
-    fun getLongValue(bound: Long) = kotlin.nextLong(bound)
+    fun getLongValue(bound: Long) = kotlin().nextLong(bound)
 
     @JvmStatic
     @FrameworkDsl
-    fun getLongValue(range: IntRange) = getLongValue(range.first, range.last)
+    fun getLongValue(range: IntRange) = getLongValue(range.longOf())
 
     @JvmStatic
     @FrameworkDsl
-    fun getLongValue(range: LongRange) = kotlin.nextLong(range)
+    fun getLongValue(range: LongRange) = kotlin().nextLong(range)
 
     @JvmStatic
     @FrameworkDsl
@@ -184,15 +209,20 @@ object Randoms {
 
     @JvmStatic
     @FrameworkDsl
-    fun getLongValue(lower: Long, upper: Long) = kotlin.nextLong(lower, upper)
+    fun getLongValue(lower: Long, upper: Long) = kotlin().nextLong(lower, upper)
 
     @JvmStatic
     @FrameworkDsl
-    fun getDouble(bound: Double) = kotlin.nextDouble(bound)
+    fun getDouble(bound: Double) = kotlin().nextDouble(bound)
 
     @JvmStatic
     @FrameworkDsl
-    fun getDouble(lower: Double, upper: Double) = kotlin.nextDouble(lower, upper)
+    fun getDouble(lower: Double, upper: Double) = kotlin().nextDouble(lower, upper)
+
+    @JvmStatic
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun getFloat() = kotlin().nextFloat()
 
     @JvmStatic
     @FrameworkDsl
@@ -203,7 +233,7 @@ object Randoms {
     @JvmStatic
     @FrameworkDsl
     fun getLongSequence(sized: Long): Sequence<Long> {
-        return if (sized < 1L) MercenarySequence() else random.longs(sized).toSequence()
+        return if (sized < 1L) MercenarySequence() else secure().longs(sized).toSequence()
     }
 
     @JvmStatic
@@ -215,7 +245,7 @@ object Randoms {
     @JvmStatic
     @FrameworkDsl
     fun getLongSequence(sized: Long, lower: Long, upper: Long): Sequence<Long> {
-        return if (sized < 1L) MercenarySequence() else random.longs(sized, lower, upper).toSequence()
+        return if (sized < 1L) MercenarySequence() else secure().longs(sized, lower, upper).toSequence()
     }
 
     @JvmStatic
@@ -227,7 +257,7 @@ object Randoms {
     @JvmStatic
     @FrameworkDsl
     fun getIntegerSequence(sized: Long): Sequence<Int> {
-        return if (sized < 1L) MercenarySequence() else random.ints(sized).toSequence()
+        return if (sized < 1L) MercenarySequence() else secure().ints(sized).toSequence()
     }
 
     @JvmStatic
@@ -239,7 +269,7 @@ object Randoms {
     @JvmStatic
     @FrameworkDsl
     fun getIntegerSequence(sized: Long, lower: Int, upper: Int): Sequence<Int> {
-        return if (sized < 1L) MercenarySequence() else random.ints(sized, lower, upper).toSequence()
+        return if (sized < 1L) MercenarySequence() else secure().ints(sized, lower, upper).toSequence()
     }
 
     @JvmStatic
@@ -251,7 +281,7 @@ object Randoms {
     @JvmStatic
     @FrameworkDsl
     fun getDoubleSequence(sized: Long): Sequence<Double> {
-        return if (sized < 1L) MercenarySequence() else random.doubles(sized).toSequence()
+        return if (sized < 1L) MercenarySequence() else secure().doubles(sized).toSequence()
     }
 
     @JvmStatic
@@ -263,7 +293,7 @@ object Randoms {
     @JvmStatic
     @FrameworkDsl
     fun getDoubleSequence(sized: Long, lower: Double, upper: Double): Sequence<Double> {
-        return if (sized < 1L) MercenarySequence() else random.doubles(sized, lower, upper).toSequence()
+        return if (sized < 1L) MercenarySequence() else secure().doubles(sized, lower, upper).toSequence()
     }
 
     @JvmStatic
@@ -287,7 +317,7 @@ object Randoms {
     @JvmStatic
     @FrameworkDsl
     fun getLongArray(sized: Int): LongArray {
-        return if (sized < 1) EMPTY_LONG_ARRAY else sized.toLongArray { getLongValue(sized) }
+        return if (sized < 1) EMPTY_LONG_ARRAY else sized.toLongArray()
     }
 
     @JvmStatic
@@ -299,7 +329,7 @@ object Randoms {
     @JvmStatic
     @FrameworkDsl
     fun getLongArray(sized: Int, lower: Int, upper: Int): LongArray {
-        return if (sized < 1) EMPTY_LONG_ARRAY else sized.toLongArray { getLongValue(lower.longOf(), upper.longOf()) }
+        return if (sized < 1) EMPTY_LONG_ARRAY else sized.toLongArray { getLongValue(lower, upper) }
     }
 
     @JvmStatic
@@ -322,7 +352,7 @@ object Randoms {
                 return toListOf(list)
             }
         }
-        return list.shuffled(random)
+        return list.shuffled(kotlin())
     }
 
     @JvmStatic
@@ -337,14 +367,14 @@ object Randoms {
     @JvmStatic
     @FrameworkDsl
     fun <T> shuffled(list: Sequence<T>): Sequence<T> {
-        return list.shuffled(kotlin)
+        return list.shuffled(kotlin())
     }
 
     @JvmStatic
     @FrameworkDsl
     fun shuffled(list: IntRange): IntArray {
         return if (list.isExhausted()) EMPTY_INTS_ARRAY else list.getIntArray().let { ints ->
-            if (ints.sizeOf() < 2) ints else ints.also { it.shuffle(kotlin) }
+            if (ints.sizeOf() < 2) ints else ints.also { it.shuffle(kotlin()) }
         }
     }
 
@@ -355,7 +385,7 @@ object Randoms {
         if (list.sizeOf().isLessThan(2)) {
             return list.toArray(copy)
         }
-        return list.toArray(copy).also { it.shuffle(kotlin) }
+        return list.toArray(copy).also { it.shuffle(kotlin()) }
     }
 
     @JvmStatic
@@ -365,7 +395,7 @@ object Randoms {
         if (list.sizeOf().isLessThan(2)) {
             return list.toIntArray(copy)
         }
-        return list.toIntArray(copy).also { it.shuffle(kotlin) }
+        return list.toIntArray(copy).also { it.shuffle(kotlin()) }
     }
 
     @JvmStatic
@@ -375,7 +405,7 @@ object Randoms {
         if (list.sizeOf().isLessThan(2)) {
             return list.toByteArray(copy)
         }
-        return list.toByteArray(copy).also { it.shuffle(kotlin) }
+        return list.toByteArray(copy).also { it.shuffle(kotlin()) }
     }
 
     @JvmStatic
@@ -385,7 +415,7 @@ object Randoms {
         if (list.sizeOf().isLessThan(2)) {
             return list.toCharArray(copy)
         }
-        return list.toCharArray(copy).also { it.shuffle(kotlin) }
+        return list.toCharArray(copy).also { it.shuffle(kotlin()) }
     }
 
     @JvmStatic
@@ -395,7 +425,7 @@ object Randoms {
         if (list.sizeOf().isLessThan(2)) {
             return list.toLongArray(copy)
         }
-        return list.toLongArray(copy).also { it.shuffle(kotlin) }
+        return list.toLongArray(copy).also { it.shuffle(kotlin()) }
     }
 
     @JvmStatic
@@ -405,7 +435,7 @@ object Randoms {
         if (list.sizeOf().isLessThan(2)) {
             return list.toShortArray(copy)
         }
-        return list.toShortArray(copy).also { it.shuffle(kotlin) }
+        return list.toShortArray(copy).also { it.shuffle(kotlin()) }
     }
 
     @JvmStatic
@@ -415,7 +445,7 @@ object Randoms {
         if (list.sizeOf().isLessThan(2)) {
             return list.toFloatArray(copy)
         }
-        return list.toFloatArray(copy).also { it.shuffle(kotlin) }
+        return list.toFloatArray(copy).also { it.shuffle(kotlin()) }
     }
 
     @JvmStatic
@@ -425,7 +455,7 @@ object Randoms {
         if (list.sizeOf().isLessThan(2)) {
             return list.toDoubleArray(copy)
         }
-        return list.toDoubleArray(copy).also { it.shuffle(kotlin) }
+        return list.toDoubleArray(copy).also { it.shuffle(kotlin()) }
     }
 
     @JvmStatic
@@ -435,12 +465,12 @@ object Randoms {
         if (list.sizeOf().isLessThan(2)) {
             return list.toBooleanArray(copy)
         }
-        return list.toBooleanArray(copy).also { it.shuffle(kotlin) }
+        return list.toBooleanArray(copy).also { it.shuffle(kotlin()) }
     }
 
     @JvmStatic
     @FrameworkDsl
-    fun getBits(count: Int) = kotlin.nextBits(count)
+    fun getBits(count: Int) = kotlin().nextBits(count)
 
     @JvmStatic
     @FrameworkDsl

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,35 +23,35 @@ class MainTest : KotlinTest() {
 
     @Test
     fun test() {
-        val time = 6.days + 3.hours + 1.minute + 4.weeks
-        val same = 1.minute + 3.hours + 6.days + (1.week * 4)
+        val time = 6.Days + 3.Hours + 1.Minute + 4.Weeks
+        val same = 1.Minute + 3.Hours + 6.Days + (1.Week * 4)
         info { time }
         info { same }
         info { time == same }
         info { time.duration() }
         time shouldBe same
         warn { dash() }
-        val plus = 1000.milliseconds + 100.nanoseconds
+        val plus = 1000.Milliseconds + 100.Nanoseconds
         info { plus }
         info { plus.unit().toLowerCase() }
         warn { dash() }
-        val half = 1.year / 2
+        val half = 1.Year / 2
         info { half }
         info { half.unit().toLowerCase() }
         warn { dash() }
-        val oops = 0.days
+        val oops = 0.Days
         info { oops }
         warn { dash() }
-        val date = 366.days
+        val date = 366.Days
         info { date }
         info { date.unit().toLowerCase() }
         warn { dash() }
-        val data = 100.nanoseconds - 99.nanoseconds
+        val data = 100.Nanoseconds - 99.Nanoseconds
         info { data }
-        data shouldBe 1.nanosecond
-        data shouldNotBe 99.nanoseconds
+        data shouldBe 1.Nanosecond
+        data shouldNotBe 99.Nanoseconds
         warn { dash() }
-        val test = 1.year + 3.weeks + 4.days + 5.hours + 6.minutes + 7.seconds + 8.milliseconds + 1.nanosecond
+        val test = 1.Year + 3.Weeks + 4.Days + 5.Hours + 6.Minutes + 7.Seconds + 8.Milliseconds + 1.Nanosecond
         info { test }
         warn { dash() }
         val buff = test.toString()
@@ -61,7 +61,7 @@ class MainTest : KotlinTest() {
                 warn { it }
             }
             for (i in 1..100000) {
-                TimeDuration.parseCharSequence(buff)
+                CreatorsTimeDuration.parseCharSequence(buff)
             }
         }
         warn { dash() }
@@ -70,7 +70,7 @@ class MainTest : KotlinTest() {
                 warn { it }
             }
             for (i in 1..100000) {
-                TimeDuration.parse(buff)
+                CreatorsTimeDuration.parse(buff)
             }
         }
         warn { dash() }

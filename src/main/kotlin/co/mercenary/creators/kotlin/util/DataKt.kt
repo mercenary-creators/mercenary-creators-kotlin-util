@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("DataKt")
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
+@file:JvmName("DataKt")
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util
 
@@ -57,6 +57,8 @@ typealias Applier<T, R> = T.() -> R
 
 typealias LazyMessage = Factory<Maybe>
 
+typealias CallBlock = () -> Unit
+
 typealias ContentResourceLookup = Convert<String, ContentResource>
 
 @FrameworkDsl
@@ -75,7 +77,7 @@ const val DEFAULT_BUFFERED_DATA_SIZE = DEFAULT_BUFFER_SIZE
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
 
 @FrameworkDsl
-val CONTENT_RESOURCE_LOADER: ContentResourceLoader
+val DEFAULT_CONTENT_RESOURCE_LOADER: ContentResourceLoader
     get() = BaseContentResourceLoader.INSTANCE
 
 @FrameworkDsl
@@ -113,6 +115,21 @@ val EMPTY_CHAR_ARRAY = CharArray(0)
 
 @FrameworkDsl
 val EMPTY_REAL_ARRAY = DoubleArray(0)
+
+@FrameworkDsl
+val EMPTY_BOOL_ARRAY = BooleanArray(0)
+
+@FrameworkDsl
+inline fun getContentResourceLoader(): ContentResourceLoader = DEFAULT_CONTENT_RESOURCE_LOADER
+
+@FrameworkDsl
+inline fun getCachedContentResourceLoader(): CachedContentResourceLoader = CACHED_CONTENT_RESOURCE_LOADER
+
+@FrameworkDsl
+inline fun getContentResourceByPath(path: CharSequence): ContentResource = DEFAULT_CONTENT_RESOURCE_LOADER[path.copyOf()]
+
+@FrameworkDsl
+inline fun getCachedContentResourceByPath(path: CharSequence): ContentResource = CACHED_CONTENT_RESOURCE_LOADER[path.copyOf()]
 
 @FrameworkDsl
 inline fun getStandardInput(): InputStream = System.`in`
@@ -157,9 +174,6 @@ inline fun <T, R> Convert<T, R>.convert(value: T): R = invoke(value)
 
 @FrameworkDsl
 inline fun <T, R> Indexed<T, R>.indexed(index: Int, value: T): R = invoke(index, value)
-
-@FrameworkDsl
-inline fun <T, R> scope(value: T, block: T.() -> R): R = with(value, block)
 
 @FrameworkDsl
 inline fun <T, R> T.withIn(block: T.() -> R): R = with(this, block)
@@ -244,9 +258,6 @@ fun getTempFile(prefix: String, suffix: String? = null, folder: File? = null): F
 
 @FrameworkDsl
 inline fun Exhausted.isNotExhausted(): Boolean = isExhausted().isNotTrue()
-
-@FrameworkDsl
-inline fun Extended.isNotExtended(): Boolean = isExtended().isNotTrue()
 
 @FrameworkDsl
 inline fun File.isFolder(): Boolean = isDirectory.isTrue()
@@ -497,10 +508,10 @@ inline fun File.isValidToWrite(): Boolean = isNotFolder() && canWrite()
 inline fun Path.isValidToWrite(): Boolean = fileOf().isValidToWrite()
 
 @FrameworkDsl
-fun File.toOutputStream(append: Boolean = false): OutputStream = pathOf().toOutputStream(append)
+fun File.toOutputStream(append: Boolean = false): FileOutputStream = pathOf().toOutputStream(append.copyOf())
 
 @FrameworkDsl
-fun Path.toOutputStream(append: Boolean = false): OutputStream = if (isValidToWrite()) FileOutputStream(fileOf(), append) else throw MercenaryExceptiion(toString())
+fun Path.toOutputStream(append: Boolean = false): FileOutputStream = if (isValidToWrite()) FileOutputStream(fileOf(), append.copyOf()) else throw MercenaryExceptiion(toString())
 
 @FrameworkDsl
 inline fun WritableByteChannel.toOutputStream(): OutputStream = Channels.newOutputStream(this)
@@ -509,10 +520,23 @@ inline fun WritableByteChannel.toOutputStream(): OutputStream = Channels.newOutp
 inline fun OutputStreamSupplier.toOutputStream(): OutputStream = getOutputStream()
 
 @FrameworkDsl
-fun OutputStream.sendTo(data: CharSequence) {
-    toWriter().use {
-        it.append(data)
-        it.flush()
+fun File.toWriter(append: Boolean = false, charset: Charset = DEFAULT_CHARSET_UTF_8): OutputStreamWriter = toOutputStream(append).toWriter(charset)
+
+@FrameworkDsl
+fun Path.toWriter(append: Boolean = false, charset: Charset = DEFAULT_CHARSET_UTF_8): OutputStreamWriter = toOutputStream(append).toWriter(charset)
+
+@FrameworkDsl
+fun OutputStream.sendTo(args: String) {
+    toWriter().use { stream ->
+        args.withSize { data, size ->
+            when (size.isLessSame(DEFAULT_BUFFERED_DATA_SIZE)) {
+                true -> stream.write(data)
+                else -> data.chunkedSequence(DEFAULT_BUFFERED_DATA_SIZE).forEach {
+                    stream.write(it)
+                }
+            }
+        }
+        stream.flush()
     }
 }
 
@@ -589,6 +613,30 @@ fun InputStream.getBufferSize(most: Int = DEFAULT_BUFFERED_DATA_SIZE * 4): Int {
 }
 
 @FrameworkDsl
+inline fun InputStream.toDataInput() = DataInputStream(this)
+
+@FrameworkDsl
+inline fun File.toDataInput() = toInputStream().toDataInput()
+
+@FrameworkDsl
+fun DataInputStream.readByteArray(data: ByteArray): ByteArray {
+    use { it.readFully(data) }
+    return data
+}
+
+@FrameworkDsl
+fun InputStream.getAvailableSize(): Int {
+    if (this is EmptyInputStream) {
+        return 0
+    }
+    return try {
+        available()
+    } catch (cause: Throwable) {
+        Throwables.fatal(cause, 0)
+    }
+}
+
+@FrameworkDsl
 inline fun URL.toProtocol(otherwise: String = EMPTY_STRING): String = protocol.otherwise(otherwise)
 
 @FrameworkDsl
@@ -645,16 +693,16 @@ inline fun File.linkOf(): URL = toURI().linkOf()
 inline fun URI.linkOf(): URL = toURL()
 
 @FrameworkDsl
-inline fun String.linkOf(): URL = URL(this)
+inline fun CharSequence.linkOf(): URL = URL(copyOf())
 
 @FrameworkDsl
-inline fun String.fileOf(): File = File(this)
+inline fun CharSequence.fileOf(): File = File(copyOf())
 
 @FrameworkDsl
 inline fun URI.pathOf(): Path = Paths.get(this)
 
 @FrameworkDsl
-inline fun String.pathOf(): Path = Paths.get(this)
+inline fun CharSequence.pathOf(): Path = Paths.get(copyOf())
 
 @FrameworkDsl
 inline fun URI.isAbsolutePath(): Boolean = isAbsolute.isTrue()
@@ -672,10 +720,10 @@ inline fun Path.isNotAbsolutePath(): Boolean = isAbsolute.isNotTrue()
 inline operator fun Path.div(other: Path): Path = this.resolve(other)
 
 @FrameworkDsl
-inline operator fun Path.div(other: String): Path = this.resolve(other)
+inline operator fun Path.div(other: CharSequence): Path = this.resolve(other.copyOf())
 
 @FrameworkDsl
-inline fun String.toFileURL(): URL = IO.toFileURL(this)
+inline fun CharSequence.toFileURL(): URL = IO.toFileURL(copyOf())
 
 @FrameworkDsl
 inline fun Int.toCharArray(): CharArray = if (maxOf(0).isZero()) EMPTY_CHAR_ARRAY else CharArray(this)
@@ -786,13 +834,22 @@ fun FloatArray.toFloatArray(copy: Boolean = true): FloatArray = if (copy.isTrue(
 fun BooleanArray.toBooleanArray(copy: Boolean = true): BooleanArray = if (copy.isTrue() && sizeOf() > 0) copyOf() else this
 
 @FrameworkDsl
-fun Int.toIntArray(init: Int): IntArray = if (this < 1) EMPTY_INTS_ARRAY else IntArray(this) { init }
+inline fun Int.toIntArray(init: Int = 0): IntArray = if (this < 1) EMPTY_INTS_ARRAY else IntArray(this) { init }
 
 @FrameworkDsl
 fun Int.toIntArray(init: (Int) -> Int): IntArray = if (this < 1) EMPTY_INTS_ARRAY else IntArray(this, init)
 
 @FrameworkDsl
+inline fun Int.toLongArray(init: Long = 0L): LongArray = if (this < 1) EMPTY_LONG_ARRAY else LongArray(this) { init }
+
+@FrameworkDsl
 fun Int.toLongArray(init: (Int) -> Long): LongArray = if (this < 1) EMPTY_LONG_ARRAY else LongArray(this, init)
+
+@FrameworkDsl
+inline fun Int.toBooleanArray(init: Boolean = false): BooleanArray = if (this < 1) EMPTY_BOOL_ARRAY else BooleanArray(this) { init }
+
+@FrameworkDsl
+fun Int.toBooleanArray(init: (Int) -> Boolean): BooleanArray = if (this < 1) EMPTY_BOOL_ARRAY else BooleanArray(this, init)
 
 @FrameworkDsl
 inline fun URL.toContentResource() = URLContentResource(this)
@@ -827,7 +884,7 @@ inline fun Boolean.toInsertOrdered(): InsertOrdered = InsertOrdered { this }
 inline fun Boolean.toSizeCapped(): SizeCapped = SizeCapped { this }
 
 @FrameworkDsl
-inline fun Int.toInsertLimited(): InsertLimited = InsertLimited { this }
+inline fun Int.toInsertLimited(): InsertLimited = InsertLimited { absOf() }
 
 @FrameworkDsl
 inline fun InsertLimited.isNegative(): Boolean = getLimit() < 0
@@ -850,9 +907,45 @@ fun <T> Iterable<T>.withEach(block: (T) -> Unit) {
 }
 
 @FrameworkDsl
+fun <T, R> Iterable<T>.withEachMake(block: (T) -> R): Iterable<R> {
+    return BasicArrayList<R>().let { list ->
+        forEach { item ->
+            list.append(block(item))
+        }
+        list.toReadOnly()
+    }
+}
+
+@FrameworkDsl
+fun <T, R> Iterable<T>.withEachNotNull(block: (T) -> R?): Iterable<R> {
+    return BasicArrayList<R>().let { list ->
+        forEach { item ->
+            block(item).also { each ->
+                if (each != null) {
+                    list.append(each)
+                }
+            }
+        }
+        list.toReadOnly()
+    }
+}
+
+@FrameworkDsl
 fun <T> Iterable<T>.withEachIndexed(block: (Int, T) -> Unit) {
     forEachIndexed { index, element ->
         block(index, element)
+    }
+}
+fun File.forEachLine(parallel: Boolean = false): Sequence<String> {
+    return when (parallel.isNotTrue()) {
+        true -> bufferedReader(DEFAULT_CHARSET_UTF_8).lines().toSequence()
+        else -> Files.lines(pathOf(), DEFAULT_CHARSET_UTF_8).parallel().toSequence()
+    }
+}
+fun Path.forEachLine(parallel: Boolean = false): Sequence<String> {
+    return when (parallel.isNotTrue()) {
+        true -> Files.lines(this, DEFAULT_CHARSET_UTF_8).toSequence()
+        else -> Files.lines(this, DEFAULT_CHARSET_UTF_8).parallel().toSequence()
     }
 }
 

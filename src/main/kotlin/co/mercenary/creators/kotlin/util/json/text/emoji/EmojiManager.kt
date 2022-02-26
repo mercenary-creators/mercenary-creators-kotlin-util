@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ object EmojiManager {
     @FrameworkDsl
     private fun parse(): List<Emoji> {
         return try {
-            CONTENT_RESOURCE_LOADER["emojis.json"].readOf<List<JSONEmoji>>()
+            DEFAULT_CONTENT_RESOURCE_LOADER["emojis.json"].toJSONReader<List<JSONEmoji>>().readOf()
         } catch (cause: Throwable) {
             Throwables.thrown(cause)
             toListOf()

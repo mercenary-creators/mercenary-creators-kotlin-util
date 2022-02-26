@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package co.mercenary.creators.kotlin.util.io
 import co.mercenary.creators.kotlin.util.*
 
 @IgnoreForSerialize
-class ContentMimeType @FrameworkDsl private constructor(private val mime: MimeBase) : StandardInterfaces<ContentMimeType> {
+class ContentMimeType @FrameworkDsl constructor(private val mime: MimeBase) : StandardInterfaces<ContentMimeType> {
 
     @FrameworkDsl
     @JvmOverloads
@@ -44,7 +44,7 @@ class ContentMimeType @FrameworkDsl private constructor(private val mime: MimeBa
     override fun clone() = copyOf()
 
     @FrameworkDsl
-    override fun copyOf() = ContentMimeType(mime.copyOf())
+    override fun copyOf() = ContentMimeType(mime)
 
     @FrameworkDsl
     override fun toString() = mime.toString()
@@ -111,16 +111,16 @@ class ContentMimeType @FrameworkDsl private constructor(private val mime: MimeBa
         }
 
         @IgnoreForSerialize
-        private class MimeBase @FrameworkDsl private constructor(private val mime: javax.activation.MimeType) : StandardInterfaces<MimeBase> {
+        class MimeBase @FrameworkDsl private constructor(private val mime: jakarta.activation.MimeType) : StandardInterfaces<MimeBase> {
 
             @FrameworkDsl
             constructor() : this("application", "octet-stream")
 
             @FrameworkDsl
-            constructor(type: String) : this(javax.activation.MimeType(type))
+            constructor(type: String) : this(jakarta.activation.MimeType(type))
 
             @FrameworkDsl
-            constructor(base: String, part: String) : this(javax.activation.MimeType(base, part))
+            constructor(base: String, part: String) : this(jakarta.activation.MimeType(base, part))
 
             @FrameworkDsl
             private val list = mime.parameters

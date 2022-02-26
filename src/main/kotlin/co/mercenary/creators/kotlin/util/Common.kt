@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,8 +97,7 @@ object Common : HasMapNames {
         if (isPublic().isNotTrue() || name in IGNORE || isAbstract() || isSynthetic || (static.isTrue() && isStatic().isNotTrue())) {
             return true
         }
-        //getStandardError().echo(value.nameOf()).newline().echo(value.kotlin.isData).newline().echo(name).newline()
-        if (value.kotlin.isData) {
+        if (value.isDataClass()) {
             if (name.startsWith("copy") || name.matches(NOPERS)) {
                 return true
             }
@@ -128,10 +127,10 @@ object Common : HasMapNames {
             return EMPTY_STRING
         }
         return stringOf(data.sizeOf() * 2) {
-            data.map { code -> code.toCode() }.forEach { calc ->
-                add(getHexChar(calc mask 4)).add(getHexChar(calc mask 0))
+            data.forEach { code ->
+                add(getHexChar(code mask 4)).add(getHexChar(code mask 0))
             }
-        }.toUpperCaseEnglish()
+        }.toTrimOr(EMPTY_STRING)
     }
 
     @JvmStatic
@@ -172,9 +171,9 @@ object Common : HasMapNames {
     @JvmOverloads
     fun getExposedMethods(value: Any, static: Boolean = false, args: List<Class<Annotation>> = toListOf()): List<String> {
         return when (value) {
-            is Class<*> -> getExposedMethods(value.kotlin, static.isTrue(), args)
+            is Class<*> -> getExposedMethods(value, static.isTrue(), args)
             is KClass<*> -> getExposedMethods(value, static.isTrue(), args)
-            else -> getExposedMethods(value.javaClass.kotlin, static.isTrue(), args)
+            else -> getExposedMethods(value.javaClass, static.isTrue(), args)
         }
     }
 
@@ -262,50 +261,54 @@ object Common : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
+    fun getProperties(): SystemProperties = SystemProperties()
+
+    @JvmStatic
+    @FrameworkDsl
     @JvmOverloads
-    fun getProperties(data: URI, properties: SystemProperties = SystemProperties()): SystemProperties {
+    fun getProperties(data: URI, properties: SystemProperties = getProperties()): SystemProperties {
         return getProperties(data.toInputStream(), properties)
     }
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun getProperties(data: URL, properties: SystemProperties = SystemProperties()): SystemProperties {
+    fun getProperties(data: URL, properties: SystemProperties = getProperties()): SystemProperties {
         return getProperties(data.toInputStream(), properties)
     }
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun getProperties(data: File, properties: SystemProperties = SystemProperties()): SystemProperties {
+    fun getProperties(data: File, properties: SystemProperties = getProperties()): SystemProperties {
         return getProperties(data.toInputStream(), properties)
     }
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun getProperties(data: Path, properties: SystemProperties = SystemProperties()): SystemProperties {
+    fun getProperties(data: Path, properties: SystemProperties = getProperties()): SystemProperties {
         return getProperties(data.toInputStream(), properties)
     }
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun getProperties(data: InputStreamSupplier, properties: SystemProperties = SystemProperties()): SystemProperties {
+    fun getProperties(data: InputStreamSupplier, properties: SystemProperties = getProperties()): SystemProperties {
         return getProperties(data.toInputStream(), properties)
     }
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun getProperties(data: ReadableByteChannel, properties: SystemProperties = SystemProperties()): SystemProperties {
+    fun getProperties(data: ReadableByteChannel, properties: SystemProperties = getProperties()): SystemProperties {
         return getProperties(data.toInputStream(), properties)
     }
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun getProperties(data: Reader, properties: SystemProperties = SystemProperties()): SystemProperties {
+    fun getProperties(data: Reader, properties: SystemProperties = getProperties()): SystemProperties {
         try {
             data.use { look -> properties.load(look) }
         } catch (cause: Throwable) {
@@ -317,7 +320,7 @@ object Common : HasMapNames {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun getProperties(data: InputStream, properties: SystemProperties = SystemProperties()): SystemProperties {
+    fun getProperties(data: InputStream, properties: SystemProperties = getProperties()): SystemProperties {
         try {
             data.use { look -> properties.load(look) }
         } catch (cause: Throwable) {
@@ -329,11 +332,10 @@ object Common : HasMapNames {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun getProperties(data: CharSequence, properties: SystemProperties = SystemProperties()): SystemProperties {
-        val name = data.toTrimOr(EMPTY_STRING)
-        if (name.isEmptyOrBlank().isNotTrue()) {
+    fun getProperties(data: CharSequence, properties: SystemProperties = getProperties()): SystemProperties {
+        if (data.toTrimOr(EMPTY_STRING).isEmptyOrBlank().isNotTrue()) {
             try {
-                return getProperties(CONTENT_RESOURCE_LOADER[name], properties)
+                return getProperties(getContentResourceByPath(data.toTrimOr(data.copyOf())), properties)
             } catch (cause: Throwable) {
                 Throwables.thrown(cause)
             }
@@ -345,5 +347,5 @@ object Common : HasMapNames {
     override fun toString() = toMapNames().toSafeString()
 
     @FrameworkDsl
-    override fun toMapNames() = dictOfType<Common>()
+    override fun toMapNames() = dictOf("type" to nameOf())
 }

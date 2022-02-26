@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import co.mercenary.creators.kotlin.util.*
 interface MutableSingleEndedQueue<E> : MutableCollection<E>, MutableSizedContainer {
 
     @FrameworkDsl
-    fun poll(): E
+    fun poll(): E?
 
     @FrameworkDsl
-    fun peek(): E
+    fun peek(): E?
 
     @FrameworkDsl
     fun remove(): E

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@
 package co.mercenary.creators.kotlin.util.logging
 
 import co.mercenary.creators.kotlin.util.*
+import kotlin.reflect.KClass
 
-open class Logging @JvmOverloads @FrameworkDsl constructor(name: String? = null) : ILoggingBase {
+open class Logging @JvmOverloads @FrameworkDsl constructor(other: Any? = null) : ILoggingBase {
 
     init {
         LoggingFactory
@@ -26,7 +27,13 @@ open class Logging @JvmOverloads @FrameworkDsl constructor(name: String? = null)
 
     @FrameworkDsl
     private val logs: mu.KLogger by lazy {
-        if (name == null) LoggingFactory.loggerOf(this) else LoggingFactory.loggerOf(name)
+        when(other) {
+            null -> LoggingFactory.loggerOf(this)
+            is Class<*> -> LoggingFactory.loggerOf(other)
+            is KClass<*> -> LoggingFactory.loggerOf(other)
+            is CharSequence -> LoggingFactory.loggerOf(other)
+            else -> LoggingFactory.loggerOf(other)
+        }
     }
 
     @FrameworkDsl

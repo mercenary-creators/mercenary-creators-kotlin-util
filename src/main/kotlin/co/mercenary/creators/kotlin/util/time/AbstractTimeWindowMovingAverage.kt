@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@
 package co.mercenary.creators.kotlin.util.time
 
 import co.mercenary.creators.kotlin.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.math.exp
 
-abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constructor(window: Long, private val wait: TimeUnit = TimeUnit.MILLISECONDS, unit: TimeUnit = TimeUnit.MILLISECONDS, private val moment: () -> Long = TimeAndDate::mills) : TimeWindowMovingAverage {
+abstract class AbstractTimeWindowMovingAverage @JvmOverloads @FrameworkDsl constructor(window: Long, unit: SystemTimeUnit = SYSTEM_TIME_UNIT_MILLISECONDS, moment: Factory<Long> = TimeAndDate.millsOf()) : TimeWindowMovingAverage {
 
     @Volatile
     @FrameworkDsl
@@ -31,7 +29,15 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constr
     private var moving = 0.0
 
     @FrameworkDsl
-    private val window = wait.convert(window.maxOf(1L), unit).realOf()
+    private val factory = moment
+
+    @FrameworkDsl
+    private val window = unit().convert(window.maxOf(1L), unit).realOf()
+
+    @FrameworkDsl
+    internal fun unit(): SystemTimeUnit {
+        return getWaitTimeUnit()
+    }
 
     @FrameworkDsl
     @IgnoreForSerialize
@@ -39,18 +45,14 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constr
 
     @FrameworkDsl
     @IgnoreForSerialize
-    override fun getWaitTimeUnit() = wait
+    override fun getMomentInTime() = factory.create()
 
     @FrameworkDsl
-    @IgnoreForSerialize
-    override fun getMomentInTime() = moment.invoke()
-
-    @CreatorsDsl
     @Synchronized
     override fun addAverage(delta: Double): Double {
         getMomentInTime().also { clock ->
             if (ticker < 1) moving = delta
-            else exp(-1.0 * ((clock - ticker).realOf() / window)).also { timed ->
+            else expOf(-1.0 * ((clock - ticker).realOf() / window)).also { timed ->
                 moving = ((1.0 - timed) * delta) + (timed * moving)
             }
             ticker = clock
@@ -58,29 +60,44 @@ abstract class AbstractTimeWindowMovingAverage @JvmOverloads @CreatorsDsl constr
         return getAverage()
     }
 
-    @CreatorsDsl
-    override fun toString(): String = TimeAndDate.toDecimalPlaces(getAverage(), " milliseconds")
+    @FrameworkDsl
+    override fun toString(): String = toElapsedString()
 
-    @CreatorsDsl
+    @FrameworkDsl
     @IgnoreForSerialize
-    override fun getWindowHandle(): TimeWindowHandle = DefaultTimeWindowHandle(this, getMomentInTime())
+    override fun getWindowHandle(): TimeWindowHandle = DefaultTimeWindowHandle(this)
 
     @IgnoreForSerialize
-    protected open inner class DefaultTimeWindowHandle @FrameworkDsl constructor(private val self: TimeWindowMovingAverage, private val time: Long) : TimeWindowHandle {
+    protected open inner class DefaultTimeWindowHandle @FrameworkDsl constructor(self: TimeWindowMovingAverage, time: Long = self.getMomentInTime()) : TimeWindowHandle {
 
         @FrameworkDsl
-        private val open = true.toAtomic()
+        private val that = self
+
+        @FrameworkDsl
+        private val kick = time.copyOf()
+
+        @FrameworkDsl
+        private val open = getAtomicTrue()
+
+        @FrameworkDsl
+        @IgnoreForSerialize
+        override fun getTimeWindowMovingAverage(): TimeWindowMovingAverage {
+            return that
+        }
+
+        @FrameworkDsl
+        override fun toString(): String {
+            return toElapsedString()
+        }
 
         @FrameworkDsl
         override fun close() {
             if (open.isTrueToFalse()) {
-                self.getMomentInTime().minus(time).toDouble().also { diff ->
-                    self.addAverage(diff).minus(diff).toLong().also {
-                        if (it > 0) {
-                            try {
-                                self.getWaitTimeUnit().sleep(it)
-                            } catch (cause: Throwable) {
-                                Throwables.thrown(cause)
+                getTimeWindowMovingAverage().withIn {
+                    (getMomentInTime() - kick).realOf().also { diff ->
+                        (addAverage(diff) - kick).longOf().absOf().also { delta ->
+                            if (delta.isMoreThan(0L)) {
+                                TimeAndDate.sleepFor(delta, getWaitTimeUnit())
                             }
                         }
                     }

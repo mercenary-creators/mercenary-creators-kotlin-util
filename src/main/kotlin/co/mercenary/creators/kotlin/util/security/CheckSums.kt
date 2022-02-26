@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ object CheckSums : HasMapNames {
     override fun toString() = toMapNames().toSafeString()
 
     @FrameworkDsl
-    override fun toMapNames() = dictOfType<CheckSums>("methods" to Common.getExposedMethods(CheckSums, true))
+    override fun toMapNames() = dictOf("type" to nameOf(), "methods" to Common.getExposedMethods(CheckSums, true))
 
     @IgnoreForSerialize
     private class CheckSumFactory @FrameworkDsl constructor(private val factory: Checksum, private val name: String) : CheckSum {

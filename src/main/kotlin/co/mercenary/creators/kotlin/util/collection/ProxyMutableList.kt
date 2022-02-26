@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,14 @@ open class ProxyMutableList<T> @JvmOverloads @FrameworkDsl constructor(self: Mut
                 list.trim()
             }
         }
+    }
+
+    @FrameworkDsl
+    override fun headOf(): T {
+        if (isEmpty()) {
+            fail("${nameOf()}.getFirst() isEmpty()")
+        }
+        return list[0]
     }
 
     @FrameworkDsl
@@ -180,12 +188,15 @@ open class ProxyMutableList<T> @JvmOverloads @FrameworkDsl constructor(self: Mut
 
     @FrameworkDsl
     override fun remove(element: T): Boolean {
-        return isNotExhausted() && list.remove(element)
+        if(isEmpty()) {
+            return false
+        }
+        return list.remove(element)
     }
 
     @FrameworkDsl
     override fun removeAll(elements: Collection<@UnsafeVariance T>): Boolean {
-        if (isExhausted() || elements.isExhausted()) {
+        if (isEmpty() || elements.isExhausted()) {
             return false
         }
         return list.removeAll(elements)

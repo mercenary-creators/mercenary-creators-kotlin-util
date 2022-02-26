@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,15 +36,29 @@ class JSONArray : BasicArrayList<Maybe>, JSONBase<Int, JSONArray> {
     constructor(args: Sequence<Maybe>) : super(args.toCollection())
 
     @FrameworkDsl
+    constructor(args: JSONArray, deep: Boolean) : super(args.copyOf(deep))
+
+    @FrameworkDsl
     override val size: Int
         @IgnoreForSerialize
         get() = sizeOf()
 
     @FrameworkDsl
-    override fun clone() = copyOf()
+    override fun clone() = copyOf(true)
 
     @FrameworkDsl
-    override fun copyOf() = toDeepCopy()
+    override fun copyOf() = copyOf(false)
+
+    @FrameworkDsl
+    override fun copyOf(deep: Boolean): JSONArray {
+        if (sizeOf() == 0) {
+            return JSONArray()
+        }
+        return when (deep) {
+            true -> toDeepCopy()
+            else -> JSONArray(this)
+        }
+    }
 
     @FrameworkDsl
     override fun findOf(look: Int) = get(look)

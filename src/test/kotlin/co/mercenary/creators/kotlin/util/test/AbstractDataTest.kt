@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 package co.mercenary.creators.kotlin.util.test
 
 import co.mercenary.creators.kotlin.util.*
-import java.io.File
+import java.io.*
 
 @IgnoreForSerialize
 abstract class AbstractDataTest : AbstractKotlinTest() {
 
     @FrameworkDsl
-    fun file(name: String) = File(name)
+    fun file(name: String) = name.fileOf()
 
     @FrameworkDsl
     fun look(file: File) {
@@ -41,7 +41,6 @@ abstract class AbstractDataTest : AbstractKotlinTest() {
 
     @FrameworkDsl
     fun File.data(data: ByteArray): ByteArray {
-        inputStream().use { it.read(data) }
-        return data
+        return toDataInput().readByteArray(data)
     }
 }

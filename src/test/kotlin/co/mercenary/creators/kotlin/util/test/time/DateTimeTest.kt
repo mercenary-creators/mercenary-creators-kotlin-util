@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,18 +24,18 @@ class DateTimeTest : KotlinTest() {
     fun test() {
         val date = dateTimeOf()
         info { date.formatDate() }
-        val plus = date + 1.year
+        val plus = date + 1.Year
         info { plus.formatDate() }
-        val less = date - 1.year
+        val less = date - 1.Year
         info { less.formatDate() }
         warn { dash() }
-        val olds = date - 100.years
+        val olds = date - 100.Years
         info { olds.formatDate() }
-        info { date.convertTo() - 100.years }
+        info { date.convertTo() - 100.Years }
         warn { dash() }
-        val half = date + 0.5.years
+        val half = date + 0.5.Years
         info { half.formatDate() }
-        val down = date - 0.5.years
+        val down = date - 0.5.Years
         info { down.formatDate() }
     }
 }

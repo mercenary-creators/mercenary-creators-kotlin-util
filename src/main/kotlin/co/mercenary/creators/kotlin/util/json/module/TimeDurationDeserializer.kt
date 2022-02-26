@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,13 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 
 @FrameworkDsl
 @IgnoreForSerialize
-object TimeDurationDeserializer : StdDeserializer<TimeDuration>(TimeDuration::class.java) {
-    override fun deserialize(parser: JsonParser, context: DeserializationContext): TimeDuration {
+object TimeDurationDeserializer : StdDeserializer<CreatorsTimeDuration>(CreatorsTimeDuration::class.java) {
+    override fun deserialize(parser: JsonParser, context: DeserializationContext): CreatorsTimeDuration {
         return when (parser.currentToken) {
             JsonToken.VALUE_STRING -> {
                 val text = parser.text
                 try {
-                    TimeDuration.parse(text)
+                    CreatorsTimeDuration(text)
                 }
                 catch (cause: Throwable) {
                     Throwables.thrown(cause)

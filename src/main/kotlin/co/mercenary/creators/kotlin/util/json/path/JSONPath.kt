@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -201,10 +201,10 @@ object JSONPath {
         override fun <T : Any> read(path: CompiledPath, type: KClass<T>): T? = context.read(lookup(path), type.java)
 
         @FrameworkDsl
-        override fun map(path: String, func: (Any, PathEvaluationContext) -> Any) = make(context.map(lookup(path), mapper(func, this)))
+        override fun map(path: String, func: (Maybe, PathEvaluationContext) -> Maybe) = make(context.map(lookup(path), mapper(func, this)).otherwise(context))
 
         @FrameworkDsl
-        override fun map(path: CompiledPath, func: (Any, PathEvaluationContext) -> Any) = make(context.map(lookup(path), mapper(func, this)))
+        override fun map(path: CompiledPath, func: (Maybe, PathEvaluationContext) -> Maybe) = make(context.map(lookup(path), mapper(func, this)).otherwise(context))
 
         @FrameworkDsl
         override fun <T : Any> root(): T = context.json()
@@ -216,7 +216,7 @@ object JSONPath {
 
             @JvmStatic
             @FrameworkDsl
-            private fun mapper(mapper: (Any, PathEvaluationContext) -> Any, context: PathEvaluationContext) = { data: Any, _: Configuration -> mapper(data, context) } as MapFunction
+            private fun mapper(mapper: (Maybe, PathEvaluationContext) -> Maybe, context: PathEvaluationContext) = { data: Maybe, _: Configuration -> mapper(data, context) } as MapFunction
         }
     }
 }

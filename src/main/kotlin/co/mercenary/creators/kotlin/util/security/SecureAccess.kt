@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 @file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 package co.mercenary.creators.kotlin.util.security
 
 import co.mercenary.creators.kotlin.util.*
-import java.security.*
 
 @IgnoreForSerialize
 object SecureAccess {
 
     @FrameworkDsl
-    private val open = false.toAtomic()
+    private val open = getAtomicNotTrue()
 
     @FrameworkDsl
     private val list = BasicArrayList<() -> Unit>(2)
@@ -37,19 +37,11 @@ object SecureAccess {
                 try {
                     it.invoke()
                 } catch (cause: Throwable) {
+                    Throwables.thrown(cause)
                 }
             }
         }
         list.clear()
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    inline fun <T : Any> doPrivileged(noinline func: Factory<T>): T {
-        return when (System.getSecurityManager()) {
-            null -> func.create()
-            else -> AccessController.doPrivileged(PrivilegedAction { func.invoke() })
-        }
     }
 
     @JvmStatic

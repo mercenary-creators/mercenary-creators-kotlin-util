@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,55 +17,17 @@
 package co.mercenary.creators.kotlin.util.io
 
 import co.mercenary.creators.kotlin.util.*
-import java.io.*
+import java.io.OutputStream
 
 @IgnoreForSerialize
-abstract class AbstractCountSizeOutputStream @JvmOverloads constructor(proxy: OutputStream, flush: Boolean = false) : FilterOutputStream(proxy), OpenAutoClosable, HasContentSize, HasMapNames, Clearable {
-
-    @FrameworkDsl
-    private val save = flush.toAtomic()
+abstract class AbstractCountSizeOutputStream @JvmOverloads constructor(proxy: OutputStream, flush: Boolean = true) : ProxiedOutputStream(proxy, flush), HasContentSize, HasMapNames, Clearable {
 
     @FrameworkDsl
     private val many = 0L.toAtomic()
 
     @FrameworkDsl
-    private val open = getAtomicTrue()
-
-    @FrameworkDsl
-    @IgnoreForSerialize
-    override fun isOpen() = open.isTrue()
-
-    override fun write(b: Int) {
-        many.increment()
-        super.write(b)
-    }
-
-    override fun write(b: ByteArray) {
-        many.plus(b.toContentSize())
-        super.write(b)
-    }
-
-    override fun write(b: ByteArray, off: Int, len: Int) {
-        many.plus(len.maxOf(0))
-        super.write(b, off, len)
-    }
-
-    @FrameworkDsl
-    override fun close() {
-        if (open.isTrueToFalse()) {
-            if (save.isTrue()) {
-                try {
-                    super.flush()
-                } catch (cause: Throwable) {
-                    Throwables.thrown(cause)
-                }
-            }
-            try {
-                super.close()
-            } catch (cause: Throwable) {
-                Throwables.thrown(cause)
-            }
-        }
+    override fun before(size: Int) {
+        many.plus(size)
     }
 
     @FrameworkDsl
@@ -78,5 +40,5 @@ abstract class AbstractCountSizeOutputStream @JvmOverloads constructor(proxy: Ou
     override fun getContentSize() = many.getValue().maxOf(0)
 
     @FrameworkDsl
-    override fun toMapNames() = dictOf("name" to nameOf(), "open" to isOpen(), "size" to getContentSize(), "flush" to save.isTrue())
+    override fun toMapNames() = dictOf("name" to nameOf(), "open" to isOpen(), "size" to getContentSize())
 }

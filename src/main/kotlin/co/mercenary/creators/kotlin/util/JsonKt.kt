@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-@file:kotlin.jvm.JvmName("JsonKt")
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "HttpUrlsUsage")
+@file:JvmName("JsonKt")
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util
 
 import co.mercenary.creators.kotlin.util.io.InputStreamSupplier
 import co.mercenary.creators.kotlin.util.json.base.*
-
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import com.jayway.jsonpath.TypeRef
@@ -79,36 +78,6 @@ inline fun <reified T : Any, A> JSONAccess<A>.asDataTypeOf(look: A): T? = JSONSt
 inline fun <reified T : Any> Any.toDataType(): T = JSONStatic.toDataType(this, toTypeReference())
 
 @FrameworkDsl
-inline fun <reified T : Any> URI.readOf(): T = JSONStatic.jsonReadOf(this, toTypeReference())
-
-@FrameworkDsl
-inline fun <reified T : Any> URL.readOf(): T = JSONStatic.jsonReadOf(this, toTypeReference())
-
-@FrameworkDsl
-inline fun <reified T : Any> File.readOf(): T = JSONStatic.jsonReadOf(this, toTypeReference())
-
-@FrameworkDsl
-inline fun <reified T : Any> Path.readOf(): T = JSONStatic.jsonReadOf(this, toTypeReference())
-
-@FrameworkDsl
-inline fun <reified T : Any> CharSequence.readOf(): T = JSONStatic.jsonReadOf(copyOf(), toTypeReference())
-
-@FrameworkDsl
-inline fun <reified T : Any> ByteArray.readOf(): T = JSONStatic.jsonReadOf(toByteArray(true), toTypeReference())
-
-@FrameworkDsl
-inline fun <reified T : Any> InputStreamSupplier.readOf(): T = JSONStatic.jsonReadOf(this, toTypeReference())
-
-@FrameworkDsl
-inline fun <reified T : Any> ReadableByteChannel.readOf(): T = JSONStatic.jsonReadOf(this, toTypeReference())
-
-@FrameworkDsl
-inline fun <reified T : Any> Reader.readOf(done: Boolean = true): T = JSONStatic.jsonReadOf(this, toTypeReference(), done)
-
-@FrameworkDsl
-inline fun <reified T : Any> InputStream.readOf(done: Boolean = true): T = JSONStatic.jsonReadOf(this, toTypeReference(), done)
-
-@FrameworkDsl
 inline fun <reified T : Any> URI.toJSONReader(): JSONReader<T> = JSONStatic.toJSONReader(this, toTypeReference())
 
 @FrameworkDsl
@@ -124,7 +93,7 @@ inline fun <reified T : Any> Path.toJSONReader(): JSONReader<T> = JSONStatic.toJ
 inline fun <reified T : Any> CharSequence.toJSONReader(): JSONReader<T> = JSONStatic.toJSONReader(copyOf(), toTypeReference())
 
 @FrameworkDsl
-inline fun <reified T : Any> ByteArray.toJSONReader(): JSONReader<T> = JSONStatic.toJSONReader(toByteArray(true), toTypeReference())
+inline fun <reified T : Any> ByteArray.toJSONReader(copy: Boolean = false): JSONReader<T> = JSONStatic.toJSONReader(this, toTypeReference(), copy)
 
 @FrameworkDsl
 inline fun <reified T : Any> InputStreamSupplier.toJSONReader(): JSONReader<T> = JSONStatic.toJSONReader(this, toTypeReference())
@@ -144,7 +113,7 @@ fun getJSONFormatter(pretty: Boolean = true): JSONFormatter {
 }
 
 @FrameworkDsl
-fun CharSequence.toTypicodePath(secure: Boolean): String = when (secure.isNotTrue()) {
+fun CharSequence.toTypicodePath(secure: Boolean = true): String = when (secure.isNotTrue()) {
     true -> "http://jsonplaceholder.typicode.com/${removePrefix("/")}"
     else -> "https://jsonplaceholder.typicode.com/${removePrefix("/")}"
 }
@@ -246,7 +215,9 @@ inline operator fun JSONObject.plusAssign(args: Array<out Pair<String, Maybe>>) 
 @FrameworkDsl
 operator fun JSONObject.minus(args: String): JSONObject {
     return if (isEmpty()) JSONObject() else JSONObject(this).also { self ->
-        self.undefine(args)
+        if (self.isKeyDefined(args)) {
+            self.undefine(args)
+        }
     }
 }
 
@@ -280,7 +251,10 @@ operator fun JSONObject.minus(args: Array<out String>): JSONObject {
 
 @FrameworkDsl
 inline operator fun JSONObject.minusAssign(args: String) {
-    undefine(args)
+    if (isKeyDefined(args)) {
+        remove(args)
+    }
+    keysOf().remove(args)
 }
 
 @FrameworkDsl
@@ -317,31 +291,71 @@ fun <T> MutableKeysContainer<T>.undefine(args: T) {
 }
 
 @FrameworkDsl
+fun <T> MutableKeysContainer<T>.undefine(args: Collection<T>) {
+    if (args.isNotExhausted()) {
+        keysOf().removeAll(args.convertToSet())
+    }
+}
+
+@FrameworkDsl
 fun <T> MutableKeysContainer<T>.undefine(args: Iterable<T>) {
     if (args.isNotExhausted()) {
-        keysOf().removeAll(args)
+        when (args) {
+            is Set -> undefine(args)
+            else -> undefine(args.convertToSet())
+        }
     }
 }
 
 @FrameworkDsl
 fun <T> MutableKeysContainer<T>.undefine(args: Iterator<T>) {
     if (args.isNotExhausted()) {
-        keysOf().removeAll(args.toSequence())
+        keysOf().removeAll(args.toIterable().convertToSet())
     }
 }
 
 @FrameworkDsl
 fun <T> MutableKeysContainer<T>.undefine(args: Sequence<T>) {
     if (args.isNotExhausted()) {
-        keysOf().removeAll(args)
+        keysOf().removeAll(args.toIterable().convertToSet())
     }
 }
 
 @FrameworkDsl
 fun <T> MutableKeysContainer<T>.undefine(args: Array<out T>) {
     if (args.isNotExhausted()) {
-        keysOf().removeAll(args)
+        keysOf().removeAll(args.toIterable().convertToSet())
     }
+}
+
+@FrameworkDsl
+operator fun JSONArray.plus(args: Maybe): JSONArray {
+    return if (isEmpty()) JSONArray(args) else JSONArray(this).also { it.add(args) }
+}
+
+@FrameworkDsl
+operator fun JSONArray.plus(args: Iterable<Maybe>): JSONArray {
+    return if (isEmpty()) JSONArray(args) else JSONArray(this).also { it.add(args) }
+}
+
+@FrameworkDsl
+operator fun JSONArray.plus(args: Sequence<Maybe>): JSONArray {
+    return if (isEmpty()) JSONArray(args) else JSONArray(this).also { it.add(args) }
+}
+
+@FrameworkDsl
+operator fun JSONArray.plus(args: Iterator<Maybe>): JSONArray {
+    return if (isEmpty()) JSONArray(args) else JSONArray(this).also { it.add(args) }
+}
+
+@FrameworkDsl
+operator fun JSONArray.plus(args: Collection<Maybe>): JSONArray {
+    return if (isEmpty()) JSONArray(args) else JSONArray(this).also { it.add(args) }
+}
+
+@FrameworkDsl
+operator fun JSONArray.plus(args: Array<out Maybe>): JSONArray {
+    return if (isEmpty()) JSONArray(args) else JSONArray(this).also { it.add(args) }
 }
 
 typealias Emoji = co.mercenary.creators.kotlin.util.json.text.emoji.Emoji

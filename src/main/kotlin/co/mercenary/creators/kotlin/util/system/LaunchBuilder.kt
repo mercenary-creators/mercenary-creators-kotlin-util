@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,8 @@ import co.mercenary.creators.kotlin.util.*
 import co.mercenary.creators.kotlin.util.collection.StringArrayList
 import co.mercenary.creators.kotlin.util.io.*
 import co.mercenary.creators.kotlin.util.io.EmptyOutputStream
-import co.mercenary.creators.kotlin.util.time.TimeDuration
 import java.io.*
-import java.nio.file.*
-import java.util.*
-import java.util.concurrent.TimeUnit
+import java.nio.file.Path
 
 @IgnoreForSerialize
 class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<LaunchRunner> {
@@ -46,7 +43,7 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
 
     @FrameworkDsl
     fun directory(home: File): LaunchBuilder {
-        if (home.isDirectory) {
+        if (home.isFolder()) {
             file = home
         }
         return this
@@ -66,7 +63,7 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
     }
 
     @FrameworkDsl
-    fun environment(args: Properties): LaunchBuilder {
+    fun environment(args: SystemProperties): LaunchBuilder {
         if (args.isNotExhausted()) {
             return environment(args.toStringDictionary())
         }
@@ -75,25 +72,33 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
 
     @FrameworkDsl
     fun environment(args: Map<String, String>): LaunchBuilder {
-        envp.append(args)
+        if (args.isNotExhausted()) {
+            envp.append(args)
+        }
         return this
     }
 
     @FrameworkDsl
     fun environment(args: Iterator<Pair<String, String>>): LaunchBuilder {
-        envp.append(args)
+        if (args.isNotExhausted()) {
+            envp.append(args)
+        }
         return this
     }
 
     @FrameworkDsl
     fun environment(args: Iterable<Pair<String, String>>): LaunchBuilder {
-        envp.append(args)
+        if (args.isNotExhausted()) {
+            envp.append(args)
+        }
         return this
     }
 
     @FrameworkDsl
     fun environment(args: Sequence<Pair<String, String>>): LaunchBuilder {
-        envp.append(args)
+        if (args.isNotExhausted()) {
+            envp.append(args)
+        }
         return this
     }
 
@@ -267,15 +272,20 @@ class LaunchBuilder @FrameworkDsl constructor(args: Iterator<String>) : Builder<
             }
 
             @FrameworkDsl
-            override fun waitOn(time: TimeDuration): Boolean {
+            override fun waitOn(time: CreatorsTimeDuration): Boolean {
                 if (time.isEmpty()) {
                     return true
                 }
                 return try {
-                    process.waitFor(time.getNanoSeconds(), TimeUnit.NANOSECONDS)
+                    process.waitFor(time.getNanoSeconds(), SYSTEM_TIME_UNIT_NANOSECONDS)
                 } catch (cause: Throwable) {
                     Throwables.fatal(cause, false)
                 }
+            }
+
+            @FrameworkDsl
+            override fun waitOn(time: KotlinTimeDuration): Boolean {
+                return waitOn(time.toCreatorsTimeDuration())
             }
 
             @FrameworkDsl

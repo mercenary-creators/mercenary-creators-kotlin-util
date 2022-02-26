@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@ import java.io.*
 class NoCloseReader @FrameworkDsl constructor(data: Reader) : FilterReader(data), OpenAutoClosable {
 
     @FrameworkDsl
-    private val open = true.toAtomic()
+    private val open = getAtomicTrue()
 
     @FrameworkDsl
     override fun close() {
         if (open.isTrueToFalse().isNotTrue()) {
-            logsOf<NoCloseReader>().warn { "closed()" }
+            logsOfType<NoCloseReader>().warn { "closed()" }
         }
     }
 

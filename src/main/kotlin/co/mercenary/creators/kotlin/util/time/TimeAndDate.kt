@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat
 import java.time.*
 import java.time.format.*
 import java.util.*
+import java.util.concurrent.atomic.AtomicLong
 
 @IgnoreForSerialize
 object TimeAndDate : HasMapNames {
@@ -161,6 +162,30 @@ object TimeAndDate : HasMapNames {
     @FrameworkDsl
     @JvmOverloads
     fun toElapsedString(data: Long, head: String = "elapsed "): String = head + if (data < 1000000L) "$data nanoseconds" else if (data < 1000000000L) toDecimalPlaces(1.0E-6 * data, " milliseconds") else toDecimalPlaces(1.0E-9 * data, " seconds")
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun sleepFor(time: Long, unit: SystemTimeUnit = SYSTEM_TIME_UNIT_NANOSECONDS) {
+        sleepFor(time.toAtomic(), unit)
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    internal fun sleepFor(time: AtomicLong, unit: SystemTimeUnit = SYSTEM_TIME_UNIT_NANOSECONDS) {
+        while (time > 0L) {
+            try {
+                elapsed {
+                    unit.sleep(time.longOf())
+                }.also {
+                    time.minus(it)
+                }
+            } catch (cause: Throwable) {
+                Throwables.thrown(cause)
+            }
+        }
+    }
 
     @FrameworkDsl
     override fun toString() = toMapNames().toSafeString()

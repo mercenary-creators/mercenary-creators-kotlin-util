@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,18 +45,40 @@ class JSONObject : BasicDictionaryMap<Maybe>, JSONBase<String, JSONObject> {
     constructor(args: Sequence<Pair<String, Maybe>>) : super(args.mapTo())
 
     @FrameworkDsl
+    constructor(args: JSONObject, deep: Boolean) : super(args.copyOf(deep))
+
+    @FrameworkDsl
     override val size: Int
         @IgnoreForSerialize
         get() = sizeOf()
 
     @FrameworkDsl
-    override fun clone() = copyOf()
+    override fun clone() = copyOf(true)
 
     @FrameworkDsl
-    override fun copyOf() = toDeepCopy()
+    override fun copyOf() = copyOf(false)
 
     @FrameworkDsl
-    override infix fun isDefined(look: String) = isKeyDefined(look)
+    override fun copyOf(deep: Boolean): JSONObject {
+        if (sizeOf() == 0) {
+            return JSONObject()
+        }
+        return when (deep) {
+            true -> toDeepCopy()
+            else -> JSONObject().append(this)
+        }
+    }
+
+    @FrameworkDsl
+    override fun remove(key: String): Boolean {
+        if (isKeyDefined(key)) {
+            return keysOf().remove(key)
+        }
+        return false
+    }
+
+    @FrameworkDsl
+    override infix fun isDefined(look: String) = sizeOf() > 0 && isKeyDefined(look)
 
     @FrameworkDsl
     override fun findOf(look: String) = get(look)
