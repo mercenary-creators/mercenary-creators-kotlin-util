@@ -19,12 +19,14 @@
 package co.mercenary.creators.kotlin.util.math
 
 import co.mercenary.creators.kotlin.util.*
-import org.apache.commons.math3.stat.StatUtils
+import org.apache.commons.math3.stat.descriptive.moment.Mean
 import org.apache.commons.math3.stat.descriptive.rank.Median
+import org.apache.commons.math3.util.ArithmeticUtils
 import java.math.RoundingMode
 import kotlin.math.*
 
 object Numeric {
+
 
     @FrameworkDsl
     const val PI_1 = PI * MATH_POSITIVE_ONE
@@ -121,11 +123,11 @@ object Numeric {
 
     @JvmStatic
     @FrameworkDsl
-    inline fun distOf(dx: Int, dy: Int): Double = hypot(dx.realOf(), dy.realOf())
+    inline fun distOf(dx: Int, dy: Int): Double = distOf(dx.realOf(), dy.realOf())
 
     @JvmStatic
     @FrameworkDsl
-    inline fun distOf(dx: Long, dy: Long): Double = hypot(dx.realOf(), dy.realOf())
+    inline fun distOf(dx: Long, dy: Long): Double = distOf(dx.realOf(), dy.realOf())
 
     @JvmStatic
     @FrameworkDsl
@@ -371,7 +373,7 @@ object Numeric {
         if (value.sizeOf() == 0) {
             return true
         }
-        value.toDoubleArray().forEachIndexed { i, d ->
+        value.getDoubleArray().forEachIndexed { i, d ->
             if (closeEnough(d, other[i], precision).isNotTrue()) {
                 return false
             }
@@ -425,11 +427,11 @@ object Numeric {
 
     @JvmStatic
     @FrameworkDsl
-    fun gcdOf(value: Int, other: Int): Int = TailRecursiveFunctions.gcdOf(value, other)
+    fun gcdOf(value: Int, other: Int): Int = InternalMathOperations.gcdOf(value, other)
 
     @JvmStatic
     @FrameworkDsl
-    fun gcdOf(value: Long, other: Long): Long = TailRecursiveFunctions.gcdOf(value, other)
+    fun gcdOf(value: Long, other: Long): Long = InternalMathOperations.gcdOf(value, other)
 
     @JvmStatic
     @FrameworkDsl
@@ -441,35 +443,35 @@ object Numeric {
 
     @JvmStatic
     @FrameworkDsl
-    fun gcdOf(args: IntArray): Int = TailRecursiveFunctions.gcdOf(args)
+    fun gcdOf(args: IntArray): Int = InternalMathOperations.gcdOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun gcdOf(args: Iterable<Int>): Int = TailRecursiveFunctions.gcdOf(args)
+    fun gcdOf(args: Iterable<Int>): Int = InternalMathOperations.gcdOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun gcdOf(args: Iterator<Int>): Int = TailRecursiveFunctions.gcdOf(args)
+    fun gcdOf(args: Iterator<Int>): Int = InternalMathOperations.gcdOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun gcdOf(args: Sequence<Int>): Int = TailRecursiveFunctions.gcdOf(args)
+    fun gcdOf(args: Sequence<Int>): Int = InternalMathOperations.gcdOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun gcdOf(args: LongArray): Long = TailRecursiveFunctions.gcdOf(args)
+    fun gcdOf(args: LongArray): Long = InternalMathOperations.gcdOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun gcdOf(args: Iterable<Long>): Long = TailRecursiveFunctions.gcdOf(args)
+    fun gcdOf(args: Iterable<Long>): Long = InternalMathOperations.gcdOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun gcdOf(args: Iterator<Long>): Long = TailRecursiveFunctions.gcdOf(args)
+    fun gcdOf(args: Iterator<Long>): Long = InternalMathOperations.gcdOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun gcdOf(args: Sequence<Long>): Long = TailRecursiveFunctions.gcdOf(args)
+    fun gcdOf(args: Sequence<Long>): Long = InternalMathOperations.gcdOf(args)
 
     @JvmStatic
     @FrameworkDsl
@@ -481,11 +483,11 @@ object Numeric {
 
     @JvmStatic
     @FrameworkDsl
-    fun lcmOf(value: Int, other: Int): Int = TailRecursiveFunctions.lcmOf(value, other)
+    fun lcmOf(value: Int, other: Int): Int = InternalMathOperations.lcmOf(value, other)
 
     @JvmStatic
     @FrameworkDsl
-    fun lcmOf(value: Long, other: Long): Long = TailRecursiveFunctions.lcmOf(value, other)
+    fun lcmOf(value: Long, other: Long): Long = InternalMathOperations.lcmOf(value, other)
 
     @JvmStatic
     @FrameworkDsl
@@ -497,31 +499,31 @@ object Numeric {
 
     @JvmStatic
     @FrameworkDsl
-    fun lcmOf(args: IntArray): Int = TailRecursiveFunctions.lcmOf(args)
+    fun lcmOf(args: IntArray): Int = InternalMathOperations.lcmOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun lcmOf(args: Iterable<Int>): Int = TailRecursiveFunctions.lcmOf(args)
+    fun lcmOf(args: Iterable<Int>): Int = InternalMathOperations.lcmOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun lcmOf(args: Sequence<Int>): Int = TailRecursiveFunctions.lcmOf(args)
+    fun lcmOf(args: Sequence<Int>): Int = InternalMathOperations.lcmOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun lcmOf(args: LongArray): Long = TailRecursiveFunctions.lcmOf(args)
+    fun lcmOf(args: LongArray): Long = InternalMathOperations.lcmOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun lcmOf(args: Iterable<Long>): Long = TailRecursiveFunctions.lcmOf(args)
+    fun lcmOf(args: Iterable<Long>): Long = InternalMathOperations.lcmOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun lcmOf(args: Iterator<Long>): Long = TailRecursiveFunctions.lcmOf(args)
+    fun lcmOf(args: Iterator<Long>): Long = InternalMathOperations.lcmOf(args)
 
     @JvmStatic
     @FrameworkDsl
-    fun lcmOf(args: Sequence<Long>): Long = TailRecursiveFunctions.lcmOf(args)
+    fun lcmOf(args: Sequence<Long>): Long = InternalMathOperations.lcmOf(args)
 
     @JvmStatic
     @FrameworkDsl
@@ -612,8 +614,7 @@ object Numeric {
                 if (it == MATH_POSITIVE_ZERO) it * MATH_POSITIVE_ZERO else it
             }
         } catch (cause: Throwable) {
-            Throwables.fatal(cause,INVALID_NUMBER )
-
+            Throwables.fatal(cause, INVALID_NUMBER)
         }
     }
 
@@ -669,6 +670,69 @@ object Numeric {
         return args.map { value ->
             rounded(value, scale)
         }
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun isArrayValid(args: IntArray, from: Int = 0, size: Int = args.sizeOf(), none: Boolean = false): Boolean {
+        return (from < 0 || size < 0 || (from + size > args.sizeOf()) || (size.isZero() && none.isNotTrue())).isNotTrue()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun isArrayValid(args: ByteArray, from: Int = 0, size: Int = args.sizeOf(), none: Boolean = false): Boolean {
+        return (from < 0 || size < 0 || (from + size > args.sizeOf()) || (size.isZero() && none.isNotTrue())).isNotTrue()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun isArrayValid(args: CharArray, from: Int = 0, size: Int = args.sizeOf(), none: Boolean = false): Boolean {
+        return (from < 0 || size < 0 || (from + size > args.sizeOf()) || (size.isZero() && none.isNotTrue())).isNotTrue()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun isArrayValid(args: LongArray, from: Int = 0, size: Int = args.sizeOf(), none: Boolean = false): Boolean {
+        return (from < 0 || size < 0 || (from + size > args.sizeOf()) || (size.isZero() && none.isNotTrue())).isNotTrue()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun isArrayValid(args: ShortArray, from: Int = 0, size: Int = args.sizeOf(), none: Boolean = false): Boolean {
+        return (from < 0 || size < 0 || (from + size > args.sizeOf()) || (size.isZero() && none.isNotTrue())).isNotTrue()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun isArrayValid(args: FloatArray, from: Int = 0, size: Int = args.sizeOf(), none: Boolean = false): Boolean {
+        return (from < 0 || size < 0 || (from + size > args.sizeOf()) || (size.isZero() && none.isNotTrue())).isNotTrue()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun isArrayValid(args: DoubleArray, from: Int = 0, size: Int = args.sizeOf(), none: Boolean = false): Boolean {
+        return (from < 0 || size < 0 || (from + size > args.sizeOf()) || (size.isZero() && none.isNotTrue())).isNotTrue()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun isArrayValid(args: BooleanArray, from: Int = 0, size: Int = args.sizeOf(), none: Boolean = false): Boolean {
+        return (from < 0 || size < 0 || (from + size > args.sizeOf()) || (size.isZero() && none.isNotTrue())).isNotTrue()
+    }
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun <T : Any> isArrayValid(args: Array<T>, from: Int = 0, size: Int = args.sizeOf(), none: Boolean = false): Boolean {
+        return (from < 0 || size < 0 || (from + size > args.sizeOf()) || (size.isZero() && none.isNotTrue())).isNotTrue()
     }
 
     @JvmStatic
@@ -792,28 +856,12 @@ object Numeric {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun meanOf(args: DoubleArray, from: Int = 0, last: Int = args.sizeOf()): Double {
-        if (args.sizeOf() == 0) {
-            return INVALID_NUMBER
-        }
-        return StatUtils.mean(args, from, last)
-    }
+    fun meanOf(args: DoubleArray, from: Int = 0, last: Int = args.sizeOf()): Double = InternalMathOperations.getMean(args, from, last)
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun meanOf(values: DoubleArray, weights:DoubleArray, from: Int = 0, last: Int = values.sizeOf()): Double {
-        if (values.sizeOf() == 0) {
-            return INVALID_NUMBER
-        }
-        if (values.sizeOf() != weights.sizeOf()) {
-            return INVALID_NUMBER
-        }
-        if (weights.isFinite().isNotTrue()) {
-            return INVALID_NUMBER
-        }
-        return StatUtils.mean(values, from, last)
-    }
+    fun meanOf(values: DoubleArray, weights: DoubleArray, from: Int = 0, last: Int = values.sizeOf()): Double = InternalMathOperations.getMean(values, weights, from, last)
 
     @JvmStatic
     @FrameworkDsl
@@ -959,47 +1007,87 @@ object Numeric {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun getMedianSorted(args: DoubleArray, default: Double = MATH_POSITIVE_ZERO): Double {
+    fun getMedianSorted(args: DoubleArray, from: Int = 0, last: Int = args.sizeOf(), default: Double = MATH_POSITIVE_ZERO): Double {
         return when (args.sizeOf()) {
             0 -> default
             1 -> args[0].toFiniteOrElse(default)
-            else -> getMedianSorted(args, 0, args.sizeOf(), default).toFiniteOrElse(default)
+            else -> Median().evaluate(args, from, last).toFiniteOrElse(default)
         }
     }
 
-    @JvmStatic
-    @FrameworkDsl
-    @JvmOverloads
-    fun getMedianSorted(args: DoubleArray, from: Int, last: Int, default: Double = MATH_POSITIVE_ZERO): Double {
-        return when (args.sizeOf()) {
-            0 -> default
-            1 -> args[0].toFiniteOrElse(default)
-            else -> Median().evaluate(args.toParallelSorted(), from, last).toFiniteOrElse(default)
-        }
-    }
-
-    internal object TailRecursiveFunctions {
+    internal object InternalMathOperations {
 
         @FrameworkDsl
-        tailrec fun gcdOf(value: Int, other: Int): Int {
+        fun getMean(args: DoubleArray, from: Int = 0, last: Int = args.sizeOf(), default: Double = INVALID_NUMBER): Double {
+            if (args.isExhausted() || isArrayValid(args, from, last).isNotTrue()) {
+                return default
+            }
+            return try {
+                Mean().evaluate(args, from, last).toFiniteOrElse(default)
+            } catch (cause: Throwable) {
+                Throwables.fatal(cause, default)
+            }
+        }
+
+        @FrameworkDsl
+        fun getMean(values: DoubleArray, weights: DoubleArray, from: Int = 0, last: Int = values.sizeOf(), default: Double = INVALID_NUMBER): Double {
+            if (values.isExhausted()) {
+                return default
+            }
+            if (values.sizeOf() != weights.sizeOf()) {
+                return default
+            }
+            if (weights.isFinite().isNotTrue()) {
+                return default
+            }
+            return try {
+                Mean().evaluate(values, weights, from, last).toFiniteOrElse(default)
+            } catch (cause: Throwable) {
+                Throwables.fatal(cause, default)
+            }
+        }
+
+        @FrameworkDsl
+        fun getMedian(args: DoubleArray, from: Int = 0, last: Int = args.sizeOf(), default: Double = INVALID_NUMBER): Double {
+            return when (args.sizeOf()) {
+                0 -> default
+                1 -> args[0].toFiniteOrElse(default)
+                else -> try {
+                    Median().evaluate(args, from, last).toFiniteOrElse(default)
+                } catch (cause: Throwable) {
+                    Throwables.fatal(cause, default)
+                }
+            }
+        }
+
+        @FrameworkDsl
+        fun gcdOf(value: Int, other: Int): Int {
             if (value == 0 || other == 0) {
                 if ((value == Int.MIN_VALUE) || (other == Int.MIN_VALUE)) {
                     throw MercenaryMathExceptiion(MATH_OVERFLOW_FOR_ERROR)
                 }
-                return absOf(value + other)
             }
-            return gcdOf(other, value % other)
+            return try {
+                ArithmeticUtils.gcd(value, other)
+            } catch (cause: Throwable) {
+                Throwables.thrown(cause)
+                throw MercenaryMathExceptiion(MATH_OVERFLOW_FOR_ERROR)
+            }
         }
 
         @FrameworkDsl
-        tailrec fun gcdOf(value: Long, other: Long): Long {
+        fun gcdOf(value: Long, other: Long): Long {
             if (value == 0L || other == 0L) {
                 if ((value == Long.MIN_VALUE) || (other == Long.MIN_VALUE)) {
                     throw MercenaryMathExceptiion(MATH_OVERFLOW_FOR_ERROR)
                 }
-                return absOf(value) + absOf(other)
             }
-            return gcdOf(other, value % other)
+            return try {
+                ArithmeticUtils.gcd(value, other)
+            } catch (cause: Throwable) {
+                Throwables.thrown(cause)
+                throw MercenaryMathExceptiion(MATH_OVERFLOW_FOR_ERROR)
+            }
         }
 
         @FrameworkDsl
@@ -1091,7 +1179,16 @@ object Numeric {
             if (value == 0 || other == 0) {
                 return 0
             }
-            return (value * other) / gcdOf(value, other).toValidDivisor()
+            return try {
+                ArithmeticUtils.lcm(value, other).also {
+                    if (it == Int.MIN_VALUE) {
+                        throw MercenaryMathExceptiion(MATH_OVERFLOW_FOR_ERROR)
+                    }
+                }
+            } catch (cause: Throwable) {
+                Throwables.thrown(cause)
+                throw MercenaryMathExceptiion(MATH_OVERFLOW_FOR_ERROR)
+            }
         }
 
         @FrameworkDsl
@@ -1099,7 +1196,16 @@ object Numeric {
             if (value == 0L || other == 0L) {
                 return 0L
             }
-            return (value * other) / gcdOf(value, other).toValidDivisor()
+            return try {
+                ArithmeticUtils.lcm(value, other).also {
+                    if (it == Long.MIN_VALUE) {
+                        throw MercenaryMathExceptiion(MATH_OVERFLOW_FOR_ERROR)
+                    }
+                }
+            } catch (cause: Throwable) {
+                Throwables.thrown(cause)
+                throw MercenaryMathExceptiion(MATH_OVERFLOW_FOR_ERROR)
+            }
         }
 
         @FrameworkDsl
@@ -1109,7 +1215,7 @@ object Numeric {
                 1 -> absOf(args[0])
                 2 -> lcmOf(args[0], args[1])
                 else -> args.reduce { x, y ->
-                    x * (y / gcdOf(x, y).toValidDivisor())
+                    lcmOf(x, y)
                 }
             }
         }
@@ -1137,7 +1243,7 @@ object Numeric {
                 1 -> absOf(args[0])
                 2 -> lcmOf(args[0], args[1])
                 else -> args.reduce { x, y ->
-                    x * (y / gcdOf(x, y).toValidDivisor())
+                    lcmOf(x, y)
                 }
             }
         }

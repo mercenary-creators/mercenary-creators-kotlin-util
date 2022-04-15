@@ -80,8 +80,7 @@ object Ciphers : HasMapNames {
     fun getMaxKeySize(algorithm: String): Int {
         return try {
             Cipher.getMaxAllowedKeyLength(algorithm)
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.fatal(cause, IS_NOT_FOUND)
         }
     }
@@ -97,8 +96,7 @@ object Ciphers : HasMapNames {
     fun getMaxAlgorithmParameterSpec(algorithm: String): AlgorithmParameterSpec? {
         return try {
             Cipher.getMaxAllowedParameterSpec(algorithm)
-        }
-        catch (cause: Throwable) {
+        } catch (cause: Throwable) {
             Throwables.fatal(cause, null)
         }
     }
@@ -140,11 +138,12 @@ object Ciphers : HasMapNames {
 
     @IgnoreForSerialize
     private class InternalEncryptingCopy @FrameworkDsl constructor(private val algorithm: CipherAlgorithm, private val encrypt: Cipher, private val decrypt: Cipher, private val secret: SecretKey, private val factory: CipherKeysFactory) : CipherCopyStreams {
-
+        @FrameworkDsl
+        private fun factory() = factory
         @FrameworkDsl
         override fun encrypt(data: InputStream, copy: OutputStream) = locked(encrypt) {
             val buffer = data.getBufferSize()
-            val vector = factory.getKeys().also { copy.write(it) }
+            val vector = factory().getKeys().also { copy.write(it) }
             val output = FastCipherOutputStream(copy, setCypher(encrypt, Cipher.ENCRYPT_MODE, secret, getParams(algorithm, vector)))
             data.copyTo(output, buffer)
             output.close()
@@ -153,7 +152,7 @@ object Ciphers : HasMapNames {
         @FrameworkDsl
         override fun decrypt(data: InputStream, copy: OutputStream) = locked(decrypt) {
             val buffer = data.getBufferSize()
-            val vector = ByteArray(factory.getSize()).also { data.read(it) }
+            val vector = ByteArray(factory().getSize()).also { data.read(it) }
             val output = FastCipherOutputStream(copy, setCypher(decrypt, Cipher.DECRYPT_MODE, secret, getParams(algorithm, vector)))
             data.copyTo(output, buffer)
             output.close()
@@ -167,7 +166,7 @@ object Ciphers : HasMapNames {
     }
 
     @IgnoreForSerialize
-    private class FastCipherOutputStream @FrameworkDsl constructor(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream(),OpenCloseState {
+    private class FastCipherOutputStream @FrameworkDsl constructor(private val proxy: OutputStream, private val cipher: Cipher) : OutputStream(), OpenCloseState {
 
         @FrameworkDsl
         private var obuf: ByteArray? = null
@@ -211,16 +210,20 @@ object Ciphers : HasMapNames {
 
         @FrameworkDsl
         override fun close() {
-            obuf = try {
-                cipher.doFinal()
-            } catch (cause: Throwable) {
-                null
+            if (open.isTrueToFalse()) {
+                obuf = try {
+                    cipher.doFinal()
+                } catch (cause: Throwable) {
+                    null
+                }
             }
             flush()
+            proxy.close()
         }
 
+        @FrameworkDsl
         override fun isOpen(): Boolean {
-            TODO("Not yet implemented")
+            return open.isTrue()
         }
     }
 }

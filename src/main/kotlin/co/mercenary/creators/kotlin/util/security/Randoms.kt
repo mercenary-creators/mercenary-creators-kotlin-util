@@ -21,9 +21,7 @@ package co.mercenary.creators.kotlin.util.security
 import co.mercenary.creators.kotlin.util.*
 import java.security.SecureRandom
 import java.util.*
-import java.util.random.*
 import kotlin.random.*
-
 
 @IgnoreForSerialize
 object Randoms {
@@ -78,6 +76,9 @@ object Randoms {
     }
 
     @FrameworkDsl
+    private inline fun hexvals() = VALUES.toCharArray(false)
+
+    @FrameworkDsl
     private inline fun secure() = RANDOM
 
     @FrameworkDsl
@@ -112,26 +113,6 @@ object Randoms {
     @JvmStatic
     @FrameworkDsl
     fun strongOf() = STRONG
-
-    @JvmStatic
-    @FrameworkDsl
-    @JvmOverloads
-    fun randomGenerator(name: CharSequence, best: Boolean = true): RandomGenerator {
-        return try {
-            RandomGenerator.of(name.copyOf().toTrimOr { if (best.isTrue()) "SecureRandom" else "Random" })
-        } catch (cause: Throwable) {
-            return randomGenerator(best)
-        }
-    }
-
-    @JvmStatic
-    @FrameworkDsl
-    fun randomGenerator(best: Boolean): RandomGenerator {
-        return when (best.isNotTrue()) {
-            true -> RandomGeneratorFactory.getDefault().create()
-            else -> RandomGeneratorFactory.all().toList().also { it.sortWith(Comparator.comparingInt(RandomGeneratorFactory<RandomGenerator>::stateBits).reversed()) }.firstOrNull().otherwise { RandomGeneratorFactory.of("SecureRandom") }.create()
-        }
-    }
 
     @JvmStatic
     @FrameworkDsl
@@ -178,6 +159,11 @@ object Randoms {
     @FrameworkDsl
     @JvmOverloads
     fun getByteArray(random: SecureRandom, bytes: ByteArray, copy: Boolean = false) = random.nextByteArray(bytes, copy)
+
+    @JvmStatic
+    @FrameworkDsl
+    @JvmOverloads
+    fun getByteArray(factory: Factory<SecureRandom>, bytes: ByteArray, copy: Boolean = false) = factory.create().nextByteArray(bytes, copy)
 
     @JvmStatic
     @FrameworkDsl
@@ -474,7 +460,7 @@ object Randoms {
 
     @JvmStatic
     @FrameworkDsl
-    fun getString(sized: Int): String = getString(sized, VALUES)
+    fun getString(sized: Int): String = getString(sized, hexvals())
 
     @JvmStatic
     @FrameworkDsl

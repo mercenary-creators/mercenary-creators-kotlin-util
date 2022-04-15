@@ -117,7 +117,7 @@ object JSONPath {
     }
 
     @IgnoreForSerialize
-    internal class JSONEvaluationContext @FrameworkDsl constructor(internal val context: DocumentContext) : PathEvaluationContext {
+    internal class JSONEvaluationContext @FrameworkDsl constructor(context: DocumentContext) : PathEvaluationContext {
 
         @FrameworkDsl
         constructor(data: Any) : this(JsonPath.parse(data, CONFIG))
@@ -129,85 +129,88 @@ object JSONPath {
         constructor(data: CharSequence) : this(JsonPath.parse(data.copyOf(), CONFIG))
 
         @FrameworkDsl
+        private val document = context
+
+        @FrameworkDsl
         override fun clone() = copyOf()
 
         @FrameworkDsl
         override fun copyOf(): PathEvaluationContext = make(root() as Any)
 
         @FrameworkDsl
-        override fun add(path: String, data: Maybe) = make(context.add(lookup(path), data))
+        override fun add(path: String, data: Maybe) = make(document.add(lookup(path), data))
 
         @FrameworkDsl
-        override fun add(path: CompiledPath, data: Maybe) = make(context.add(lookup(path), data))
+        override fun add(path: CompiledPath, data: Maybe) = make(document.add(lookup(path), data))
 
         @FrameworkDsl
-        override fun set(path: String, data: Maybe) = make(context.set(lookup(path), data))
+        override fun set(path: String, data: Maybe) = make(document.set(lookup(path), data))
 
         @FrameworkDsl
-        override fun set(path: CompiledPath, data: Maybe) = make(context.set(lookup(path), data))
+        override fun set(path: CompiledPath, data: Maybe) = make(document.set(lookup(path), data))
 
         @FrameworkDsl
-        override fun put(path: String, name: String, data: Maybe) = make(context.put(lookup(path), name, data))
+        override fun put(path: String, name: String, data: Maybe) = make(document.put(lookup(path), name, data))
 
         @FrameworkDsl
-        override fun put(path: CompiledPath, name: String, data: Maybe) = make(context.put(lookup(path), name, data))
+        override fun put(path: CompiledPath, name: String, data: Maybe) = make(document.put(lookup(path), name, data))
 
         @FrameworkDsl
-        override fun delete(path: String) = make(context.delete(lookup(path)))
+        override fun delete(path: String) = make(document.delete(lookup(path)))
 
         @FrameworkDsl
-        override fun delete(path: CompiledPath) = make(context.delete(lookup(path)))
+        override fun delete(path: CompiledPath) = make(document.delete(lookup(path)))
 
         @FrameworkDsl
-        override fun rename(path: String, last: String, name: String) = make(context.renameKey(lookup(path), last, name))
+        override fun rename(path: String, last: String, name: String) = make(document.renameKey(lookup(path), last, name))
 
         @FrameworkDsl
-        override fun rename(path: CompiledPath, last: String, name: String) = make(context.renameKey(lookup(path), last, name))
+        override fun rename(path: CompiledPath, last: String, name: String) = make(document.renameKey(lookup(path), last, name))
 
         @FrameworkDsl
-        override fun <T : Any> eval(path: String, type: Class<T>): T = context.read(lookup(path), type)
+        override fun <T : Any> eval(path: String, type: Class<T>): T = document.read(lookup(path), type)
 
         @FrameworkDsl
-        override fun <T : Any> eval(path: String, type: TypeRef<T>): T = context.read(lookup(path), type)
+        override fun <T : Any> eval(path: String, type: TypeRef<T>): T = document.read(lookup(path), type)
 
         @FrameworkDsl
-        override fun <T : Any> eval(path: String, type: KClass<T>): T = context.read(lookup(path), type.java)
+        override fun <T : Any> eval(path: String, type: KClass<T>): T = document.read(lookup(path), type.java)
 
         @FrameworkDsl
-        override fun <T : Any> read(path: String, type: Class<T>): T? = context.read(lookup(path), type)
+        override fun <T : Any> read(path: String, type: Class<T>): T? = document.read(lookup(path), type)
 
         @FrameworkDsl
-        override fun <T : Any> read(path: String, type: TypeRef<T>): T? = context.read(lookup(path), type)
+        override fun <T : Any> read(path: String, type: TypeRef<T>): T? = document.read(lookup(path), type)
 
         @FrameworkDsl
-        override fun <T : Any> read(path: String, type: KClass<T>): T? = context.read(lookup(path), type.java)
+        override fun <T : Any> read(path: String, type: KClass<T>): T? = document.read(lookup(path), type.java)
 
         @FrameworkDsl
-        override fun <T : Any> eval(path: CompiledPath, type: Class<T>): T = context.read(lookup(path), type)
+        override fun <T : Any> eval(path: CompiledPath, type: Class<T>): T = document.read(lookup(path), type)
 
         @FrameworkDsl
-        override fun <T : Any> eval(path: CompiledPath, type: TypeRef<T>): T = context.read(lookup(path), type)
+        override fun <T : Any> eval(path: CompiledPath, type: TypeRef<T>): T = document.read(lookup(path), type)
 
         @FrameworkDsl
-        override fun <T : Any> eval(path: CompiledPath, type: KClass<T>): T = context.read(lookup(path), type.java)
+        override fun <T : Any> eval(path: CompiledPath, type: KClass<T>): T = document.read(lookup(path), type.java)
 
         @FrameworkDsl
-        override fun <T : Any> read(path: CompiledPath, type: Class<T>): T? = context.read(lookup(path), type)
+        override fun <T : Any> read(path: CompiledPath, type: Class<T>): T? = document.read(lookup(path), type)
 
         @FrameworkDsl
-        override fun <T : Any> read(path: CompiledPath, type: TypeRef<T>): T? = context.read(lookup(path), type)
+        override fun <T : Any> read(path: CompiledPath, type: TypeRef<T>): T? = document.read(lookup(path), type)
 
         @FrameworkDsl
-        override fun <T : Any> read(path: CompiledPath, type: KClass<T>): T? = context.read(lookup(path), type.java)
+        override fun <T : Any> read(path: CompiledPath, type: KClass<T>): T? = document.read(lookup(path), type.java)
 
         @FrameworkDsl
-        override fun map(path: String, func: (Maybe, PathEvaluationContext) -> Maybe) = make(context.map(lookup(path), mapper(func, this)).otherwise(context))
+        override fun map(path: String, func: (Maybe, PathEvaluationContext) -> Maybe) = make(document.map(lookup(path), mapper(func, this)).otherwise(document))
 
         @FrameworkDsl
-        override fun map(path: CompiledPath, func: (Maybe, PathEvaluationContext) -> Maybe) = make(context.map(lookup(path), mapper(func, this)).otherwise(context))
+        override fun map(path: CompiledPath, func: (Maybe, PathEvaluationContext) -> Maybe) = make(document.map(lookup(path), mapper(func, this)).otherwise(document))
 
         @FrameworkDsl
-        override fun <T : Any> root(): T = context.json()
+        override fun <T : Any> root(): T = document.json()
 
         @FrameworkDsl
         override fun toString(): String = JSONStatic.toJSONString(root())

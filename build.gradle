@@ -16,10 +16,9 @@
 
 buildscript {
     ext {
-        set('kotlin_version', '1.6.10')
-        set('jacksonLibraryVersion', '2.13.1')
+        set('kotlin_version', '1.6.20')
+        set('jackson_version', '2.13.2')
         set('kotlinx_coroutines_version', '1.6.0')
-        set('kotlinx_arrow_libs_version', '1.0.1')
     }
     repositories {
         mavenCentral()
@@ -42,7 +41,7 @@ import java.text.SimpleDateFormat
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        it.languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -116,36 +115,34 @@ repositories {
 
 dependencies {
     implementation(group: 'commons-io', name: 'commons-io', version: '2.11.0')
-    implementation(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32')
-    implementation(group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.32')
-    implementation(group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.32')
-    implementation(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.9')
-    implementation(group: 'io.projectreactor.kotlin', name: 'reactor-kotlin-extensions', version: '1.1.5')
+    implementation(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36')
+    implementation(group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.36')
+    implementation(group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.36')
+    implementation(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11')
+    implementation(group: 'io.projectreactor.kotlin', name: 'reactor-kotlin-extensions', version: '1.1.6')
     implementation(group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1')
     implementation(group: 'io.github.microutils', name: 'kotlin-logging-jvm', version: '2.1.21')
-    implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.6.10')
-    implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: '1.6.10')
-    implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-script-runtime', version: '1.6.10')
-    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.6.0')
-    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: '1.6.0')
-    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk9', version: '1.6.0')
-    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-reactor', version: '1.6.0')
+    implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version)
+    implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlin_version)
+    implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-script-runtime', version: kotlin_version)
+    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: kotlinx_coroutines_version)
+    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: kotlinx_coroutines_version)
+    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk9', version: kotlinx_coroutines_version)
+    implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-reactor', version: kotlinx_coroutines_version)
     implementation(group: 'com.sun.activation', name: 'jakarta.activation', version: '2.0.1')
-    implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.1')
-    implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.1')
-    implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.13.1')
-    implementation(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.13.1')
-    implementation(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.1')
-    implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.13.1')
-    implementation(group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.13.1')
-    implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: '2.13.1')
-    implementation(group: 'com.jayway.jsonpath', name: 'json-path', version: '2.6.0')
-    implementation(group: 'org.jetbrains.kotlinx', name: 'atomicfu-jvm', version: '0.17.0')
-    implementation(group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12')
-    testImplementation(group: 'io.projectreactor', name: 'reactor-test', version: '3.4.12')
+    implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version)
+    implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version)
+    implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version)
+    implementation(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: jackson_version)
+    implementation(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: jackson_version)
+    implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jackson_version)
+    implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: jackson_version)
+    implementation(group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0')
+    implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.17'
+    testImplementation group: 'io.projectreactor', name: 'reactor-test', version: '3.4.17'
     testImplementation(group: 'junit', name: 'junit', version: '4.13.2')
-    testImplementation(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit5', version: '1.6.10')
-    testImplementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-test', version: '1.6.0')
+    testImplementation(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit5', version: kotlin_version)
+    testImplementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-test', version: kotlinx_coroutines_version)
     testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2')
     testRuntimeOnly(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.2')
 }

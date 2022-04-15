@@ -275,6 +275,16 @@ fun Sequence<Double>.getDoubleArray(): DoubleArray {
 }
 
 @FrameworkDsl
+inline fun Int.isPowerOfTwo(): Boolean {
+    return (this > 0) && (this and (this - 1) == 0)
+}
+
+@FrameworkDsl
+inline fun Long.isPowerOfTwo(): Boolean {
+    return (this > 0L) && (this and (this - 1) == 0L)
+}
+
+@FrameworkDsl
 inline fun Double.bitsOf(base: Boolean = true): Long = if (base.isTrue()) toRawBits() else toBits()
 
 @FrameworkDsl

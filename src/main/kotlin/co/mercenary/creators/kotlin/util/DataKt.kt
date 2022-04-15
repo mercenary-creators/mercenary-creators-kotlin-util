@@ -26,6 +26,7 @@ import java.nio.*
 import java.nio.channels.*
 import java.nio.charset.Charset
 import java.nio.file.*
+import java.nio.file.attribute.FileTime
 import java.util.*
 import java.util.stream.IntStream
 
@@ -334,6 +335,16 @@ fun getByteBuffer(size: Int, heap: Boolean = true): ByteBuffer {
         true -> ByteBuffer.allocate(size.maxOf(0))
         else -> ByteBuffer.allocateDirect(size.maxOf(0))
     }
+}
+
+@FrameworkDsl
+fun getFileTimeOfUnit(time: Int, unit: SystemTimeUnit = SYSTEM_TIME_UNIT_MILLISECONDS): FileTime {
+    return getFileTimeOfUnit(time.longOf(), unit)
+}
+
+@FrameworkDsl
+fun getFileTimeOfUnit(time: Long, unit: SystemTimeUnit = SYSTEM_TIME_UNIT_MILLISECONDS): FileTime {
+    return FileTime.from(time, unit)
 }
 
 @FrameworkDsl
@@ -667,16 +678,36 @@ inline fun File.getContentSize(): Long {
 }
 
 @FrameworkDsl
+inline fun File.getLastModifiedFileTime(): FileTime {
+    return pathOf().getLastModifiedFileTime()
+}
+
+@FrameworkDsl
 inline fun File.getContentTime(): Long {
-    return try {
-        lastModified()
-    } catch (cause: Throwable) {
-        Throwables.fatal(cause, 0L)
-    }
+    return pathOf().getContentTime()
 }
 
 @FrameworkDsl
 inline fun File.getContentDate(): Date {
+    return pathOf().getContentDate()
+}
+
+@FrameworkDsl
+inline fun Path.getLastModifiedFileTime(): FileTime {
+    return try {
+        Files.getLastModifiedTime(this)
+    } catch (cause: Throwable) {
+        Throwables.fatal(cause, getFileTimeOfUnit(0L))
+    }
+}
+
+@FrameworkDsl
+inline fun Path.getContentTime(): Long {
+    return getLastModifiedFileTime().toMillis()
+}
+
+@FrameworkDsl
+inline fun Path.getContentDate(): Date {
     return getContentTime().toDate()
 }
 
@@ -936,12 +967,13 @@ fun <T> Iterable<T>.withEachIndexed(block: (Int, T) -> Unit) {
         block(index, element)
     }
 }
+
+@FrameworkDsl
 fun File.forEachLine(parallel: Boolean = false): Sequence<String> {
-    return when (parallel.isNotTrue()) {
-        true -> bufferedReader(DEFAULT_CHARSET_UTF_8).lines().toSequence()
-        else -> Files.lines(pathOf(), DEFAULT_CHARSET_UTF_8).parallel().toSequence()
-    }
+    return pathOf().forEachLine(parallel)
 }
+
+@FrameworkDsl
 fun Path.forEachLine(parallel: Boolean = false): Sequence<String> {
     return when (parallel.isNotTrue()) {
         true -> Files.lines(this, DEFAULT_CHARSET_UTF_8).toSequence()

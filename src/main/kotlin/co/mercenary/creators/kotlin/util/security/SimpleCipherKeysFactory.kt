@@ -20,7 +20,13 @@ import co.mercenary.creators.kotlin.util.*
 import java.security.SecureRandom
 
 @IgnoreForSerialize
-class SimpleCipherKeysFactory private constructor(private val size: Int, private val rand: Factory<SecureRandom>) : CipherKeysFactory, HasMapNames {
+class SimpleCipherKeysFactory private constructor(bits: Int, rand: Factory<SecureRandom>) : CipherKeysFactory, HasMapNames {
+
+    @FrameworkDsl
+    private val size = bits
+
+    @FrameworkDsl
+    private val fact = rand
 
     @FrameworkDsl
     constructor(cipher: CipherAlgorithm) : this(cipher.getFactoryKeysSize(), cipher.getFactoryKeysRand())
@@ -31,7 +37,7 @@ class SimpleCipherKeysFactory private constructor(private val size: Int, private
 
     @FrameworkDsl
     @IgnoreForSerialize
-    override fun getKeys(): ByteArray = Randoms.getByteArray(rand.create(), getSize())
+    override fun getKeys(): ByteArray = Randoms.getByteArray(fact.create(), getSize())
 
     @FrameworkDsl
     override fun toMapNames() = dictOf("type" to nameOf())
