@@ -16,7 +16,7 @@
 
 buildscript {
     ext {
-        set('kotlin_version', '1.6.20')
+        set('kotlin_version', '1.6.21')
         set('jackson_version', '2.13.2')
         set('kotlinx_coroutines_version', '1.6.1')
     }
