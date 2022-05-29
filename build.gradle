@@ -17,8 +17,8 @@
 buildscript {
     ext {
         set('kotlin_version', '1.6.21')
-        set('jackson_version', '2.13.2')
-        set('kotlinx_coroutines_version', '1.6.1')
+        set('jackson_version', '2.13.3')
+        set('kotlinx_coroutines_version', '1.6.2')
     }
     repositories {
         mavenCentral()
@@ -31,17 +31,19 @@ buildscript {
     }
 }
 
-apply plugin: 'idea'
-apply plugin: 'java'
-apply plugin: 'kotlin'
-apply plugin: 'signing'
-apply plugin: 'org.owasp.dependencycheck'
+plugins {
+    id 'idea'
+    id 'java'
+    id 'signing'
+    id 'java-library'
+    id 'maven-publish'
+}
 
-import java.text.SimpleDateFormat
+apply plugin: 'kotlin'
 
 java {
     toolchain {
-        it.languageVersion = JavaLanguageVersion.of(17)
+        it.languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
@@ -54,12 +56,6 @@ task doJavaDocs(type: Javadoc) {
     classpath = sourceSets.main.compileClasspath + buildscript.configurations.classpath
     destinationDir = project.file("${buildDir}/docs/javadoc")
     include('co/mercenary/creators/**')
-    exclude('co/mercenary/creators/kotlin/**')
-    title = "${getProjectCommonName()}"
-    (options as StandardJavadocDocletOptions).with {
-        links = getJavaDocLinks()
-        bottom = "<div><h4 class=\"footer\"><a href=\"${getBuildGITHomeURL()}\" target=\"_blank\">${getProjectCommonName()} - Copyright &copy; 2022, Mercenary Creators Company</a> - <a href=\"${getBuildGITCommitHash()}\" target=\"_blank\">${getBuildModuleVersion()}</a> - <a href=\"mailto:deansjones@gmail.com\">Author: Dean S. Jones</a></h4></div>"
-    }
 }
 
 task deleteConfigs(type: Delete) {
@@ -71,14 +67,14 @@ task deleteConfigs(type: Delete) {
 compileKotlin {
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict', '-Xjvm-default=compatibility', '-Xopt-in=kotlin.RequiresOptIn', "-Xopt-in=kotlin.contracts.ExperimentalContracts"]
-        jvmTarget = '17'
+        jvmTarget = '11'
     }
 }
 
 compileTestKotlin {
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict', '-Xjvm-default=compatibility', '-Xopt-in=kotlin.RequiresOptIn', "-Xopt-in=kotlin.contracts.ExperimentalContracts"]
-        jvmTarget = '17'
+        jvmTarget = '11'
     }
 }
 
@@ -99,16 +95,6 @@ test {
     useJUnitPlatform()
 }
 
-dependencyCheck {
-    failOnError = false
-    outputDirectory = "${buildDir}/reports/cve"
-    suppressionFile = project.file('config/cve/suppress.xml').toPath()
-}
-
-task checkCodeQuality { doLast { println ':checkCodeQuality-done' } }
-
-checkCodeQuality.dependsOn dependencyCheckAnalyze
-
 repositories {
     mavenCentral()
 }
@@ -121,7 +107,7 @@ dependencies {
     implementation(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11')
     implementation(group: 'io.projectreactor.kotlin', name: 'reactor-kotlin-extensions', version: '1.1.6')
     implementation(group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1')
-    implementation(group: 'io.github.microutils', name: 'kotlin-logging-jvm', version: '2.1.21')
+    implementation(group: 'io.github.microutils', name: 'kotlin-logging-jvm', version: '2.1.23')
     implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version)
     implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlin_version)
     implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-script-runtime', version: kotlin_version)
@@ -138,8 +124,8 @@ dependencies {
     implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jackson_version)
     implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: jackson_version)
     implementation(group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0')
-    implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.17'
-    testImplementation group: 'io.projectreactor', name: 'reactor-test', version: '3.4.17'
+    implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.18'
+    testImplementation group: 'io.projectreactor', name: 'reactor-test', version: '3.4.18'
     testImplementation(group: 'junit', name: 'junit', version: '4.13.2')
     testImplementation(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit5', version: kotlin_version)
     testImplementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-test', version: kotlinx_coroutines_version)
@@ -152,67 +138,15 @@ artifacts {
     archives javadocJar
 }
 
-signing { sign configurations.archives }
+signing {
+    sign configurations.archives
+}
 
 String getBuildModuleVersion() {
     version
 }
 
-static String getProjectCommonName() {
-    'Mercenary Creators Kotlin Util'
-}
-
-String getBuildServerBuild() {
-    System.getenv('BUILD_DISPLAY_NAME') ?: "Gradle version ${gradle.gradleVersion}"
-}
-
-static String getJavaVersion() {
-    System.getProperty('java.version') ?: 'unknown'
-}
-
-static String getBuildUser() {
-    System.getProperty('user.name') ?: 'unknown'
-}
-
-static String getBuildDate() {
-    def simple = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss,SSS z')
-    simple.timeZone = TimeZone.getTimeZone('UTC')
-    simple.format(new Date())
-}
-
-static String getBuildServerHost() {
-    InetAddress.getLocalHost().getHostName()
-}
-
-static String getBuildGITHomeSCM() {
-    'scm:git@github.com:mercenary-creators/' + getProjectArtifactID() + '.git'
-}
-
-static String getBuildGITHomeURL() {
-    'https://github.com/mercenary-creators/' + getProjectArtifactID()
-}
-
-static String getBuildGITCommitHash() {
-    getBuildGITHomeURL() + '/commit/' //+ Grgit.open().head().id
-}
-
-static String getBuildGITCommitUser() {
-    ''//Grgit.open().head().committer.email
-}
-
-static String getBuildGITCommitMessage() {
-    ''//Grgit.open().head().shortMessage
-}
-
-static String getProjectArtifactID() {
-    getProjectTitle().toLowerCase()
-}
-
-static String getProjectTitle() {
-    getProjectCommonName().replaceAll(' ', '-')
-}
-
-String getRepoUploadArchives() {
+String getRepoUploadArchivesOf() {
     getBuildModuleVersion().endsWith('SNAPSHOT') ? 'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 }
 
@@ -224,46 +158,53 @@ String getPassWordUploadArchives() {
     project.findProperty('sonatype_password') ?: ''
 }
 
-Map<String, String> getFilterTokens() {
-    [GRADLE_BUILD_ARTIFACT_ID: getProjectArtifactID(), GRADLE_BUILD_PROJECT_TITLE: getProjectTitle(), GRADLE_BUILD_USER: getBuildUser(), GRADLE_BUILD_DATE: getBuildDate(), GRADLE_JAVA_VERSION: getJavaVersion(), GRADLE_GIT_COMMIT_HASH: getBuildGITCommitHash(), GRADLE_GIT_COMMIT_USER: getBuildGITCommitUser(), GRADLE_GIT_COMMIT_MESSAGE: getBuildGITCommitMessage(), GRADLE_BUILD_SERVER_HOST: getBuildServerHost(), GRADLE_BUILD_SERVER_BUILD: getBuildServerBuild(), GRADLE_BUILD_MODULE_VERSION: getBuildModuleVersion()]
+artifacts {
+    archives sourcesJar
+    archives javadocJar
 }
 
-/*
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-            repository(url: getRepoUploadArchives()) {
-                authentication(userName: getUserNameUploadArchives(), password: getPassWordUploadArchives())
-            }
-            pom.project {
-                packaging 'jar'
-                description getProjectCommonName()
-                url getBuildGITHomeURL()
-                scm {
-                    url getBuildGITHomeSCM()
-                    connection getBuildGITHomeSCM()
-                    developerConnection getBuildGITHomeSCM()
-                }
+publishing {
+    publications {
+        library(MavenPublication) {
+            from components.java
+            version = "9.9.9-SNAPSHOT"
+            groupId = 'co.mercenary-creators'
+            artifactId = "mercenary-creators-kotlin-util"
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = "Mercenary Creators Kotlin Util"
+                description = "A Kotlin Utility Library"
+                url = 'https://github.com/mercenary-creators/mercenary-creators-kotlin-util'
                 licenses {
                     license {
-                        url 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
+                        name = "The Apache License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
                 developers {
                     developer {
-                        id 'sprocketnyc'
-                        email 'deansjones@gmail.com'
-                        url 'https://www.themodernway.com'
+                        id = "SprocketNYC"
+                        name = "Dean S Jones"
+                        email = "deansjones@gmail.com"
                     }
+                }
+                scm {
+                    connection = 'scm:git@github.com:mercenary-creators/mercenary-creators-kotlin-util.git'
+                    developerConnection = 'scm:git@github.com:mercenary-creators/mercenary-creators-kotlin-util.git'
+                    url = 'scm:git@github.com:mercenary-creators/mercenary-creators-kotlin-util.git'
                 }
             }
         }
     }
+    repositories {
+        maven {
+            name = 'SonatypeRepository'
+            credentials(PasswordCredentials)
+            url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
 }
-
- */
 
 List<String> getJavaDocLinks() {
     def list = []
