@@ -27,7 +27,7 @@ open class Logging @JvmOverloads @FrameworkDsl constructor(other: Any? = null) :
 
     @FrameworkDsl
     private val logs: mu.KLogger by lazy {
-        when(other) {
+        when (other) {
             null -> LoggingFactory.loggerOf(this)
             is Class<*> -> LoggingFactory.loggerOf(other)
             is KClass<*> -> LoggingFactory.loggerOf(other)
@@ -40,5 +40,14 @@ open class Logging @JvmOverloads @FrameworkDsl constructor(other: Any? = null) :
     override fun loggerOf(): mu.KLogger = logs
 
     @LoggingInfoDsl
-    fun <T> timed(block: () -> T): T = timed({ info { it } }, block)
+    fun <T> timed(block: () -> T): T {
+        if (isLoggingInfoEnabled().isNotTrue()) {
+            return block()
+        }
+        return TimeAndDate.nanos().let { time ->
+            block().also {
+                info { TimeAndDate.toElapsedString(TimeAndDate.nanos() - time) }
+            }
+        }
+    }
 }

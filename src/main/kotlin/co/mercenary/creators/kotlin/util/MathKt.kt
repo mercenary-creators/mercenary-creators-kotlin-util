@@ -15,7 +15,7 @@
  */
 
 @file:JvmName("MathKt")
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
+@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util
 
@@ -172,10 +172,7 @@ fun Iterable<Int>.getIntArray(): IntArray {
 
 @FrameworkDsl
 fun Sequence<Int>.getIntArray(): IntArray {
-    if (isExhausted()) {
-        return EMPTY_INTS_ARRAY
-    }
-    return toCollection().toIntArray()
+    return toList().toIntArray()
 }
 
 @FrameworkDsl
@@ -236,10 +233,7 @@ fun Iterable<Long>.getLongArray(): LongArray {
 
 @FrameworkDsl
 fun Sequence<Long>.getLongArray(): LongArray {
-    if (isExhausted()) {
-        return EMPTY_LONG_ARRAY
-    }
-    return toCollection().toLongArray()
+    return toList().toLongArray()
 }
 
 @FrameworkDsl
@@ -282,6 +276,14 @@ inline fun Int.isPowerOfTwo(): Boolean {
 @FrameworkDsl
 inline fun Long.isPowerOfTwo(): Boolean {
     return (this > 0L) && (this and (this - 1) == 0L)
+}
+
+@FrameworkDsl
+fun Double.roundedTo(): Int {
+    if (isNaN()) {
+        MercenaryMathExceptiion().failed()
+    }
+    return roundToInt()
 }
 
 @FrameworkDsl
@@ -512,7 +514,12 @@ inline fun Short.intsOf(): Int = toInt()
 inline fun Float.intsOf(default: Int = 0): Int = toFiniteOrElse(default.realOf()).toInt()
 
 @FrameworkDsl
-inline fun Double.intsOf(default: Int = 0): Int = toFiniteOrElse(default.realOf()).toInt()
+inline fun Double.intsOf(default: Int = 0): Int {
+    return when (isValid()) {
+        true -> roundedTo()
+        else -> default
+    }
+}
 
 @FrameworkDsl
 inline fun AtomicInteger.intsOf(): Int = getValue()
@@ -602,7 +609,12 @@ inline fun IntRange.longOf(): LongRange = LongRange(start.longOf(), endInclusive
 inline fun Float.longOf(default: Long = 0L): Long = toFiniteOrElse(default.realOf()).toLong()
 
 @FrameworkDsl
-inline fun Double.longOf(default: Long = 0L): Long = toFiniteOrElse(default.realOf()).toLong()
+inline fun Double.longOf(default: Long = 0L): Long {
+    return when (isNaN()) {
+        true -> default
+        else -> roundToLong()
+    }
+}
 
 @FrameworkDsl
 inline fun AtomicLong.longOf(): Long = getValue()
@@ -1091,7 +1103,7 @@ inline fun Double.toFiniteOrElse(block: Factory<Double>): Double = if (isValid()
 inline fun Float.toFiniteOrElse(value: Float = 0.0f): Float = if (isValid()) this else value
 
 @FrameworkDsl
-inline fun Float.toFiniteOrElse(value: Double = MATH_POSITIVE_ZERO): Float = if (isValid()) this else toFiniteOrElse(value.toFloat())
+inline fun Float.toFiniteOrElse(value: Double = MATH_POSITIVE_ZERO): Float = if (isValid()) this else value.toFloat()
 
 @FrameworkDsl
 inline fun Float.toFiniteOrElse(block: Factory<Float>): Float = if (isValid()) this else block.create()
@@ -1103,6 +1115,7 @@ fun DoubleArray.isSorted(reversed: Boolean = false): Boolean {
             true -> Numeric.isSorted(this)
             else -> Numeric.isSorted(toReversed(false))
         }
+
         else -> true
     }
 }
@@ -1436,4 +1449,36 @@ inline fun DoubleArray.isFinite(): Boolean = when (sizeOf()) {
     0 -> true
     1 -> this[0].isFinite()
     else -> all { it.isFinite() }
+}
+
+@FrameworkDsl
+inline infix fun Long.multipliedBy(value: Long): Long {
+    if (isZero() || value.isZero()) {
+        return 0L
+    }
+    return Numeric.mulExact(this, value)
+}
+
+@FrameworkDsl
+inline infix fun Long.multipliedBy(value: Int): Long {
+    if (isZero() || value.isZero()) {
+        return 0L
+    }
+    return Numeric.mulExact(this, value.longOf())
+}
+
+@FrameworkDsl
+inline infix fun Int.multipliedBy(value: Long): Long {
+    if (isZero() || value.isZero()) {
+        return 0L
+    }
+    return Numeric.mulExact(longOf(), value)
+}
+
+@FrameworkDsl
+inline infix fun Int.multipliedBy(value: Int): Int {
+    if (isZero() || value.isZero()) {
+        return 0
+    }
+    return Numeric.mulExact(this, value)
 }

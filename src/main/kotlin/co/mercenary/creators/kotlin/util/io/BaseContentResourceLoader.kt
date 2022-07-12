@@ -35,7 +35,7 @@ open class BaseContentResourceLoader @JvmOverloads @FrameworkDsl constructor(pri
             }
         }
         if (path.startsWith(IO.SINGLE_SLASH)) {
-            return getContentResourceByPath(IO.getPathNormalized(path).otherwise(EMPTY_STRING))
+            return this.getContentResourceByClassLoader(path.copyOf())
         }
         if (path.startsWith(IO.PREFIX_CLASS)) {
             return ClassPathContentResource(path.removePrefix(IO.PREFIX_CLASS).copyOf(), DEFAULT_CONTENT_TYPE, null, getClassLoader())

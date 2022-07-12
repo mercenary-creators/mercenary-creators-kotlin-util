@@ -45,6 +45,7 @@ object SameAndHashCode {
         if (value.sizeOf() == 0) {
             return true
         }
+        value.contentDeepEquals(other)
         for (i in value.indices) {
             val v = value[i]
             val o = other[i]

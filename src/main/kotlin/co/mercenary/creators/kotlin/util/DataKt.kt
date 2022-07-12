@@ -15,7 +15,7 @@
  */
 
 @file:JvmName("DataKt")
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
+@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util
 
@@ -76,6 +76,12 @@ const val DEFAULT_BUFFERED_DATA_SIZE = DEFAULT_BUFFER_SIZE
 
 @FrameworkDsl
 const val DEFAULT_CONTENT_TYPE = "application/octet-stream"
+
+@FrameworkDsl
+const val SINGLE_DOT_CHAR = '.'
+
+@FrameworkDsl
+const val SINGLE_DOT_STRING = "."
 
 @FrameworkDsl
 val DEFAULT_CONTENT_RESOURCE_LOADER: ContentResourceLoader

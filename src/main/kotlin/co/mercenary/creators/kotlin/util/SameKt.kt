@@ -15,11 +15,11 @@
  */
 
 @file:JvmName("SameKt")
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
+@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util
 
-import kotlin.contracts.contract
+import kotlin.contracts.*
 
 @FrameworkDsl
 const val SHOULD_BE_SAME_ARRAY_FAILED = "shouldBeSameArray failed"
@@ -436,4 +436,3 @@ class AssumptionCollector @FrameworkDsl constructor(block: AssumptionCollector.(
         else -> false
     }
 }
-

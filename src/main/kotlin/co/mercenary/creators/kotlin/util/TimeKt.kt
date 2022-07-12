@@ -21,6 +21,7 @@ package co.mercenary.creators.kotlin.util
 
 import java.time.*
 import java.util.*
+import kotlin.system.*
 import kotlin.time.*
 
 typealias SystemTimeUnit = java.util.concurrent.TimeUnit
@@ -389,9 +390,7 @@ fun <T> timed(after: (String) -> Unit, block: () -> T): T = co.mercenary.creator
 
 @FrameworkDsl
 inline fun elapsed(nano: Boolean = true, block: () -> Unit): Long {
-    val time = getTimeStamp(nano)
-    block()
-    return getTimeStamp(nano) - time
+    return if (nano) measureNanoTime(block) else measureTimeMillis(block)
 }
 
 @FrameworkDsl

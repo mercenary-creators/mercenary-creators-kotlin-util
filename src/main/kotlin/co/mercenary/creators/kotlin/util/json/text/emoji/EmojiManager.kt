@@ -14,24 +14,45 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage")
+
 package co.mercenary.creators.kotlin.util.json.text.emoji
 
 import co.mercenary.creators.kotlin.util.*
+import co.mercenary.creators.kotlin.util.io.ClassPathContentResource
 
 @FrameworkDsl
 @IgnoreForSerialize
-object EmojiManager {
+object EmojiManager : SizedContainer, HasMapNames {
+
+    @CreatorsDsl
+    internal val list: List<Emoji> by lazy {
+        parse()
+    }
+
+    @CreatorsDsl
+    internal inline fun listOf(): List<Emoji> {
+        return list
+    }
 
     @FrameworkDsl
-    private val list by lazy {
-        parse()
+    override fun toMapNames() = dictOf("type" to nameOf(), "size" to sizeOf())
+
+    @FrameworkDsl
+    override fun toString(): String {
+        return toMapNames().toSafeString()
+    }
+
+    @FrameworkDsl
+    override fun sizeOf(): Int {
+        return listOf().sizeOf()
     }
 
     @JvmStatic
     @FrameworkDsl
     @IgnoreForSerialize
     fun getEmojiList(): List<Emoji> {
-        return list
+        return listOf()
     }
 
     @JvmStatic
@@ -46,6 +67,9 @@ object EmojiManager {
     @JvmStatic
     @FrameworkDsl
     fun findByTag(pattern: Regex): List<Emoji> {
+        if (isExhausted()) {
+            return toListOf()
+        }
         val list = BasicArrayList<Emoji>()
         getEmojiList().withEach { emoji ->
             emoji.getTags().withEach { name ->
@@ -62,7 +86,7 @@ object EmojiManager {
     @JvmStatic
     @FrameworkDsl
     fun findByTag(name: String): List<Emoji> {
-        if (name.isEmptyOrBlank()) {
+        if (isExhausted() || name.isEmptyOrBlank()) {
             return toListOf()
         }
         val list = BasicArrayList<Emoji>()
@@ -77,6 +101,9 @@ object EmojiManager {
     @JvmStatic
     @FrameworkDsl
     fun findByAlias(pattern: Regex): List<Emoji> {
+        if (isExhausted()) {
+            return toListOf()
+        }
         val list = BasicArrayList<Emoji>()
         getEmojiList().withEach { emoji ->
             emoji.getAliases().withEach { alias ->
@@ -93,7 +120,7 @@ object EmojiManager {
     @JvmStatic
     @FrameworkDsl
     fun findByAlias(alias: String): List<Emoji> {
-        if (alias.isEmptyOrBlank()) {
+        if (isExhausted() || alias.isEmptyOrBlank()) {
             return toListOf()
         }
         val list = BasicArrayList<Emoji>()
@@ -108,9 +135,12 @@ object EmojiManager {
     @JvmStatic
     @FrameworkDsl
     fun findByDescription(pattern: Regex): List<Emoji> {
+        if (isExhausted()) {
+            return toListOf()
+        }
         val list = BasicArrayList<Emoji>()
         getEmojiList().withEach { emoji ->
-            if(pattern.matches(emoji.getDescription())) {
+            if (pattern.matches(emoji.getDescription())) {
                 if (list.contains(emoji).isNotTrue()) {
                     list.add(emoji)
                 }
@@ -122,7 +152,7 @@ object EmojiManager {
     @JvmStatic
     @FrameworkDsl
     fun findByDescription(description: String): List<Emoji> {
-        if (description.isEmptyOrBlank()) {
+        if (isExhausted() || description.isEmptyOrBlank()) {
             return toListOf()
         }
         val list = BasicArrayList<Emoji>()
@@ -137,7 +167,7 @@ object EmojiManager {
     @FrameworkDsl
     private fun parse(): List<Emoji> {
         return try {
-            DEFAULT_CONTENT_RESOURCE_LOADER["emojis.json"].toJSONReader<List<JSONEmoji>>().readOf()
+            ClassPathContentResource("emojis.json", EmojiManager::class, JSON_CONTENT_TYPE_UTF_8).toJSONReader<List<JSONEmoji>>().readOf()
         } catch (cause: Throwable) {
             Throwables.thrown(cause)
             toListOf()

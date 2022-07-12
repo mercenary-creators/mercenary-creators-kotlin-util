@@ -15,7 +15,7 @@
  */
 
 @file:JvmName("JsonKt")
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
+@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util
 
@@ -386,6 +386,12 @@ inline fun CharSequence.isNotEmoji(): Boolean = isEmoji().isNotTrue()
 
 @FrameworkDsl
 inline fun Emoji.isNotFitzpatrick(): Boolean = isFitzpatrick().isNotTrue()
+
+@FrameworkDsl
+const val JSON_CONTENT_TYPE_PLAIN = "application/json"
+
+@FrameworkDsl
+const val JSON_CONTENT_TYPE_UTF_8 = "application/json; charset=utf-8"
 
 
 

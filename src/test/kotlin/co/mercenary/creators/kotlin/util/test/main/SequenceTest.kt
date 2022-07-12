@@ -23,20 +23,6 @@ class SequenceTest : KotlinDataTest() {
 
     @Test
     fun test() {
-        val size = 10
-        val data = sequenceOf(1) {
-            if (it < size) it.inc() else null
-        }
-        data.forEach {
-            info { it }
-        }
-        val list = sequenceOf(1) {
-            if (it < size) it.inc() else null
-        }.toList()
-        list.forEach {
-            info { it }
-        }
-        list.sizeOf() shouldBe size
         val ints = sequenceOf(1..16).toList()
         ints.forEach {
             info { it }
@@ -62,23 +48,13 @@ class SequenceTest : KotlinDataTest() {
         info { maps.sizeOf() }
         info { maps }
         dashes()
-        val prim = sequenceOf(2) {
-            if (it < (1 shl 30)) it * 2 else null
-        }.getIntArray()
-        warn { prim }
-        warn { prim.sizeOf() }
         error { dash(100) }
         info { 1 shl 15 }
         info { 1 shl 16 }
         info { 1 shl 20 }
         info { 1 shl 30 }
         dashes()
-        val more = sequenceOf(2L) {
-            if (it < (1L shl 62)) it * 2L else null
-        }.getLongArray()
         error { dash(100) }
-        warn { more }
-        warn { more.sizeOf() }
         error { dash(100) }
         info { 1L shl 60 }
         info { 1L shl 61 }

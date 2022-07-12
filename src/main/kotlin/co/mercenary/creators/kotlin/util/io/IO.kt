@@ -95,9 +95,6 @@ object IO : HasMapNames {
         DefaultContentTypeProbe()
     }
 
-    @FrameworkDsl
-    private fun patch(path: String): String = path.trim().let { if (it.contains(DOUBLE_SLASH)) patch(it.replace(DOUBLE_SLASH, SINGLE_SLASH)) else it }
-
     @JvmStatic
     @FrameworkDsl
     @IgnoreForSerialize
@@ -124,7 +121,7 @@ object IO : HasMapNames {
     fun getPathNormalized(path: CharSequence?): String? {
         val temp = toTrimOrNull(path)
         if (temp != null) {
-            val norm = toTrimOrNull(FilenameUtils.normalizeNoEndSeparator(patch(temp), true))
+            val norm = toTrimOrNull(FilenameUtils.normalizeNoEndSeparator(fixp(temp), true))
             if ((norm != null) && (norm.indexOf(SINGLE_PREFIX_CHAR) != IS_NOT_FOUND)) {
                 if (norm.startsWith(SINGLE_TILDE)) {
                     return getPathNormalized(norm.substring(1))
@@ -139,6 +136,17 @@ object IO : HasMapNames {
             return norm
         }
         return null
+    }
+
+    @FrameworkDsl
+    private tailrec fun fixp(path: String): String {
+        if (path.isEmptyOrBlank()) {
+            return EMPTY_STRING
+        }
+        if (path.indexOf(DOUBLE_SLASH) == IS_NOT_FOUND) {
+            return path
+        }
+        return fixp(path.replace(DOUBLE_SLASH, SINGLE_SLASH).trim())
     }
 
     @JvmStatic

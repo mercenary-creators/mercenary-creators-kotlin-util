@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
+@file:Suppress("UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util.type
 
@@ -50,12 +50,13 @@ object TypeTools : HasMapNames {
     @FrameworkDsl
     fun nameOf(value: Any): String {
         return when (value) {
-            is KType -> value.descriptionOf()
+            is KType -> value.descOf()
             is KClass<*> -> value.qualifiedName.otherwise("...")
             is Class<*> -> when (value.isKotlinClass()) {
                 true -> nameOf(value.kotlin)
                 else -> value.name.copyOf()
             }
+
             is Type -> value.typeName.copyOf()
             is TypeRef<*> -> nameOf(value.type)
             is TypeReference<*> -> nameOf(value.type)
@@ -68,9 +69,13 @@ object TypeTools : HasMapNames {
     @FrameworkDsl
     fun simpleNameOf(value: Any): String {
         return when (value) {
-            is KType -> value.descriptionOf()
-            is Class<*> -> if (value.isKotlinClass()) "kotlin." + value.simpleName else value.simpleName
-            is KClass<*> -> value.java.simpleName
+            is KType -> value.descOf()
+            is Class<*> -> when (value.isNotKotlinClass()) {
+                true -> value.simpleName
+                else -> simpleNameOf(value.kotlin)
+            }
+
+            is KClass<*> -> value.simpleName.otherwise("...")
             else -> simpleNameOf(value.javaClass)
         }
     }
@@ -86,6 +91,7 @@ object TypeTools : HasMapNames {
                     else -> isAssignableClass(base, from.javaClass)
                 }
             }
+
             is KClass<*> -> {
                 when (from) {
                     is Class<*> -> isAssignableClass(base.java, from)
@@ -93,6 +99,7 @@ object TypeTools : HasMapNames {
                     else -> isAssignableClass(base.java, from.javaClass)
                 }
             }
+
             else -> isAssignableClass(base.javaClass, from.javaClass)
         }
     }
@@ -133,6 +140,7 @@ object TypeTools : HasMapNames {
                     list[0]
                 }
             }
+
             else -> fail(kind.nameOf())
         }
     }

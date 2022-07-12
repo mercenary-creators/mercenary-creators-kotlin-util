@@ -24,7 +24,6 @@ const val HORZ_STRING = "Maël Hörz\n"
 @FrameworkDsl
 const val CODE_STRING = "\uD83E\uDD70"
 
-
 typealias KotlinTest = co.mercenary.creators.kotlin.util.test.AbstractKotlinTest
 
 typealias KotlinDataTest = co.mercenary.creators.kotlin.util.test.AbstractDataTest

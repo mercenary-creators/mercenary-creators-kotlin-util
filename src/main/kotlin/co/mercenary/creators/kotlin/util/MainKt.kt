@@ -15,7 +15,7 @@
  */
 
 @file:JvmName("MainKt")
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package co.mercenary.creators.kotlin.util
 
@@ -884,6 +884,17 @@ fun <E, T : MutableSet<E>> T.append(args: Sequence<E>): T {
         addAll(args)
     }
     return this
+}
+@FrameworkDsl
+fun <T> List<T>.toOptimizd(): List<T> {
+    return when (sizeOf()) {
+        0 -> emptyList()
+        1 -> listOf(this[0])
+        else -> when (this) {
+            is ArrayList -> this.trim().toList()
+            else -> this.toList()
+        }
+    }
 }
 
 @FrameworkDsl
@@ -2009,7 +2020,7 @@ inline fun StringBuilder.newline(): StringBuilder = append(BREAK_STRING)
 fun <T : Any> T.nameOf(simple: Boolean = false): String = if (simple) TypeTools.simpleNameOf(this) else TypeTools.nameOf(this)
 
 @FrameworkDsl
-fun KType.descriptionOf(): String = toString()
+fun KType.descOf(): String = toString()
 
 @FrameworkDsl
 fun Type.isArrayType(): Boolean {
@@ -2417,6 +2428,7 @@ inline fun <T> Iterable<T>.unique(): List<T> {
             1 -> toListOf(head())
             else -> LinkedHashSet(this).toList()
         }
+
         else -> toHashSet().toList()
     }
 }

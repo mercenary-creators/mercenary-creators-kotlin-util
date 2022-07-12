@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package co.mercenary.creators.kotlin.util.time
 
@@ -233,36 +233,43 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
                         copy = copy.minusDays(it)
                     }
                 }
+
                 TimeDurationUnit.HOURS -> copy.toHours().also {
                     if (it > 0) {
                         copy = copy.minusHours(it)
                     }
                 }
+
                 TimeDurationUnit.WEEKS -> copy.toDays().div(DAYS_PER_WEEK).also {
                     if (it > 0) {
                         copy = copy.minusDays(it.times(DAYS_PER_WEEK))
                     }
                 }
+
                 TimeDurationUnit.YEARS -> copy.toDays().div(DAYS_PER_YEAR).also {
                     if (it > 0) {
                         copy = copy.minusDays(it.times(DAYS_PER_YEAR))
                     }
                 }
+
                 TimeDurationUnit.MINUTES -> copy.toMinutes().also {
                     if (it > 0) {
                         copy = copy.minusMinutes(it)
                     }
                 }
+
                 TimeDurationUnit.SECONDS -> copy.seconds.also {
                     if (it > 0) {
                         copy = copy.minusSeconds(it)
                     }
                 }
+
                 TimeDurationUnit.NANOSECONDS -> copy.nanos.also {
                     if (it > 0) {
                         copy = copy.minusNanos(it)
                     }
                 }
+
                 TimeDurationUnit.MILLISECONDS -> copy.toMillis().also {
                     if (it > 0) {
                         copy = copy.minusMillis(it)
@@ -274,6 +281,7 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
                     true -> text(unit, save)
                     else -> EMPTY_STRING
                 }
+
                 else -> when (save < 1) {
                     true -> text(copy, next)
                     else -> "${text(unit, save)} ${text(copy, next)}"
@@ -525,6 +533,7 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
                     days >= DAYS_PER_WEEK -> TimeDurationUnit.WEEKS
                     else -> TimeDurationUnit.DAYS
                 }
+
                 time.toHours() > 0 -> TimeDurationUnit.HOURS
                 time.toMinutes() > 0 -> TimeDurationUnit.MINUTES
                 time.seconds > 0 -> TimeDurationUnit.SECONDS
@@ -536,7 +545,7 @@ class TimeDuration @FrameworkDsl private constructor(private val time: Duration,
         @JvmStatic
         @FrameworkDsl
         private fun make(time: Long, unit: TimeDurationUnit): TimeDuration {
-            return Duration.of(time, unit.toSystemTimeUnit()).build(unit)
+            return unit.toSystemDuration(time).build(unit)
         }
 
         @JvmStatic

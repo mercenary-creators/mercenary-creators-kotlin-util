@@ -20,31 +20,31 @@ import co.mercenary.creators.kotlin.util.*
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
-enum class TimeDurationUnit(private val system: ChronoUnit) {
+enum class TimeDurationUnit(private val system: ChronoUnit, private val mult: Long, private val flag: Boolean = false) {
 
     @FrameworkDsl
-    YEARS(ChronoUnit.YEARS),
+    YEARS(ChronoUnit.YEARS, 31556952L),
 
     @FrameworkDsl
-    WEEKS(ChronoUnit.WEEKS),
+    WEEKS(ChronoUnit.WEEKS, 7 * 86400L),
 
     @FrameworkDsl
-    DAYS(ChronoUnit.DAYS),
+    DAYS(ChronoUnit.DAYS, 86400L),
 
     @FrameworkDsl
-    HOURS(ChronoUnit.HOURS),
+    HOURS(ChronoUnit.HOURS, 3600),
 
     @FrameworkDsl
-    MINUTES(ChronoUnit.MINUTES),
+    MINUTES(ChronoUnit.MINUTES, 60),
 
     @FrameworkDsl
-    SECONDS(ChronoUnit.SECONDS),
+    SECONDS(ChronoUnit.SECONDS, 1),
 
     @FrameworkDsl
-    MILLISECONDS(ChronoUnit.MILLIS),
+    MILLISECONDS(ChronoUnit.MILLIS, 1000000, true),
 
     @FrameworkDsl
-    NANOSECONDS(ChronoUnit.NANOS);
+    NANOSECONDS(ChronoUnit.NANOS, 1, true);
 
     @FrameworkDsl
     private val lows = name.toLowerCaseEnglish()
@@ -71,6 +71,60 @@ enum class TimeDurationUnit(private val system: ChronoUnit) {
     fun toSystemDuration(): Duration = system.duration
 
     @FrameworkDsl
+    @IgnoreForSerialize
+    fun getZeroDuration(): Duration = Duration.ZERO
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isNanoSeconds(): Boolean = flag
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun getMultiplier(): Long = mult
+
+    @FrameworkDsl
+    fun toSystemDuration(time: Long): Duration {
+        if (time.isZero()) {
+            return getZeroDuration()
+        }
+        if (isNotEstimated()) {
+            return Duration.of(time, toSystemTimeUnit())
+        }
+        return when (isNanoSeconds()) {
+            true -> Duration.ofNanos(time multipliedBy getMultiplier())
+            else -> Duration.ofSeconds(time multipliedBy getMultiplier())
+        }
+    }
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isEstimated(): Boolean = toSystemTimeUnit().isDurationEstimated
+
+    @FrameworkDsl
+    @IgnoreForSerialize
+    fun isNotEstimated(): Boolean = isEstimated().isNotTrue()
+
+    @FrameworkDsl
+    infix fun isSameAs(unit: TimeDurationUnit): Boolean {
+        return this == unit
+    }
+
+    @FrameworkDsl
+    infix fun isNotSameAs(unit: TimeDurationUnit): Boolean = isSameAs(unit).isNotTrue()
+
+    @FrameworkDsl
+    fun toOrdinal(): Int {
+        return ordinal.copyOf()
+    }
+
+    @FrameworkDsl
+    fun toOrdinalLong(): Long {
+        return toOrdinal().longOf()
+    }
+
+    @FrameworkDsl
     @JvmOverloads
     fun toLowerCase(full: Boolean = true) = if (full.isTrue()) lows else tail
+
+
 }

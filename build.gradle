@@ -16,18 +16,22 @@
 
 buildscript {
     ext {
-        set('kotlin_version', '1.6.21')
+        set('dokka_version', '1.6.0')
+        set('kotlin_version', '1.7.10')
         set('jackson_version', '2.13.3')
-        set('kotlinx_coroutines_version', '1.6.2')
+        set('kotlinx_kover_version', '0.5.0')
+        set('dependency_check_version', '7.1.1')
+        set('kotlinx_coroutines_version', '1.6.3')
     }
     repositories {
         mavenCentral()
         gradlePluginPortal()
     }
     dependencies {
-        classpath(group: 'org.ajoberstar', name: 'grgit', version: '1.7.2')
-        classpath(group: 'org.owasp', name: 'dependency-check-gradle', version: '6.0.2')
+        classpath(group: 'org.jetbrains.dokka', name: 'dokka-gradle-plugin', version: dokka_version)
+        classpath(group: 'org.jetbrains.kotlinx', name: 'kover', version: kotlinx_kover_version)
         classpath(group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: kotlin_version)
+        classpath(group: 'org.owasp', name: 'dependency-check-gradle', version: dependency_check_version)
     }
 }
 
@@ -39,7 +43,10 @@ plugins {
     id 'maven-publish'
 }
 
+apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'kover'
 apply plugin: 'kotlin'
+apply plugin: 'org.owasp.dependencycheck'
 
 java {
     toolchain {
@@ -64,16 +71,29 @@ task deleteConfigs(type: Delete) {
     }
 }
 
+task checkQuality(dependsOn: dependencyCheckAnalyze)
+
+check.dependsOn checkQuality
+
+dependencyCheck {
+    analyzers {
+        assemblyEnabled = false
+    }
+    failOnError = false
+    outputDirectory = "${buildDir}/reports/cve"
+    suppressionFile = project.file('config/cve/suppress.xml')
+}
+
 compileKotlin {
     kotlinOptions {
-        freeCompilerArgs = ['-Xjsr305=strict', '-Xjvm-default=compatibility', '-Xopt-in=kotlin.RequiresOptIn', "-Xopt-in=kotlin.contracts.ExperimentalContracts"]
+        freeCompilerArgs = ['-Xjsr305=strict', '-Xjvm-default=all', '-opt-in=kotlin.RequiresOptIn', "-opt-in=kotlin.contracts.ExperimentalContracts"]
         jvmTarget = '11'
     }
 }
 
 compileTestKotlin {
     kotlinOptions {
-        freeCompilerArgs = ['-Xjsr305=strict', '-Xjvm-default=compatibility', '-Xopt-in=kotlin.RequiresOptIn', "-Xopt-in=kotlin.contracts.ExperimentalContracts"]
+        freeCompilerArgs = ['-Xjsr305=strict', '-Xjvm-default=all', '-opt-in=kotlin.RequiresOptIn', "-opt-in=kotlin.contracts.ExperimentalContracts"]
         jvmTarget = '11'
     }
 }
@@ -90,9 +110,10 @@ task javadocJar(type: Jar, dependsOn: doJavaDocs) {
 
 test {
     minHeapSize = '2048m'
-    maxHeapSize = '2048m'
+    maxHeapSize = '8192m'
     testLogging.showStandardStreams = true
     useJUnitPlatform()
+    setIgnoreFailures(true)
 }
 
 repositories {
@@ -123,9 +144,11 @@ dependencies {
     implementation(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: jackson_version)
     implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jackson_version)
     implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: jackson_version)
+    implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-jsonSchema', version: jackson_version)
+    implementation(group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jackson_version)
     implementation(group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0')
-    implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.18'
-    testImplementation group: 'io.projectreactor', name: 'reactor-test', version: '3.4.18'
+    implementation(group: 'io.projectreactor', name: 'reactor-core', version: '3.4.19')
+    testImplementation(group: 'io.projectreactor', name: 'reactor-test', version: '3.4.19')
     testImplementation(group: 'junit', name: 'junit', version: '4.13.2')
     testImplementation(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit5', version: kotlin_version)
     testImplementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-test', version: kotlinx_coroutines_version)
