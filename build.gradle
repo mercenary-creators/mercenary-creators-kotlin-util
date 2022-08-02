@@ -131,7 +131,6 @@ dependencies {
     implementation(group: 'io.github.microutils', name: 'kotlin-logging-jvm', version: '2.1.23')
     implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version)
     implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlin_version)
-    implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-script-runtime', version: kotlin_version)
     implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: kotlinx_coroutines_version)
     implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: kotlinx_coroutines_version)
     implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk9', version: kotlinx_coroutines_version)

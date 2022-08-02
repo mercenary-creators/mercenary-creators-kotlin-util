@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FunctionName")
+
 package co.mercenary.creators.kotlin.util.json.module
 
 import co.mercenary.creators.kotlin.util.*

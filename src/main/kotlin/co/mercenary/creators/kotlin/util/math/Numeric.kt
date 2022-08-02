@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "HttpUrlsUsage")
+@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util.math
 
@@ -26,7 +26,6 @@ import java.math.RoundingMode
 import kotlin.math.*
 
 object Numeric {
-
 
     @FrameworkDsl
     const val PI_1 = PI * MATH_POSITIVE_ONE
@@ -49,7 +48,7 @@ object Numeric {
     @FrameworkDsl
     const val DEFAULT_PRECISION_DELTA = 0.0000001
 
-    @FrameworkDsl
+    @CreatorsDsl
     private val POWER_OF_2_ARRAY: List<Int> by lazy {
         sequenceOf(1) {
             if (it.isLessThan(MAXIMUM_INTS_POWER_OF_2)) it * 2 else null

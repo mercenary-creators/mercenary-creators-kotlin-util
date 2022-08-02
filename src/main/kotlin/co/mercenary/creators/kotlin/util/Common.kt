@@ -5,18 +5,22 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * mailto:deansjones@mercenary-creators.io
  */
+
+@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage")
 
 package co.mercenary.creators.kotlin.util
 
-import co.mercenary.creators.kotlin.util.collection.*
+import co.mercenary.creators.kotlin.util.collection.StringSet
 import co.mercenary.creators.kotlin.util.io.InputStreamSupplier
 import java.io.*
 import java.lang.reflect.*
@@ -46,19 +50,81 @@ object Common : HasMapNames {
     fun getHexChar(code: Int): Char = DIGITS[code and 0xF]
 
     @FrameworkDsl
-    internal fun Method.isPublic(): Boolean = Modifier.isPublic(modifiers)
+    internal inline fun Method.toModifiers(): Int = modifiers
 
     @FrameworkDsl
-    internal fun Method.isStatic(): Boolean = Modifier.isStatic(modifiers) && getDeclaredAnnotationsByType(JvmStatic::class.java).isNotExhausted()
+    internal inline fun Method.isPublicMethod(): Boolean = Modifier.isPublic(toModifiers())
 
     @FrameworkDsl
-    internal fun Method.isAbstract(): Boolean = Modifier.isAbstract(modifiers)
+    internal inline fun Method.isNotPublicMethod(): Boolean = isPublicMethod().isNotTrue()
 
     @FrameworkDsl
-    internal fun Method.toModifierString(): String = Modifier.toString(modifiers)
+    internal inline fun Method.isStaticMethod(): Boolean = Modifier.isStatic(toModifiers()) && getDeclaredAnnotationsByType(JvmStatic::class.java).isNotExhausted()
 
     @FrameworkDsl
-    internal fun Method.toReturnTypeString(): String = toReturnType(returnType).copyOf()
+    internal inline fun Method.isNotStaticMethod(): Boolean = isStaticMethod().isNotTrue()
+
+    @FrameworkDsl
+    internal inline fun Method.isAbstractMethod(): Boolean = Modifier.isAbstract(toModifiers())
+
+    @FrameworkDsl
+    internal inline fun Method.isNotAbstractMethod(): Boolean = isAbstractMethod().isNotTrue()
+
+    @FrameworkDsl
+    internal inline fun Method.isSyntheticMethod(): Boolean = isSynthetic
+
+    @FrameworkDsl
+    internal inline fun Method.isNotSyntheticMethod(): Boolean = isSyntheticMethod().isNotTrue()
+
+    @FrameworkDsl
+    internal inline fun Method.toModifierString(): String = Modifier.toString(toModifiers())
+
+    @FrameworkDsl
+    internal inline fun Method.toReturnTypeString(): String = toReturnType(returnType).copyOf()
+
+    @FrameworkDsl
+    internal inline fun Method.isIgnoredMethods(static: Boolean, type: Class<*>): Boolean {
+        if (isNotPublicMethod()) {
+            return true
+        }
+        if (isAbstractMethod()) {
+            return true
+        }
+        if (isSyntheticMethod()) {
+            return true
+        }
+        if (static.isTrue() && isNotStaticMethod()) {
+            return true
+        }
+        if (name in IGNORE) {
+            return true
+        }
+        if (type.isDataClass() && (name.startsWith("copy") || name.matches(NOPERS))) {
+            return true
+        }
+        return false
+    }
+
+    @FrameworkDsl
+    internal fun Class<*>.isIgnoredTypes(): Boolean {
+        return when {
+            isArray || isEnum || isPrimitive -> true
+            isAnnotation || isInterface || isAnonymousClass -> true
+            isKotlinClass() && kotlin.isNotIgnoredTypes() -> true
+            else -> false
+        }
+    }
+
+    @FrameworkDsl
+    internal inline fun KClass<*>.isIgnoredTypes(): Boolean {
+        return when {
+            isValue || isSealed || isFun -> true
+            else -> false
+        }
+    }
+
+    @FrameworkDsl
+    internal inline fun KClass<*>.isNotIgnoredTypes(): Boolean = isIgnoredTypes().isNotTrue()
 
     @FrameworkDsl
     internal fun toReturnType(value: Class<*>, builder: StringBuilder = stringBuilderOf()): StringBuilder {
@@ -90,19 +156,6 @@ object Common : HasMapNames {
             "Void" -> Unit::class.java.simpleName
             else -> value
         }
-    }
-
-    @FrameworkDsl
-    internal fun Method.isIgnored(value: Class<*>, static: Boolean): Boolean {
-        if (isPublic().isNotTrue() || name in IGNORE || isAbstract() || isSynthetic || (static.isTrue() && isStatic().isNotTrue())) {
-            return true
-        }
-        if (value.isDataClass()) {
-            if (name.startsWith("copy") || name.matches(NOPERS)) {
-                return true
-            }
-        }
-        return false
     }
 
     @JvmStatic
@@ -144,6 +197,7 @@ object Common : HasMapNames {
                         buff[calc / 2] = byteOf(getHexCode(data[calc]), getHexCode(data[calc + 1]))
                     }
                 }
+
                 else -> fail(data)
             }
         }
@@ -181,7 +235,7 @@ object Common : HasMapNames {
     @FrameworkDsl
     @JvmOverloads
     fun getExposedMethods(value: Class<*>, static: Boolean = false, args: List<Class<Annotation>> = toListOf()): List<String> {
-        if (value.isInterface || value.isPrimitive || value.isAnnotation || value.isAnonymousClass || value.isEnum || value.isArray) {
+        if (value.isIgnoredTypes()) {
             return toListOf()
         }
         val names = StringSet()
@@ -206,13 +260,11 @@ object Common : HasMapNames {
     @FrameworkDsl
     @JvmOverloads
     fun getExposedMethod(value: Class<*>, method: Method, static: Boolean = false, args: List<Class<Annotation>> = toListOf()): String {
-        if (method.isIgnored(value, static)) {
+        if (method.isIgnoredMethods(static.isTrue(), value)) {
             return EMPTY_STRING
         }
-        if (args.isNotExhausted()) {
-            if (method.annotations.map { it.javaClass }.containsAll(args).isNotTrue()) {
-                return EMPTY_STRING
-            }
+        if (args.isNotExhausted() && (method.annotations.map { it.javaClass }.containsAll(args).isNotTrue())) {
+            return EMPTY_STRING
         }
         return method.name.copyOf()
     }

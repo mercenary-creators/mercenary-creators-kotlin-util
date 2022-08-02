@@ -73,10 +73,8 @@ object EmojiManager : SizedContainer, HasMapNames {
         val list = BasicArrayList<Emoji>()
         getEmojiList().withEach { emoji ->
             emoji.getTags().withEach { name ->
-                if (pattern.matches(name)) {
-                    if (list.contains(emoji).isNotTrue()) {
-                        list.add(emoji)
-                    }
+                if (pattern.matches(name) && list.contains(emoji).isNotTrue()) {
+                    list.add(emoji)
                 }
             }
         }

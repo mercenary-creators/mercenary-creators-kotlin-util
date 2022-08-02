@@ -81,4 +81,7 @@ interface IKotlinTestBase : ILoggingBase {
 
     @LoggingInfoDsl
     fun annotations(type: Class<*>)
+
+    @CreatorsDsl
+    fun ignored(execute: Boolean = false, function: () -> Unit)
 }

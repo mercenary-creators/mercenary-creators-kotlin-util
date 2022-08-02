@@ -73,12 +73,18 @@ open class StringSet @FrameworkDsl @JvmOverloads constructor(capacity: Int = DEF
 
     @FrameworkDsl
     override operator fun contains(element: String): Boolean {
-        return if (isEmpty()) false else super.contains(element)
+        return when (isEmpty()) {
+            true -> false
+            else -> super.contains(element)
+        }
     }
 
     @FrameworkDsl
     operator fun contains(element: CharSequence): Boolean {
-        return if (isEmpty()) false else contains(element.copyOf())
+        return when (isEmpty()) {
+            true -> false
+            else -> super.contains(element.copyOf())
+        }
     }
 
     @FrameworkDsl

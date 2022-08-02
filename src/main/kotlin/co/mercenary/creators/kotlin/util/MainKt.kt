@@ -15,7 +15,7 @@
  */
 
 @file:JvmName("MainKt")
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 
 package co.mercenary.creators.kotlin.util
 
@@ -327,7 +327,7 @@ inline fun Long.isExhausted(): Boolean = this == 0L
 inline fun Long.isNotExhausted(): Boolean = this != 0L
 
 @FrameworkDsl
-inline fun Double.isExhausted(): Boolean = if (isNotValid()) true else absOf() == 0.0
+inline fun Double.isExhausted(): Boolean = isNotValid() || absOf() == 0.0
 
 @FrameworkDsl
 inline fun Double.isNotExhausted(): Boolean = isValid() && absOf() != 0.0
@@ -687,22 +687,23 @@ inline fun SystemProperties.toStringDictionary() = StringDictionary(this)
 
 @FrameworkDsl
 fun StringDictionary.concat(args: AnyDictionary, push: Boolean = false, safe: Boolean = false): StringDictionary {
-    if (args.isNotExhausted()) {
-        for ((k, v) in args) {
-            if (isKeyDefined(k) && push.isNotTrue()) {
-                continue
+    if (args.isExhausted()) {
+        return this
+    }
+    for ((k, v) in args) {
+        if (isKeyDefined(k) && push.isNotTrue()) {
+            continue
+        }
+        if (v == null) {
+            if (safe && push) {
+                this[k] = NULLS_STRING
             }
-            if (v == null) {
-                if (safe && push) {
-                    this[k] = NULLS_STRING
-                }
-                continue
-            }
-            if (v is CharSequence) {
-                this[k] = v.toValid()
-            } else {
-                this[k] = if (safe.isTrue()) v.toSafeString() else v.toString()
-            }
+            continue
+        }
+        if (v is CharSequence) {
+            this[k] = v.toValid()
+        } else {
+            this[k] = if (safe.isTrue()) v.toSafeString() else v.toString()
         }
     }
     return this
@@ -885,6 +886,7 @@ fun <E, T : MutableSet<E>> T.append(args: Sequence<E>): T {
     }
     return this
 }
+
 @FrameworkDsl
 fun <T> List<T>.toOptimizd(): List<T> {
     return when (sizeOf()) {
@@ -1012,7 +1014,7 @@ fun Class<*>.isKotlinClass(): Boolean {
 fun Class<*>.isNotKotlinClass(): Boolean = isKotlinClass().isNotTrue()
 
 @FrameworkDsl
-fun Class<*>.forEachMethod(action: (Method) -> Unit) {
+inline fun Class<*>.forEachMethod(action: (Method) -> Unit) {
     declaredMethods.forEach(action)
 }
 
@@ -1026,6 +1028,24 @@ fun KClass<*>.toPackageName(): String = java.`package`.name
 inline fun <reified T : Any> toPackageName(): String = T::class.java.`package`.name
 
 @FrameworkDsl
+inline fun <T : Any> T.toJavaClass(): Class<T> {
+    return when (this) {
+        is Class<*> -> this as Class<T>
+        is KClass<*> -> this.java as Class<T>
+        else -> javaClass
+    }
+}
+
+@FrameworkDsl
+inline fun <T : Any> T.toKotlinClass(): KClass<T> {
+    return when (this) {
+        is Class<*> -> this.kotlin as KClass<T>
+        is KClass<*> -> this as KClass<T>
+        else -> javaClass.kotlin
+    }
+}
+
+@FrameworkDsl
 inline infix fun <T : Maybe> T.isType(other: Maybe): Boolean {
     if (this == null) {
         return false
@@ -1033,18 +1053,20 @@ inline infix fun <T : Maybe> T.isType(other: Maybe): Boolean {
     if (other == null) {
         return false
     }
-    return javaClass.kotlin == other.javaClass.kotlin
+    return toKotlinClass() == other.toKotlinClass()
 }
 
 @FrameworkDsl
-inline infix fun <T : Maybe> T.isTypeAssignable(other: Maybe): Boolean {
+inline infix fun <T : Maybe> T.isTypeAssignable(that: Maybe): Boolean {
     if (this == null) {
         return false
     }
-    if (other == null) {
+    if (that == null) {
         return false
     }
-    return isType(other) || javaClass.kotlin.isInstance(other) || other.javaClass.kotlin.isInstance(this)
+    val selfkind = this.toKotlinClass()
+    val thatkind = that.toKotlinClass()
+    return (selfkind == thatkind) || (selfkind.isInstance(that)) || (thatkind.isInstance(this))
 }
 
 @FrameworkDsl

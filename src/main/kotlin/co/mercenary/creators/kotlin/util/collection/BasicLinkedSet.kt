@@ -78,7 +78,10 @@ open class BasicLinkedSet<T> @FrameworkDsl @JvmOverloads constructor(capacity: I
 
     @FrameworkDsl
     override operator fun contains(element: @UnsafeVariance T): Boolean {
-        return if (isNotEmpty()) false else super.contains(element)
+        return when (isEmpty()) {
+            true -> false
+            else -> super.contains(element)
+        }
     }
 
     @FrameworkDsl

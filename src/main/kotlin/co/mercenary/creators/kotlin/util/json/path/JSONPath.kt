@@ -40,7 +40,11 @@ object JSONPath {
 
     @FrameworkDsl
     private val CONFIG: Configuration by lazy {
-        Configuration.builder().jsonProvider(JSONJacksonProvider(JSONStatic.mapperOf(true))).mappingProvider(JSONJacksonMappingProvider(JSONStatic.mapperOf(false))).options(SUPPRESS_EXCEPTIONS).build()
+        Configuration
+            .builder()
+            .jsonProvider(JSONJacksonProvider(JSONStatic.mapperOf(true)))
+            .mappingProvider(JSONJacksonMappingProvider(JSONStatic.mapperOf(false)))
+            .options(SUPPRESS_EXCEPTIONS).build()
     }
 
     @JvmStatic

@@ -45,7 +45,7 @@ class BasicArrayDeck<E> @FrameworkDsl constructor(args: Collection<E>) : Mutable
 
     @FrameworkDsl
     override operator fun contains(element: E): Boolean {
-        return if (list.sizeOf() == 0) false else list.contains(element)
+        return (list.sizeOf() > 0) && list.contains(element)
     }
 
     @FrameworkDsl

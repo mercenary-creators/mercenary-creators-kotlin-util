@@ -107,6 +107,17 @@ open class KotlinTestBase @FrameworkDsl constructor(name: String?) : Logging(nam
     }
 
     @CreatorsDsl
+    override fun ignored(execute: Boolean, function: () -> Unit) {
+        try {
+            if (execute.isTrue()) {
+                function()
+            }
+        } catch (cause: Throwable) {
+            Throwables.thrown(cause)
+        }
+    }
+
+    @CreatorsDsl
     override fun here(): Map<String, Any> {
         val type = javaClass
         val name = type.name
@@ -114,14 +125,23 @@ open class KotlinTestBase @FrameworkDsl constructor(name: String?) : Logging(nam
         val mine = type.declaredMethods.map { it.name }
         val list = BasicArrayList<BasicAnyDictionary>()
         Exception().stackTrace.forEach { item ->
-            if (item.className.startsWith(name)) {
-                if (item.methodName in mine) {
-                    list.add(BasicAnyDictionary("func" to item.methodName, "type" to name, "file" to item.fileName.otherwise(DUNNO_STRING), "line" to item.lineNumber))
-                } else if (item.methodName == "invoke") {
-                    // I'm coming from inside anonymous blocks that are not inlined,
-                    // especially in logging where I am with AssumeEach, assumeThat,
-                    // and AssumeCollector DSL.
-                    most.maxOf(item.lineNumber)
+            when (item.className.startsWith(name)) {
+                true -> {
+                    val meth = item.methodName
+                    when (meth in mine) {
+                        true -> list.add(BasicAnyDictionary("func" to meth, "type" to name, "file" to item.fileName.otherwise(DUNNO_STRING), "line" to item.lineNumber))
+                        else -> {
+                            if (meth.startsWith("invoke")) {
+                                most.maxOf(item.lineNumber)
+                            }
+                        }
+                    }
+                }
+
+                else -> {
+                    ignored {
+
+                    }
                 }
             }
         }

@@ -57,7 +57,7 @@ object Escapers : HasMapNames {
     @FrameworkDsl
     private val ASCII_TABLE: BooleanArray by lazy {
         BooleanArray(128) { code ->
-            (code in 32..126 && (code >= 93 || code in 48..91 || code in 32..33 || code in 35..38 || code in 40..46))
+            ((code in (32..126)) && ((code >= 93) || (code in (48..91)) || (code in (32..33)) || (code in (35..38)) || (code in (40..46))))
         }
     }
 
