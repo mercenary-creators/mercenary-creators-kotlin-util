@@ -189,7 +189,7 @@ publishing {
     publications {
         library(MavenPublication) {
             from components.java
-            version = "9.9.9-SNAPSHOT"
+            version = "9.9.10-SNAPSHOT"
             groupId = 'co.mercenary-creators'
             artifactId = "mercenary-creators-kotlin-util"
             artifact sourcesJar
