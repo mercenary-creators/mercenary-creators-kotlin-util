@@ -78,7 +78,7 @@ const val DIGIT_STRING = "0123456789ABCDEF"
 const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2022, Mercenary Creators Company."
 
 @FrameworkDsl
-const val CREATORS_VERSION_INFO = "9.9.9-SNAPSHOT"
+const val CREATORS_VERSION_INFO = "9.9.10-SNAPSHOT"
 
 @FrameworkDsl
 const val DEFAULT_MAP_FACTOR = 0.75

@@ -56,7 +56,7 @@ java {
 
 group = 'co.mercenary-creators'
 
-version = '9.9.9-SNAPSHOT'
+version = '9.9.10-SNAPSHOT'
 
 task doJavaDocs(type: Javadoc) {
     source = sourceSets.main.allJava
