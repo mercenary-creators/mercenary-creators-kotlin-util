@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2023, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ class EncodersTest : KotlinSecurityTest() {
         info { list.shuffled(rand).shuffled(rand) }
         info { list }
         warn { dash() }
-        val look = 4.toIntArray() { it }
+        val look = 4.toIntArray { it }
         warn { dash() }
         warn { look }
         warn { look.asIterable().shuffled() }

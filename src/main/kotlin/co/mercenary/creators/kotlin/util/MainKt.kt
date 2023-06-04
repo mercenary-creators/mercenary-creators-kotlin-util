@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2023, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,10 +75,10 @@ const val KOTLIN_METAS = "kotlin.Metadata"
 const val DIGIT_STRING = "0123456789ABCDEF"
 
 @FrameworkDsl
-const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2022, Mercenary Creators Company."
+const val CREATORS_AUTHOR_INFO = "Dean S. Jones, Copyright (C) 2023, Mercenary Creators Company."
 
 @FrameworkDsl
-const val CREATORS_VERSION_INFO = "9.9.10-SNAPSHOT"
+const val CREATORS_VERSION_INFO = "9.9.17-SNAPSHOT"
 
 @FrameworkDsl
 const val DEFAULT_MAP_FACTOR = 0.75
@@ -1220,13 +1220,13 @@ fun toTrimOrNull(data: CharSequence?): String? {
 fun toTrimOrElse(data: CharSequence?, other: String = EMPTY_STRING): String = toTrimOrNull(data) ?: other
 
 @FrameworkDsl
-inline fun toTrimOrElse(data: CharSequence?, other: Factory<String>): String = toTrimOrNull(data) ?: other.create()
+inline fun toTrimOrElse(data: CharSequence?, noinline other: Factory<String>): String = toTrimOrNull(data) ?: other.create()
 
 @FrameworkDsl
 inline fun CharSequence?.toTrimOr(other: String = EMPTY_STRING): String = toTrimOrNull(this) ?: other
 
 @FrameworkDsl
-inline fun CharSequence?.toTrimOr(other: Factory<String>): String = toTrimOrNull(this) ?: other.create()
+inline fun CharSequence?.toTrimOr(noinline other: Factory<String>): String = toTrimOrNull(this) ?: other.create()
 
 @FrameworkDsl
 inline fun CharSequence.headOf(): Char = if (isNotExhausted()) this[0] else fail(MATH_INVALID_SIZE_ERROR)
@@ -1341,7 +1341,7 @@ fun isValid(value: Maybe): Boolean = when (value) {
 }
 
 @FrameworkDsl
-inline fun isValid(block: LazyMessage): Boolean = try {
+inline fun isValid(noinline block: LazyMessage): Boolean = try {
     isValid(block.create())
 } catch (cause: Throwable) {
     Throwables.thrown(cause)
@@ -2551,7 +2551,7 @@ inline fun <T : Any> Iterable<T>.toEnumeration(): Enumeration<T> = toIterator().
 inline fun <T : Any> Sequence<T>.toEnumeration(): Enumeration<T> = toIterator().toEnumeration()
 
 @FrameworkDsl
-inline fun <T : Any> T?.otherwise(block: Factory<T>): T = this ?: block.create()
+inline fun <T : Any> T?.otherwise(noinline block: Factory<T>): T = this ?: block.create()
 
 @FrameworkDsl
 inline fun <T : Any> T?.otherwise(value: T): T = this ?: value

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2023, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 
 @file:JvmName("SameKt")
-@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage")
+@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage", "SameParameterValue", "SameParameterValue",
+               "SameParameterValue"
+)
 
 package co.mercenary.creators.kotlin.util
 
@@ -46,7 +48,7 @@ inline fun fail(text: String): Nothing {
 }
 
 @FrameworkDsl
-inline fun fail(func: LazyMessage): Nothing {
+inline fun fail(noinline func: LazyMessage): Nothing {
     fail(func.toSafeString())
 }
 
@@ -61,7 +63,7 @@ inline fun shouldBeTrue(value: Boolean, text: String) {
 }
 
 @FrameworkDsl
-inline fun shouldBeTrue(value: Boolean, func: LazyMessage) {
+inline fun shouldBeTrue(value: Boolean,noinline func: LazyMessage) {
     contract {
         returns() implies value
     }
@@ -81,7 +83,7 @@ inline fun shouldNotBeTrue(value: Boolean, text: String) {
 }
 
 @FrameworkDsl
-inline fun shouldNotBeTrue(value: Boolean, func: LazyMessage) {
+inline fun shouldNotBeTrue(value: Boolean,noinline func: LazyMessage) {
     contract {
         returns() implies !value
     }
@@ -239,6 +241,7 @@ infix fun DoubleArray.shouldNotBeSameArray(value: DoubleArray) = shouldBeTrue(va
 @FrameworkDsl
 infix fun BooleanArray.shouldNotBeSameArray(value: BooleanArray) = shouldBeTrue(value isNotSameArrayAs this, SHOULD_NOT_BE_SAME_ARRAY_FAILED)
 
+@Suppress("SameParameterValue", "SameParameterValue")
 @IgnoreForSerialize
 class MercenaryMultipleAssertionExceptiion @JvmOverloads @FrameworkDsl constructor(args: Iterable<Throwable>, message: String = EMPTY_STRING, cause: Throwable? = null) : AssertionError(message, cause), MutableSizedContainer {
 

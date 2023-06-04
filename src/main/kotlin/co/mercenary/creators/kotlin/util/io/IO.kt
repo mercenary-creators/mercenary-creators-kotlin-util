@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2023, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import kotlin.reflect.KClass
 object IO : HasMapNames {
 
     @FrameworkDsl
-    val NULLS_BYTE_ARRAY = 4.toByteArray() {
+    val NULLS_BYTE_ARRAY = 4.toByteArray {
         NULLS_STRING[it].byteOf()
     }
 
@@ -175,7 +175,9 @@ object IO : HasMapNames {
     @JvmStatic
     @FrameworkDsl
     fun toFileURL(path: String): URL {
-        return PREFIX_FILES.plus(SINGLE_SLASH).plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).otherwise().removePrefix(SINGLE_SLASH).trim()).linkOf()
+        return PREFIX_FILES.plus(SINGLE_SLASH)
+            .plus(getPathNormalized(path.removePrefix(PREFIX_FILES)).otherwise().removePrefix(SINGLE_SLASH).trim())
+            .linkOf()
     }
 
     @JvmStatic
@@ -330,14 +332,14 @@ object IO : HasMapNames {
     @FrameworkDsl
     @JvmOverloads
     fun getInputStream(data: Reader, charset: Charset = DEFAULT_CHARSET_UTF_8): InputStream {
-        return ReaderInputStream(data, charset)
+        return ReaderInputStream.builder().setCharset(charset).setReader(data).get()
     }
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
     fun getOutputStream(data: Writer, charset: Charset = DEFAULT_CHARSET_UTF_8): OutputStream {
-        return WriterOutputStream(data, charset)
+        return WriterOutputStream.builder().setCharset(charset).setWriter(data).get()
     }
 
     @JvmStatic
@@ -449,7 +451,7 @@ object IO : HasMapNames {
 
     @JvmStatic
     @FrameworkDsl
-    inline fun getContentSize(data: URL, func: Factory<Long>): Long {
+    fun getContentSize(data: URL, func: Factory<Long>): Long {
         if (data.isFileURL()) {
             val file = toFileOrNull(data, true)
             if ((file != null) && (file.isValidToRead())) {
@@ -515,7 +517,9 @@ object IO : HasMapNames {
             if (conn != null) {
                 val send = toTrimOrElse(conn.contentType, DEFAULT_CONTENT_TYPE)
                 conn.disconnect()
-                return if (send.isDefaultContentType()) ContentMimeType.getDefaultContentMimeType() else ContentMimeType(send)
+                return if (send.isDefaultContentType()) ContentMimeType.getDefaultContentMimeType() else ContentMimeType(
+                    send
+                )
             }
         } catch (cause: Throwable) {
             Throwables.thrown(cause)
@@ -618,7 +622,10 @@ object IO : HasMapNames {
         if (value is EmptyInputStream && other is EmptyInputStream) {
             return true
         }
-        return compare(value.toBufferedInputStream(DEFAULT_BUFFERED_DATA_SIZE), other.toBufferedInputStream(DEFAULT_BUFFERED_DATA_SIZE))
+        return compare(
+            value.toBufferedInputStream(DEFAULT_BUFFERED_DATA_SIZE),
+            other.toBufferedInputStream(DEFAULT_BUFFERED_DATA_SIZE)
+        )
     }
 
     @JvmStatic
@@ -638,7 +645,10 @@ object IO : HasMapNames {
         }
         if (value.isValidToRead() && other.isValidToRead()) {
             if (value.getContentSize() == other.getContentSize()) {
-                return compare(value.toInputStream().toBufferedInputStream(buffer(value.getContentSize())), other.toInputStream().toBufferedInputStream(buffer(other.getContentSize())))
+                return compare(
+                    value.toInputStream().toBufferedInputStream(buffer(value.getContentSize())),
+                    other.toInputStream().toBufferedInputStream(buffer(other.getContentSize()))
+                )
             }
         }
         return false

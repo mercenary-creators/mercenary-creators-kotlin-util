@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2023, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 buildscript {
     ext {
-        set('dokka_version', '1.6.0')
-        set('kotlin_version', '1.7.10')
-        set('jackson_version', '2.13.3')
-        set('kotlinx_kover_version', '0.5.0')
-        set('dependency_check_version', '7.1.1')
-        set('kotlinx_coroutines_version', '1.6.3')
+        set('dokka_version', '1.7.20')
+        set('kotlin_version', '1.8.21')
+        set('jackson_version', '2.15.2')
+        set('kotlinx_kover_version', '0.6.0')
+        set('dependency_check_version', '7.2.0')
+        set('kotlinx_coroutines_version', '1.7.1')
     }
     repositories {
         mavenCentral()
@@ -56,22 +56,22 @@ java {
 
 group = 'co.mercenary-creators'
 
-version = '9.9.10-SNAPSHOT'
+version = '9.9.17-SNAPSHOT'
 
-task doJavaDocs(type: Javadoc) {
+tasks.register('doJavaDocs', Javadoc) {
     source = sourceSets.main.allJava
     classpath = sourceSets.main.compileClasspath + buildscript.configurations.classpath
     destinationDir = project.file("${buildDir}/docs/javadoc")
     include('co/mercenary/creators/**')
 }
 
-task deleteConfigs(type: Delete) {
+tasks.register('deleteConfigs', Delete) {
     project.fileTree(dir: "${buildDir}/resources/main").each {
         it.delete()
     }
 }
 
-task checkQuality(dependsOn: dependencyCheckAnalyze)
+tasks.register('checkQuality') { dependsOn dependencyCheckAnalyze }
 
 check.dependsOn checkQuality
 
@@ -98,12 +98,14 @@ compileTestKotlin {
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register('sourcesJar', Jar) {
+    dependsOn classes
     archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: doJavaDocs) {
+tasks.register('javadocJar', Jar) {
+    dependsOn doJavaDocs
     archiveClassifier.set('javadoc')
     from "${buildDir}/docs/javadoc"
 }
@@ -121,21 +123,22 @@ repositories {
 }
 
 dependencies {
-    implementation(group: 'commons-io', name: 'commons-io', version: '2.11.0')
-    implementation(group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36')
-    implementation(group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.36')
-    implementation(group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.36')
-    implementation(group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11')
-    implementation(group: 'io.projectreactor.kotlin', name: 'reactor-kotlin-extensions', version: '1.1.6')
+    implementation(group: 'commons-io', name: 'commons-io', version: '2.12.0')
+    implementation(group: 'org.slf4j', name: 'slf4j-api', version: '2.0.7')
+    implementation(group: 'org.slf4j', name: 'jul-to-slf4j', version: '2.0.7')
+    implementation(group: 'org.slf4j', name: 'jcl-over-slf4j', version: '2.0.7')
+    implementation(group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.7')
+    implementation(group: 'io.projectreactor.kotlin', name: 'reactor-kotlin-extensions', version: '1.2.2')
     implementation(group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1')
-    implementation(group: 'io.github.microutils', name: 'kotlin-logging-jvm', version: '2.1.23')
+    implementation(group: 'io.github.microutils', name: 'kotlin-logging-jvm', version: '3.0.5')
     implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version)
     implementation(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlin_version)
     implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: kotlinx_coroutines_version)
     implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: kotlinx_coroutines_version)
     implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk9', version: kotlinx_coroutines_version)
     implementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-reactor', version: kotlinx_coroutines_version)
-    implementation(group: 'com.sun.activation', name: 'jakarta.activation', version: '2.0.1')
+    implementation 'jakarta.activation:jakarta.activation-api:2.1.2'
+    implementation 'org.eclipse.angus:angus-activation:2.0.1'
     implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version)
     implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version)
     implementation(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version)
@@ -143,16 +146,14 @@ dependencies {
     implementation(group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: jackson_version)
     implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jackson_version)
     implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version: jackson_version)
-    implementation(group: 'com.fasterxml.jackson.module', name: 'jackson-module-jsonSchema', version: jackson_version)
-    implementation(group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jackson_version)
-    implementation(group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0')
-    implementation(group: 'io.projectreactor', name: 'reactor-core', version: '3.4.19')
-    testImplementation(group: 'io.projectreactor', name: 'reactor-test', version: '3.4.19')
+    implementation(group: 'com.jayway.jsonpath', name: 'json-path', version: '2.8.0')
+    implementation(group: 'io.projectreactor', name: 'reactor-core', version: '3.5.6')
+    testImplementation(group: 'io.projectreactor', name: 'reactor-test', version: '3.5.6')
     testImplementation(group: 'junit', name: 'junit', version: '4.13.2')
     testImplementation(group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit5', version: kotlin_version)
     testImplementation(group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-test', version: kotlinx_coroutines_version)
-    testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2')
-    testRuntimeOnly(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.2')
+    testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.3')
+    testRuntimeOnly(group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.3')
 }
 
 artifacts {
@@ -187,9 +188,8 @@ artifacts {
 
 publishing {
     publications {
-        library(MavenPublication) {
-            from components.java
-            version = "9.9.10-SNAPSHOT"
+        mavenJava(MavenPublication) {
+            version = "9.9.17-SNAPSHOT"
             groupId = 'co.mercenary-creators'
             artifactId = "mercenary-creators-kotlin-util"
             artifact sourcesJar

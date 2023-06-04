@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2023, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName")
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "FunctionName", "KotlinRedundantDiagnosticSuppress",
+               "KotlinRedundantDiagnosticSuppress", "KotlinRedundantDiagnosticSuppress",
+               "KotlinRedundantDiagnosticSuppress", "KotlinRedundantDiagnosticSuppress",
+               "KotlinRedundantDiagnosticSuppress", "KotlinRedundantDiagnosticSuppress",
+               "KotlinRedundantDiagnosticSuppress"
+)
 
 package co.mercenary.creators.kotlin.util.collection
 

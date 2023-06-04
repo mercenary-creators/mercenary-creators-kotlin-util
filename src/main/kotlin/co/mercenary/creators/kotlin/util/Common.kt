@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2023, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
  * mailto:deansjones@mercenary-creators.io
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage")
+@file:Suppress("NOTHING_TO_INLINE", "FunctionName", "HttpUrlsUsage", "RedundantSuppression", "RedundantSuppression",
+               "RedundantSuppression", "RedundantSuppression", "RedundantSuppression"
+)
 
 package co.mercenary.creators.kotlin.util
 
@@ -29,6 +31,7 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.file.Path
 import kotlin.reflect.KClass
 
+@Suppress("RedundantIf", "RedundantIf")
 @FrameworkDsl
 @IgnoreForSerialize
 object Common : HasMapNames {
@@ -207,7 +210,7 @@ object Common : HasMapNames {
     @FrameworkDsl
     fun getUniCode(code: Int): String {
         return CACHED.computeIfAbsent(code.boxIn(0, 0xFFFF)) { calc ->
-            6.toCharArray() { posn ->
+            6.toCharArray { posn ->
                 when (posn) {
                     1 -> 'u'
                     2 -> getHexChar(calc mask 12)

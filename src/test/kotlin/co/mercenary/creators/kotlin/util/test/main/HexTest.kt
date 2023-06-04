@@ -14,12 +14,31 @@
  * limitations under the License.
  */
 
-package co.mercenary.creators.kotlin.util.io
+package co.mercenary.creators.kotlin.util.test.main
 
 import co.mercenary.creators.kotlin.util.*
+import org.junit.jupiter.api.Test
 
-interface CachedContentResourceLoader : ContentResourceLoader {
+class HexTest : KotlinTest() {
 
-    @FrameworkDsl
-    val keys: MutableCachedKeys
+    @Test
+    fun test() {
+        val buff = author
+        val bits = buff.getContentData()
+        val hexa = Encoders.hex().encode(bits)
+        val back = Encoders.hex().decode(hexa)
+        dashes()
+        error { buff }
+        dashes()
+        error { hexa }
+        dashes()
+        error { back isSameAs bits }
+        dashes()
+        warn { kindOf<Int>().descOf() }
+        dashes()
+        warn { kindOf<List<DoubleArray>>().descOf() }
+        dashes()
+        warn { kindOf<Sequence<Array<DoubleArray>>>().descOf() }
+        dashes()
+    }
 }

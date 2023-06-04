@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2023, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,11 +81,13 @@ object JSONStatic {
     private val TO_INDENT_PRINTS = DefaultIndenter().withIndent("    ")
 
     @FrameworkDsl
-    private val TO_PRETTY_PRINTS = DefaultPrettyPrinter().withArrayIndenter(TO_INDENT_PRINTS).withObjectIndenter(TO_INDENT_PRINTS)
+    private val TO_PRETTY_PRINTS =
+        DefaultPrettyPrinter().withArrayIndenter(TO_INDENT_PRINTS).withObjectIndenter(TO_INDENT_PRINTS)
 
     @JvmStatic
     @FrameworkDsl
-    private fun getElementType(look: Number): JSONElementType = if (isNumber(look)) JSONElementType.NUMBER else JSONElementType.UNDEFINED
+    private fun getElementType(look: Number): JSONElementType =
+        if (isNumber(look)) JSONElementType.NUMBER else JSONElementType.UNDEFINED
 
     @JvmStatic
     @FrameworkDsl
@@ -98,10 +100,15 @@ object JSONStatic {
         is CharSequence -> JSONElementType.STRING
         is Boolean -> JSONElementType.BOOLEAN
         is AtomicBoolean -> JSONElementType.BOOLEAN
-        isArray(look) -> JSONElementType.ARRAY
-        isObject(look) -> JSONElementType.OBJECT
-        isFunction(look) -> JSONElementType.FUNCTION
-        else -> JSONElementType.UNDEFINED
+        else -> {
+            if (isArray(look)) {
+                JSONElementType.ARRAY
+            }
+            if (isObject(look)) {
+                JSONElementType.OBJECT
+            }
+            JSONElementType.UNDEFINED
+        }
     }
 
     @JvmStatic
@@ -129,9 +136,9 @@ object JSONStatic {
     fun isObject(look: Maybe) = when (look) {
         null -> false
         is Map<*, *> -> true
-        isFunction(look) -> false
-        isDataClass(look) -> true
-        else -> asObject(look) != null
+        else -> {
+            if (isDataClass(look)) true else if (isFunction(look)) false else asObject(look) != null
+        }
     }
 
     @JvmStatic
@@ -357,7 +364,8 @@ object JSONStatic {
     @FrameworkDsl
     @JvmOverloads
     fun getPrettyPrinter(maps: Int = 4, list: Int = maps): PrettyPrinter {
-        return DefaultPrettyPrinter().withArrayIndenter(DefaultIndenter().withIndent(SPACE_STRING.repeat(list.maxOf(0)))).withObjectIndenter(DefaultIndenter().withIndent(SPACE_STRING.repeat(maps.maxOf(0))))
+        return DefaultPrettyPrinter().withArrayIndenter(DefaultIndenter().withIndent(SPACE_STRING.repeat(list.maxOf(0))))
+            .withObjectIndenter(DefaultIndenter().withIndent(SPACE_STRING.repeat(maps.maxOf(0))))
     }
 
     @JvmStatic
@@ -369,7 +377,8 @@ object JSONStatic {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun toJSONString(data: Any, pretty: Boolean = true, escape: Boolean = false) = getFormatter(pretty).toJSONString(data, escape)
+    fun toJSONString(data: Any, pretty: Boolean = true, escape: Boolean = false) =
+        getFormatter(pretty).toJSONString(data, escape)
 
     @JvmStatic
     @FrameworkDsl
@@ -394,7 +403,8 @@ object JSONStatic {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun <T : Any> jsonReadOf(data: ByteArray, type: TypeReference<T>, copy: Boolean = false) = NORMAL.jsonRead(data, type, copy)
+    fun <T : Any> jsonReadOf(data: ByteArray, type: TypeReference<T>, copy: Boolean = false) =
+        NORMAL.jsonRead(data, type, copy)
 
     @JvmStatic
     @FrameworkDsl
@@ -407,12 +417,14 @@ object JSONStatic {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun <T : Any> jsonReadOf(data: Reader, type: TypeReference<T>, done: Boolean = true) = NORMAL.jsonRead(data, type, done)
+    fun <T : Any> jsonReadOf(data: Reader, type: TypeReference<T>, done: Boolean = true) =
+        NORMAL.jsonRead(data, type, done)
 
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun <T : Any> jsonReadOf(data: InputStream, type: TypeReference<T>, done: Boolean = true) = NORMAL.jsonRead(data, type, done)
+    fun <T : Any> jsonReadOf(data: InputStream, type: TypeReference<T>, done: Boolean = true) =
+        NORMAL.jsonRead(data, type, done)
 
     @JvmStatic
     @FrameworkDsl
@@ -454,7 +466,8 @@ object JSONStatic {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun <T : Any> jsonReadOf(data: InputStream, type: Class<T>, done: Boolean = true) = NORMAL.jsonRead(data, type, done)
+    fun <T : Any> jsonReadOf(data: InputStream, type: Class<T>, done: Boolean = true) =
+        NORMAL.jsonRead(data, type, done)
 
     @JvmStatic
     @FrameworkDsl
@@ -496,7 +509,8 @@ object JSONStatic {
     @JvmStatic
     @FrameworkDsl
     @JvmOverloads
-    fun <T : Any> jsonReadOf(data: InputStream, type: KClass<T>, done: Boolean = true) = NORMAL.jsonRead(data, type, done)
+    fun <T : Any> jsonReadOf(data: InputStream, type: KClass<T>, done: Boolean = true) =
+        NORMAL.jsonRead(data, type, done)
 
     @JvmStatic
     @FrameworkDsl

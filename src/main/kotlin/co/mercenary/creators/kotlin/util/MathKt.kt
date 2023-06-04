@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Mercenary Creators Company. All rights reserved.
+ * Copyright (c) 2023, Mercenary Creators Company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -409,7 +409,7 @@ inline infix fun Long.ushrNotOr(bits: Int): Long {
 }
 
 @FrameworkDsl
-inline infix fun Int.calcTo(calc: Convert<Int, Int>): Int {
+inline infix fun Int.calcTo(noinline calc: Convert<Int, Int>): Int {
     return calc.convert(this)
 }
 
@@ -1097,7 +1097,7 @@ inline fun Double.toFinite(): Double = if (isValid()) this else throw MercenaryF
 inline fun Double.toFiniteOrElse(value: Double = MATH_POSITIVE_ZERO): Double = if (isValid()) this else value
 
 @FrameworkDsl
-inline fun Double.toFiniteOrElse(block: Factory<Double>): Double = if (isValid()) this else block.create()
+inline fun Double.toFiniteOrElse(noinline block: Factory<Double>): Double = if (isValid()) this else block.create()
 
 @FrameworkDsl
 inline fun Float.toFiniteOrElse(value: Float = 0.0f): Float = if (isValid()) this else value
@@ -1106,7 +1106,7 @@ inline fun Float.toFiniteOrElse(value: Float = 0.0f): Float = if (isValid()) thi
 inline fun Float.toFiniteOrElse(value: Double = MATH_POSITIVE_ZERO): Float = if (isValid()) this else value.toFloat()
 
 @FrameworkDsl
-inline fun Float.toFiniteOrElse(block: Factory<Float>): Float = if (isValid()) this else block.create()
+inline fun Float.toFiniteOrElse(noinline block: Factory<Float>): Float = if (isValid()) this else block.create()
 
 @FrameworkDsl
 fun DoubleArray.isSorted(reversed: Boolean = false): Boolean {
